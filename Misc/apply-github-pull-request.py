@@ -24,6 +24,18 @@ def get_pull_url(repo, pr_id):
     return 'https://github.com/{}/pull/{}'.format(repo, pr_id)
 
 
+def get_added_files(diff):
+    '''hacky approach to extract added files from github diff output'''
+
+    prefix = '+++ b/'
+    lastline = None
+    for line in diff.splitlines():
+        line = line.strip()
+        if line.startswith(prefix) and lastline and lastline == '--- /dev/null':
+            yield line[len(prefix):]
+        lastline = line
+
+
 def main(args):
 
     if not os.path.exists('.hg'):
@@ -73,6 +85,8 @@ def main(args):
 
     print patch_contents
 
+    added_files = set(get_added_files(patch_contents))
+
     with tempfile.NamedTemporaryFile(suffix='-github-patch-{}'.format(args.pull_request_id)) as fd:
         fd.write(patch_contents)
         fd.flush()
@@ -92,6 +106,9 @@ def main(args):
     print '-' * 40
     print 'Applied pull request {} into your current working directory.'.format(args.pull_request_id)
     print 'Please check the changes (run unit tests) and commit...'
+    print '-' * 40
+    for fn in sorted(added_files):
+        print 'hg add {}'.format(fn)
     print 'hg ci -u "{}" -m "{} ({})"'.format(commiter, data['title'], get_pull_url(args.github_repo,
                                               args.pull_request_id))
 
