@@ -19,64 +19,91 @@ import subprocess
 import sys
 import tempfile
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--github-repo', default='jythontools/jython')
-parser.add_argument('--github-user', default=getpass.getuser())
-parser.add_argument('--github-password', help='Your github password (you can use "@" to read the password from a file)')
-parser.add_argument('--dry-run', action='store_true', help='Dry-run mode: only show what would be done')
-parser.add_argument('pull_request_id', help='Pull request ID on github.com')
 
-args = parser.parse_args()
+def get_pull_url(repo, pr_id):
+    return 'https://github.com/{}/pull/{}'.format(repo, pr_id)
 
-if not os.path.exists('.hg'):
-    print 'ERROR: No .hg folder found.'
-    print 'Please make sure you run this script from within your local hg.python.org/jython checkout.'
-    sys.exit(1)
 
-password = args.github_password
+def main(args):
 
-if password and password.startswith('@'):
-    # if the command line password starts with "@", we read it from a file
-    # (this prevents exposing the password on the command line / bash history)
-    with open(password[1:]) as fd:
-        password = fd.read().strip()
+    if not os.path.exists('.hg'):
+        print 'ERROR: No .hg folder found.'
+        print 'Please make sure you run this script from within your local hg.python.org/jython checkout.'
+        return 1
 
-if not password:
-    password = getpass.getpass('{}@github.com: '.format(args.github_user))
+    password = args.github_password
 
-from requests.auth import HTTPBasicAuth
-auth = HTTPBasicAuth(args.github_user, password)
-r = requests.get('https://api.github.com/repos/{}/pulls/{}'.format(args.github_repo, args.pull_request_id), auth=auth)
-if r.status_code != 200:
-    print r.json()
-    sys.exit(1)
-data = r.json()
-print 'Pull Request {} by {}:'.format(data['number'], data['user']['login'])
-print data['title']
-print data['body']
-print '-' * 40
+    if password and password.startswith('@'):
+        # if the command line password starts with "@", we read it from a file
+        # (this prevents exposing the password on the command line / bash history)
+        with open(password[1:]) as fd:
+            password = fd.read().strip()
 
-r = requests.get('https://github.com/{}/pull/{}.diff'.format(args.github_repo, args.pull_request_id))
+    if not password:
+        password = getpass.getpass('{}@github.com: '.format(args.github_user))
 
-patch_contents = r.text
+    from requests.auth import HTTPBasicAuth
+    auth = HTTPBasicAuth(args.github_user, password)
+    r = requests.get('https://api.github.com/repos/{}/pulls/{}'.format(args.github_repo, args.pull_request_id),
+                     auth=auth)
+    if r.status_code != 200:
+        print 'ERROR:'
+        print r.json()
+        return 1
 
-print patch_contents
+    data = r.json()
 
-with tempfile.NamedTemporaryFile(suffix='-github-patch-{}'.format(args.pull_request_id)) as fd:
-    fd.write(patch_contents)
-    fd.flush()
-    cmd = [
-        'patch',
-        '-p1',
-        '--batch',
-        '-i',
-        fd.name,
-    ]
-    if args.dry_run:
-        cmd.append('--dry-run')
-    p = subprocess.Popen(cmd)
-    p.communicate()
+    r = requests.get('https://api.github.com/users/{}'.format(data['user']['login']), auth=auth)
+    if r.status_code != 200:
+        print 'ERROR:'
+        print r.json()
+        return 1
 
-print 'Applied pull request {} into your current working directory.'.format(args.pull_request_id)
-print 'Please check the changes (run unit tests) and commit...'
+    user_data = r.json()
+    commiter = '{} <{}>'.format(user_data['name'], user_data['email'])
 
+    print 'Pull Request {} by {}:'.format(data['number'], commiter)
+    print data['title']
+    print data['body']
+    print '-' * 40
+
+    r = requests.get('{}.diff'.format(get_pull_url(args.github_repo, args.pull_request_id)))
+
+    patch_contents = r.text
+
+    print patch_contents
+
+    with tempfile.NamedTemporaryFile(suffix='-github-patch-{}'.format(args.pull_request_id)) as fd:
+        fd.write(patch_contents)
+        fd.flush()
+        cmd = [
+            'patch',
+            '-p1',
+            '--batch',
+            '--forward',
+            '-i',
+            fd.name,
+        ]
+        if args.dry_run:
+            cmd.append('--dry-run')
+        p = subprocess.Popen(cmd)
+        p.communicate()
+
+    print '-' * 40
+    print 'Applied pull request {} into your current working directory.'.format(args.pull_request_id)
+    print 'Please check the changes (run unit tests) and commit...'
+    print 'hg ci -u "{}" -m "{} ({})"'.format(commiter, data['title'], get_pull_url(args.github_repo,
+                                              args.pull_request_id))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--github-repo', default='jythontools/jython')
+    parser.add_argument('-u', '--github-user', default=getpass.getuser())
+    parser.add_argument('-p', '--github-password',
+                        help='Your github password (you can use "@" to read the password from a file)')
+    parser.add_argument('--dry-run', action='store_true', help='Dry-run mode: only show what would be done')
+    parser.add_argument('pull_request_id', help='Pull request ID on github.com')
+
+    args = parser.parse_args()
+    sys.exit(main(args))
