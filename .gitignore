@@ -35,4 +35,5 @@ bin
 build
 cachedir
 dist
+target
 profile.txt
