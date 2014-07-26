@@ -902,7 +902,7 @@ public class PosixModule implements ClassDictInit {
     }
 
     /**
-     * Return a path as a String from a PyObject 
+     * Return a path as a String from a PyObject
      *
      * @param path a PyObject, raising a TypeError if an invalid path type
      * @return a String path
@@ -984,6 +984,11 @@ public class PosixModule implements ClassDictInit {
             // behaviour if path is not a directory.
             if (asPath(path).endsWith(File.separator)) {
                 absolutePath = absolutePath + File.separator;
+            }
+
+            if ("".equals(asPath(path))) {
+                // issue1948: CPython compatibility
+                throw Py.OSError(Errno.ENOENT);
             }
             return PyStatResult.fromFileStat(posix.stat(absolutePath));
         }
