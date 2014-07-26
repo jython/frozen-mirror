@@ -13,6 +13,7 @@ apply-github-pull-request.py 4
 
 import argparse
 import getpass
+import os
 import requests
 import subprocess
 import sys
@@ -27,9 +28,14 @@ parser.add_argument('pull_request_id', help='Pull request ID on github.com')
 
 args = parser.parse_args()
 
+if not os.path.exists('.hg'):
+    print 'ERROR: No .hg folder found.'
+    print 'Please make sure you run this script from within your local hg.python.org/jython checkout.'
+    sys.exit(1)
+
 password = args.github_password
 
-if password.startswith('@'):
+if password and password.startswith('@'):
     # if the command line password starts with "@", we read it from a file
     # (this prevents exposing the password on the command line / bash history)
     with open(password[1:]) as fd:
@@ -70,4 +76,7 @@ with tempfile.NamedTemporaryFile(suffix='-github-patch-{}'.format(args.pull_requ
         cmd.append('--dry-run')
     p = subprocess.Popen(cmd)
     p.communicate()
+
+print 'Applied pull request {} into your current working directory.'.format(args.pull_request_id)
+print 'Please check the changes (run unit tests) and commit...'
 
