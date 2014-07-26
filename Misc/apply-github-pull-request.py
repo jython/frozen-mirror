@@ -21,7 +21,7 @@ import tempfile
 parser = argparse.ArgumentParser()
 parser.add_argument('--github-repo', default='jythontools/jython')
 parser.add_argument('--github-user', default=getpass.getuser())
-parser.add_argument('--github-password')
+parser.add_argument('--github-password', help='Your github password (you can use "@" to read the password from a file)')
 parser.add_argument('--dry-run', action='store_true', help='Dry-run mode: only show what would be done')
 parser.add_argument('pull_request_id', help='Pull request ID on github.com')
 
@@ -29,8 +29,14 @@ args = parser.parse_args()
 
 password = args.github_password
 
+if password.startswith('@'):
+    # if the command line password starts with "@", we read it from a file
+    # (this prevents exposing the password on the command line / bash history)
+    with open(password[1:]) as fd:
+        password = fd.read().strip()
+
 if not password:
-    password = getpass.getpass('{}@github.com'.format(args.github_user))
+    password = getpass.getpass('{}@github.com: '.format(args.github_user))
 
 from requests.auth import HTTPBasicAuth
 auth = HTTPBasicAuth(args.github_user, password)
