@@ -1,0 +1,8 @@
+test_c14n
+Doing 1, <?xml version="1.0"?>\n\n<?xml-s... Ok
+Doing 2, <doc>\n   <clean>   </clean>\n  ... Ok
+Doing 3, <!DOCTYPE doc [<!ATTLIST e9 at... Ok
+Doing 4, <!DOCTYPE doc [ <!ATTLIST norm... Ok
+Doing 5, <!DOCTYPE doc [\n<!ATTLIST doc ... Ok
+Doing 6, <?xml version="1.0" encoding="... Ok
+Doing 7, <!DOCTYPE doc [\n<!ATTLIST e2 x... Ok

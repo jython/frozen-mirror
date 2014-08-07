@@ -1,0 +1,20 @@
+test_htmlb
+Good document
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+  <body>
+    <p>I prefer (all things being equal) regularity/orthogonality and logical
+syntax/semantics in a language because there is less to have to remember.
+(Of course I <em>know</em> all things are NEVER really equal!)
+</p>
+    <p class='source'>Guido van Rossum, 6 Dec 91
+</p>
+    <p>The details of that silly code are irrelevant.
+</p>
+    <p class='source'>Tim Peters, 4 Mar 92
+&amp; &lt; > é ö  
+</p>
+  </body>
+</html>

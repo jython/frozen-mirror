@@ -1,0 +1,51 @@
+test_filter
+
+<?xml version="1.0" ?>
+<doc><e>text<e/>moreabc</e>xyz</doc>
+
+<?xml version="1.0" ?>
+<doc>Text.
+  Nested text.
+    Nested text in skipthis element.
+    More nested text.
+  Outer text.</doc>
+
+<?xml version="1.0" ?>
+<doc>Text.
+  Nested text.
+    <nested-element>
+      Nested text in skipthis element.
+      More nested text.
+    </nested-element>
+    More text.
+  Outer text.</doc>
+
+<?xml version="1.0" ?>
+<doc/>
+
+<?xml version="1.0" ?>
+<doc/>
+
+<?xml version="1.0" ?>
+<doc/>
+
+<?xml version="1.0" ?>
+<doc/>
+
+<?xml version="1.0" ?>
+<rejectbefore/>
+
+<?xml version="1.0" ?>
+<rejectafter/>
+
+<?xml version="1.0" ?>
+<stopbefore/>
+
+<?xml version="1.0" ?>
+<doc>text<stopbefore/></doc>
+
+<?xml version="1.0" ?>
+<doc>text<stopafter> and </stopafter></doc>
+
+<?xml version="1.0" ?>
+<doc><a/>text<a/></doc>

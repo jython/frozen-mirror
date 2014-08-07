@@ -1,0 +1,26 @@
+test_howto
+SAX tests:
+
+Sandman #62 found
+
+Titles by Peter Milligan:
+Shade, the Changing Man 7
+DOM tests:
+
+<?xml version='1.0' encoding='UTF-8'?>
+<xbel>
+  <?processing instruction?>
+  <desc>No description</desc>
+  <folder>
+    <title>XML bookmarks</title>
+    <bookmark href='http://www.python.org/sigs/xml-sig/'>
+      <title>SIG for XML Processing in Python</title>
+    </bookmark>
+  </folder>
+</xbel>
+DOM creation tests
+<?xml version='1.0' encoding='UTF-8'?>
+<html>
+  <head/>
+  <body background='#ffffff'>The body text goes here.</body>
+</html>
