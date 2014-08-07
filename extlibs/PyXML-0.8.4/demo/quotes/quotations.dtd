@@ -1,0 +1,39 @@
+
+<!-- 
+     A DTD for storing simple quotations.  This DTD doesn't provide
+     sophisticated cross-referencing or anything like that; if you're
+     working on the next edition of Barlett's Familiar Quotations,
+     you'll need a fancier DTD with more features.  
+
+     Version 1.0 : Sep 5 1998
+     A.M. Kuchling (amk1@bigfoot.com)
+-->
+
+<!ELEMENT quotations (quotation)*>
+
+<!ELEMENT quotation (#PCDATA | em | foreign | cite | br | pre | code |
+                     author | source)* >
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT source (#PCDATA|cite)*>
+
+<!-- Different forms of emphasis for phrases -->
+
+<!ELEMENT cite (#PCDATA) >
+<!ELEMENT code (#PCDATA) >
+<!ELEMENT em (#PCDATA) >
+<!ELEMENT foreign (#PCDATA) >
+<!ELEMENT pre (#PCDATA) >
+<!ATTLIST pre xml:space (default|preserve) 'preserve'>
+
+<!-- Break element -->
+<!ELEMENT br EMPTY>
+ 
+<!-- Various accents -->
+
+<!ENTITY acirc "&#226;">
+<!ENTITY ccedil "&#231;">
+<!ENTITY eacute "&#233;">
+<!ENTITY iuml "&#239;">
+<!ENTITY oacute "&#243;">
+<!ENTITY ouml "&#246;">
+

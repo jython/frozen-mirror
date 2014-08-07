@@ -1,0 +1,24 @@
+This example demonstrates how to generate XML from non-XML data
+sources.  This example is based directly on an example presented by
+Tom Gavin and Joseph E. Hughes at the August 1999 Washington DC
+SGML/XML User's Group meeting.  PowerPoint slides containing the
+original DOM-based solution in Java are available at
+http://www.eccnet.com/sgmlug/.
+
+Since the specifics of reading other data formats vary greatly, this
+example will use a simple comma-separated-value format similar to that
+found as an "export" format for many applications which work with
+tabular data.  A sample data file is contained in data.txt.
+
+The loaddata.py script demonstrates three different approaches to XML
+generation: DOM-based, SAX-based, and <file>.write()-based.  The first 
+two approaches are specific to generating XML, while the third could
+be used to generate any format.  It is interesting to note the
+differences in code size to get roughly the same output using each of
+the three approaches.
+
+The script's main() function does little but parse the command line,
+selecting the processing class appropriately.  Processing consists of
+instantiating the processing class and calling its run() method.
+Concrete subclasses of the abstract processing class determine the
+actual machinery used to create the XML output.
