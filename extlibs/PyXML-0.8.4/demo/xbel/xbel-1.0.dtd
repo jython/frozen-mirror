@@ -1,0 +1,94 @@
+<!-- This is the XML Bookmarks Exchange Language, version 1.0.  It
+     should be used with the formal public identifier:
+
+        +//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML
+
+     One valid system identifier at which this DTD will remain
+     available is:
+
+        http://pyxml.sourceforge.net/topics/dtds/xbel-1.0.dtd
+
+     More information the on the DTD, including reference
+     documentation, is available at:
+
+        http://www.python.org/topics/xml/xbel/
+
+    Attributes which take date/time values should encode the value
+    according to the W3C NOTE on date/time formats:
+
+        http://www.w3.org/TR/NOTE-datetime
+  -->
+
+
+<!-- Customization entities.  Define these before "including" this DTD
+     to create "subclassed" DTDs.
+  -->
+<!ENTITY % local.node.att  "">
+<!ENTITY % local.url.att   "">
+<!ENTITY % local.nodes.mix "">
+
+<!ENTITY % node.att     "id       ID    #IMPLIED
+                         added    CDATA #IMPLIED
+                         %local.node.att;">
+
+<!ENTITY % url.att      "href     CDATA #REQUIRED
+                         visited  CDATA #IMPLIED
+                         modified CDATA #IMPLIED
+                         %local.url.att;">
+
+<!ENTITY % nodes.mix    "bookmark|folder|alias|separator
+                         %local.nodes.mix;">
+
+
+<!ELEMENT xbel (title?, info?, desc?, (%nodes.mix;)*)>
+<!ATTLIST xbel
+            %node.att;
+            version  CDATA      #FIXED "1.0"
+>
+<!ELEMENT title      (#PCDATA)>
+
+<!--=================== Info ======================================-->
+
+<!ELEMENT info (metadata+)>
+
+<!ELEMENT metadata EMPTY>
+<!ATTLIST metadata
+            owner    CDATA      #REQUIRED
+>
+
+<!--=================== Folder ====================================-->
+
+<!ELEMENT folder   (title?, info?, desc?, (%nodes.mix;)*)>
+<!ATTLIST folder
+            %node.att;
+            folded   (yes|no)   'yes'   
+>
+
+<!--=================== Bookmark ==================================-->
+
+<!ELEMENT bookmark (title?, info?, desc?)>
+<!ATTLIST bookmark
+            %node.att;
+            %url.att;
+>
+
+<!ELEMENT desc       (#PCDATA)>
+
+<!--=================== Separator =================================-->
+
+<!ELEMENT separator EMPTY>
+
+<!--=================== Alias =====================================-->
+
+<!-- <alias> elements correspond to Netscape bookmark aliases.  The
+     required "ref" attribute must refer to a <bookmark> or <folder>
+     element.  Note that MSIE aliases can refer to folders, so that is
+     supported in XBEL.  Applications must be careful about traversing
+     aliases to folders to avoid improper recursion through circular
+     data structures.
+  -->
+
+<!ELEMENT alias EMPTY>
+<!ATTLIST alias
+            ref       IDREF     #REQUIRED
+>

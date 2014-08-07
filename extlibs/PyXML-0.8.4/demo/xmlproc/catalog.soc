@@ -1,0 +1,19 @@
+
+--
+
+  DEMO CATALOG for xmlproc
+
+  This is just a demonstration catalog file that resolves the public
+  identifiers of the DTDs that come with the parser
+--
+
+PUBLIC "-//LM Garshol//DTD XML Software Autoupdate 1.0//EN//XML"
+       "dtds/xsa.dtd"
+
+PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.0//EN//XML"
+       "dtds/xbel-1.0.dtd"
+
+-- If we can't find a system identifier for the public identifier here, 
+   then go to James Tauber's public catalog                             --
+
+DELEGATE "" "http://www.schema.net/public-text/catalog.soc"
