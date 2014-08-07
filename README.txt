@@ -13,7 +13,12 @@ To build jythonx, just clone this repository and build using ant.
 
 For reporting bug, you can emailme amru.rosyada@gmail.com
 
-this is original readme from Jython project, don't change and don't report bug on jythonx to jython project!
+===========================================
+Bellow is original readme from Jython project
+don't report bug which is happend on jythonx
+to jython project!
+===========================================
+
 Welcome to Jython 2.7b3
 =======================
 
