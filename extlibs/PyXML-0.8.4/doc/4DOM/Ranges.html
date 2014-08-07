@@ -1,0 +1,43 @@
+<HTML>
+  <HEAD>
+    <meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'>
+    <TITLE>4DOM Ranges</TITLE>
+    <STYLE TYPE='text/css'>
+      <!--
+      BODY        {background: white}
+      A:link      {font-weight: 600;
+                   font-family: sans-serif;
+                   color: blue;
+                   text-decoration: none}
+      A:visited   {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #800080;
+                   text-decoration: none}
+      A:active    {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #FF0000;
+                   text-decoration: none}
+      A:hover     {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #FF0000;
+                   text-decoration: none}
+    -->
+    </STYLE>
+  </HEAD>
+  <BODY>
+    <H1>4DOM Ranges</H1>
+    <BR>
+    <P>
+The implementation of Ranges in 4DOM supports all of the interfaces defined at <A HREF='http://www.w3.org/TR/DOM-Level-2-Traversal-Range/'>http://www.w3.org/TR/DOM-Level-2-Traversal-Range/</A>  It does not support section 2.12, "Range modification under document mutation".  The implementation of Ranges is written such that any Python compliant DOM implementation should be able to take advantage of them.  The additional methods that an implementation needs to support are defined below.
+</P>
+    <P>
+See the 4DOM test_suite directory for the file test_ranges.py to see examples of using ranges
+</P>
+    <H3>Range Creation</H3>
+    <P>
+To create a range from a document, simple call the createRange method.  This is the only method that a DOM implementatio needs to add to allow range support.  An implementation of this method will create a new instance of the xml.dom.Range.Range class passing the document into the constructor.
+</P>
+    <P>For a complete listing of the interfaces on the Range instances, see the specification at <A HREF='http://www.w3.org/TR/DOM-Level-2-Traversal-Range/'>http://www.w3.org/TR/DOM-Level-2-Traversal-Range/</A>
+    </P>
+  </BODY>
+</HTML>

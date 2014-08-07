@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="http://xslt.fourthought.com/web.xslt" type="text/xsl"?>
+<spec:package
+  xmlns="http://docbook.org/docbook/xml/4.0/namespace"
+  xmlns:spec="http://namespaces.fourthought.com/specification"
+>
+
+<spec:header>
+  <spec:name>4DOM</spec:name>
+  <spec:desc>Standards-Based XML and HTML manipulation using Python</spec:desc>
+  <spec:author>Fourthought, Inc.</spec:author>
+  <spec:homepage>http://4Suite.org</spec:homepage>
+</spec:header>
+
+<!-- News -->
+
+<spec:event>
+  <spec:date>2000-11-01</spec:date>
+  <spec:desc>4Suite 0.9.2 released.</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-10-11</spec:date>
+  <spec:desc>4Suite 0.9.1 released.</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-09-20</spec:date>
+  <spec:desc>4Suite 0.9.0 released.  4DOM is now bundled therein</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-07-24</spec:date>
+  <spec:desc>4DOM 0.10.2 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-06-06</spec:date>
+  <spec:desc>4DOM 0.10.1 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-05-24</spec:date>
+  <spec:desc>4DOM 0.10.0 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-03-16</spec:date>
+  <spec:desc>4DOM 0.9.3 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-01-25</spec:date>
+  <spec:desc>4DOM 0.9.2 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>2000-01-03</spec:date>
+  <spec:desc>4DOM 0.9.1 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1999-12-19</spec:date>
+  <spec:desc>4DOM 0.9.0 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1999-10-21</spec:date>
+  <spec:desc>4DOM 0.8.2 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1999-09-14</spec:date>
+  <spec:desc>4DOM 0.8.1 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1999-08-31</spec:date>
+  <spec:desc>4DOM 0.8.0 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1999-02-07</spec:date>
+  <spec:desc>4DOM 0.7.0 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1998-11-20</spec:date>
+  <spec:desc>4DOM 0.6.1 released</spec:desc>
+</spec:event>
+
+<spec:event>
+  <spec:date>1998-11-04</spec:date>
+  <spec:desc>4DOM 0.6.0 released</spec:desc>
+</spec:event>
+
+<!-- Overview -->
+
+<spec:overview>
+<para>
+  4DOM is a <link linkend="http://www.python.org">Python</link> implementation of the <link linkend="http://www.w3.org/TR/DOM-Level-2/">document object model (DOM)</link>, a standard interface for manipulating XML and HTML documents developed by the World-Wide Web Consortium.  4DOM implements DOM Level 2 Core, Level 2 HTML and Document Traversal, and a few extensions.
+</para>
+
+<para>
+  4DOM is designed to allow developers rapidly design applications that read, write or manipulate HTML and XML.
+</para>
+
+<para>
+  The current version is bundled with 4Suite <spec:version/>. See the <link linkend="../ChangeLog">ChangeLog</link> for notes on the current version.
+</para>
+</spec:overview>
+
+<!-- Installation -->
+
+<spec:install>
+  <para>
+    Download <link linkend="ftp://4Suite.org/download.epy">4Suite</link> install one of the binary packages.  Alternatively, you can download the source instead and install using Python distutils as follows:
+  </para>
+  <screen>python setup.py install</screen>
+  <para>
+    See <link linkend="../PACKAGES.html">PACKAGES</link> for more information about the available 4Suite packages.  Be sure to check the <link linkend="../README.html">README</link> in the 4Suite package for more details.
+  </para>
+</spec:install>
+
+<!-- Directory Structure -->
+
+<spec:structure>
+  <spec:path>xml/dom</spec:path>
+  <spec:desc>Core DOM components (including XML classes)</spec:desc>
+</spec:structure>
+
+<spec:structure>
+  <spec:path>xml/dom/html</spec:path>
+  <spec:desc>HTML components</spec:desc>
+</spec:structure>
+
+<spec:structure>
+  <spec:path>xml/dom/ext</spec:path>
+  <spec:desc>Extensions and proprietary components</spec:desc>
+</spec:structure>
+
+<spec:structure>
+  <spec:path>xml/dom/docs</spec:path>
+  <spec:desc>(currently minimal) documentation</spec:desc>
+</spec:structure>
+
+<spec:structure>
+  <spec:path><emphasis>DOCUMENTATION_PATH</emphasis>/4Suite/4DOM/demo</spec:path>
+  <spec:desc>Small scripts demonstrating some uses of 4DOM.  See the README in this directory.</spec:desc>
+</spec:structure>
+
+<spec:structure>
+  <spec:path><emphasis>DOCUMENTATION_PATH</emphasis>/4Suite/4DOM/test_suite</spec:path>
+  <spec:desc>Test scripts.</spec:desc>
+</spec:structure>
+
+<!-- Implementation Notes -->
+
+<spec:note>
+  <spec:title>Accessors/Mutators for Attributes</spec:title>
+  <para>
+    Following discussion on the Python XML SIG mailing list, 4DOM provides two ways to access DOM interface attributes.  As an example, the DOM IDL definition for the Node interface contains <computeroutput>readonly attribute DOMString childNodes</computeroutput>.  This can be accessed as a simple Python attribute: <computeroutput>node.childNodes</computeroutput>, or as a method call using the Python/CORBA mapping for attributes: <computeroutput>node._get_childNodes()</computeroutput> [if childNodes were a read/write attribute, there would also be a <computeroutput>node._set_childNodes()</computeroutput>].  There is a slight speed advantage to using the latter convention.
+  </para>
+</spec:note>
+
+<spec:note>
+  <spec:title>Document._get_ownerDocument()</spec:title>
+  <para>Document._get_ownerDocument() returns a pointer to itself.</para>
+</spec:note>
+
+<spec:note>
+  <spec:title>Creating HTML Element Nodes</spec:title>
+  <para>
+    HTMLDocument.createElement() overrides the Document.CreateElement() method, looking up the specified tag and returning an instance of the propriate HTML node.  For instance:
+    <screen>
+      # html_doc is an instance of HTMLDocument
+      table_elem = html_doc.createElement("TABLE")
+      # table_elem is an instance of HTMLTableElement
+    </screen>
+  </para>
+</spec:note>
+
+<!-- Deviations from the specification -->
+
+<spec:deviation>
+  4DOM does not implement DOMString. Instead, the interfaces use a plain Python string instead. Note that Python strings do not have length limitations, and unicode is still in beta.
+</spec:deviation>
+
+<spec:deviation>
+  The DOM Spec section on the removeAttribute method of the Element interface has some rules for Attribute removal with respect to default values. 4DOM only follows these rules if you remove attributes using the removeAttribute method, and the default attribute will not be properly set if you use removeNamedItem to remove an attribute from the NamedNodeMap returned by Element.getAttributes.
+</spec:deviation>
+
+<spec:deviation>
+  The DOM ambiguously specifies that if the given name in the removeNamedItem method of NamedNodeMap not found, None is returned <emphasis>and</emphasis> an exception is raised. This isn't possible in most languages. 4DOM chooses to return None.
+</spec:deviation>
+
+<spec:deviation>
+  4DOM does not implement HTMLElement features strictly for browser environment, for example, blur and focus properties of HTMLSelectElement.
+</spec:deviation>
+
+<spec:deviation>
+  Some methods of the DOM spec for HTML do not allow for errors associated with missing nodes. So, for example, HTMLDocument::setTitle() does not allow for the return of an error if the HTMLDocument does not have an HTMLHeadElement child. 4DOM, in these cases, will automatically add in needed elements in order to strictly follow the DOM interface spec.  The methods for which 4DOM provides automatic document completion are:
+  <simplelist>
+    <member>
+      <computeroutput>HTMLDocument::getDocumentElement()</computeroutput>
+    </member>
+    <member>
+      <computeroutput>HTMLDocument::setTitle()</computeroutput>
+    </member>
+    <member>
+      <computeroutput>HTMLDocument::getBody()</computeroutput>
+    </member>
+    <member>
+      <computeroutput>HTMLDocument::setBody()</computeroutput>
+    </member>
+    <member>
+      <computeroutput>HTMLTableElement::insertRow()</computeroutput>
+    </member>
+    <member>
+      <computeroutput>HTMLTableRowElement::insertCell()</computeroutput>
+    </member>
+  </simplelist>
+</spec:deviation>
+
+<spec:deviation>
+  See <link linkend="Extensions.html">4DOM Extensions</link> for documentation of proprietary extensions and helper functions provided by 4DOM.
+</spec:deviation>
+
+<!-- More Information -->
+
+<spec:etc>
+<para>
+  For release notes and news, see <link linkend="http://4Suite.org/index.epy">http://4Suite.org</link>
+</para>
+
+<para>
+  The 4Suite users and support mailing list can be subscribed to, and archives viewed at <link linkend='http://lists.fourthought.com/mailman/listinfo/4suite'>http://lists.fourthought.com/mailman/listinfo/4suite</link>
+</para>
+
+<para>
+  4Suite developers monitor the above list, and prefer for support to come thereby, but you can also contact them directly at <link linkend="mailto:support@4suite.org">support@4suite.org</link> with questions and comments. You might also post messages to or check the archives of the Python <link linkend="http://www.python.org/sigs/xml-sig/">xml-sig</link> mailing list.
+</para>
+</spec:etc>
+
+</spec:package>

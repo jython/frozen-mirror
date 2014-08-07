@@ -1,0 +1,991 @@
+<HTML>
+  <HEAD>
+    <meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'>
+    <TITLE>4DOM Extensions</TITLE>
+    <STYLE TYPE='text/css'>
+      <!--
+      BODY        {background: white}
+      A:link      {font-weight: 600;
+                   font-family: sans-serif;
+                   color: blue;
+                   text-decoration: none}
+      A:visited   {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #800080;
+                   text-decoration: none}
+      A:active    {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #FF0000;
+                   text-decoration: none}
+      A:hover     {font-weight: 600;
+                   font-family: sans-serif;
+                   color: #FF0000;
+                   text-decoration: none}
+    -->
+    </STYLE>
+  </HEAD>
+  <BODY>
+    <H1>4DOM Extensions</H1>
+    <BR>
+    <P>
+These are utility classes and functions that provide capabilities not yet specified in the DOM spec. Some of these facilities, such as factories and readers are expected to be specified in later levels of the DOM, so we try to keep our proprietary interfaces simple for now so that you can more painlessly migrate when relevant standards emerge.
+</P>
+    <P>
+See the demo directory for examples exercising many of these extensions.
+</P>
+    <H3>Reading</H3>
+    <P>
+The Reader package allows you to parse source strings in XML and HTML into DOM trees.  You select a reader module according to the nature of your input.  The readers that come with 4DOM are as follows:
+</P>
+    <DL>
+      <DT>
+        <I>PyExpat</I>
+      </DT>
+      <DD>
+Read XML using pyexpat from PyXML.  Does not support validation.
+</DD>
+      <DT>
+        <I>HtmlLib</I>
+      </DT>
+      <DD>
+Read HTML using Python's htmllib.
+</DD>
+      <DT>
+        <I>Sax2</I>
+      </DT>
+      <DD>
+Read XML using the PyXML SAX2 package.  DTD validation is option.
+</DD>
+      <DT>
+        <I>Sax (deprecated)</I>
+      </DT>
+      <DD>
+Read XML using the PyXML SAX package.  DTD validation is option.
+</DD>
+      <DT>
+        <I>Sgmlop</I>
+      </DT>
+      <DD>
+Read XML using Sgmlop from PyXML.  Does not support validation.
+</DD>
+    </DL>
+    <P>
+The following two examples illustrate using PyExpat and HtmlLib readers.  Replace with the appropriate module and use in your own code.
+</P>
+    <PRE>
+# Parse XML using pyexpat
+from xml.dom.ext.reader import PyExpat
+reader = PyExpat.Reader()
+xml_doc = reader.fromStream(stream)
+
+#Parse HTML using htmllib
+from xml.dom.ext.reader import HtmlLib
+reader = HtmlLib.Reader()
+html_doc = reader.fromStream(stream)
+</PRE>
+
+
+
+<H2>Module PyExpat</H2>
+    <P>Parse XML using pyexpat</P>
+    <p>Module Summary</p>
+    <ul>
+      <li>
+        <a href='#CLASS'>Classes</a>
+      </li>
+    </ul>
+    <A name='COMMAND_LINE'></A>
+    <A name='TYPE_DEF'></A>
+    <A name='EXCEPTION'></A>
+    <A name='STRUCTURE'></A>
+    <A name='CLASS'></A>
+    <H3>Classes</H3>
+    <TABLE BORDER='1' CELLSPACING='0' WIDTH='600' CELLPADDING='3'>
+      <TR>
+        <TD BGCOLOR='#66FF66' COLSPAN='2'>
+          <BIG><B>Class Summary</B></BIG>
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#PyExpat.Reader'><B>Reader</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>Reusable utility to read XML documents.&nbsp;</TD>
+      </TR>
+    </TABLE>
+    <P>&nbsp;</P>
+    <A NAME='PyExpat.Reader'></A>
+    <H4>Class Reader</H4>
+    <P>Reusable utility to read XML documents.</P>
+    <TABLE BORDER='1' CELLSPACING='0' WIDTH='600' CELLPADDING='3'>
+      <TR>
+        <TD BGCOLOR='#6666FF' COLSPAN='2'>
+          <BIG><B>Method Summary</B></BIG>
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#PyExpat.Reader.fromStream'><B>fromStream</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given stream&nbsp;</TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#PyExpat.Reader.fromString'><B>fromString</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given string&nbsp;</TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#PyExpat.Reader.fromUri'><B>fromUri</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given uri&nbsp;</TD>
+      </TR>
+    </TABLE>
+    <P>&nbsp;</P>
+    <TABLE BORDER='1' WIDTH='600' CELLSPACING='0' BGCOLOR='#6666FF' CELLPADDING='3'>
+      <TR>
+        <TD>
+          <BIG><B>Method Details</B></BIG>
+        </TD>
+      </TR>
+    </TABLE>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='PyExpat.Reader.fromStream'></A>
+      <H4>fromStream</H4>
+      <PRE>fromStream(stream, ownerDoc)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given stream</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>Python file object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The stream to be read for XML text</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='PyExpat.Reader.fromString'></A>
+      <H4>fromString</H4>
+      <PRE>fromString(xmlString, ownerDoc)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given string</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>xmlString</CODE>
+                of type
+                <I>string or unicode object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The string to be parsed for XML text</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='PyExpat.Reader.fromUri'></A>
+      <H4>fromUri</H4>
+      <PRE>fromUri(uri, ownerDoc)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given uri</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>uri</CODE>
+                of type
+                <I>Python file object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The uri from which XML text is to be retrieved</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <A name='FUNCTION'></A>
+    <H2>Module HtmlLib</H2>
+    <P>Parse HTML using htmllib</P>
+    <p>Module Summary</p>
+    <ul>
+      <li>
+        <a href='#CLASS'>Classes</a>
+      </li>
+    </ul>
+    <A name='COMMAND_LINE'></A>
+    <A name='TYPE_DEF'></A>
+    <A name='EXCEPTION'></A>
+    <A name='STRUCTURE'></A>
+    <A name='CLASS'></A>
+    <H3>Classes</H3>
+    <TABLE BORDER='1' CELLSPACING='0' WIDTH='600' CELLPADDING='3'>
+      <TR>
+        <TD BGCOLOR='#66FF66' COLSPAN='2'>
+          <BIG><B>Class Summary</B></BIG>
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#HtmlLib.Reader'><B>Reader</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>Reusable utility to read HTML documents.&nbsp;</TD>
+      </TR>
+    </TABLE>
+    <P>&nbsp;</P>
+    <A NAME='HtmlLib.Reader'></A>
+    <H4>Class Reader</H4>
+    <P>Reusable utility to read HTML documents.</P>
+    <TABLE BORDER='1' CELLSPACING='0' WIDTH='600' CELLPADDING='3'>
+      <TR>
+        <TD BGCOLOR='#6666FF' COLSPAN='2'>
+          <BIG><B>Method Summary</B></BIG>
+        </TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#HtmlLib.Reader.fromStream'><B>fromStream</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given stream&nbsp;</TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#HtmlLib.Reader.fromString'><B>fromString</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given string&nbsp;</TD>
+      </TR>
+      <TR>
+        <TD WIDTH='150' NOWRAP ALIGN='Leftt'>
+          <CODE><A HREF='#HtmlLib.Reader.fromUri'><B>fromUri</B></A></CODE>
+        </TD>
+        <TD WIDTH='100%'>return a 4DOM node from the given uri&nbsp;</TD>
+      </TR>
+    </TABLE>
+    <P>&nbsp;</P>
+    <TABLE BORDER='1' WIDTH='600' CELLSPACING='0' BGCOLOR='#6666FF' CELLPADDING='3'>
+      <TR>
+        <TD>
+          <BIG><B>Method Details</B></BIG>
+        </TD>
+      </TR>
+    </TABLE>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='HtmlLib.Reader.fromStream'></A>
+      <H4>fromStream</H4>
+      <PRE>fromStream(stream, ownerDoc, charset)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given stream</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>Python file object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The stream to be read for HTML text</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+          <DT>
+            <CODE>charset</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='HtmlLib.Reader.fromString'></A>
+      <H4>fromString</H4>
+      <PRE>fromString(htmlString, ownerDoc, charset)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given string</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>htmlString</CODE>
+                of type
+                <I>string or unicode object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The string to be parsed for HTML text</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+          <DT>
+            <CODE>charset</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='HtmlLib.Reader.fromUri'></A>
+      <H4>fromUri</H4>
+      <PRE>fromUri(uri, ownerDoc, charset)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>return a 4DOM node from the given uri</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>uri</CODE>
+                of type
+                <I>Python file object</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The uri from which HTML text is to be retrieved</P>
+          </DD>
+          <DT>
+            <CODE>ownerDoc</CODE>
+                of type
+                <I>xml.dom.Document.Document</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</P>
+          </DD>
+          <DT>
+            <CODE>charset</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I></I>
+          </DT>
+          <DD>
+            <P>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <A name='FUNCTION'></A>
+    <H3>Printing/Writing</H3>
+    <P>The Printer module allows you to write a text representation of DOM nodes
+to an output stream, including stdout. Note that limitations in the
+SAX interface used to parse in XML files, and in the DOM spec itself make
+it impossible at this point to handle an unchanged "round trip".
+That is, if you use the builder to build a DOM node from text and then
+use the Printer to turn it back to text, there may be differences;
+some may be significant.
+</P>
+    <P>The easiest way to use the Printer module is through the front-end functions in the xml.dom.ext package.</P>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.Print'></A>
+      <H4>xml.dom.ext.Print</H4>
+      <PRE>xml.dom.ext.Print(root, stream, encoding)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Render the DOM tree to text with no special formatting.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>root</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node to be printed, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>output stream</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</P>
+          </DD>
+          <DT>
+            <CODE>encoding</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character encoding to use for output.  Default is 'UTF-8'.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <BLOCKQUOTE>
+              None
+            </BLOCKQUOTE>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.PrettyPrint'></A>
+      <H4>xml.dom.ext.PrettyPrint</H4>
+      <PRE>xml.dom.ext.PrettyPrint(root, stream, encoding, indent, width, preserveElements)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Render the DOM tree to text, with added indentation and new-lines for enhanced readability.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>root</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node to be pretty-printed, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>output stream</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</P>
+          </DD>
+          <DT>
+            <CODE>encoding</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character encoding to use for output.  Default is 'UTF-8'.</P>
+          </DD>
+          <DT>
+            <CODE>indent</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The amount by which nested constructs are indented when printed on a fresh line.  Default is '\t'.</P>
+          </DD>
+          <DT>
+            <CODE>width</CODE>
+                of type
+                <I>positive integer</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The width of the output console. Used to make
+line-break decisions.  Default is 80.</P>
+          </DD>
+          <DT>
+            <CODE>preserveElements</CODE>
+                of type
+                <I>list of strings, each of which is an SGML generic identifier.</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>Specifes elements in which white-space shouldn't be added.  Note that white-space is never added to in-line elements in an HTMLDocument.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <BLOCKQUOTE>
+              None
+            </BLOCKQUOTE>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.XHtmlPrint'></A>
+      <H4>xml.dom.ext.XHtmlPrint</H4>
+      <PRE>xml.dom.ext.XHtmlPrint(root, stream, encoding)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Render an HTML DOM tree as XHTML with no special indentation or formatting.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>root</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The HTML node to be printed, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>output stream</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</P>
+          </DD>
+          <DT>
+            <CODE>encoding</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character encoding to use for output.  Default is 'UTF-8'.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <BLOCKQUOTE>
+              None
+            </BLOCKQUOTE>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.XHtmlPrettyPrint'></A>
+      <H4>xml.dom.ext.XHtmlPrettyPrint</H4>
+      <PRE>xml.dom.ext.XHtmlPrettyPrint(root, stream, encoding, indent, width, preserveElements)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Render an HTML DOM tree to text, with added indentation and new-lines for enhanced readability.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>root</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node to be pretty-printed, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>stream</CODE>
+                of type
+                <I>output stream</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</P>
+          </DD>
+          <DT>
+            <CODE>encoding</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The character encoding to use for output.  Default is 'UTF-8'.</P>
+          </DD>
+          <DT>
+            <CODE>indent</CODE>
+                of type
+                <I>string</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The amount by which nested constructs are indented when printed on a fresh line.  Default is '\t'.</P>
+          </DD>
+          <DT>
+            <CODE>width</CODE>
+                of type
+                <I>positive integer</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The width of the output console. Used to make
+line-break decisions.  Default is 80.</P>
+          </DD>
+          <DT>
+            <CODE>preserveElements</CODE>
+                of type
+                <I>list of strings, each of which is an SGML generic identifier.</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>Specifes elements in which white-space shouldn't be added.  Note that white-space is never added to in-line elements in an HTMLDocument.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <BLOCKQUOTE>
+              None
+            </BLOCKQUOTE>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <H3>Miscellaneous</H3>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.NodeTypeToInterface'></A>
+      <H4>xml.dom.ext.NodeTypeToInterface</H4>
+      <PRE>xml.dom.ext.NodeTypeToInterface(nodeType)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Look up a node type (as returned from getNodeType()) and returns a corresponding interface name.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>nodeType</CODE>
+                of type
+                <I>One of the integers defined as node types in xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node type to look up.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>string</I>
+          </DT>
+          <DD>
+            <P>Name of corresponding DOM interface from spec.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.StripHtml'></A>
+      <H4>xml.dom.ext.StripHtml</H4>
+      <PRE>xml.dom.ext.StripHtml(startNode, preserveElements)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Strips extraneous white-space from an HTML DOM tree.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>startNode</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node to be stripped, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>preserveElements</CODE>
+                of type
+                <I>list of strings, each of which is an SGML generic identifier, or None to indicate an empty list.</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>Specifes elements from which white-space shouldn't be stripped.  Note that white-space is never stripped from in-line elements in an HTMLDocument.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>xml.dom.Node</I>
+          </DT>
+          <DD>
+            <P>The startNode with descendant ignorable white-space stripped.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.StripXml'></A>
+      <H4>xml.dom.ext.StripXml</H4>
+      <PRE>xml.dom.ext.StripXml(startNode, preserveElements)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Strips extraneous white-space from an XML DOM tree.  Takes xml:space attributes into account.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>startNode</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node to be stripped, with all its children recursively.</P>
+          </DD>
+          <DT>
+            <CODE>preserveElements</CODE>
+                of type
+                <I>list of strings, each of which is an SGML generic identifier, or None to indicate an empty list.</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>Specifes elements from which white-space shouldn't be stripped.  Default is None.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>xml.dom.Node</I>
+          </DT>
+          <DD>
+            <P>The startNode with descendant ignorable white-space stripped.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.GetElementById'></A>
+      <H4>xml.dom.ext.GetElementById</H4>
+      <PRE>xml.dom.ext.GetElementById(startNode, targetId)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Returns the element node whose "ID" attribute is as given.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>startNode</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node whose descendants are to be searched.</P>
+          </DD>
+          <DT>
+            <CODE>targetId</CODE>
+                of type
+                <I>string conforming to XML ID type</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The XML ID to find.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>xml.dom.Element</I>
+          </DT>
+          <DD>
+            <P>The elemtn with the given ID, or None to indicate no match.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.GetAllNs'></A>
+      <H4>xml.dom.ext.GetAllNs</H4>
+      <PRE>xml.dom.ext.GetAllNs(node)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Returns all the namespaces in effect on the given node, including the default namespace and the xml namespace.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>node</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node for which all in-scope namespaces are returned.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>doctionary</I>
+          </DT>
+          <DD>
+            <P>Dictionary mapping all in-scope namespaces to URIs, with '' as prefix for the default namespace.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.XmlSpaceState'></A>
+      <H4>xml.dom.ext.XmlSpaceState</H4>
+      <PRE>xml.dom.ext.XmlSpaceState(node)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Determines whether the xml:space state at a given node is "preserve" or "default" (See the XML 1.0 spec).</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>node</CODE>
+                of type
+                <I>xml.dom.Node</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The node whose space state is to be found.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>string</I>
+          </DT>
+          <DD>
+            <P>"preserve" or "default".</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+    <DIV bgcolor='#66FF66'>
+      <A NAME='xml.dom.ext.SplitQName'></A>
+      <H4>xml.dom.ext.SplitQName</H4>
+      <PRE>xml.dom.ext.SplitQName(qname)
+      </PRE>
+      <BLOCKQUOTE>
+        <P>Splits a valid QName from the XML Namespaces 1.0 spec into prefix and suffix (the local name in the case of element and attribute names, and the declared prefix in the case of namespace declarations.</P>
+        <B>Parameters</B>
+        <DL>
+          <DT>
+            <CODE>qname</CODE>
+                of type
+                <I>string matching QName production in XML Namespaces 1.0 spec</I>
+            <BR>
+          </DT>
+          <DD>
+            <P>The name to be split.</P>
+          </DD>
+        </DL>
+        <B>Return Value</B>
+        <DL>
+          <DT>
+            <I>tuple with 2 items.</I>
+          </DT>
+          <DD>
+            <P>a tuple of the form (prefix, suffix).  If there is exactly one colon in the qname, prefix is the part before and suffix the part after the colon.  Otherwise prefix is '' and suffix is the entire input string.</P>
+          </DD>
+        </DL>
+      </BLOCKQUOTE>
+    </DIV>
+    <BR>
+    <HR>
+  </BODY>
+</HTML>

@@ -1,0 +1,114 @@
+<HTML>
+  <HEAD>
+    <meta http-equiv='Content-Type' content='text/html; charset=ISO-8859-1'>
+    <META NAME='author' CONTENT='Mike Olson'>
+    <TITLE>4DOM version 0.10.2</TITLE>
+  </HEAD>
+  <BODY>
+    <H1>4DOM version 0.10.2</H1>
+    <H3></H3>
+    <P>4Suite <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>http://FourThought.com/4Suite</A>
+    </P>
+    <P>Copyright (c) 2000 Fourthought, Inc., USA</P>
+    <P>
+      <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>http://lists.fourthought.com/mailman/listinfo/4suite</A> or send mail too
+<A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>support@4suite.com</A>
+    </P>
+    <P>Current version: 0.10.2</P>
+    <H3>License/Copyright</H3>
+    <P>4Suite is copyright Fourthought, Inc. (http://FourThought.com).  Please read the file <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>COPYRIGHT</A> for the complete copyright andterms of license.</P>
+    <H3>Description</H3>
+    <P>4Suite is a collection of Python tools for XML processing and object-databases.</P>
+    <P>The current version is 0.10.2. See the <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>ChangeLog</A> for notes on the current version.</P>
+    <P>4Suite is an integrated packaging of several formerly separately-distributed
+components.  These are as follows.</P>
+    <DT>
+      <SAMP><B>2001-01-16</B>:  </SAMP>4Suite 0.10.1 released.</DT>
+    <DT>
+      <SAMP><B>2000-11-30</B>:  </SAMP>4Suite 0.10.0 released.</DT>
+    <DT>
+      <SAMP><B>2000-11-14</B>:  </SAMP>4Suite 0.9.2 released, including first public release of DbDom and 4XLink.</DT>
+    <DT>
+      <SAMP><B>2000-10-11</B>:  </SAMP>4Suite 0.9.1 released, including first public release of 4XPointer.</DT>
+    <DT>
+      <SAMP><B>2000-09-20</B>:  </SAMP>4Suite 0.9.0 released.  4DOM, 4XPath, 4XSLT, and 4RDF are now bundled therein.  Including first public release of 4ODS.</DT>
+    <H3>Installation</H3>
+    <P>Download <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>4Suite</A> install one of the binary packages.  Alternatively, you can download the source instead and install using Python distutils as follows:</P>
+    <PRE>python setup.py install</PRE>
+    <P>See <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>PACKAGES</A> for more information about the available 4Suite packages.</P>
+    <P>If you have difficulty installing this software, send a problem report to <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>4Suite@lists.fourthought.com</A> describing the problem.</P>
+    <P>For a complete installation instructions see the <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>HOWTOs</A>.</P>
+    <H3>4DOM</H3>
+    <P>4DOM is an implementation of the World-Wide Web Consortium recommended standard document object model for Python.  4DOM implements DOM Core level 2, HTML level 2 and Level 2 Document Traversal.</P>
+    <P>4DOM is designed to allow developers rapidly design applications that read, write or manipulate HTML and XML.</P>
+    <P>4DOM follows the Python DOM binding, for which there is <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>some documentation</A> in the development version of the Python 2.0 docs.</P>
+    <H4>Directory Structure</H4>
+    <DT>
+      <SAMP>xml/dom</SAMP> - Core DOM components (including XML classes)</DT>
+    <DT>
+      <SAMP>xml/dom/html</SAMP> - HTML components</DT>
+    <DT>
+      <SAMP>xml/dom/ext</SAMP> - Extensions and proprietary components</DT>
+    <DT>
+      <SAMP>xml/dom/docs</SAMP> - (currently minimal) documentation</DT>
+    <DT>
+      <SAMP><I>DOCUMENTATION_PATH</I>/4Suite-0.10.2/demo/4DOM</SAMP> - Small scripts demonstrating some uses of 4DOM.  See the README in this directory.</DT>
+    <DT>
+      <SAMP><I>DOCUMENTATION_PATH</I>/4Suite-0.10.2/test_suite/4DOM</SAMP> - Test scripts.</DT>
+    <H4>Accessors/Mutators for Attributes</H4>
+    <P>Following discussion on the Python XML SIG mailing list, 4DOM provides two ways to access DOM interface attributes.  As an example, the DOM IDL definition for the Node interface contains <SAMP>readonly attribute DOMString childNodes</SAMP>.  This can be accessed as a simple Python attribute: <SAMP>node.childNodes</SAMP>, or as a method call using the Python/CORBA mapping for attributes: <SAMP>node._get_childNodes()</SAMP> [if childNodes were a read/write attribute, there would also be a <SAMP>node._set_childNodes()</SAMP>].  There is a slight speed advantage to using the latter convention.</P>
+    <H4>Document._get_ownerDocument()</H4>
+    <P>Document._get_ownerDocument() returns a pointer to itself.</P>
+    <H4>Creating HTML Element Nodes</H4>
+    <P>HTMLDocument.createElement() overrides the Document.CreateElement() method, looking up the specified tag and returning an instance of the propriate HTML node.  For instance:
+        <PRE>
+          # html_doc is an instance of HTMLDocument
+          table_elem = html_doc.createElement("TABLE")
+          # table_elem is an instance of HTMLTableElement
+        </PRE>
+      </P>
+    
+
+    <H4>Deviations</H4>
+    <P>4DOM does not implement DOMString. Instead, the interfaces use a plain Python string or unicode object instead. Note that Python strings do not have particular length limitations, and Python 2.0 is required for unicode support.</P>
+    <P>The DOM Spec sections on the <SAMP>removeAttribute</SAMP>, <SAMP>removeAttributeNS</SAMP> and <SAMP>removeAttributeNode</SAMP> method of the Element interface has some rules for Attribute removal with respect to default values. 4DOM only follows these rules if you remove attributes using the removeAttribute method, and the default attribute will not be properly set if you use removeNamedItem to remove an attribute from the NamedNodeMap returned by Element.getAttributes.</P>
+    <P>4DOM does not implement HTMLElement features strictly for browser environment, for example, blur and focus properties of HTMLSelectElement.</P>
+    <P>Some methods of the DOM spec for HTML do not allow for errors associated with missing nodes. So, for example, HTMLDocument::setTitle() does not allow for the return of an error if the HTMLDocument does not have an HTMLHeadElement child. 4DOM, in these cases, will automatically add in needed elements in order to strictly follow the DOM interface spec.  The methods for which 4DOM provides automatic document completion are:
+        <DL>
+        <DD>
+          <SAMP>HTMLDocument::getDocumentElement()</SAMP>
+        </DD>
+        <DD>
+          <SAMP>HTMLDocument::setTitle()</SAMP>
+        </DD>
+        <DD>
+          <SAMP>HTMLDocument::getBody()</SAMP>
+        </DD>
+        <DD>
+          <SAMP>HTMLDocument::setBody()</SAMP>
+        </DD>
+        <DD>
+          <SAMP>HTMLTableElement::insertRow()</SAMP>
+        </DD>
+        <DD>
+          <SAMP>HTMLTableRowElement::insertCell()</SAMP>
+        </DD>
+      </DL>
+    </P>
+    <P>See <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>4DOM Extensions</A> for documentation of proprietary extensions and helper functions provided by 4DOM.</P>
+    <H3>Quick Start</H3>
+    <P>There are demo files and test suites for each component in the
+documentation directories set up by Distutils.  These should
+provide useful examples.</P>
+    <H3>Known Bugs</H3>
+    <P>See the <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>TODO</A> file</P>
+    <H3>Contact and Support</H3>
+    <P>
+      For release notes and news, see <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>http://4Suite.org</A>
+    </P>
+    <P>Please consider joining the 4Suite users and support mailing list</P>
+    <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>http://lists.fourthought.com/mailman/listinfo/4suite</A>
+    <P>4Suite developers monitor the above list, and prefer for support requests to come thereby so that others can benefit from the discussion.  If this is unsuitable, you can address the 4Suite developers directly:</P>
+    <A HREF='http://4Suite.org/getdoc.epy?file=4Suite/'>support@4suite.org</A>
+  </BODY>
+</HTML>
