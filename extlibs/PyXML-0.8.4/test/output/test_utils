@@ -1,0 +1,13 @@
+test_utils
+Testing utils.escape
+These pairs of strings should all be identical
+1 '&amp;&lt;&gt;' '&amp;&lt;&gt;'
+1 'foo&amp;amp;bar' 'foo&amp;amp;bar'
+1 '&lt; &myentity; &gt; &amp;' '&lt; &myentity; &gt; &amp;'
+1 '&amp;&apos;&quot;&lt;&gt;' '&amp;&apos;&quot;&lt;&gt;'
+1998-01-01T00:00Z
+1998-06-01T00:00Z
+1998-06-13T00:00Z
+1998-06-13T14:12Z
+1998-06-13T14:12:30Z
+1998-06-13T14:12:30Z

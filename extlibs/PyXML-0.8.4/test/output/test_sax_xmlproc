@@ -1,0 +1,7 @@
+test_sax_xmlproc
+Passed test_ignorable
+PASS: doc2.xml:3:1: Premature document end, no root element
+Passed test_illformed
+PASS: doc1.xml:2:50: Couldn't open resource 'NONEXISTENT.dtd'
+Passed test_nonexistent
+3 tests, 0 failures

@@ -1,0 +1,13 @@
+test_saxdrivers
+xml.sax.drivers2.drv_pyexpat PASS
+xml.sax.drivers2.drv_xmlproc PASS
+xml.sax.drivers.drv_pyexpat PASS
+xml.sax.drivers.drv_xmltok NOT SUPPORTED
+xml.sax.drivers.drv_xmlproc PASS
+xml.sax.drivers.drv_xmltoolkit NOT SUPPORTED
+xml.sax.drivers.drv_xmllib XFAIL
+xml.sax.drivers.drv_xmldc NOT SUPPORTED
+xml.sax.drivers.drv_sgmlop XFAIL
+xml.sax.drivers2.drv_pyexpat PASS
+xml.sax.drivers2.drv_xmlproc PASS
+8 tests, 0 failures

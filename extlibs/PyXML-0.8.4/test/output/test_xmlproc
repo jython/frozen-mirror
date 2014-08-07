@@ -1,0 +1,3 @@
+test_xmlproc
+ERROR: Element 'notallowed' not allowed here at doc.xml:3:29
+ERROR: Element 'notallowed' not declared at doc.xml:3:29
