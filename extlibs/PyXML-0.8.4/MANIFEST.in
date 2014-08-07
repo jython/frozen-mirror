@@ -1,0 +1,38 @@
+include ANNOUNCE CREDITS LICENCE  MANIFEST MANIFEST.in README* TODO 
+include setup.py
+
+recursive-include xml *.py *.po *.mo
+
+recursive-include mac *.prj *.prj.exp
+
+recursive-include doc *.html *.tex *.txt *.gif *.css *.api *.web
+
+recursive-include doc/man *.1
+
+recursive-include extensions *.c *.h 
+
+recursive-include extensions/expat *.html *Makefile  expat.* *.dsp
+
+recursive-include test *.py *.xml *.html *.dtd
+include test/test.xml.out
+recursive-include test/output test_*
+
+recursive-include demo README *.py *.xml *.dtd *.html *.htm
+include demo/genxml/data.txt
+include demo/dom/html2html
+include demo/xbel/doc/xbel.bib
+include demo/xbel/doc/xbel.tex
+include demo/xmlproc/catalog.soc
+
+include xml/dom/COPYRIGHT 
+include xml/dom/ChangeLog
+include xml/dom/README
+include xml/dom/TODO
+include xml/dom/html/html_classes.xml
+
+include setupext/*.py
+
+include scripts/xmlproc_parse
+include scripts/xmlproc_val
+
+global-exclude */CVS/*
