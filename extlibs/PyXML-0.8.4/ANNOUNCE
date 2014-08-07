@@ -1,0 +1,57 @@
+To be sent to: c.l.py.announce, xml-dev, www-dom, comp.text.xml,
+               freshmeat.net, <editors at xmlhack.com>,
+               SF.net PyXML project news
+               other suggestions?
+
+================== 
+Version 0.8.4 of the Python/XML distribution is now available.  It
+should be considered a beta release, and can be downloaded from the
+following URLs:
+
+http://prdownloads.sourceforge.net/pyxml/PyXML-0.8.4.tar.gz
+http://prdownloads.sourceforge.net/pyxml/PyXML-0.8.4.win32-py2.2.exe
+http://prdownloads.sourceforge.net/pyxml/PyXML-0.8.4.win32-py2.3.exe
+http://prdownloads.sourceforge.net/pyxml/PyXML-0.8.4.win32-py2.3.exe
+
+Changes in this version, compared to 0.8.3:
+
+  * bump version number to 0.8.4, as Python 2.4 requires that
+    as the minimum PyXML version.
+  * Expat 1.95.8 is provided; pyexpat is extended to expose more
+    expat features:
+    - CurrentLineNumber, CurrentColumnNumber, CurrentByteIndex
+    - symbolic error numbers added in Expat 1.95.7 and 1.95.8
+  * Added Dublin Core Metadata Initiative (DCMI) namespaces to the
+    xml.ns module.
+  * fix memory leaks in pyexpat
+  * fix line number reporting in SAX
+
+The Python/XML distribution contains the basic tools required for
+processing XML data using the Python programming language, assembled
+into one easy-to-install package.  The distribution includes parsers
+and standard interfaces such as SAX and DOM, along with various other
+useful modules.
+
+The package currently contains:
+
+        * XML parsers: Pyexpat (Jack Jansen), xmlproc (Lars Marius
+          Garshol), sgmlop (Fredrik Lundh).
+        * SAX interface (Lars Marius Garshol)
+        * minidom DOM implementation (Paul Prescod, others)
+        * 4DOM and 4XPath from Fourthought (Uche Ogbuji, Mike Olson)
+        * Schema implementations: TREX (James Tauber)
+        * Various utility modules and functions (various people)
+        * Documentation and example programs (various people)
+
+The code is being developed bazaar-style by contributors from the
+Python XML Special Interest Group, so please send comments and
+questions to <xml-sig@python.org>.  Bug reports may be filed on
+SourceForge:
+
+http://sourceforge.net/tracker/index.php?group_id=6473&atid=106473
+
+For more information about Python and XML, see:
+        http://www.python.org/topics/xml/
+
+-- 
+Martin v. Löwis               http://www.informatik.hu-berlin.de/~loewis
