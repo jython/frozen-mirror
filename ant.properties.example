@@ -1,0 +1,36 @@
+# javaccHome is needed when making modification to the grammar.
+javaccHome = /Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Home
+
+# PyXmlHome is needed when running the installXML ant task to
+# copy PyXML files to jython.
+PyXmlHome = /Users/amru/Documents/Development/Jython/extlibs/PyXML-0.8.4
+
+build.compiler = modern
+#build.compiler = jikes
+debug=on
+
+# python.home is needed when building the documentation and installing
+# PyXML sources.
+python.home=/opt/local/Library/Frameworks/Python.framework/Versions/3.3
+
+# Needed when building documentation.
+ht2html.dir=/Users/amru/Documents/Development/Jython/Doc
+jython.home=/Users/amru/Documents/Development/Jython
+
+# Needed when installing documentation.
+scp.command=scp
+scp.user=bckfnn
+
+# Needed for building PyServlet support.
+servlet.jar=/Users/amru/Documents/Development/Jython/extlibs/servlet-api-2.5.jar
+
+# Needed for building Readline support.
+readline.jar=/Users/amru/Documents/Development/Jython/extlibs/libreadline-java-0.8.jar
+
+# Needed for building zxJDBC DataHandlers
+# If missing, the appropriate DataHandler will not be built
+oracle.jar=/Users/amru/Documents/Development/Jython/extlibs/ojdbc14_g.jar
+mysql.jar=/Users/amru/Documents/Development/Jython/extlibs/mysql-connector-java-5.1.6.jar
+informix.jar=/Users/amru/Documents/Development/Jython/extlibs/ifxjdbc.jar;/Users/amru/Documents/Development/Jython/extlibs/ifxjdbcx.jar
+postgresql.jar=/Users/amru/Documents/Development/Jython/extlibs/postgresql-8.3-603.jdbc4.jar
+jdbc.jar=/Users/amru/Documents/Development/Jython/extlibs/jdbc2_0-stdext.jar
