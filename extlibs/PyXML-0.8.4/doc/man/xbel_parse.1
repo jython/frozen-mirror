@@ -1,0 +1,56 @@
+.TH XBEL_PARSE 1 "August 15, 2001" xbel-utils "User's Manual"
+.SH NAME
+xbel_parse \- a simple utility to convert XBEL files to a bookmark file
+
+.SH SYNOPSIS
+.B xbel_parse
+\fIOPTION\fR
+
+.SH DESCRIPTION
+The XML Bookmark Exchange Language, or XBEL, is an Internet "bookmarks"
+interchange format. \fBxbel_parse\fR parses XBEL files and generates a valid
+bookmark file for the specified browser.
+
+.SH USAGE
+\fBxbel_parse\fR only reads from stdin.  In addition, one of the following
+options must be specified.  The output is printed to stdout.
+
+.SH OPTIONS
+You must specify one of the following options:
+
+.TP
+.B \-\-opera
+Generate a bookmark file for Opera
+.TP
+.B \-\-netscape
+Generate a bookmark file for Netscape
+.TP
+.B \-\-msie
+Generate a bookmark file for Internet Explorer
+.TP
+\fB\-\-lynx\fR [\fIdirectory\fR]
+Generate a bookmark file for Lynx, and optionally write the file to the
+specified \fIdirectory\fR
+.TP
+.B \-\-xbel
+Generate XBEL file
+
+.SH EXAMPLE
+$> ns_parse nsbookmarks xbel.file
+.br
+$> cat xbel.file | xbel_parse --netscape > nsbookmarks.2
+
+.SH REQUIRES
+Python
+
+.SH "SEE ALSO"
+.B adr_parse(1), msie_parse(1), lynx(1), lynx_parse(1), ns_parse(1), xbel_parse(1), xbel2html(1)
+
+.I http://pyxml.sourceforge.net/topics/xbel/
+
+.SH AUTHOR
+Python XML Special Interest Group (XML-SIG)
+
+This man-page was written by Jan Schaumann <jschauma@netmeister.org> as part of "The Missing
+Man Pages Project".  Please see \fIhttp://www.netmeister.org/misc/m2p2/index.html\fR
+for details.

@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Using xmlproc from the command-line</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the command-line interface of
+	xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, XML parser">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>Using xmlproc from the command-line</H1>
+
+<P>
+The command-line parser is in xpcmd.py for well-formedness parsing and xvcmd.py
+for validating parsing.
+</P>
+
+<h2>xpcmd.py</h2>
+
+<P>
+xpcmd.py is a command-line interface to the parser. It continues
+parsing after even fatal errors, in order to be find more errors,
+since this does not mean feeding data to the application after a fatal
+error (which would be in violation of the spec). 
+</P>
+
+<PRE>
+Usage:
+
+  xpcmd.py [options] [urltodoc]
+
+  ---Options:  
+  -l language: ISO 3166 language code for language to use in error messages
+  -o format:   Format to output parsed XML. 'e': ESIS, 'x': canonical XML
+               and 'n': normalized XML. No data will be output if this
+               option is not specified.
+  urltodoc:    URL to the document to parse. (You can use plain file names
+               as well.) Can be omitted if a catalog is specified and contains
+               a DOCUMENT entry.
+  -n:          Report qualified names as 'URI name'. (Namespace processing.)
+  --nowarn:    Don't write warnings to console.
+  --entstck:   Show entity stack on errors.
+  --extsub:    Read the external subset of documents.
+</PRE>
+  
+<h2>xvcmd.py</h2>
+
+<P>
+xvcmd.py validates and has more options:
+</P>
+
+<PRE>
+Usage:
+
+  xvcmd.py [options] [urlstodocs]
+
+  ---Options:  
+  -c catalog:   path to catalog file to use to resolve public identifiers
+  -l language:  ISO 3166 language code for language to use in error messages
+  -o format:    Format to output parsed XML. 'e': ESIS, 'x': canonical XML
+                and 'n': normalized XML. No data will be output if this
+                option is not specified.
+  urlstodocs:   URLs to the documents to parse. (You can use plain file names
+                as well.) Can be omitted if a catalog is specified and contains
+                a DOCUMENT entry.
+  -n:           Report qualified names as 'URI name'. (Namespace processing.)
+  --nowarn:     Suppress warnings.
+  --entstck:    Show entity stack on errors.
+  --rawxml:     Show raw XML string where error occurred.
+            
+  Catalog files with URLs that end in '.xml' are assumed to be XCatalogs,
+  all others are assumed to be SGML Open Catalogs.
+
+  If the -c option is not specified the environment variables XMLXCATALOG
+  and XMLSOCATALOG will be used (in that order).
+</PRE>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

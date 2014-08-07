@@ -1,0 +1,41 @@
+
+/*
+
+   CSS style sheet for my web pages.
+
+*/
+
+BODY {
+  margin-left: 10%; margin-right: 10%; margin-top: 24pt; margin-bottom: 12pt;
+}
+
+H1 {
+  background: navy; color: white; padding: 3pt;
+  padding-left: 7pt;
+  font-family: Tahoma, Helvetica, sans-serif; margin-bottom: 24pt
+}
+
+H2, H3, H4, H5, H6 {
+  font-family: Tahoma, Helvetica, sans-serif  
+}
+
+ADDRESS {
+  background: navy; color: white; padding: 3pt; 
+  font-size: small; font-style: italic;
+}
+
+.warning {
+  font-weight: bold; color: red
+}
+
+.warning:before {
+  content: "Warning: "; font-weight: bold; color: red
+}
+
+ADDRESS A:link {
+  color: white;
+}
+
+ADDRESS A:visited {
+  color: #DDD;
+}

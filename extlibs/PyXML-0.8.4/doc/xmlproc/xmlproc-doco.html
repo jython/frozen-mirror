@@ -1,0 +1,315 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Documentation: the xmlproc APIs</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the APIs of xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, XML parser">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>Documentation: the xmlproc APIs</H1>
+
+<H2>Using the API</H2>
+
+<H3>Ordinary XML parsing</H3>
+
+<P>
+An application that uses the xmlproc API has to import the xmlproc
+module (non-validating parsing) or the xmlval module (validating
+parsing). A parser object is created by instantiating an object of the
+XMLProcessor class (non-validating) or XMLValidator (validating). Both
+classes have the same interface.
+</P>
+
+<P>
+If you want to receive information about the document being parsed you
+must implement an object conforming to the Application interface, and
+tell the parser about it with the set_application method.
+</P>
+
+<P>
+If you want to receive error events and react to them you must
+implement an object conforming to the ErrorHandler interface, and tell
+the parser to use your error handler with the set_error_handler
+method.
+</P>
+
+<P>
+It is also possible to control the way the parser interprets system
+identifiers, by implementing an object conforming to the
+InputSourceFactory interface and giving it to the parser with the
+set_inputsource_factory method.
+</P>
+
+<H3>Working with DTDs and catalog files</H3>
+
+<P>
+See the <A HREF="dtd-api-doco.html">DTD API documentation</A> and
+the <A HREF="catalog-doco.html">catalog file documentation</A>.
+</P>
+
+<H2>List of interfaces</H2>
+
+<P>
+These are the classes of interest to xmlproc application writers:
+</P>
+
+<UL>
+  <LI><A HREF="#Parser">The Parser class</A> (implemented by XMLProcessor and 
+  XMLValidator).
+  <LI><A HREF="#Application">The Application interface</A>.
+  <LI><A HREF="#ErrorHandler">The ErrorHandler interface</A>.
+  <LI><A HREF="#PubIdResolver">The PubIdResolver interface</A>.
+  <LI><A HREF="#InputSourceFactory">The InputSourceFactory
+  interface</A>.
+</UL>
+
+<H2><A NAME="Parser">The Parser interface</A></H2>
+
+<P>
+This is the interface implemented by the two XML parser objects and is
+used to control parsing.
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self):</CODE>
+  <DD>Instantiates a parser.
+
+  <DT><CODE>def set_application(self,app):</CODE>
+  <DD>Tells the parser where to send data events.
+  
+  <DT><CODE>def set_error_handler(self,err):</CODE>
+  <DD>Tells the parser where to send error events.
+  
+  <DT><CODE>def set_inputsource_factory(self,isf):</CODE>
+  <DD>Tells the parser which object to use to map system identifiers
+  to file-like objects.
+  
+  <DT><CODE>def set_pubid_resolver(self,pubres):</CODE>
+  <DD>Tells the parser which object to use to map public identifiers
+  to system identifiers.
+  
+  <DT><CODE>def set_dtd_listener(self, dtd_listener):</CODE>
+  <DD>Tells the parser where to send DTD parse events. The dtd_listener
+  object must implement the 
+  <a href="dtd-api-doco.html#DTDConsumer">DTDConsumer</a> interface.
+
+  <DT><CODE>def parse_resource(self,sysID,bufsize=16384):</CODE>
+  <DD>Makes the parser parse the XML document with the given system identifier.
+  
+  <DT><CODE>def reset(self):</CODE>
+  <DD>Resets the parser to process another file, losing all unparsed data.
+  
+  <DT><CODE>def feed(self,new_data):</CODE>
+  <DD>Makes the parser parse a chunk of data.        
+  
+  <DT><CODE>def close(self):</CODE>
+  <DD>Closes the parser, making it process all remaining data. The
+  effects of calling feed after close and before the first reset are
+  undefined. 
+        
+  <DT><CODE>def get_current_sysid(self):</CODE>
+  <DD>Returns the system identifier of the current entity being
+  parsed. 
+  
+  <DT><CODE>def get_offset(self):</CODE>
+  <DD>Returns the current offset (in characters) from the start of
+  the entity.
+  
+  <DT><CODE>def get_line(self):</CODE>
+  <DD>Returns the current line number.
+  
+  <DT><CODE>def get_column(self):</CODE>
+  <DD>Returns the current column position. 
+
+  <DT><CODE>def get_dtd(self):</CODE>
+  <DD>Returns the object holding information about the DTD of the
+  document. This object conforms to the <A HREF="dtd-api-doco.html#DTD">DTD
+  interface</A>. (Note that the DTD object returned by XMLProcessor will have
+  much less information, since the XMLProcessor does not keep as much
+  DTD information.)
+    
+  <DT><CODE>def set_error_language(self,language):</CODE>
+  <DD>Tells the parser which language to report errors in. 'language'
+  must be an ISO 3166 language code (case does not matter). A KeyError
+  will be thrown if the language is not supported.
+
+  <DT><CODE>def set_data_after_wf_error(self,stop_on_error):</CODE>
+  <DD>Tells the parser whether to report data events to the
+  application after a well-formedness error (0) or whether to stop
+  reporting data (which is the default, 1).
+
+  <DT><CODE>def set_read_external_subset(self, read):</CODE>
+  <DD>Tells the parser whether to read the external DTD subset of
+  documents (including external parameter entities). Note that
+  XMLValidator will ignore this method and always read the external
+  subset.
+
+  <DT><CODE>def deref(self):</CODE>
+  <DD>The parser creates circular data structures during parsing. When
+  the parser object is no longer to be used and you wish to free the
+  memory it has allocated, call this method.  The parser object will
+  be non-functional afterwards.
+
+  <DT><CODE>def get_elem_stack(self):</CODE>
+  <DD>This method returns the list that holds the stack of open elements.
+  Note that this list is live and must <strong>not</strong> be modified
+  by the application.
+  
+  <DT><CODE>def get_raw_construct(self):</CODE>
+  <DD>Returns the raw XML string that triggered the current callback event.
+
+  <DT><CODE>def get_current_ent_stack(self):</CODE>
+  <DD>Returns a snapshot of the current stack of open entities as a list
+  of (entity name, entity sysid) tuples.
+
+</DL>
+
+<H2><A NAME="Application">Application</A></H2>
+
+<P>
+This is the interface of the objects that data events from the parsed
+document. 
+</P>
+
+<DL>
+  <DT><CODE>def set_locator(self,locator):</CODE>
+  <DD>Called by the parser to give the application an object to query
+  for the current location. The object conforms to the <A
+  HREF="#Parser">parser interface</A>.
+  
+  <DT><CODE>def doc_start(self):</CODE>
+  <DD>Called at the start of the document, first of all method calls,
+  except set_locator.
+  
+  <DT><CODE>def doc_end(self):</CODE>
+  <DD>Called at the end of the document, last of all method calls.
+  
+  <DT><CODE>def handle_comment(self,data):</CODE>
+  <DD>Notifies the application of comments. (Note that it is improper
+  for applications to let information in comments affect their
+  operation.)
+  
+  <DT><CODE>def handle_start_tag(self,name,attrs):</CODE>
+  <DD>Called by the parser for each start tag. 'name' is the name of
+  the element, 'attrs' a attribute name to attribute value hash.
+  
+  <DT><CODE>def handle_end_tag(self,name):</CODE>
+  <DD>Called by the parser for each end tag. 'name' is the name of the
+  element.
+  
+  <DT><CODE>def handle_data(self,data,start,end):</CODE>
+  <DD>Called by the parser whenever it encounters textual data. (This
+  callback does not distinguish between character entity references,
+  entity references, CDATA marked sections or plain text.)
+  
+  <DT><CODE>def handle_ignorable_data(self,data,start,end):</CODE>
+  <DD>The validating parser calls this method instead of handle_data
+  for whitespace that does not appear in elements which allow mixed
+  content (ie: #PCDATA content).
+  
+  <DT><CODE>def handle_pi(self,target,data):</CODE>
+  <DD>Called to notify the application of processing instructions.
+  
+  <DT><CODE>def handle_doctype(self,root,pubID,sysID):</CODE>
+  <DD>Called to notify the application of the contents of the DOCTYPE
+  declaration.
+  
+  <DT><CODE>def set_entity_info(self,xmlver,enc,sddecl):</CODE>
+  <DD>Called to notify the application of the contents of the XML
+  declaration (and also for text declarations in external parsed
+  entities). The values of the parameters will be None if the PI
+  attributes were not present in the document.
+</DL>
+
+<H2><A NAME="ErrorHandler">The ErrorHandler interface</A></H2>
+
+<P>
+This interface is used to receive information about errors encountered
+during the parsing of the document.
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self,locator):</CODE>
+  <DD>Creates a new error handler, and gives it the locator to use to
+  locate error events.
+  
+  <DT><CODE>def set_locator(self,loc):</CODE>
+  <DD>Tells the error handler where to find location information for
+  the error events. The object given in the 'loc' parameter conforms
+  to the <A HREF="#Parser">Parser</A> interface.
+  
+  <DT><CODE>def get_locator(self):</CODE>
+  <DD>Returns the locator of this error handler.
+  
+  <DT><CODE>def warning(self,msg):</CODE>
+  <DD>Called to handle a warning message. 
+  
+  <DT><CODE>def error(self,msg):</CODE>
+  <DD>Called to handle a non-fatal error.
+  
+  <DT><CODE>def fatal(self,msg):</CODE>
+  <DD>Called to handle a fatal error.  
+</DL>
+
+<H2><A NAME="PubIdResolver">The PubIdResolver interface</A></H2>
+
+<P>
+This interface is used by the parser to resolve any public identifiers
+used in the document to their corresponding system identifiers. The
+default implementation always returns the given system identifier, but
+the interface has been included mainly to allow support for catalog
+files.
+</P>
+
+<DL>
+  <DT><CODE>def resolve_pe_pubid(self,pubid,sysid):</CODE>
+  <DD>Called to resolve the system identifier at which this external
+  parameter entity can be found.
+  
+  <DT><CODE>def resolve_doctype_pubid(self,pubid,sysid):</CODE>
+  <DD>Called to resolve the system identifier at which this document
+  type definition can be found. (Called from the DOCTYPE declaration.)
+  
+  <DT><CODE>def resolve_entity_pubid(self,pubid,sysid):</CODE>
+  <DD>Called to resolve the system identifier of an external entity.  
+</DL>
+
+<H2><A NAME="InputSourceFactory">The InputSourceFactory interface</A></H2>
+
+<P>
+This interface is used to allow users to control the way in which the
+parser interprets system identifiers. This is especially useful for
+embedding the parser in a larger document system, which may want to
+use system identifiers to refer to other documents inside the document
+system and not just to be ordinary URLs. It is also useful to allow
+the application to interpret system identifiers that are URIs, but not
+URLs, such as URNs.
+</P>
+
+<P>
+The default implementation interprets system identifiers as URLs.
+</P>
+
+<DL>
+  <DT><CODE>def create_input_source(self,sysid):</CODE>
+  <DD>This method returns a file-like object from which the document
+  referred to by the system identifier can be read.
+</DL>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

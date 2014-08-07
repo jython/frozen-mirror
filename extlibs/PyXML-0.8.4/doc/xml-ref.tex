@@ -1,0 +1,1698 @@
+% Questions:
+% Should xmllib.py be moved into xml.parsers?
+% Should ErrorPrinter go to standard error, not stdout?
+
+\documentclass{howto}
+
+\newcommand{\element}[1]{\code{#1}}
+\newcommand{\attribute}[1]{\code{#1}}
+
+\title{Python/XML Reference Guide}
+
+\release{0.8}
+
+\author{The Python/XML Special Interest Group}
+\authoraddress{\email{xml-sig@python.org}\break
+               (edited by \email{amk@amk.ca})}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+XML is the Extensible Markup Language, a subset of SGML, intended to
+allow the creation and processing of application-specific markup
+languages.  Python makes an excellent language for processing XML
+data.  This document is the reference manual for the Python/XML
+package, containing several XML modules.
+\end{abstract}
+
+\tableofcontents
+
+\section{\module{xml.dom} Extensions}
+
+\declaremodule{}{xml.dom}
+\modulesynopsis{Common aspects of the DOM interface.}
+\sectionauthor{Fred L. Drake, Jr.}{fdrake@acm.org}
+
+\begin{notice}
+  The material in this section describes features of the
+  \module{xml.dom} module that does not appear in the version of the
+  module included with Python.  This is written as a supplement to the
+  \ulink{corresponding
+  section}{http://www.python.org/doc/2.2.1/lib/module-xml.dom.html} in
+  the Python 2.2.1 documentation.  We intend that all or most of these
+  additions be added to the Python standard library in a future
+  release.
+\end{notice}
+
+Starting with PyXML 0.8, some features of the DOM Level~3 working
+drafts are being added.  These features are based on working drafts
+and will be changed as the drafts are updated.  Use at your own risk.
+
+\begin{excdesc}{ValidationErr}
+  New exception.  The validation features of the Level~3 DOM can raise
+  this exception when validation constraints are not met.  The rest of
+  the validation features have not been implemented, but any Python
+  DOM implementation would use the same exception, so it is offered at
+  this point.
+\end{excdesc}
+
+% Written this way so I can copy the table line into the docs when
+% this gets integrated.
+The additional exception code defined in the Level~3 DOM specification
+map to the exception described above:
+
+\begin{tableii}{l|l}{constant}{Constant}{Exception}
+  \lineii{VALIDATION_ERR}{\exception{ValidationErr}}
+\end{tableii}
+
+The \class{Node} class has grown a number of additional constants
+useful for some of the new methods added in DOM Level~3.  These
+constants are:  \constant{TREE_POSITION_PRECEDING},
+\constant{TREE_POSITION_FOLLOWING}, \constant{TREE_POSITION_ANCESTOR},
+\constant{TREE_POSITION_DESCENDENT},
+\constant{TREE_POSITION_EQUIVALENT},
+\constant{TREE_POSITION_SAME_NODE},
+\constant{TREE_POSITION_DISCONNECTED}.
+
+Additional classes have been added to provide access to constants and
+serve as base classes for implementations:
+
+\begin{classdesc*}{UserDataHandler}
+  The DOM Level~3 Core adds a method
+  \method{setUserData()} which accepts an instance conforming to the
+  \class{UserDataHandler} interface.  This class provides the
+  constants used as arguments to the \method{handle()} of that
+  interface.  The constants provided are \constant{NODE_CLONED},
+  \constant{NODE_IMPORTED}, \constant{NODE_DELETED}, and
+  \constant{NODE_RENAMED}.  Implementation classes may choose to
+  subclass from this class, but there is no reason for them to do so.
+\end{classdesc*}
+
+\begin{classdesc*}{DOMError}
+  The DOM Level~3 Core feature adds support for a user-settable
+  error handler.  This class provides the constants used to indicate
+  the severity of an error, and may be used as a base class by DOM
+  implementations.  These constants should be used to test the value
+  of the \member{severity} member of instances of this interface.  The
+  constants provided are \constant{SEVERITY_WARNING},
+  \constant{SEVERITY_ERROR}, and \constant{SEVERITY_FATA_ERROR}.
+\end{classdesc*}
+
+The \function{getDOMImplementation()} function has been extended to
+support DOM Level~3:
+
+\begin{funcdesc}{getDOMImplementation}{\optional{name\optional{, features}}}
+  The \var{features} argument now accepts a string as well as a list
+  of feature-version pairs.  The string should contain a list of
+  feature names, separated by whitespace, each followed by an optional
+  version number.  Version numbers begin with a digit; feature names
+  must not begin with a digit (the draft specification does not
+  adequately address this detail).  If a feature name is not followed
+  by a version number, any version of that feature is considered
+  acceptable.
+
+  \begin{notice}
+    There is an API issue hiding in this addition:  The function is
+    still not really compatible with the DOM Level~3 version.  The
+    draft specification states that if no implementation is available
+    that provides the desired features, \code{None} should be
+    returned, but this function raises \exception{ImportError}.
+  \end{notice}
+\end{funcdesc}
+
+
+\subsection{UserDataHandler Objects \label{userdatahandler}}
+
+The \class{UserDataHandler} interface, introduced in the DOM Level~3
+Core (draft) specification, is used to allow DOM clients to manage
+node-specific application data stored using the \method{setUserData()}
+method on nodes.
+
+\class{UserDataHandler} implementations need only define one method:
+
+\begin{methoddesc}[UserDataHandler]{handle}{operation, key, data, src, dest}
+  This method is called for a few particular events in the lifespan
+  the node on which it was registered.  For each type of event,
+  \var{operation} indicates the specific operation being performed on
+  the node, \var{key} gives the key for which \var{data} and the
+  handler object were registered, \var{data} is the actual data
+  object, and \var{src} is the node on which the handler was
+  registered.  The \var{dest} argument will always be either
+  \code{None} or a different node, depending on the specific
+  operation.
+
+  If \var{operation} is \constant{NODE_CLONED}, then \var{dest} is the
+  clone of \var{src}; \var{src} and \var{dest} will always belong to
+  the same document unless \var{src} is a
+  \constant{DOCUMENT_TYPE_NODE}.
+
+  It \var{operation} is \constant{NODE_IMPORTED}, then \var{dest} is
+  the imported version of \var{src}, and belongs to a different
+  document.
+
+  If \var{operation} is \constant{NODE_RENAMED}, then \var{src} and
+  \var{dest} are intended to represent the same node, but different
+  node objects are used.  This is \emph{not} called when
+  \method{Document.renameNode()} does not create a new node instance.
+
+  If \var{operation} is \constant{NODE_DELETED}, then \var{src} is
+  about to be deleted (not just removed from the document tree), and
+  \var{dest} is \code{None}.  It is not expected that Python
+  implementations of the DOM will implement this, since doing so
+  properly may interfere with the reclamation of unused nodes.
+
+  The constants passed as the values for the \var{operation} argument
+  of this method are available from the
+  \class{xml.dom.UserDataHandler} class.
+\end{methoddesc}
+
+
+\section{\module{xml.dom.ext.c14n} ---
+         Canonical XML generation}
+
+This module takes a DOM element node (and all its children) and generates
+canonical XML as defined by the W3C candidate recommendation
+\url{http://www.w3.org/TR/xml-c14n}.
+(Unlike the specification, however, general document subsets are not
+supported.)
+
+The module name, \code{c14n}, comes from the standard way of abbreviating
+the word "canonicalization."
+This module is typically imported by doing
+\code{from xml.dom.ext import Canonicalize}.
+
+\begin{funcdesc}{Canonicalize}{node\optional{output\optional{**keywords}}}
+This function generates the canonical format.
+If \var{output} is specified, the data is sent by invoking its
+\method{write} method, the the function will return \var{None}.
+If \var{output} is omitted or has the value \var{None}, then
+the \method{Canonicalize} will return the data as a string.
+
+The keyword argument \var{comments}, if non-zero, directs the function
+to leave any comment nodes in the output. By default, they are removed.
+
+The keyword argument \var{stripspace}, if non-zero, directs the function
+to strip all extra whitespace from text elements.
+By default, whitespace is preserved.
+This argument should be used with caution, as the canonicalization
+specification directs that whitespace be preserved.
+
+The keyword argument \var{nsdict} may be used to provide a namespace
+dictionary that is assumed to be in the \var{node}'s containing
+context.
+The keys are namespace prefixes, and the values are the namespace URI's.
+If \var{nsdict} is \code{None} or an empty dictionary, then an initial
+dictionary containing just the URI's for the \code{xml} and \code{xmlns}
+prefixes will be used.
+\end{funcdesc}
+
+
+\section{\module{xml.dom.minidom} Extensions}
+
+The implementation of \module{xml.dom.minidom} in PyXML contains
+support for more of the DOM Level~2 Core specification than the
+version packaged in Python, and incorporates partial support for the
+draft DOM Level~3 Core and Load/Save specifications.  This additional
+support includes the interfaces documented for the
+\refmodule{xml.dom.xmlbuilder} module.
+
+This section describes the major extensions beyond what's documented
+for this module in the \citetitle
+[http://www.python.org/doc/2.2.1/lib/module-xml.dom.minidom.html]
+{Python Library Reference} for Python 2.2.1.
+
+The \class{Entity} and \class{Notation} node types are now supported,
+and the \class{TypeInfo} interface is also supported.
+
+These additional \class{Node} attributes have been implemented or
+changed:
+
+\begin{methoddesc}[Node]{toxml}{\optional{encoding}}
+  The optional \var{encoding} argument has been added to the
+  \method{toxml()} method.  When specified and not \code{None}, the
+  output document uses the given encoding.
+  \versionchanged[the \var{encoding} argument was added]{0.8}
+\end{methoddesc}
+
+\begin{methoddesc}[Node]{isSupported}{feature, version}
+  This is equivalent to calling \code{hasFeature(\var{feature},
+  \var{version})} on the corresponding \class{DOMImplementation}
+  object.  Added in DOM Level~2 Core.
+\end{methoddesc}
+
+\begin{methoddesc}[Node]{getInterface}{feature}
+  Return the interface object for the current node that supports the
+  \var{feature} feature if \code{isSupported(\var{feature}, None)}
+  returns true, otherwise returns \code{None}.  It is not expected
+  that Python DOM implementations will normally need this, but a DOM
+  implementation that adds substantial new functionality may want to
+  require the use of this method to provide access to a helper object
+  that implements extension-specific methods.
+  Added in DOM Level~3.
+\end{methoddesc}
+
+\begin{methoddesc}[Node]{getUserData}{key}
+  Retrieve the data registered with the node for the key \var{key}
+  using \method{setUserData()}.  Returns \code{None} if no data was
+  registered for \var{key}.
+  Added in DOM Level~3.
+\end{methoddesc}
+
+\begin{methoddesc}[Node]{setUserData}{key, data, handler}
+  Set the object \var{data} to be associated with a key \var{key} on
+  the current node.  \var{key} can be any hashable object, and will be
+  used as a dictionary key.  Any previous value registered for the
+  same value of \var{key} will be discarded.
+
+  The \var{handler} argument should be \code{None} or an
+  implementation of the \class{UserDataHandler} interface.
+  Added in DOM Level~3.
+\end{methoddesc}
+
+These additional \class{Text} attributes have been added based on the
+Level~3 drafts.  These are also available on \class{CDATASection}
+nodes.
+
+\begin{memberdesc}[Text]{isWhitespaceInElementContent}
+  \code{True} if the text node represents only whitespace and the
+  immediately containing element has a content model that permits only
+  elements as child nodes.  If the content model for the containing
+  element is not known, or if there is no containing element, this
+  attribute will be \code{False}.
+\end{memberdesc}
+
+\begin{memberdesc}[Text]{wholeText}
+  Returns the textual content for a contiguous range of nodes of type
+  \constant{TEXT_NODE} and \constant{CDATA_SECTION_NODE} nodes
+  containing the current node.
+\end{memberdesc}
+
+\begin{methoddesc}[Text]{replaceWholeText}{content}
+  Replace a contiguous range of nodes of type \constant{TEXT_NODE} and
+  \constant{CDATA_SECTION_NODE} nodes containing the current node,
+  with a single node containing the text \var{content}.  Returns the
+  node containing \var{content}.  If \var{content} is an empty string,
+  removes the entire range of affected nodes and returns \code{None}.
+\end{methoddesc}
+
+These methods and attributes have been added to the \class{Document}
+interface:
+
+\begin{memberdesc}[Document]{actualEncoding}
+  The encoding used by the parser, if it was overridden by source
+  context (such as HTTP headers) rather than determined based on the
+  bytes of the source document.  If only the source document was used
+  to determine the encoding, this is \code{None}
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{memberdesc}[Document]{encoding}
+  The encoding specified in the XML declaration, or \code{None} if the
+  declaration or \attribute{encoding} pseudo-attribute were omitted.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{memberdesc}[Document]{standalone}
+  If the \attribute{standalone} pseudo-attribute was given in the
+  document's XML declaration, this will be \code{True} if the value
+  was \samp{yes} or \code{False} if the value was \samp{no}.  If the
+  XML declaration or \attribute{standalone} pseudo-attribute were
+  omitted, this will be \code{None}.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{memberdesc}[Document]{version}
+  The value of the \attribute{version} pseudo-attribute from the XML
+  declaration, if present, or \code{None}.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{methoddesc}[Document]{importNode}{node, deep}
+  Imports a node \var{node} from another document.  If \var{deep} is
+  true, child nodes are recursively imported.  Nodes of type
+  \constant{DOCUMENT_NODE} and \constant{DOCUMENT_TYPE_NODE} cannot be
+  imported; if \var{node} has one of these values for its
+  \member{nodeType} attribute, \exception{xml.dom.NotSupportedErr}
+  will be raised.
+  Added in DOM Level~2.
+\end{methoddesc}
+
+\begin{methoddesc}[Document]{renameNode}{node, namespaceURI, name}
+  Added in DOM Level~3.
+\end{methoddesc}
+
+
+The following have been added to the \class{Attr} class:
+
+\begin{memberdesc}[Attr]{isId}
+  \code{True} if the attribute represents an ID while attached to it's
+  current \member{ownerElement}, otherwise \code{False}.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{memberdesc}[Attr]{schemaType}
+  The \class{TypeInfo} object representing the type of this attribute,
+  taking into account the type of the element to which is it attached.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+The following attributes have been added to the \class{Element} class:
+
+\begin{memberdesc}[Element]{schemaType}
+  The \class{TypeInfo} object representing the type of this element,
+  taking into account the type of the element to which is it attached.
+  Added in DOM Level~3.
+\end{memberdesc}
+
+\begin{methoddesc}[Element]{setIdAttribute}{name}
+\methodline{setIdAttributeNS}{namespaceURI, localName}
+\methodline{setIdAttributeNode}{idAttr}
+  Set the specified attribute of the element to be an ID, even if the
+  schema information does not cause it to be an ID.  Existing IDs
+  remain valid.  The \member{schemaType} value is not changed.
+  Added in DOM Level~3.
+\end{methoddesc}
+
+\class{TypeInfo} objects have the following attributes:
+
+\begin{memberdesc}[TypeInfo]{name}
+  Name of the type.  Type names are only meaningful within the context
+  of a namespace defining type names.  DTD-based types have no name,
+  so this will be \code{None} for types from DTDs.
+\end{memberdesc}
+
+\begin{memberdesc}[TypeInfo]{namespace}
+  Namespace URI for a type system.  This will be \code{None} for
+  DTD-based types.
+\end{memberdesc}
+
+
+\strong{Implementation specific behavior:} The DOM Level~2 Core
+specification leaves some room for differing behaviors for how some
+node types are handled by the \method{Node.cloneNode()} method.
+Before PyXML 0.8.1, the specific behavior exhibited by PyXML varied as
+an accident of implementation.  Starting with PyXML 0.8.1, the
+following behavior is considered intentional and will be maintained.
+
+When called on a \class{Document} node, \method{cloneNode()} with the
+\var{deep} argument set to true will create a new document with the
+children recursively imported into the new document.  When \var{deep}
+is false, \method{cloneNode()} will return \code{None}, as the
+operation is no reasonable meaning for the operation.
+
+When called on a \class{DocumentType} node, \method{cloneNode()} will
+return \code{None} if it is owned by a document.  If it is not owned,
+a new document type node is created with all of the attributes copied
+over, except for the \member{entities} and \member{notations} fields.
+If \var{deep} is true, these will be new \class{NamedNodeMap} objects
+which hold clones of the \class{Entity} and \class{Notation} nodes, as
+appropriate.  If \var{deep} is false, these will be initialized to
+new, empty \class{NamedNodeMap} objects.
+
+
+
+\section{\module{xml.dom.xmlbuilder} ---
+         DOM Level~3 Load/Save Interface}
+
+\declaremodule{}{xml.dom.xmlbuilder}
+\modulesynopsis{DOM Level~3 Load/Save interface.}
+\sectionauthor{Fred L. Drake, Jr.}{fdrake@acm.org}
+
+\versionadded{0.8}
+
+\begin{notice}[warning]
+  The \module{xml.dom.xmlbuilder} represents the DOM Level~3 Load/Save
+  interface, which is only defined in a W3C working draft at this
+  time.  The Python API presented here is modelled on the 25 July 2002
+  version of the working draft, and is expected to change as new
+  drafts are released.  Backward compatibility to support older
+  versions of this interface will not be preserved.
+\end{notice}
+
+This module provides API support for the DOM Level~3 Load/Save
+specification.  It includes an implementation of the loading
+components of that specification only at this time.
+
+Tow groups of classes are provided.  The first group implements the
+objects specific to the Load/Save specification, and the second
+provides a group of mixin classes that can be used by a DOM
+implementation to make use of the first group of classes.
+
+Implementation classes:
+
+\class{DOMInputSource}
+\class{DOMEntityResolver}
+\class{DOMBuilder}
+\class{DOMBuilderFilter}
+
+Mixin classes:
+
+\begin{classdesc*}{DOMImplementationLS}
+  Class that can be mixed into an implementation of the
+  \class{DOMImplementation} interface.  This implementation provides
+  the \constant{MODE_SYNCHRONOUS} and \constant{MODE_ASYNCHRONOUS}
+  constants and the \method{createDOMBuilder()},
+  \method{createDOMWriter()}, and \method{createDOMInputSource()}
+  methods.  Most DOM implementations should be able to re-use the
+  \method{createDOMInputSource()} method, and will need to override
+  the \method{createDOMBuilder()} method if it will actually be using
+  a different DOM builder.  The \method{createDOMWriter()} method
+  should be usable for all implementations once the \class{DOMWriter}
+  has been implemented, but that has not yet been done in PyXML.
+\end{classdesc*}
+
+\begin{classdesc*}{DocumentLS}
+  Class that can be mixed in to a \class{Document} implementation to
+  provide access to features of the Load/Save interface.  There isn't
+  much that can be provided by this implementation, so most methods
+  raise \exception{NotSupportedErr}.
+\end{classdesc*}
+
+
+\subsection{DOMImplementationLS Extensions}
+
+The \class{DOMImplementationLS} mixin class is designed to be used in
+an implementation of the \class{DOMImplementation} interface.  This
+class provides the constants \constant{MODE_SYNCHRONOUS} and
+\constant{MODE_ASYNCHRONOUS}, and the following methods:
+
+\begin{methoddesc}[DOMImplementationLS]{createDOMBuilder}{mode, schemaType}
+  Returns a \class{DOMBuilder} instance.  Specific DOM implementations
+  will usually need to override this to return a specialized subclass
+  of the \class{DOMBuilder} class; see the documentation on the
+  \class{DOMBuilder} for information on how and when to write a
+  subclass of that.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMImplementationLS]{createDOMWriter}{}
+  For now, raises \exception{NotImplementedError} since the writer
+  interface has not been implemented yet.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMImplementationLS]{createDOMInputSource}{}
+  Returns a \class{DOMInputSource} instance with all attributes set to
+  \code{None}.
+\end{methoddesc}
+
+
+\subsection{DocumentLS Extensions}
+
+The \class{DocumentLS} mixin class for a \class{Document} adds the
+following methods:
+
+\begin{methoddesc}[DocumentLS]{load}{uri}
+  Load a new document from a URI into this DOM \class{Document}
+  instance.  This is not yet implemented in PyXML.
+\end{methoddesc}
+
+\begin{methoddesc}[DocumentLS]{loadXML}{source}
+  Load a new document from a \class{DOMInputSource} into this DOM
+  \class{Document} instance.  This is not yet implemented in PyXML.
+\end{methoddesc}
+
+\begin{methoddesc}[DocumentLS]{saveXML}{snode}
+  Return an XML serialization of the DOM node \var{snode} as a
+  string.  \var{snode} must belong to this document; if not,
+  \exception{xml.dom.WrongDocumentErr} will be raised.
+\end{methoddesc}
+
+The following attribute is also added:
+
+\begin{memberdesc}[DocumentLS]{async}
+  If set to a true value, the \method{load()} and \method{loadXML()}
+  methods should load documents asynchronously.  If false, these
+  methods will operate in a synchronous mode.
+  PyXML does not support setting this to true.
+\end{memberdesc}
+
+
+\subsection{DOMBuilder Objects}
+
+The \class{DOMBuilder} class provides support for configuring the DOM
+construction process, and allows alternate DOM construction methods to
+be provided by subclasses.
+
+The general public API has two aspects, configuration and
+\class{Document} creation.  The configuration aspect provides the
+following attributes and methods:
+
+\begin{methoddesc}[DOMBuilder]{canSetFeature}{name, state}
+  Return true if the feature \var{name} can be set to \var{state},
+  otherwise returns false.  If feature \var{name} is not supported,
+  returns false.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMBuilder]{getFeature}{name}
+  Returns the state for the feature \var{name}.  If \var{name} is
+  unrecognized or not supported, \exception{xml.dom.NotFoundErr} is
+  raised.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMBuilder]{setFeature}{name, state}
+  Set the feature \var{name} to \var{state}.  If feature \var{name} is
+  not recognized, \exception{xml.dom.NotFoundErr} is raised; if the
+  specific state requested is not supported,
+  \exception{xml.dom.NotSupportedErr} is raised.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMBuilder]{supportsFeature}{name}
+  Returns true if the feature \var{name} is supported at all,
+  otherwise returns false.  A true return does not imply that any
+  particular value for the feature is supported.
+\end{methoddesc}
+
+The \class{Document}-creation aspect of the public API is provided by
+these methods:
+
+\begin{methoddesc}[DOMBuilder]{parse}{input}
+  Returns a document based on the \class{DOMInputSource} given as
+  \var{input}.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMBuilder]{parseURI}{uri}
+  Returns a document from the URI given by \var{uri}.
+\end{methoddesc}
+
+\begin{methoddesc}[DOMBuilder]{parseWithContext}{input, cnode, action}
+  \note{Not implemented in the current version.}
+
+  Legal values for \var{action} are given by the constants
+  \constant{ACTION_REPLACE}, \constant{ACTION_APPEND_AS_CHILDREN},
+  \constant{ACTION_INSERT_AFTER}, and \constant{ACTION_INSERT_BEFORE},
+  all defined on the \class{DOMBuilder} class.
+\end{methoddesc}
+
+Subclasses are expected to define the following method to determine
+how the \class{Document} instances returned by the \method{parse()}
+method will be created.
+
+\begin{notice}[warning]
+  The interface for subclasses is \emph{very} preliminary, and should
+  be considered likely to change in future releases.
+\end{notice}
+
+\begin{methoddesc}[DOMBuilder]{_parse_bytestream}{stream, options}
+  Returns a \class{Document} instance parsed from the file object
+  given as \var{stream} using the configuration options in the
+  \var{options} object.  The default implementation  uses
+  \module{xml.parsers.expat} to construct documents using the
+  \module{xml.dom.minidom} DOM implementation.
+\end{methoddesc}
+
+\subsection{Subclassing \class{DOMBuilder}}
+
+There are two important aspects to subclassing the \class{DOMBuilder}:
+implementing a useful subclass and getting a \class{DOMImplementation}
+that uses it.
+
+The first aspect is faily easy; to create a \class{DOMBuilder} that
+uses a different parser, use a subclass that overrides the
+\method{_parse_bytestream()} method, documented above.  The
+implementation of a specialized DOM builder may not be trivial, but
+the integration with the provided \class{DOMBuilder} class will be
+reasonably direct.
+
+The second aspect, creating a DOM implementation that uses the new
+\class{DOMBuilder} implementation, is a little more tedious, but not
+excessively so.  The \class{DOMImplementationLS} mixin class can be
+used, and the \method{createDOMBuilder()} method overridden to use the
+new \class{DOMBuilder} implementation.  This makes less sense if you
+want to re-use most of an existing DOM implementation, however.
+
+To use a new \class{DOMBuilder} with existing DOM implementation code,
+such as \module{xml.dom.minidom}, the easiest approach is to subclass
+an existing \class{DOMImplementation} class.  For
+\module{xml.dom.minidom}, this could be done this way:
+
+\begin{verbatim}
+import xml.dom
+
+from xml.dom.minidom import DOMImplementation
+from xml.dom.xmlbuilder import DOMBuilder
+
+class MyDOMBuilder(DOMBuilder):
+    def __init__(self, implementation):
+        self._implementation = implementation
+
+    def _parse_bytestream(self, stream, options):
+        raise xml.dom.NotSupportedErr(
+            "I'm just an example; don't expect much.")
+
+class MyDOMImplementation(DOMImplementation):
+    def createDOMBuilder(self, mode, schemaType):
+        # check for the supported mode and schemaType
+        if schemaType is not None:
+            raise xml.dom.NotSupportedErr(
+                "unsupported schema type: %s" % schemaType)
+        if mode != DOMImplementation.MODE_SYNCHRONOUS:
+            raise xml.dom.NotSupportedErr(
+                "asynchronous loading not supported")
+        return MyDOMBuilder(self)
+
+# minidom just stores the implementation on the class instance,
+# so we need to do the same to override that attribute on instances.
+#
+MyDOMImplementation.implementation = MyDOMImplementation()
+\end{verbatim}
+
+
+%\section{builder}
+%\section{core}
+%\section{esis_builder}
+%\section{html_builder}
+%\section{sax_builder}
+%\section{transform}
+%\section{transformer}
+%\section{walker}
+%\section{writer}
+
+%\section{\module{xml.marshal}}
+
+
+\section{\module{xml.ns} ---
+         XML Namespaces}
+
+\declaremodule{}{xml.ns}
+\modulesynopsis{Constants giving the URIs for common namespaces,
+                plus convenience classes.}
+\moduleauthor{Rich Salz}{rsalz@zolera.com}
+\sectionauthor{Rich Salz}{rsalz@zolera.com}
+\sectionauthor{Fred L. Drake, Jr.}{fdrake@acm.org}
+
+This module contains two groups of things: constants for common
+namespace URIs, and convenience classes representing namespaces and
+their local names.
+
+The URI definitions for namespaces (and sometimes other URI's) used by
+a variety of XML standards are provided as objects for each
+specification (or group of tightly related specifications) with
+attributes for each URI.  Each object has a short all-uppercase name,
+which should follow any (emerging) convention for how that standard is
+commonly used.  For example, \samp{ds} is almost always used as the
+namespace prefixes for items in XML Signature, so \samp{DS} is the
+name of the object.  Attributes on that object define symbolic names
+(hopefully evocative) for ``constants'' used in that standard.
+
+\begin{classdesc*}{XMLNS}
+  The \citetitle[http://www.w3.org/TR/REC-xml-names]{Namespaces in
+  XML} recommendation defines the concept and syntactic constructs
+  relating to XML namespaces.
+
+  \begin{memberdesc}{BASE}
+    The namespace URI assigned to namespace declarations.  This is
+    assigned to attributes named \code{xmlns} and attributes which
+    have a namespace prefix of \code{xmlns}.
+  \end{memberdesc}
+
+  \begin{memberdesc}{XML}
+    The namespace bound to this URI is used for all elements and
+    attributes which start with the letters \samp{xml}, regardless of
+    case.  No other elements or attributes are allowed to use this
+    namespace.
+  \end{memberdesc}
+
+  \begin{memberdesc}{HTML}
+    This namespace is recommended for use with HTML 4.0.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{XLINK}
+  The \citetitle[http://www.w3.org/TR/xlink/]{XML Linking Language}
+  defines document linking semantics and an attribute language that
+  allows these semantics to be expressed in XML documents.
+
+  \begin{memberdesc}{BASE}
+    The URI of the global attributes defined in the XLink
+    specification.  All attributes that define the presence and
+    behavior of links are in this namespace.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{SOAP}
+  \citetitle[http://www.w3.org/TR/SOAP]{Simple Object Access Protocol}
+  defines a means of communicating with objects on servers. It can be
+  used as a remote procedure call (RPC) mechanism, or as a basis for
+  message passing systems.
+
+  \begin{memberdesc}{ENV}
+    This URI is used for the namespace of the ``envelope'' which
+    contains the message.  Elements in this namespace provide for
+    destination identification and other information needed to route
+    and decode the message.
+  \end{memberdesc}
+
+  \begin{memberdesc}{ENC}
+    The namespace URI used for the optional payload encoding defined
+    in section 5 of the SOAP specification.
+  \end{memberdesc}
+
+  \begin{memberdesc}{ACTOR_NEXT}
+    The URI specified in section 4.2.2 of the SOAP specification which
+    is used to indicate the destination of a SOAP message.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{DSIG}
+  The namespace URIs given here are defined by the XML digital
+  signature specification.
+
+  \begin{memberdesc}{BASE}
+    The basic namespace defined by the specification.
+  \end{memberdesc}
+
+  \begin{memberdesc}{C14N}
+    The URI by which
+    \citetitle[http://www.w3.org/TR/xml-c14n]{Canonical XML} (Version
+    1.0) is identified when used as a transformation or
+    canonicalization method.
+  \end{memberdesc}
+
+  \begin{memberdesc}{C14N_COMM}
+    This URI identifies ``canonical XML with comments,'' as described
+    in \citetitle[http://www.w3.org/TR/xml-c14n]{Canonical XML}
+    (Version 1.0), section 2.1.
+  \end{memberdesc}
+
+  \begin{memberdesc}{C14N_EXCL}
+    The URI by which the canonicalization variant defined in
+    \citetitle[http://www.w3.org/TR/xml-exc-c14n]{Exclusive XML
+    Canonicalization} (Version 1.0) is identified when used as a
+    transformation or canonicalization method.
+  \end{memberdesc}
+
+  The specification also assigns URIs to specific methods of computing
+  message digests and signatures, and other encoding techniques used
+  in the specification.
+
+  \begin{memberdesc}{DIGEST_SHA1}
+    The URI for the SHA-1 digest method.
+  \end{memberdesc}
+
+  \begin{memberdesc}{DIGEST_MD2}
+    The URI for the MD2 digest method.
+  \end{memberdesc}
+
+  \begin{memberdesc}{DIGEST_MD5}
+    The URI for the MD5 digest method.
+  \end{memberdesc}
+
+  \begin{memberdesc}{SIG_DSA_SHA1}
+    The URI used to specify the Digital Signature Algorithm (DSA) with
+    the SHA-1 hash algorithm.  DSA is specified in FIPS PUB 186-2,
+    \citetitle
+      [http://csrc.nist.gov/publications/fips/fips186-2/fips186-2.pdf]
+      {Digital Signature Standard (DSS)}.
+  \end{memberdesc}
+
+  \begin{memberdesc}{SIG_RSA_SHA1}
+    The URI indicating the RSA signature algorithm using SHA-1 for the
+    secure hash.
+  \end{memberdesc}
+
+  \begin{memberdesc}{HMAC_SHA1}
+    URI for the SHA-1 HMAC algorithm.
+  \end{memberdesc}
+
+  \begin{memberdesc}{ENC_BASE64}
+    URI used to denote the base64 encoding and transform.
+  \end{memberdesc}
+
+  \begin{memberdesc}{ENVELOPED}
+    URI used to specify the enveloped signature transform method
+    (\ulink{section
+    6.6.4}{http://www.w3.org/TR/xmldsig-core/#sec-EnvelopedSignature}
+    of the specification).
+  \end{memberdesc}
+
+  \begin{memberdesc}{XPATH}
+    URI used to specify the XPath filtering transform method
+    (\ulink{section
+    6.6.3}{http://www.w3.org/TR/xmldsig-core/#sec-XPath} of the
+    specification).
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSLT}
+    URI used to specify the XSLT transform method (\ulink{section
+    6.6.5}{http://www.w3.org/TR/xmldsig-core/#sec-XSLT} of the
+    specification).
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{RNG}
+  The URIs provided here are used with the Relax NG schema language.
+
+  \begin{memberdesc}{BASE}
+   The namespace URI of the elements defined by the
+   \citetitle[http://www.oasis-open.org/committees/relax-ng/spec-20011203.html]
+   {Relax NG Specification}.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{SCHEMA}
+  Namespaces defined for the W3C XML Schema specification.
+
+  \begin{memberdesc}{BASE}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSD1}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSD2}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSD3}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSI1}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSI2}
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSI3}
+  \end{memberdesc}
+
+  Two additional convenience attributes are defined:
+
+  \begin{memberdesc}{XSD_LIST}
+    A sequence of all ... namespaces.
+  \end{memberdesc}
+
+  \begin{memberdesc}{XSI_LIST}
+    A sequence of all ... namespaces.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{XSLT}
+  XSLT, defined in \citetitle[http://www.w3.org/TR/]{XML Stylesheet
+  Language --- Transformations}, defines a single namespace:
+
+  \begin{memberdesc}{BASE}
+    This URI is used as the namespace for all XSLT elements and for
+    XSLT attributes attached to non-XSLT elements.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+%\begin{classdesc*}{XPATH}
+  % Why does this class even exist if there are no namespaces?
+%\end{classdesc*}
+
+
+\begin{classdesc*}{WSDL}
+  The Web Services Description Language (WSDL) defines a language to
+  specify the logical interactions with applications that use Web
+  technologies as their access mechanism; this can be thought of as an
+  IDL for servers that speak HTTP instead of XDR or IIOP.
+
+  \begin{memberdesc}{BASE}
+    The basic namespace defined in this specification.
+  \end{memberdesc}
+
+  \begin{memberdesc}{BIND_SOAP}
+    The URI of the SOAP binding for WSDL.
+  \end{memberdesc}
+
+  \begin{memberdesc}{BIND_HTTP}
+    HTTP bindings for WSDL using the \code{GET} and \code{POST}
+    methods.
+  \end{memberdesc}
+
+  \begin{memberdesc}{BIND_MIME}
+    The URI of the namespace for MIME-type bindings for WSDL.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+\begin{classdesc*}{DCMI}
+    The Dublin Core Metadata Initiative (DCMI) defines a commonly-used
+    set of general metadata elements.  There is a base set of
+    elements, a variety of refinements of those, a set of value
+    encodings, and a \emph{type vocabulary} used to describe what
+    something described in metadata actually is (for example, a text,
+    a physical object, a collection).
+
+    Documentation on the Dublin Core, including recommendations for
+    encoding Dublin Core metadata in XML and HTML/XHTML can be found
+    at the \ulink{DCMI website}{http://dublincore.org/}.
+
+  \begin{memberdesc}{BASE}
+    Prefix for all DCMI-defined namespaces.  This is not normally used
+    directly, as it does not correspond to a specific namespace.
+  \end{memberdesc}
+
+  \begin{memberdesc}{DCMES}
+  \memberline{DCMES_1_1}
+    Namespace for the core element set, as defined in
+    \citetitle[http://dublincore.org/documents/dces/]{Dublin Core
+    Metadata Element Set, Version 1.1: Reference Description}.
+  \end{memberdesc}
+
+  \begin{memberdesc}{TERMS}
+    Namespace for the refinements and non-core metadata elements
+    defined in
+    \citetitle[http://dublincore.org/documents/dcmi-terms/]{DCMI
+    Metadata Terms} sections 3 (``Other Elements and Element
+    Refinements'') and 4 (``Encoding Schemes'').
+  \end{memberdesc}
+
+  \begin{memberdesc}{TYPE}
+    Namespace for the types of objects described in metadata, using
+    the controlled vocabulary defined in the
+    \citetitle[http://dublincore.org/documents/dcmi-type-vocabulary/]
+    {DCMI Type Vocabulary}.
+  \end{memberdesc}
+\end{classdesc*}
+
+
+The convenience classes used to represent namespaces and their local
+names are completely separate from the objects used to represent
+groups of URI definitions.  Instances of these classes are ``namespace
+objects.''  Namespace objects are a convenient way to 'spell'
+\code{(\var{uri}, \var{localName})} pairs in application code.  A
+namespace object would be created to represent a namespace (URI), and
+attributes of the namespace object would represent the
+\code{(\var{uri}, \var{localName})} pairs.
+
+For example, a namespace object would be created by providing the
+URI are any known local names for that namespace to the
+constructor:
+
+\begin{verbatim}
+xbel = xml.ns.ClosedNamespace(
+    'http://www.python.org/topics/xml/xbel/',
+    ['xbel', 'title', 'info', 'metadata', 'folder', 'bookmark',
+     'desc', 'separator', 'alias'])
+\end{verbatim}
+
+Specific \code{(\var{uri}, \var{localName})} pairs can then be
+referenced by convenient names:
+
+\begin{verbatim}
+xbel.title # ==> ('http://www.python.org/topics/xml/xbel/', 'title')
+\end{verbatim}
+
+This can be convenient in (for example) SAX ContentHandler
+implementations.
+
+There are two specific classes used to create namespace objects:
+
+\begin{classdesc}{ClosedNamespace}{uri, names}
+  Namespace that doesn't allow names to be added after instantiation.
+  \var{uri} is the URI of the namespace, and \var{names} is a sequence
+  of local names.  A ``closed'' namespace is useful when the set of
+  names for the namespace is known in advance; using a
+  \class{ClosedNamespace} doesn't allow names to be added
+  inadvertently.
+\end{classdesc}
+
+\begin{classdesc}{OpenNamespace}{uri\optional{, names}}
+  Namespace that allows names to be added automatically.  The
+  constructor arguments are the same as for \class{ClosedNamespace},
+  but \var{names} becomes optional, defaulting to an empty sequence.
+  When attributes of these objects are referenced, \code{(\var{uri},
+  \var{localName})} pairs are generated for the name if they don't
+  already exist.
+
+  For example, using \class{OpenNamespace} instead of
+  \class{ClosedNamespace} in the earlier example would allow
+  additional names to be used in addition to known names:
+
+\begin{verbatim}
+xbel = xml.ns.OpenNamespace(
+    'http://www.python.org/topics/xml/xbel/',
+    ['xbel', 'title', 'info', 'metadata', 'folder', 'bookmark',
+     'desc', 'separator', 'alias'])
+
+xbel.splat # ==> ('http://www.python.org/topics/xml/xbel/', 'splat')
+\end{verbatim}
+\end{classdesc}
+
+
+\section{\module{xml.parsers.expat} Extensions}
+
+The version of the \module{xml.parsers.expat} module currently shipped
+with PyXML extends that provided by the standard Python library by
+exposing features of recent versions of the C implementation of the
+underlying Expat parser.  These extensions are described here; the
+base documentation for this module is that published as part of the
+\citetitle
+[http://www.python.org/doc/2.2.1/lib/module-xml.parsers.expat.html]
+{Python Library Reference}.
+
+The module provides a new data attribute:
+
+\begin{datadesc}{features}
+  A list of \var{name}-\var{value} pairs giving some information about
+  the compilation of Expat being used.  This is generated directly
+  from the feature information provided by Expat's
+  \cfunction{XML_GetFeatureList()} function.  It is unlikely to be of
+  interest to most applications.
+
+  This was added in PyXML 0.8.1 to support Expat 1.95.5 and newer.
+\end{datadesc}
+
+The parser provides a new method:
+
+\begin{methoddesc}[xmlparser]{UseForeignDTD}{\optional{flag}}
+  Tells Expat whether is should attempt to load an
+  application-provided external subset if one is not specified by the
+  document type declaration.  If \var{flag} is true or omitted, Expat
+  will attempt to load an external subset by calling the
+  \member{ExternalEntityRefHandler} callback with \var{systemId} and
+  \var{publicId} both set to \code{None}; this is done \emph{only} if
+  the document does not specify a external subset.  If \var{flag} is
+  false (or this method is never called), Expat will not attempt such
+  a load.  This method should only be called before parsing has
+  actually started; \exception{ExpatError} will be raised if this is
+  called after parsing has begun.
+
+  This was added in PyXML 0.8.1 to support Expat 1.95.5 and newer.
+\end{methoddesc}
+
+and one new attribute:
+
+\begin{memberdesc}[xmlparser]{namespace_prefixes}
+  Set to true on a parser with namespaces enabled to request that the
+  actual prefix is reported as well as the namespace URI for each
+  namespace-qualified name.  This modifies the element or attribute
+  names passed to the \member{StartElementHandler} and
+  \member{EndElementHandler} callbacks, if true.  If set to a true
+  value, the names passed to these callbacks will have the prefix
+  added to the end, separated from the local name by the value of the
+  \var{namespace_separator} passed to the parser constructor.  No
+  additional information will be added if the name uses the default
+  namespace.  This should only be called before parsing has begun.
+
+  This was added in PyXML 0.8 to support Expat 1.95.4 and newer.
+\end{memberdesc}
+
+One new callback method has been added as well:
+
+\begin{methoddesc}[xmlparser]{SkippedEntityHandler}{name, is_param_entity}
+  This is called when an external entity is not read, and gives
+  information about the entity.  The entity name will have been
+  previously reported by the \member{EntityDeclHandler}, if set.
+
+  This was added in PyXML 0.8 to support Expat 1.95.4 and newer.
+\end{methoddesc}
+
+
+\begin{seealso}
+  \seetitle[http://www.libexpat.org/]{Expat Home Page}{
+            The home page for the Expat project provides information
+            about new versions of the library and user resources such
+            as 3rd-party language bindings and mailing lists.}
+\end{seealso}
+
+
+\section{\module{xml.parsers.sgmllib} ---
+         Accelerated SGML Parser}
+
+\declaremodule{}{xml.parsers.sgmllib}
+\moduleauthor{Fredrik Lundh}{effbot@effbot.org}
+
+This module is an alternate implementation of the
+\ulink{\module{sgmllib}
+module}{http://www.python.org/doc/current/lib/module-sgmllib.html}
+from the Python standard library.  This implementation uses the
+\refmodule{xml.parsers.sgmlop} accelerator to improve performance.
+
+This module does create a cyclic reference.  In order to break the
+cycle, be sure to call the \method{close()} method of the parser
+instances when done with them.
+
+
+\section{\module{xml.parsers.sgmlop} ---
+         XML/SGML Parser Accelerator}
+
+\declaremodule{}{xml.parsers.sgmlop}
+\moduleauthor{Fredrik Lundh}{effbot@effbot.org}
+
+The \module{xml.parsers.sgmlop} module is a C implementation of a
+parser similar in interface to the \class{xmllib.XMLParser} and
+\class{sgmllib.SGMLParser} classes from the \ulink{Python standard
+library}{http://www.python.org/doc/current/lib/lib.html}.  Additional
+support is provided for a basic tree-constructor which is intended to
+be used in conjunction with the parsers implemented by this module.
+
+
+%\section{\module{xml.sax.drivers}}
+
+%XXX Should all the driver modules be documented, or should they be
+%treated as internal modules, whose details will be handled by a parser
+%Factory function?
+
+%\section{\module{xml.sax.drivers.drv_xmllib}}
+%\section{\module{xml.sax.drivers.drv_xmlproc}}
+%\section{\module{xml.sax.drivers.drv_xmlproc_val}}
+%\section{\module{xml.sax.drivers.drv_xmltok}}
+%\section{\module{xml.sax.drivers.drv_xmltoolkit}}
+
+\section{\module{xml.sax.saxexts}}
+
+\begin{funcdesc}{make_parser}{\optional{parser}}
+A utility function that returns a \class{Parser} object for a
+non-validating XML parser.  If \var{parser} is specified, it must be a 
+parser name; otherwise, a list of available parsers is checked and the
+fastest one chosen.
+\end{funcdesc}
+
+\begin{datadesc}{HTMLParserFactory}
+An instance of the \class{ParserFactory} class that's already been
+prepared with a list of HTML parsers.  Simply call its
+\method{make_parser()} method to get a \class{Parser} object. 
+\end{datadesc}
+
+\begin{classdesc}{ParserFactory}{}
+A general class to be used by applications for creating parsers on
+foreign systems where the list of installed parsers is unknown.
+\end{classdesc}
+
+\begin{datadesc}{SGMLParserFactory}
+An instance of the \class{ParserFactory} class that's already been
+prepared with a list of SGML parsers.  Simply call its
+\method{make_parser()} method to get a parser object. 
+\end{datadesc}
+
+\begin{datadesc}{XMLParserFactory}
+An instance of the \class{ParserFactory} class that's already been
+prepared with a list of nonvalidating XML parsers.  Simply call its
+\method{make_parser()} method to get a parser object. 
+\end{datadesc}
+
+\begin{datadesc}{XMLValParserFactory}
+An instance of the \class{ParserFactory} class that's already been
+prepared with a list of validating XML parsers.  Simply call its
+\method{make_parser()} method to get a parser object. 
+\end{datadesc}
+
+\begin{classdesc}{ExtendedParser}{}
+This class is an experimental extended parser interface, that offers
+additional functionality that may be useful.  However, it's not
+specified by the SAX specification.
+\end{classdesc}
+
+\subsection{\class{ExtendedParser} methods}
+
+\begin{methoddesc}{close}{}
+Called after the last call to feed, when there are no more data.
+\end{methoddesc}
+
+\begin{methoddesc}{feed}{data}
+Feeds \var{data} to the parser.
+\end{methoddesc}
+
+\begin{methoddesc}{get_parser_name}{}
+Returns a single-word parser name.
+\end{methoddesc}
+
+\begin{methoddesc}{get_parser_version}{}
+Returns the version of the imported parser, which may not be the
+one the driver was implemented for.
+\end{methoddesc}
+
+\begin{methoddesc}{is_dtd_reading}{}
+True if the parser is non-validating, but conforms to the XML
+specification by reading the DTD.
+\end{methoddesc}
+
+\begin{methoddesc}{is_validating}{}
+Returns true if the parser is validating, false otherwise.
+\end{methoddesc}
+
+\begin{methoddesc}{reset}{}
+Makes the parser start parsing afresh.
+\end{methoddesc}
+
+\subsection{\class{ParserFactory} methods}
+
+\begin{methoddesc}{get_parser_list}{}
+Returns the list of possible drivers.  Currently this starts out as
+\code{["xml.sax.drivers.drv_xmltok",
+       "xml.sax.drivers.drv_xmlproc",
+       "xml.sax.drivers.drv_xmltoolkit",
+       "xml.sax.drivers.drv_xmllib"]}.
+\end{methoddesc}
+
+\begin{methoddesc}{make_parser}{\optional{driver_name}}
+Returns a SAX driver for the first available parser of the parsers
+in the list. Note that the list contains drivers, so it first tries
+the driver and if that exists imports it to see if the parser also
+exists. If no parsers are available a \class{SAXException} is thrown.
+
+Optionally, \var{driver_name} can be a string containing the name of
+the driver to be used; the stored parser list will then not be used at
+all.  
+\end{methoddesc}
+
+\begin{methoddesc}{set_parser_list}{list}
+Sets the driver list to \var{list}.
+\end{methoddesc}
+
+
+\section{\module{xml.sax.saxlib}}
+
+\begin{classdesc}{AttributeList}{}
+Interface for an attribute list. This interface provides
+    information about a list of attributes for an element (only
+    specified or defaulted attributes will be reported). Note that the
+    information returned by this object will be valid only during the
+    scope of the \method{DocumentHandler.startElement} callback, and the
+    attributes will not necessarily be provided in the order declared
+    or specified.
+\end{classdesc}
+
+\begin{classdesc}{DocumentHandler}{}
+Handle general document events. This is the main client
+    interface for SAX: it contains callbacks for the most important
+    document events, such as the start and end of elements. You need
+    to create an object that implements this interface, and then
+    register it with the \class{Parser}. If you do not want to implement
+    the entire interface, you can derive a class from \class{HandlerBase},
+    which implements the default functionality. You can find the
+    location of any document event using the \class{Locator} interface
+    supplied by \method{setDocumentLocator()}.
+\end{classdesc}
+
+\begin{classdesc}{DTDHandler}{}
+Handle DTD events. This interface specifies only those DTD
+    events required for basic parsing (unparsed entities and
+    attributes). If you do not want to implement the entire interface,
+    you can extend \class{HandlerBase}, which implements the default
+    behaviour.
+\end{classdesc}
+
+\begin{classdesc}{EntityResolver}{}
+This is the basic interface for resolving entities. If you create an object
+    implementing this interface, then register the object with your
+    \class{Parser} instance, the parser will call the method in your object to
+    resolve all external entities. Note that \class{HandlerBase} implements
+    this interface with the default behaviour.
+\end{classdesc}
+
+\begin{classdesc}{ErrorHandler}{}
+This is the basic interface for SAX error handlers. If you create an object
+    that implements this interface, then register the object with your
+    Parser, the parser will call the methods in your object to report
+    all warnings and errors. There are three levels of errors
+    available: warnings, (possibly) recoverable errors, and
+    unrecoverable errors. All methods take a SAXParseException as the
+    only parameter.
+\end{classdesc}
+
+\begin{classdesc}{HandlerBase}{}
+Default base class for handlers. This class implements the default
+    behaviour for four SAX interfaces, inheriting from them all:
+    \class{EntityResolver}, \class{DTDHandler},
+    \class{DocumentHandler}, and \class{ErrorHandler}.  Rather than
+    implementing those full interfaces, you may simply extend this
+    class and override the methods that you need. Note that the use of
+    this class is optional, since you are free to implement the
+    interfaces directly if you wish.
+\end{classdesc}
+
+\begin{classdesc}{Locator}{}
+Interface for associating a SAX event with a document
+location. A locator object will return valid results only during
+calls to methods of the \class{SAXDocumentHandler} class; 
+at any other time, the results are unpredictable.
+\end{classdesc}
+
+\begin{classdesc}{Parser}{}
+Basic interface for SAX parsers. All SAX
+    parsers must implement this basic interface: it allows users to
+    register handlers for different types of events and to initiate a
+    parse from a URI, a character stream, or a byte stream. SAX
+    parsers should also implement a zero-argument constructor.
+\end{classdesc}
+
+
+\begin{classdesc}{SAXException}{msg, exception, locator}
+Encapsulate an XML error or warning. This class can contain
+    basic error or warning information from either the XML parser or
+    the application: you can subclass it to provide additional
+    functionality, or to add localization. Note that although you will
+    receive a \exception{SAXException} as the argument to the handlers in the
+    \class{ErrorHandler} interface, you are not actually required to throw
+    the exception; instead, you can simply read the information in
+    it.
+\end{classdesc}
+
+\begin{classdesc}{SAXParseException}{msg, exception, locator}
+Encapsulate an XML parse error or warning.
+    
+This exception will include information for locating the error in the
+    original XML document. Note that although the application will
+    receive a \exception{SAXParseException} as the argument to the
+    handlers in the \class{ErrorHandler} interface, the application is not
+    actually required to throw the exception; instead, it can simply
+    read the information in it and take a different action.
+
+Since this exception is a subclass of \exception{SAXException}, it inherits
+    the ability to wrap another exception.
+\end{classdesc}
+
+
+\subsection{\class{AttributeList} methods}
+
+The \class{AttributeList} class supports some of the behaviour of
+Python dictionaries; the \function{len()} function and \method{has_key()},
+\method{keys()} methods are available, and \code{attr['href']} will
+retrieve the value of the \attribute{href} attribute.  There are also
+additional methods specific to \class{AttributeList}:
+
+\begin{methoddesc}{getLength}{}
+Return the number of attributes in the list.
+\end{methoddesc}
+
+\begin{methoddesc}{getName}{i}
+Return the name of attribute \var{i} in the list.
+\end{methoddesc}
+
+\begin{methoddesc}{getType}{i}
+Return the type of an attribute in the list. \var{i} can be
+either the integer index or the attribute name.
+\end{methoddesc}
+
+\begin{methoddesc}{getValue}{i}
+Return the value of an attribute in the list. \var{i} can be
+either the integer index or the attribute name.
+\end{methoddesc}
+
+\subsection{\class{DocumentHandler} methods}
+
+\begin{methoddesc}{characters}{ch, start, length}
+Handle a character data event.
+\end{methoddesc}
+
+\begin{methoddesc}{endDocument}{}
+Handle an event for the end of a document.
+\end{methoddesc}
+
+\begin{methoddesc}{endElement}{name}
+Handle an event for the end of an element.
+\end{methoddesc}
+
+\begin{methoddesc}{ignorableWhitespace}{ch, start, length}
+Handle an event for ignorable whitespace in element content.
+\end{methoddesc}
+
+\begin{methoddesc}{processingInstruction}{target, data}
+Handle a processing instruction event.
+\end{methoddesc}
+
+\begin{methoddesc}{setDocumentLocator}{locator}
+Receive an object for locating the origin of SAX document events.
+You'll probably want to store the value of \var{locator} as an
+attribute of the handler instance.
+\end{methoddesc}
+
+\begin{methoddesc}{startDocument}{}
+Handle an event for the beginning of a document.
+\end{methoddesc}
+
+\begin{methoddesc}{startElement}{name, attrs}
+Handle an event for the beginning of an element.
+\end{methoddesc}
+
+
+\subsection{\class{DTDHandler} methods}
+
+\begin{methoddesc}{notationDecl}{name, publicId, systemId}
+Handle a notation declaration event.
+\end{methoddesc}
+
+\begin{methoddesc}{unparsedEntityDecl}{publicId, systemId, notationName}
+Handle an unparsed entity declaration event.
+\end{methoddesc}
+
+
+\subsection{\class{EntityResolver} methods}
+
+\begin{methoddesc}{resolveEntity}{name, publicId, systemId}
+Resolve the system identifier of an entity.
+\end{methoddesc}
+
+\subsection{\class{ErrorHandler} methods}
+
+\begin{methoddesc}{error}{exception}
+Handle a recoverable error.
+\end{methoddesc}
+
+\begin{methoddesc}{fatalError}{exception}
+Handle a non-recoverable error.
+\end{methoddesc}
+
+\begin{methoddesc}{warning}{exception}
+Handle a warning.
+\end{methoddesc}
+
+\subsection{\class{Locator} methods}
+
+\begin{methoddesc}{getColumnNumber}{}
+Return the column number where the current event ends.
+\end{methoddesc}
+
+\begin{methoddesc}{getLineNumber}{}
+Return the line number where the current event ends.
+\end{methoddesc}
+
+\begin{methoddesc}{getPublicId}{}
+Return the public identifier for the current event.
+\end{methoddesc}
+
+\begin{methoddesc}{getSystemId}{}
+Return the system identifier for the current event.
+\end{methoddesc}
+
+\subsection{\class{Parser} methods}
+
+\begin{methoddesc}{parse}{systemId}
+Parse an XML document from a system identifier.
+\end{methoddesc}
+
+\begin{methoddesc}{parseFile}{fileobj}
+Parse an XML document from a file-like object.
+\end{methoddesc}
+
+\begin{methoddesc}{setDocumentHandler}{handler}
+Register an object to receive basic document-related events.
+\end{methoddesc}
+
+\begin{methoddesc}{setDTDHandler}{handler}
+Register an object to receive basic DTD-related events.
+\end{methoddesc}
+
+\begin{methoddesc}{setEntityResolver}{resolver}
+Register an object to resolve external entities.
+\end{methoddesc}
+
+\begin{methoddesc}{setErrorHandler}{handler}
+Register an object to receive error-message events.
+\end{methoddesc}
+
+\begin{methoddesc}{setLocale}{locale}
+Allow an application to set the locale for errors and warnings. 
+   
+        SAX parsers are not required to provide localisation for errors
+        and warnings; if they cannot support the requested locale,
+        however, they must throw a SAX exception. Applications may
+        request a locale change in the middle of a parse.
+\end{methoddesc}
+
+\subsection{\class{SAXException} methods}
+
+\begin{methoddesc}{getException}{}
+Return the embedded exception, if any.
+\end{methoddesc}
+
+\begin{methoddesc}{getMessage}{}
+Return a message for this exception.
+\end{methoddesc}
+
+\subsection{\class{SAXParseException} methods}
+
+The \class{SAXParseException} class has a \member{locator}
+attribute, containing an instance of the \class{Locator} class, which
+represents the location in the document where the parse error
+occurred.  The following methods are delegated to this instance.
+
+\begin{methoddesc}{getColumnNumber}{}
+Return the column number of the end of the text where the exception
+	occurred.
+\end{methoddesc}
+
+\begin{methoddesc}{getLineNumber}{}
+Return the line number of the end of the text where the exception occurred.
+\end{methoddesc}
+
+\begin{methoddesc}{getPublicId}{}
+Return the public identifier of the entity where the exception occurred.
+\end{methoddesc}
+
+\begin{methoddesc}{getSystemId}{}
+Return the system identifier of the entity where the exception occurred.
+\end{methoddesc}
+
+
+\section{\module{xml.sax.saxutils}}
+
+\begin{funcdesc}{escape}{data\optional{, entities}}
+  Escape \character{\&}, \character{<}, and \character{>} in a string
+  of data.
+
+  You can escape other strings of data by passing a dictionary as the
+  optional \var{entities} parameter.  The keys and values must all be
+  strings; each key will be replaced with its corresponding value.
+\end{funcdesc}
+
+\begin{funcdesc}{quoteattr}{data\optional{, entities}}
+  Similar to \function{escape()}, but also prepares \var{data} to be
+  used as an attribute value.  The return value is a quoted version of
+  \var{data} with any additional required replacements.
+  \function{quoteattr()} will select a quote character based on the
+  content of \var{data}, attempting to avoid encoding any quote
+  characters in the string.  If both single- and double-quote
+  characters are already in \var{data}, the double-quote characters
+  will be encoded and \var{data} will be wrapped in doule-quotes.  The
+  resulting string can be used directly as an attribute value:
+
+\begin{verbatim}
+>>> print "<element attr=%s>" % quoteattr("ab ' cd \" ef")
+<element attr="ab ' cd &quot; ef">
+\end{verbatim}
+
+  This function is useful when generating attribute values for HTML or
+  any SGML using the reference concrete syntax.
+\end{funcdesc}
+
+\begin{classdesc}{Canonizer}{writer}
+A SAX document handler that produces canonicalized XML output.
+\var{writer} must support a \method{write()} method which accepts a
+single string.  
+\end{classdesc}
+
+\begin{classdesc}{ErrorPrinter}{}
+A simple class that just prints error messages to standard error
+(\code{sys.stderr}).
+\end{classdesc}
+
+\begin{classdesc}{ESISDocHandler}{writer}
+A SAX document handler that produces naive ESIS output.  \var{writer}
+must support a \method{write()} method which accepts a single string.
+\end{classdesc}
+
+\begin{classdesc}{EventBroadcaster}{list}
+Takes a list of objects and forwards any method calls received
+to all objects in the list. The attribute \member{list} holds the list and
+can freely be modified by clients.
+\end{classdesc}
+
+\begin{classdesc}{Location}{locator}
+Represents a location in an XML entity. Initialized by being passed
+a locator, from which it reads off the current location, which is then
+stored internally.
+\end{classdesc}
+
+\subsection{\class{Location} methods}
+
+\begin{methoddesc}{getColumnNumber}{}
+Return the column number of the location.
+\end{methoddesc}
+
+\begin{methoddesc}{getLineNumber}{}
+Return the line number of the location.
+\end{methoddesc}
+
+\begin{methoddesc}{getPublicId}{}
+Return the public identifier for the location.
+\end{methoddesc}
+
+\begin{methoddesc}{getSystemId}{}
+Return the system identifier for the location.
+\end{methoddesc}
+
+\section{\module{xml.utils.iso8601}
+         %--- Utilities for handling ISO~8601 dates
+         }
+
+\declaremodule{}{xml.utils.iso8601}
+\moduleauthor{Fred L. Drake, Jr.}{fdrake@acm.org}
+\sectionauthor{Fred L. Drake, Jr.}{fdrake@acm.org}
+
+
+The \module{xml.utils.iso8601} module provides conversion routines
+between the ISO~8601 representations of date/time values and the
+floating point values used elsewhere in Python.  The floating point
+represtentation is particularly useful in conjunction with the
+standard \module{time} module.
+
+Currently, this module supports a small superset of the ISO~8601
+profile described by the World Wide Web Consortium (W3C).  This is a
+subset of ISO~8601, but covers the cases expected to be used most
+often in the context of XML processing and Web applications.  Future
+versions of this module may support a larger subset of
+ISO~8601-defined formats.
+
+
+\begin{funcdesc}{parse}{s}
+Parse an ISO~8601 date representation (with an optional time-of-day
+component) and return the date in seconds since the epoch.
+\end{funcdesc}
+
+
+\begin{funcdesc}{parse_timezone}{timezone}
+Parse an ISO~8601 time zone designator and return the offset relative
+to Universal Coordinated Time (UTC) in seconds.  If \var{timezone} is
+not valid, \exception{ValueError} is raised.
+\end{funcdesc}
+
+
+\begin{funcdesc}{tostring}{t\optional{, timezone}}
+Return formatted date/time value according to the profile described by 
+the W3C.  If \var{timezone} is provided, it must be the offset from
+UTC in seconds specified as a number, or time zone designator which
+can be parsed by \function{parse_timezone()}.  If \var{timezone} is
+specified as a string and cannot be parsed by
+\function{parse_timezone()}, \exception{ValueError} will be raised.
+\end{funcdesc}
+
+
+\begin{funcdesc}{ctime}{t}
+Return formatter date/time value using the local timezone.  This is
+equivalent to \samp{tostring(\var{t}, time.timezone)}.
+\end{funcdesc}
+
+
+\begin{seealso}
+  \seetitle{Data elements and interchange formats --- Information
+            interchange --- Representation of dates and times.}{The
+            actual ISO~8601 standard published by the International
+            Organization for Standardization, 1988.}
+
+  \seetitle[ftp://ftp.informatik.uni-erlangen.de/pub/doc/ISO/ISO8601.ps.Z]
+           {ISO~8601 date/time representations}{Gary Houston's
+            description of the ISO~8601 formats for humans, written in
+            January 1993.}
+
+  \seetitle[http://www.cl.cam.ac.uk/~mgk25/iso-time.html]{A Summary of
+            the International Standard Date and Time Notation}{Markus
+            Kuhn's excellent discussion of international date/time
+            representations.}
+
+  \seetitle[http://www.w3.org/TR/NOTE-datetime]{Date and Time Formats}
+           {World Wide Web Consortium Technical Note from September
+            1998, written by Misha Wolf and Charles Wicksteed.}
+\end{seealso}
+
+
+\end{document}

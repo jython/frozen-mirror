@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Documentation: the xmlproc DTDParser APIs</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the APIs for parsing DTDs in
+	xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, XML parser, DTD parser">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>Documentation: the xmlproc DTDParser APIs</H1>
+
+<P>
+The DTD parser is the module xmlproc uses to read XML DTDs. It has
+been separated out as a separate module in order to make it possible
+to use it for other things than merely parsing and validating XML
+documents.
+</P>
+
+<P>
+Applications that wish to use the DTD parser should implement the
+<A HREF="dtd-api-doco.html#DTDConsumer">DTDConsumer</A> interface
+and use it to receive parse events.
+</P>
+
+<h2>The DTDParser interface</h2>
+
+<P>
+The DTDParser is in the xml.parsers.xmlproc.dtdparser module and
+implements the following interface:
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self):</CODE>
+  <DD>Instantiates a DTD parser.
+
+  <DT><CODE>def set_dtd_consumer(self,consumer):</CODE>
+  <DD>Tells the DTD parser where to send DTD parse events. The
+  consumer object must implement the <A
+  HREF="dtd-api-doco.html#DTDConsumer">DTDConsumer</A> interface.
+    
+  <DT><CODE>def set_error_handler(self,err):</CODE>
+  <DD>Tells the parser where to send error events.
+
+  <DT><CODE>def set_internal(self,yesno):</CODE>
+  <DD>Tells the parser whether to consider this an internal (1) or
+  external (0) DTD subset. The default is to consider it an external
+  subset.
+    
+  <DT><CODE>def set_inputsource_factory(self,isf):</CODE>
+  <DD>Tells the parser which object to use to map system identifiers
+  to file-like objects.
+  
+  <DT><CODE>def parse_resource(self,sysID,bufsize=16384):</CODE>
+  <DD>Makes the parser parse the XML document with the given system identifier.
+  
+  <DT><CODE>def reset(self):</CODE>
+  <DD>Resets the parser to process another file, losing all unparsed data.
+  
+  <DT><CODE>def feed(self,new_data):</CODE>
+  <DD>Makes the parser parse a chunk of data.        
+  
+  <DT><CODE>def close(self):</CODE>
+  <DD>Closes the parser, making it process all remaining data. The
+  effects of calling feed after close and before the first reset are
+  undefined. 
+        
+  <DT><CODE>def get_current_sysid(self):</CODE>
+  <DD>Returns the system identifier of the current entity being
+  parsed. 
+  
+  <DT><CODE>def get_offset(self):</CODE>
+  <DD>Returns the current offset (in characters) from the start of
+  the entity.
+  
+  <DT><CODE>def get_line(self):</CODE>
+  <DD>Returns the current line number.
+  
+  <DT><CODE>def get_column(self):</CODE>
+  <DD>Returns the current column position. 
+
+  <DT><CODE>def set_error_language(self,language):</CODE>
+  <DD>Tells the parser which language to report errors in. 'language'
+  must be an ISO 3166 language code (case does not matter). A KeyError
+  will be thrown if the language is not supported.
+
+  <DT><CODE>def deref(self):</CODE>
+  <DD>The parser creates circular data structures during parsing. When
+  the parser object is no longer to be used and you wish to free the
+  memory it has allocated, call this method. The parser object will be
+  non-functional afterwards.
+
+</DL>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

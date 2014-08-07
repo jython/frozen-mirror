@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Documentation: the xmlproc DTD APIs</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the APIs for working with DTDs in
+	xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, XML parser, DTD">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>Documentation: the xmlproc DTD APIs</H1>
+
+<H2>Working with DTDs</H2>
+
+<H3>Accessing DTD information</H3>
+
+<P>
+The complete DTD information is only available from the validating
+parser, although both parsers implement a get_dtd method, which can be
+used to get an object conforming to the <A HREF="#DTD">DTD
+interface</A>, containing information about the DTD.
+</P>
+
+<H3>Parsing a DTD without parsing a document</H3>
+
+<P>
+This is now supported through the <A
+HREF="dtd-parser-doco.html">dtdparser module</A>.
+</P>
+
+<H2>List of interfaces</H2>
+
+<P>
+These are the interfaces used to discover information about the DTD of
+the parsed document:
+</P>
+
+<UL>
+  <LI><A HREF="#DTD">The DTD interface</A>.
+  <LI><A HREF="#ElementType">The ElementType interface</A>.
+  <LI><A HREF="#Attribute">The Attribute interface</A>.
+  <LI><A HREF="#Entity">The Entity interface</A>.
+  <LI><A HREF="#DTDConsumer">The DTDConsumer interface</A>.
+</UL>
+
+<H2><A NAME="DTD">The DTD interface</A></H2>
+
+<P>
+This is the interface of the object that holds information about the
+DTD of the current document. This object can be queried to discover
+information about the DTD.
+</P>
+
+<DL>
+  <DT><CODE>def get_root_elem(self):</CODE>
+  <DD>Returns the name of the element declared as the root element (as
+  a string), or None if none were declared.
+  
+  <DT><CODE>def get_elem(self,name):</CODE>
+  <DD>Returns the <A HREF="#ElementType">element object</A> of the
+  element with the given
+  name.  Throws a KeyError if no such element has been declared.
+  
+  <DT><CODE>def get_elements(self):</CODE>
+  <DD>Returns a list of all declared element names.
+
+  <DT><CODE>def get_notation(self,name):</CODE>
+  <DD>Returns a (pubid, sysid) tuple representing the named notation. If no 
+  such notation has been declared a KeyError is thrown. 
+
+  <DT><CODE>def get_notations(self):</CODE>
+  <DD>Returns a list of the names of all declared notations.
+
+  <DT><CODE>def get_general_entities(self):</CODE>
+  <DD>Returns a list of all declared general entity names.
+
+  <DT><CODE>def get_parameter_entities(self):</CODE>
+  <DD>Returns a list of all declared parameter entity names.
+
+  <DT><CODE>def resolve_pe(self,name):</CODE>
+  <DD>Returns the entity object (either InternalEntity or
+  ExternalEntity) of the parameter entity with the given name. If no
+  parameter entity with this name has been declared a KeyError is
+  thrown.
+  
+  <DT><CODE>def resolve_ge(self,name):</CODE>
+  <DD>Returns the entity object (either InternalEntity or
+  ExternalEntity) of the general entity with the given name. If no
+  general entity with this name has been declared a KeyError is
+  thrown.
+</DL>
+
+<H2><A NAME="ElementType">The ElementType interface</A></H2>
+
+<P>
+This class encapsulates information about an element type.
+</P>
+
+<DL>
+  <DT><CODE>def get_name(self):</CODE>
+  <DD>Returns the name of the element type.
+
+  <DT><CODE>def get_attr_list(self):</CODE>
+  <DD>Returns a list of the names of the declared attributes for this
+  element (as strings). 
+  
+  <DT><CODE>def get_attr(self,name):</CODE>
+  <DD>Returns the attribute object of the given attribute or throws a
+  KeyError if none has been declared.
+  
+  <DT><CODE>def get_start_state(self):</CODE>
+  <DD>Returns the start state of the content model of the element. (No
+  guarantees is made as to the type of this value; just think of it as a magic
+  cookie instead.)
+  
+  <DT><CODE>def final_state(self,state):</CODE>
+  <DD>Returns true if the given state (as returned by get_start_state
+  or next_state) is a final state, ie: one in which the element is
+  allowed to end.
+  
+  <DT><CODE>def next_state(self,state,elem_name):</CODE>
+  <DD>Returns the next state of the element (again in an unspecified
+  type) when the an element with the given name is encountered in the 
+  given state. Character data is represented as the element name '#PCDATA'. 
+  If the element is not allowed in this state the value 0 will be returned.
+
+  <DT><CODE>def get_valid_elements(self,state):</CODE>
+  <DD>Returns a list of the valid elements in the given state, or the
+        empty list if none are valid (or if the state is unknown).
+
+  <DT><CODE>def get_content_model(self):</CODE>
+  <DD>Returns the element content model in (sep,cont,mod) format, where cont is a list of (name,mod) and (sep,cont,mod) tuples. ANY content models are represented as None, 
+and EMPTYs as ("",[],"").
+</DL>
+
+<H2><A NAME="Attribute">The Attribute interface</A></H2>
+
+<P>
+This class encapsulates information about an attribute.
+</P>
+
+<DL>
+  <DT><CODE>def get_name(self):</CODE>
+  <DD>Returns the name of the attribute.
+  
+  <DT><CODE>def get_type(self):</CODE>
+  <DD>Returns the declared type of the attribute. (ID, CDATA etc.)
+  
+  <DT><CODE>def get_decl(self):</CODE>
+  <DD>Returns the default declaration of the attribute. (#IMPLIED,
+  #REQUIRED, #FIXED or #DEFAULT.)
+  
+  <DT><CODE>def get_default(self):</CODE>
+  <DD>Return the default value of the attribute, or None if none has
+  been declared.  
+
+  <DT><CODE>def validate(self,value,err):</CODE>
+  <DD>Takes an attribute value ('value') and an ErrorHandler ('err')
+  and validates the attribute value for correctness, reporting errors
+  to 'err'.  
+</DL>
+
+<H2><A NAME="Entity">The Entity interface</A></H2>
+
+<P>
+This class encapsulates information about entities. It is implemented
+by two classes: InternalEntity and ExternalEntity. InternalEntity only
+implements a subset of the interface.
+</P>
+
+<DL>
+  <DT><CODE>def is_internal(self):</CODE>
+  <DD>True if the entity is internal, false otherwise.
+
+  <DT><CODE>def is_parsed(self):</CODE>
+  <DD>True if the entity is parsed, false otherwise. (Not implemented
+  by InternalEntity.)
+  
+  <DT><CODE>def get_pubid(self):</CODE>
+  <DD>Returns the public identifier of the entity. (Not implemented
+  by InternalEntity.)
+  
+  <DT><CODE>def get_sysid(self):</CODE>
+  <DD>Returns the system identifier of the entity. (Not implemented
+  by InternalEntity.) 
+
+  <DT><CODE>def get_notation(self):</CODE>
+  <DD>Return the name of the notation associated with the entity or 
+             None if there is None. (Not  implemened by InternalEntity.)
+</DL>
+
+<H2><A NAME="DTDConsumer">The DTDConsumer interface</A></H2>
+
+<P>
+This interface is used to receive parse events from the DTD parser.
+</P>
+
+<DL>
+  <DT><CODE>def set_error_handler(self,err):</CODE>
+  <DD>Sets the error handler of the DTDConsumer. The error handler
+  does not have to be used, but the DTDConsumer must accept this
+  method call.
+
+  <DT><CODE>def dtd_start(self):</CODE>
+  <DD>Called before any DTD events arrive. (Note: This will be called
+  once for the internal DTD subset (if any) and once for the external
+  DTD subset (if parsed).)
+
+  <DT><CODE>def dtd_end(self):</CODE>
+  <DD>Called when the DTD is completely parsed. (Note: This will be called
+  once for the internal DTD subset (if any) and once for the external
+  DTD subset (if parsed).)
+  
+  <DT><CODE>def new_general_entity(self,name,val):</CODE>
+  <DD>Called when an internal general entity declaration is
+  encountered. 'val' contains the entity replacement text.
+  
+  <DT><CODE>def new_external_entity(self,ent_name,pub_id,sys_id,ndata):</CODE>
+  <DD>Called when an external general entity declaration is
+  encountered. 'ndata' is the name of the associated notation, or None
+  if none was associated.
+  
+  <DT><CODE>def new_parameter_entity(self,name,val):</CODE>
+  <DD>Called when an internal parameter entity declaration is
+  encountered. 'val' contains the entity replacement text.
+  
+  <DT><CODE>def new_external_pe(self,name,pubid,sysid):</CODE>
+  <DD>Called when an external parameter entity declaration is
+  encountered.
+  
+  <DT><CODE>def new_notation(self,name,pubid,sysid):</CODE>
+  <DD>Called when a notation declaration is encountered.
+  
+  <DT><CODE>def new_element_type(self,elem_name,elem_cont):</CODE>
+  <DD>Called when an element type declaration is encountered.
+  'elem_cont' is a tuple, as returned by the get_content_model method of the
+   <A HREF="#ElementType">ElementType</A> interface.
+
+  <DT><CODE>def new_attribute(self,elem,attr,a_type,a_decl,a_def):</CODE>
+  <DD>Called when an attribute declaration is encountered. 'elem' is
+  the name of the element, 'attr' the name of the attribute, 'a_type'
+  the name of the attribute type (ID, CDATA...), 'a_decl' the name of
+  the declared default type (#REQUIRED, #IMPLIED...) and 'a_def' the
+  declared default value (or None if none were declared).
+
+  <DT><CODE>def handle_comment(self,contents):</CODE>
+  <DD>Called when a comment is encountered inside the DTD.
+
+  <DT><CODE>def handle_pi(self,target,data):</CODE>
+  <DD>Called when a processing instruction is encountered inside the DTD.
+</DL>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>xmlproc: An XML parser in Python</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This is the home page of a validating XML parser written
+	in pure Python.">
+  <META NAME="Keywords"    CONTENT="XML, Python, parser">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>xmlproc: An XML parser in Python</H1>
+
+
+
+<TABLE CLASS="programinfo">
+<TR><TD><STRONG>Version:</STRONG>
+    <TD>0.70
+<TR><TD><STRONG>Author:</STRONG>
+    <TD><A HREF="http://www.garshol.priv.no/">Lars Marius Garshol</A> -
+        <A HREF="mailto:larsga@garshol.priv.no">larsga@garshol.priv.no</A>.
+<TR><TD><STRONG>Last release:</STRONG>
+    <TD>2000-05-11
+</TABLE>
+
+	
+<H2>What is xmlproc?</H2>
+
+<P>
+xmlproc is an XML parser written in Python. It is a nearly complete
+validating parser, with only minor deviations from the specification
+(listed below). It supports both <A
+HREF="catalog-doco.html">SGML Open Catalogs and XCatalog
+0.1</A>, as well as error messages in different languages. xmlproc
+also supports namespaces. Access to DTD information is provided, as is
+a separate DTD parser. SAX drivers are provided with the parser.
+</P>
+
+<P>
+Additional utilities are command-line tools for validating and
+non-validating parsing as well as DTD parsing and also a GUI tool for
+parsing documents. A DTD to XML Schema converter is also included.
+</P>
+
+<H2>Licence?</H2>
+
+<P>
+xmlproc is free and you can do as you like with it. If you change it,
+please let me know. A <a href="license.html">formal BSD-ish
+license</a> is available.
+</P>
+
+<H2>Documentation</H2>
+
+<P>
+At the moment the following topics are documented:
+</P>
+
+<UL>
+  <LI><A HREF="xmlproc_tut.html">High-level xmlproc documentation</A>.
+  <LI><A HREF="xmlproc_cmdline.html">Using the command-line parsers</A>.
+  <LI><A HREF="xmlproc-doco.html">Using xmlproc from Python code</A>.
+  <LI><A HREF="xmlproc-dtd-doco.html">The DTD API</A>.
+  <LI><A HREF="xmlproc-catalog-doco.html">The catalog file support</A>.
+  <LI><A HREF="xmlproc_dtdparser.html">The DTD parser</A>.
+  <LI><A HREF="xmlproc_ns.html">The namespace support</A>.
+</UL>
+
+<P>
+Note that it is recommended to use xmlproc through the 
+<a href="http://www.garshol.priv.no/download/software/saxlib/">SAX API</a> 
+rather than directly, since this provides much greater freedom in the choice
+of parsers.  (For example, you can switch to using Pyexpat which is
+written in C without changing your code.)
+</P>
+
+<H2>Getting xmlproc</H2>
+
+<P>
+You can download xmlproc <A HREF="xmlproc.zip">here</A>.
+</P>
+
+<H2>Feedback</H2>
+
+<P>
+Any and all feedback is welcome, from suggestions for improvements or
+new features to bug reports. And I really mean it! If you have some
+opinions on this program, please let me hear them.
+</P>
+
+<H2>Deviations from the XML specification</H2>
+
+<P>
+xmlproc does not follow the XML specification in these respects:
+</P>
+
+<UL>
+  <LI>External parameter entities are not allowed inside markup declarations.
+  <LI>No attempt is made to deal with different character sets or encodings.
+  <LI>The parser does not check for the illegal characters.
+  <LI>The parser allows some syntactic constructs to cross entity boundaries
+          in ways that are not allowed.
+</UL>
+
+<P>
+All other deviations from the specification are unintentional bugs and
+should be reported to me via email. Hopefully, xmlproc will be 100%
+compliant in version 1.00.
+</P>
+
+<H2>xmlproc users</H2>
+
+<P>
+This is a list of other software projects that use xmlproc in some
+manner. If you know of one that isn't listed, please <A
+HREF="mailto:larsga@garshol.priv.no">let me know</A>.
+</P>
+
+<UL>
+  <LI><A HREF="http://www.letterror.com/ttx/">TTX</A>.
+  <LI><A HREF="http://my.netscape.com/">My.Netscape.Com</A>.
+  <LI><A HREF="http://www.petr.nl/robofog/">Robofog</A>.
+</UL>
+
+
+<H2>Release notification</H2>
+
+<P> If you want to be notified when a new version appears you can fill
+in your name and email address in this form and submit it. I guarantee
+that I won't ever give away the email addresses on this list and that
+if this service dies you'll receive notification.  </P>
+
+<FORM METHOD=GET ACTION="http://www.garshol.priv.no/cgi-bin/addlist.py">
+  <TABLE>
+  <TR><TD>Your full name:     <TD><INPUT TYPE=TEXT NAME=FULLNAME SIZE=30>
+  <TR><TD>Your email address: <TD><INPUT TYPE=TEXT NAME=EMAIL    SIZE=30>
+  <TR><TD COLSPAN=2><INPUT TYPE=SUBMIT VALUE="Add to list">
+  </TABLE>
+  <INPUT TYPE=hidden NAME=LIST VALUE="xmlproc">
+</FORM>
+
+<P> As an alternative, an <A
+HREF="http://www.garshol.priv.no/download/xsa/">XSA</A> document is
+provided <A HREF="/download/software/lmg.xsa">here</A>.  </P>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>
