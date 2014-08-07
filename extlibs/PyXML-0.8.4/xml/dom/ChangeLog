@@ -1,0 +1,244 @@
+Changes in 0.10.2 (R20000724)
+-----------------------------
+
+ - Support wide range of output encodings via wstring
+ - Updated conformance to 20000510 DOM CR
+ - Changed internals to use Node as the clone manager, using a pickle-
+   style interface.
+ - Changed many classes to be generated in the HTML Extension
+ - Other bug-fixes
+
+Changes in 0.10.1 (R20000606)
+-----------------------------
+
+ - Fix nasty character-encoding bugs in Printer
+ - Fixed many bugs in demos
+ - Fix Sax2 support for passed-in documents
+ - Other bug-fixes
+
+Changes in 0.10.0 (R20000524)
+-----------------------------
+
+ - Moved all static variables to class variables
+ - Fixed printing to work with empty elements
+ - Removed all tabs from files
+ - Change package to xml.dom
+ - major change to the internals to use Node as a Python attribute manager
+   this improves efficiency: cutting down on __g/setattrs__ and simplifies
+   some things
+ - Updated conformance to 19991210 DOM CR (yes, already out of date.  Zut!)
+ - Many fixes to HTML output
+ - Support custom Documents in Sax2 reader
+ - Many other fixes to printing and reading
+
+Changes in 0.9.3 (R20000216)
+----------------------------
+
+ - Better UTF-8 handling in printing
+ - Clean up printer whitespace
+ - Fix nasty bug in Sax2 attribute namespace defaulting
+ - Other bug-fixes
+
+Changes in 0.9.2 (R20000125)
+----------------------------
+
+ - Major fixes to namespace code
+ - Other bug-fixes
+
+Changes in 0.9.1 (R20000103)
+----------------------------
+
+ - Fixed HTML reader
+ - Misc. Bug-Fixes
+
+Note: There were numerous changes in untagged release 0.9.0,
+including
+
+ - Major re-write to match the general consensus DOm binding for
+  Python.  Code formerly in the form "node.getChildNodes()"
+  is now to be used in the form "node._get_childNodes()" or
+  simply "node.childNodes".  Similarly "text.setData("spam")"
+  becomes "text._set_data("spam")" or text.data = "spam"
+
+ - Update to full Level 2 support in core and HTML, including
+  namespace-support.
+
+ - Many bug-fixes
+
+Changes in 0.8.2 (R19991019)
+----------------------------
+
+- Create a Reader module under Ext for importing strings into 4DOM.
+  Builder is now deprecated and will disappear before version 1.0
+	o Reader has three drivers currently: Sax and HtmlLib are
+	  just modularized versions of the functionality that was
+          formerly in Builder, and Sax2 is a driver for the
+	  as-yet experimental SAX 2 specification.
+- Fixed a Builder/Reader bug for HTML input and empty, unclosed tags
+  such as <br>
+- Fixed a bug in text normalization
+- Miscellaneous bug-fixes
+
+Changes in 0.8.1 (R19990914)
+----------------------------
+
+- Added support for Dom Level 2 Core interfaces
+- Added __repr__ to all Core interfaces
+- Output character entities where appropriate in Printer.py
+- Many bug-fixes to Printer.py
+- Bug-fixes to attribute
+- Modified Remote factory startup to use environment variables
+	
+Changes in 0.8.0 (R19990831)
+----------------------------
+
+- Major Changes to the organization and Module Namespace
+	o Top-level namespace is Ft.Dom to integrate with other
+	  FourThought Packages
+	o Naming of Packages, Classes, Modules etc. has been normalized to
+	  "camel-case" with abbreviations counted as word units, e.g.
+	  XMLFooBarHTML -> XmlFooBarHtml
+	  This normalization is not possible where W3C clashes, e.g.
+	  HTMLElement remains as is.
+	o Simplified the access of Node constants, e.g. you can use
+	  Ft.Dom.Node.ELEMENT_NODE rather than Ft.Dom.Dom.Node.ELEMENT_NODE
+- Added extensions to support XML Namespaces (Ext.Namespace)
+- Added UserList and UserDict interface to NodeList and NamedNodeMap,
+  allowing orbless or local code to use pythonic features such as
+  [], append(), len(), keys(), etc.
+- Added better ILU Support
+- Added support for xml:space and turned Ext.Strip into separate functions
+  for stripping HTML and XML.
+- Fixed a problem with importing mis-matched HTML tags.
+- Numerous minor bug fixes
+	
+
+Changes in 0.7.2 (R19990422)
+----------------------------
+
+- "orbless" is now the default target of the Makefile, so most users
+  can just type "make" once installed
+
+- DListElement had been left out of the orbless configuration: fixed
+
+- Removed the kludge for dynamic addition of tedious HTML Eement attributes
+
+Changes in 0.7.1
+-------------------------------
+
+- Fixed "make orbless" to instruct the user what to add to PythonPath.
+
+- Fixed bug in HTMLTable.getRows, and HTMLTableSection.getRows.
+  Before a call to these functions was using getElementsByTagName
+  to return a list of TR elements.  This breaks when a table has
+  a table in one of it cells.
+
+- Fixed index error in HTMLTable.insertRow
+
+- Removed evals from PrettyPrinter
+
+- Fixed index error in HTMLTableRow.insertCell
+
+- Removed call to extension functions in PrettyPrinter
+
+- Added XCatalog support, if available, to Builder.FromXML
+
+- Changed SAX Handler class for Builder.FromXML to a parameter,
+  to allow input filters, etc.
+
+- Changed Builder.FromXML to add the read-in tree to the created
+  document, if one is not given.  If one is given, just return a
+  fragment, as in version 0.7.0.
+
+- Added utility APIs to DOM.Ext.Builder:
+    o FromXMLStream
+    o FromXMLFile
+    o FromXMLURL
+    o FromHTMLFile
+    o FromHTMLStream
+    o FromHTMLURL
+
+- Reduced the PrettyPrint indentation from a tab to two spaces.
+
+Changes in 0.7.0 (R19990207)
+----------------------------
+
+- Added support for "orbless" configuration.  Now neither ILU nor Fnorb
+  are requred and 4DOM can be run purely locally, but still with a
+  consistent interface.  Naturally, the orbless config is much
+  faster than the ilu or fnorb configs.
+
+- Many fixes to improve consistency over an ORB interface
+  (an example using an ORB has been added to demos).
+
+- Fixes to NodeList and NamedNodeMap
+
+- Added an Ext package for DOM extensions, and moved many of the
+  existing extensions there.  See docs/Extensions.html.
+	
+- Added to Ext an extensive factory interface for creation of nodes,
+  consistent for local and ORB use.
+
+- Added to Ext a ReleaseNode helper function to reclaim unused nodes,
+  necessary for ORB usage, and also for local usage because of
+  circular references.
+
+- Added NodeIterators and Node Filters from DOM Level 2
+	
+- Added a visitor and walker system (to Ext).  These generalize the
+  NodeIterator concept for cases where pre-order traversal is not
+  suitable: for instance printing.
+
+- Removed the repr functions from Node interfaces in favor of print
+  walker/visitors.
+
+- Added Print and PrettyPrint helper functions to Ext for printing
+  and pretty-printing node trees.
+
+- Added Strip helper function to Ext to strip all ignorable
+  white-space text nodes from a node tree.
+
+- Moved all tools to construct a DOM tree from XML and HTML text to
+  a Builder module in Ext, with two functions: FromXML and FromHTML.
+
+- Added options to FromXML that allow specification of whether to keep
+  ignorable whitespce int he resultant node tree, and options on
+  whether to validate.
+	
+- Innumerable minor and miscellaneous fixes
+	
+Changes in 0.6.1 (R19981120)
+----------------------------
+
+- added ILU support with a series of kludges
+  (all designed to minimize effect on existing DOM code):
+
+	o Use ILU's python-stubber in makefile rather than fnidl
+	o python-stubber generates *IF__skel rather than fnidl's
+	  *IF_skel, so copy the files so bother names are available.
+	o add config modules for DOM core and HTML, globally imported,
+	  which creates dummy INTERFACENAME_skel classes because ILU
+	  does not append "_skel" to skeleton class names as Fnorb
+	  does: it uses module-scoping for the distinction.
+	o Add variables using Fnorb-style constant naming
+	  (INTERFACENAME.CONSTANTNAME) to refer to the ILU-style
+	  constants (INTERFACENAME_CONSTANTNAME)
+	o Brutally hack all 4DOM source files during make to change
+	  Fnorb-style invocations for DOMException
+	  (raise DOMException(EXCEPTNAME))
+	  into ILU-style
+	  (raise DOMException, DOMException__omgidl_exctype(EXCEPTNAME))
+
+  note that this series of kludges slows things down and adds some
+  bloat, but we plan to intelligently convert to better-considered
+  fixes in time.  Also, there will be some degree of resolution between
+  Fnorb and ILU as the Python-CORBA mapping gets adopted, so let's
+  avoid baking any fixes prematurely into the code.
+
+- added the #pragma prefix "fourthought.com" to all IDL files
+- Document.repr() now includes the DOCTYPE
+
+Version: 0.6.0 (R19981104)
+--------------------------
+
+- initial public release

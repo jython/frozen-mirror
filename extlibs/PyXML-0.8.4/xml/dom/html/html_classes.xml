@@ -1,0 +1,746 @@
+<?xml version="1.0"?>
+<!DOCTYPE generate SYSTEM "generate.dtd">
+<generate>
+  <header>
+########################################################################
+#
+# File Name:            $FILE$
+#
+#
+  </header>
+  <copyright>
+WWW: http://4suite.com/4DOM         e-mail: support@4suite.com
+
+Copyright (c) 2000 Fourthought Inc, USA.   All Rights Reserved.
+See  http://4suite.com/COPYRIGHT  for license and copyright information
+  </copyright>
+
+  <!-- HTMLHtmlElement -->
+  <class name='Html'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='version' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLHeadElement -->
+  <class name='Head'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='profile' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLTitleElement -->
+  <class name='Title'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='text' type='node'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLLinkElement -->
+  <class name='Link'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='disabled' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='charset' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='href' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='hreflang' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='media' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rel' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rev' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='target' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLMetaElement -->
+  <class name='Meta'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='content' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='httpEquiv' type='string' htmlname='HTTP-EQUIV'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='scheme' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLBaseElement -->
+  <class name='Base'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='href' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='target' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLHeadElement -->
+  <class name='IsIndex' tagname='ISINDEX'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='prompt' type='string' htmlname='PROMPT'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLStyleElement -->
+  <class name='Style'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='disabled' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='media' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLBodyElement -->
+  <class name='Body'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='aLink' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='background' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='bgColor' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='link' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='text' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='vLink' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLOptGroupElement -->
+  <class name='OptGroup'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='disabled' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='label' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLTextAreaElement -->
+  <class name='TextArea'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='cols' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='defaultValue' type='node' htmlname='VALUE'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='disabled' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='readonly' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rows' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='tabIndex' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='const' value='textarea'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='value' type='node'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <method name='blur'>
+      <params></params>
+      <code></code>
+    </method>
+    <method name='focus'>
+      <params></params>
+      <code></code>
+    </method>
+    <method name='select'>
+      <params></params>
+      <code></code>
+    </method>
+  </class>
+
+  <!-- HTMLButtonElement -->
+  <class name='Button'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='disabled' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='tabIndex' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='value' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLLabelElement -->
+  <class name='Label'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='htmlFor' type='string' htmlname='FOR'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLFieldSetElement -->
+  <class name='FieldSet'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLLegenElement -->
+  <class name='Legend'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLUListElement -->
+  <class name='UList' tagname='UL'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='compact' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLOListElement -->
+  <class name='OList' tagname='OL'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='compact' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='start' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLDLitElement -->
+  <class name='DList' tagname='DL'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='compact' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLDirectoryElement -->
+  <class name='Directory' tagname='DIR'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='compact' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLMenuElement -->
+  <class name='Menu'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='compact' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLLIElement -->
+  <class name='LI'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='value' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLDivElement -->
+  <class name='Div'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLParagraphElement -->
+  <class name='Paragraph' tagname='P'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLHeadingElement -->
+  <class name='Heading' multiple='1'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLQuoteElement -->
+  <class name='Quote' multiple='1'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='cite' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLPreElement -->
+  <class name='Pre'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='width' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLBRElement -->
+  <class name='BR'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='clear' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLBaseFontElement -->
+  <class name='BaseFont'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='color' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='face' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='size' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLFontElement -->
+  <class name='Font'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='color' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='face' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='size' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLHRElement -->
+  <class name='HR' tagname='HR'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list' htmlname='ALIGN'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='noShade' type='bool' htmlname='NOSHADE'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='size' type='string' htmlname='SIZE'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='width' type='string' htmlname='WIDTH'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLModElement -->
+  <class name='Mod'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='cite' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='dateTime' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLAnchorElement -->
+  <class name='Anchor' tagname='A'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='charset' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='coords' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='href' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='hreflang' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rel' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rev' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='shape' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='tabIndex' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='target' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <method name='blur'>
+      <params></params>
+      <code></code>
+    </method>
+    <method name='focus'>
+      <params></params>
+      <code></code>
+    </method>
+  </class>
+
+  <!-- HTMLImageElement -->
+  <class name='Image' tagname='IMG'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='lowSrc' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='alt' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='border' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='height' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='hspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='isMap' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='longDesc' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='src' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='useMap' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='vspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='width' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLObjectElement -->
+  <class name='Object'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='archive' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='border' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='code' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='codeBase' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='codeType' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='contentDocument' type='const' value='None'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='data' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='declare' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='form' type='form'>
+      <permissions readable='1' writeable='0'/>
+    </attribute>
+    <attribute name='height' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='hspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='standby' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='tabIndex' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='useMap' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='vspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='width' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLParamElement -->
+  <class name='Param'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='value' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='valueType' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLAppletElement -->
+  <class name='Applet'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='alt' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='archive' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='code' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='codeBase' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='height' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='hspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='name' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='object' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='vspace' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='width' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLAreaElement -->
+  <class name='Area'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='accessKey' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='alt' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='coords' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='href' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='noHref' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='shape' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='tabIndex' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='target' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLScriptElement -->
+  <class name='Script'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='charset' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='defer' type='bool'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='event' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='htmlFor' type='string' htmlname='FOR'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='src' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='text' type='node'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='type' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLTableCaptionElement -->
+  <class name='TableCaption' tagname='CAPTION'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLTableColElement -->
+  <class name='TableCol' tagname='COL'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='align' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='ch' type='string' htmlname='CHAR'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='chOff' type='string' htmlname='CHAROFF'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='span' type='long'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='vAlign' type='list'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='width' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+
+  <!-- HTMLFrameSetElement -->
+  <class name='FrameSet'>
+    <baseclass name='xml.dom.html.HTMLElement'/>
+    <attribute name='cols' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+    <attribute name='rows' type='string'>
+      <permissions readable='1' writeable='1'/>
+    </attribute>
+  </class>
+</generate>

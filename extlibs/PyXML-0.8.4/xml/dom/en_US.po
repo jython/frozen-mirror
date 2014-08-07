@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 4DOM 0.8\n"
+"PO-Revision-Date: 2003-07-27 22:06+0200\n"
+"Last-Translator: Martin v. Löwis <martin@v.loewis.de>\n"
+"Language-Team: English <en@translate.freefriends.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+"Generated-By: pygettext.py 1.1\n"
+
+
+#: Dom/MessageSource.py:33
+msgid "Attempt to modify a read-only object"
+msgstr ""
+
+#: Dom/MessageSource.py:29
+msgid "Node manipulation results in invalid parent/child relationship."
+msgstr ""
+
+#: Dom/MessageSource.py:49
+msgid "XML parse error at line %d, column %d: %s"
+msgstr ""
+
+#: Dom/MessageSource.py:32
+msgid "Node does not support data"
+msgstr ""
+
+#: Dom/MessageSource.py:28
+msgid "DOMString exceeds maximum size"
+msgstr ""
+
+#: Dom/MessageSource.py:41
+msgid "Object does not support this operation or parameter"
+msgstr ""
+
+#: Dom/MessageSource.py:45
+msgid "Uninitialized type in Event object"
+msgstr ""
+
+#: Dom/MessageSource.py:35
+msgid "Object or operation not supported"
+msgstr ""
+
+#: Dom/MessageSource.py:31
+msgid "Invalid or illegal character"
+msgstr ""
+
+#: Dom/MessageSource.py:30
+msgid "Node is from a different document"
+msgstr ""
+
+#: Dom/MessageSource.py:36
+msgid "Attribute already in use by an element"
+msgstr ""
+
+#: Dom/MessageSource.py:54
+msgid "Invalid Container Node"
+msgstr ""
+
+#: Dom/MessageSource.py:37
+msgid "Object is not, or is no longer, usable"
+msgstr ""
+
+#: Dom/MessageSource.py:40
+msgid "Invalid or illegal namespace operation"
+msgstr ""
+
+#: Dom/MessageSource.py:38
+msgid "Specified string is invalid or illegal"
+msgstr ""
+
+#: Dom/MessageSource.py:27
+msgid "Index error accessing NodeList or NamedNodeMap"
+msgstr ""
+
+#: Dom/MessageSource.py:39
+msgid "Attempt to modify the type of a node"
+msgstr ""
+
+#: Dom/MessageSource.py:53
+msgid "Invalid Boundary Points specified for Range"
+msgstr ""
+
+#: Dom/MessageSource.py:34
+msgid "Node does not exist in this context"
+msgstr ""
+

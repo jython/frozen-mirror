@@ -1,0 +1,92 @@
+# 4Suite Dom German message catalog.
+# Copyright (C) 2001 Fourthought, Inc.
+# Martin v. Löwis <loewis@informatik.hu-berlin.de>, 2001.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Dom\n"
+"PO-Revision-Date: 2001-01-31 08:09+01:00\n"
+"Last-Translator: Martin v. Löwis <loewis@informatik.hu-berlin.de>\n"
+"Language-Team: German <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+"Generated-By: pygettext.py 1.1\n"
+
+
+#: Dom/MessageSource.py:33
+msgid "Attempt to modify a read-only object"
+msgstr "Änderung eines unveränderbaren Objekts versucht."
+
+#: Dom/MessageSource.py:29
+msgid "Node manipulation results in invalid parent/child relationship."
+msgstr "Knotenänderung resultiert in ungültiger Eltern-Kind-Beziehung."
+
+#: Dom/MessageSource.py:49
+msgid "XML parse error at line %d, column %d: %s"
+msgstr "XML-Parser-Fehler in Zeile %d, Spalte %d: %s"
+
+#: Dom/MessageSource.py:32
+msgid "Node does not support data"
+msgstr "Knoten unterstützt keine Daten."
+
+#: Dom/MessageSource.py:28
+msgid "DOMString exceeds maximum size"
+msgstr "Der DOMString ist größer als maximal erlaubt."
+
+#: Dom/MessageSource.py:41
+msgid "Object does not support this operation or parameter"
+msgstr "Das Objekt unterstützt diese Operation oder diesen Parameter nicht."
+
+#: Dom/MessageSource.py:45
+msgid "Uninitialized type in Event object"
+msgstr "Nicht-initialisierter Typ in Event-Objekt."
+
+#: Dom/MessageSource.py:35
+msgid "Object or operation not supported"
+msgstr "Das Objekt oder die Operation ist nicht unterstützt."
+
+#: Dom/MessageSource.py:31
+msgid "Invalid or illegal character"
+msgstr "Ungültiges oder unerlaubtes Zeichen."
+
+#: Dom/MessageSource.py:30
+msgid "Node is from a different document"
+msgstr "Der Knoten stammt aus einem anderen Dokument."
+
+#: Dom/MessageSource.py:36
+msgid "Attribute already in use by an element"
+msgstr "Das Attribut wird bereits von einem Element verwendet."
+
+#: Dom/MessageSource.py:54
+msgid "Invalid Container Node"
+msgstr "Ungültiger Container-Knoten."
+
+#: Dom/MessageSource.py:37
+msgid "Object is not, or is no longer, usable"
+msgstr "Das Objekt ist nicht oder nicht mehr nutzbar."
+
+#: Dom/MessageSource.py:40
+msgid "Invalid or illegal namespace operation"
+msgstr "Ungültige oder unerlaubte Namespace-Operation."
+
+#: Dom/MessageSource.py:38
+msgid "Specified string is invalid or illegal"
+msgstr "Der angegebene String ist ungültig oder nicht erlaubt."
+
+#: Dom/MessageSource.py:27
+msgid "Index error accessing NodeList or NamedNodeMap"
+msgstr "Indexfehler bei Zugriff auf NodeList- oder NamedNodeMap-Objekt."
+
+#: Dom/MessageSource.py:39
+msgid "Attempt to modify the type of a node"
+msgstr "Typänderung eines Knotens versucht."
+
+#: Dom/MessageSource.py:53
+msgid "Invalid Boundary Points specified for Range"
+msgstr "Ungültige Endpunkte für Range angegeben."
+
+#: Dom/MessageSource.py:34
+msgid "Node does not exist in this context"
+msgstr "Knoten existiert in diesem Kontext nicht."
+
