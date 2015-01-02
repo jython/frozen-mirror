@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="http://xslt.fourthought.com/api.xslt" type="text/xsl"?>
+<tech:ApiSpec title="4DOM Ranges"
+  xmlns:tech="http://namespaces.fourthought.com/technical"
+  xmlns:dc= "http://purl.org/dc/elements/1.1"
+  xmlns="http://docbook.org/docbook/xml/4.0/namespace"
+>
+
+  <dc:Title>4DOM Ranges</dc:Title>
+  <dc:Subject>4DOM</dc:Subject>
+  <dc:Subject>Ranges</dc:Subject>
+  <dc:Subject>DOM</dc:Subject>
+  <dc:Description>Documentation on 4DOM implementation of the Ranges Level II and the deviations from the specification.</dc:Description>
+
+
+<para>
+The implementation of Ranges in 4DOM supports all of the interfaces defined at <ulink url='http://www.w3.org/TR/DOM-Level-2-Traversal-Range/'>http://www.w3.org/TR/DOM-Level-2-Traversal-Range/</ulink>  It does not support section 2.12, "Range modification under document mutation".  The implementation of Ranges is written such that any Python compliant DOM implementation should be able to take advantage of them.  The additional methods that an implementation needs to support are defined below.
+</para>
+
+<para>
+See the 4DOM test_suite directory for the file test_ranges.py to see examples of using ranges
+</para>
+
+
+<sect1><title>Range Creation</title>
+
+<para>
+To create a range from a document, simple call the createRange method.  This is the only method that a DOM implementatio needs to add to allow range support.  An implementation of this method will create a new instance of the xml.dom.Range.Range class passing the document into the constructor.
+</para>
+
+<para>For a complete listing of the interfaces on the Range instances, see the specification at <ulink url='http://www.w3.org/TR/DOM-Level-2-Traversal-Range/'>http://www.w3.org/TR/DOM-Level-2-Traversal-Range/</ulink>
+</para>
+
+</sect1>
+
+</tech:ApiSpec>

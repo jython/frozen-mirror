@@ -1,3 +1,24 @@
+Welcome to the jython-mobile wiki!
+============================
+
+This is branch from original Jython, the goal is create cross platform development environment and be native.
+First goal is create android development environment using jython-mobile, then second step is create for ios development environment.
+To build jython-mobile, just clone this repository and build using ant.
+
+1. Clone jython-mobile
+2. Enter jython-mobile folder
+3. Open ant.properties.example, edit configuration depend on operating system configuration then save as ant.properties
+4. Execute ant comment
+5. done.
+
+For reporting bug, you can emailme amru.rosyada@gmail.com
+
+===========================================
+Bellow is original readme from Jython project
+don't report bug which is happend on jython-mobile
+to jython project!
+===========================================
+
 Welcome to Jython 2.7b3
 =======================
 

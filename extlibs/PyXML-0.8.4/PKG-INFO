@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: PyXML
+Version: 0.8.4
+Summary: Python/XML package
+Home-page: http://www.python.org/sigs/xml-sig/
+Author: XML-SIG
+Author-email: xml-sig@python.org
+License: UNKNOWN
+Description: XML Parsers and API for Python
+        This version of PyXML was tested with Python 2.x.
+        
+Platform: UNKNOWN

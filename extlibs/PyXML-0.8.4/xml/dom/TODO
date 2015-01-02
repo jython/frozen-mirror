@@ -1,0 +1,7 @@
+-- Consider xml:include
+-- Consider xml:base
+-- Consider xml:lang
+-- Fix Attr defaultValue and specified
+-- More optimization?
+-- Complete document on 4TH interpretations of the DOM
+-- Convert string to DOMString

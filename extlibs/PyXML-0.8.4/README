@@ -1,0 +1,47 @@
+
+XML package v0.8.3
+
+This is the Python XML package.  The distribution contains a
+validating XML parser, an implementation of the SAX and DOM
+programming interfaces, an interface to the Expat parser (and the
+Expat parser itself), and a C helper module that can speed up
+xmllib.py by a factor of 5.  There's even documentation!
+
+For information on the licensing conditions for each component,
+consult the LICENCE file.
+
+The only requirements for installing the package are Python 2.0 or
+later, and a C compiler. Note that the Python must actually be an
+INSTALLed python, rather than one that is being used directly from
+Python's build area. This release has been tested with Python 2.x.
+
+To compile everything, simply perform the following steps.
+
+1) Run "python setup.py build" to copy *.py files and compile the C
+   extensions.
+
+2) To install everything in the site-packages directory as an xml/
+   package, run "python setup.py install".
+
+If you want to use PyXML's experimental XSLT package, you need to pass
+--with-xslt to setup.py.  If you also want to install FourThought's
+4Suite package, you should not install the XSLT package and also avoid
+the XPath package, so you can use the one from 4Suite.  This can be
+done by using the command line option --without-xpath.
+
+If you use a binary distribution package, no compiler is needed, and
+setup.py does not need to be run.
+
+If you have difficulty installing this software, send a problem report
+to <xml-sig@python.org> describing the problem.
+
+Software versions and credits:
+    4DOM                Fourthought, Inc. (Uche Ogbuji, Mike Olson)
+    4XSLT               Fourthought, Inc. (Uche Ogbuji, Mike Olson)
+    PyExpat             Jack Jansen, Fred Drake, Martin v. Löwis
+    Expat 1.95.7        James Clark, Clark Cooper, Fred Drake, Karl Waclawek
+    saxlib-1.0          Lars Marius Garshol
+    sgmlop-000705       Fredrik Lundh
+    xmlproc 0.70        Lars Marius Garshol
+    minidom, pulldom    Paul Prescod
+    PyTREX              James Tauber

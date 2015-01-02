@@ -1,0 +1,33 @@
+
+<!--
+
+  XML Software Autoupdate DTD, version 1.00
+  Lars Marius Garshol
+
+  See http://birk105.studby.uio.no/www_work/xsa/ for information.
+-->
+
+  <!ELEMENT xsa (vendor, product+)>
+
+  <!ATTLIST xsa version CDATA #FIXED "1.0">
+
+  <!ELEMENT vendor   (name,email,url?)>
+
+  <!ELEMENT name     (#PCDATA)>
+
+  <!ELEMENT email    (#PCDATA)>
+
+  <!ELEMENT url      (#PCDATA)>
+
+  <!ELEMENT product  (name,version,last-release,info-url?,
+  		      changes?)>
+
+  <!ATTLIST product id ID #REQUIRED>
+
+  <!ELEMENT version      (#PCDATA)>
+
+  <!ELEMENT last-release (#PCDATA)>
+
+  <!ELEMENT info-url     (#PCDATA)>
+
+  <!ELEMENT changes      ANY>

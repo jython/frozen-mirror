@@ -1,0 +1,25 @@
+test_marshal
+Testing XML marshalling...
+<?xml version="1.0"?><marshal><none/></marshal>
+<?xml version="1.0"?><marshal><int>1</int></marshal>
+<?xml version="1.0"?><marshal><long>10633823966279326983230456482242756608</long></marshal>
+<?xml version="1.0"?><marshal><float>19.72</float></marshal>
+<?xml version="1.0"?><marshal><complex>1.0 5.0</complex></marshal>
+<?xml version="1.0"?><marshal><string>here is a string &amp; a &lt;fake tag&gt;</string></marshal>
+<?xml version="1.0"?><marshal><tuple><int>1</int><int>2</int><int>3</int></tuple></marshal>
+<?xml version="1.0"?><marshal><list id="i2"><string>alpha</string><string>beta</string><string>gamma</string></list></marshal>
+<?xml version="1.0"?><marshal><dictionary id="i2"><int>1</int><int>2</int><string>key</string><string>value</string></dictionary></marshal>
+<?xml version="1.0"?><marshal><object id="i2" module="xml.marshal.generic" class="_A"><tuple></tuple><dictionary id="i3"><string>self</string><reference id="i2"/><string>subobject</string><object id="i4" module="xml.marshal.generic" class="_B"><tuple></tuple><dictionary id="i5"><string>list</string><list id="i6"><none/><int>1</int><long>10633823966279326983230456482242756608</long><float>19.72</float><complex>1.0 5.0</complex><string>here is a string &amp; a &lt;fake tag&gt;</string></list></dictionary></object></dictionary></object></marshal>
+<?xml version="1.0"?><marshal><list id="i2"><none/><int>1</int><long>10301051460877537453973547267843</long><dictionary id="i3"><int>1</int><string>spam</string><int>2</int><string>eggs</string></dictionary><string>&lt;fake tag&gt;</string><complex>1.0 5.0</complex><reference id="i2"/></list></marshal>
+Testing WDDX marshalling...
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><boolean value="true"/></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><boolean value="false"/></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><number>1</number></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><number>10633823966279326983230456482242756608</number></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><number>19.72</number></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><string>here is a string &amp; a &lt;fake tag&gt;</string></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><array length="4"><number>1</number><number>2</number><number>3</number><string>foo</string></array></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><recordset rowCount="2" fieldNames="NAME,AGE"><field name="NAME"><string>John Doe</string><string>Jane Doe</string></field><field name="AGE"><number>34</number><number>31</number></field></recordset></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><struct><var name="eggs"><array length="2"><string>rhode island red</string><string>bantam</string></array></var><var name="lowerBound"><number>18</number></var><var name="upperBound"><number>139</number></var></struct></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><struct><var name="a"><array length="2"><number>10</number><string>second element</string></array></var><var name="b"><boolean value="true"/></var><var name="n"><number>-12.456</number></var><var name="obj"><struct><var name="n"><number>-12.456</number></var><var name="s"><string>a string</string></var></struct></var><var name="s"><string>a string</string></var></struct></data></wddxPacket>
+<?xml version="1.0"?><!DOCTYPE wddxPacket SYSTEM "wddx_0090.dtd"><wddxPacket version="0.9"><header/><data><array length="6"><number>1</number><number>3</number><string>five</string><number>7</number><string></string><number>42</number></array></data></wddxPacket>

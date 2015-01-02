@@ -1,0 +1,121 @@
+Example Programs and Demos for 4DOM.
+====================================
+
+Sample data files which can be used to exercise the various demos:
+
+* addr_book1.xml
+* addr_book2.xml
+* book_catalog1.xml
+* addr_book.dtd
+* employee_table.html
+
+
+Demos:
+------
+
+* dom_from_html_file.py
+
+Demonstrates reading HTML from a file, and pretty-printing.
+
+Example: "python dom_from_html_file.py employee_table.html"
+
+
+* dom_from_xml_file.py
+
+Demonstrates reading XML from a file, and pretty-printing.  Try changing FromXml to have "validate=1".
+
+Example: "python dom_from_xml_file.py addr_book1.xml"
+
+
+* generate_html1.py
+
+Demonstrates putting together a simple HTML page (a form in this case)
+with the standard DOM factory interface.
+
+Just execute with "python generate_html1.py"
+
+You can re-direct the output to file and view the result with a browser.  Try adding in more sophisticated form elements.
+
+
+* generate_xml1.py
+
+Demonstrates putting together a simple XML document with the standard DOM
+factory interface.
+
+Just execute with "python generate_xml1.py"
+
+
+* 4tidy.py
+
+Demonstrates the XHTML support in 4DOM.  It takes a URL or file name on the
+command line and reads the HTML source.  It then prints xhtml based on the HTML
+source to standard output.
+
+try "python 4tidy.py http://fourthought.com"
+
+
+* iterator1.py
+
+Demonstrates the DOM standard Node Iterator interface.  It iterates over each node in the read-in file, and prints out its node type and name.  Then it iterates again, using the NodeFilter interface to restrict it to nodes of type Element.
+
+Example: "python iterator1.py addr_book1.xml"
+
+
+* visitor1.py
+
+Demonstrates 4DOM's proprietary Walker/Visitor interface.  If you only need to iterate over a tree in pre-order, you are advised to use the standard NodeIterator instead (see iterator1.py and xll_replace.py for examples).  dom.ext.Visitor is best for defi
+ning other iteration orders and rules.
+
+This sample actually just runs through a pre-order walk, for simplicity.  The output should be identical to that of the first part of iterator1.py.
+
+Example: "python visitor1.py addr_book1.xml"
+
+
+* trace_ns.py
+
+A demo of 4DOM's namespace extensions.  Given an XML file-name on the command line, it will walk through the elements in document order (using NodeIterator) and print out the default namespace in effect as well as those of the element and its attributes.
+
+Example: "python trace_ns.py book_catalog1.xml"
+
+For the Namespace spec, see
+
+http://www.w3.org/TR/REC-xml-names/
+
+For James Clark's excellent introduction to and clarification of namespaces, see
+
+http://www.jclark.com/xml/xmlns.htm
+
+
+* link_title_invert.py
+
+Demonstrates node manipulations.  It takes a sample document with anchors
+embedded in header tags, and flips them so that the header tags are instead
+embedded in the anchors.
+
+just "python link_title_invert.py"
+
+* xll_replace.py
+
+A rather more involved demo.  This program reads in an XML file, and looks for XLL-type hyperlinks (see http://www.oasis-open.org/cover/xll.html for information on this remarkably powerful spec).
+
+Warning: This script uses a very obsolete version of XLink
+
+When it finds such a link, it looks for the target XML doc
+ument and parses it into a DOM node.  It doesn't support XPointer for document fragments yet, but with a decent Xpointer processor, such as xptr (see below), you can add this yourself.  It then replaces the node that contained the link with the entire con
+tents of the target document of that link.
+
+For a good example, look at addr_book1.xml and then addr_book2.xml.  The former contains the following line:
+
+ <ENTRY-LINK xml:link="simple" href="addr_book2.xml"/>
+
+if you run
+
+"python xll_replace.py addr_book1.xml"
+
+it will read in the addr_book2.xml file into a node, and replace the ENTRY-LINK node with the new one.  It will then print out the result, which should be self-explanatory.
+
+
+If you need help with the demos, or any other help working with 4DOM,
+please don't hesistate to as on the mailing list: 4Suite@lists.fourthought.com.
+
+

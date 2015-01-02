@@ -1,0 +1,401 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>Documentation: Catalog support in xmlproc</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the catalog support available in
+	xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, parser, SGML Open catalogs, catalog files,
+	XCatalog">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>Documentation: Catalog support in xmlproc</H1>
+
+<H2>Contents:</H2>
+
+<P>
+This page consists of the following sections:
+</P>
+
+<UL>
+  <LI><A HREF="#whatare">What are catalog files?</A>
+  <LI><A HREF="#catsupp">Catalog file support in xmlproc</A>
+  <LI><A HREF="#catuse">Using the catalog file parser</A>
+  <LI><A HREF="#xcat">Support for XCatalog 0.1</A>
+</UL>
+
+<H2><A NAME="whatare">What are catalog files?</A></H2>
+
+<H3>What they do</H3>
+
+<P>
+Catalog files are a means of telling a parser how to map public
+identifiers to system identifiers. One simple example of this would be
+to use a catalog file to tell an SGML parser that the DTD with the
+public identifier "-//W3C//DTD HTML 4.0 Transitional//EN" can be found
+at the location "file:///usr/pub/sgml/dtds/html40.dtd".
+</P>
+
+<P>
+In other words: a public identifier is a well-known name for something
+that is not site-dependent, while a system identifier tells
+applications how to find this thing on the local system. A catalog
+file can be used to find out where to find something at a particular
+site given its public identifier.
+</P>
+
+<P>
+In addition to this, catalog files can affect the parsing of documents
+in other ways as well.
+</P>
+
+<H3>Where they come from?</H3>
+
+<P>
+Catalog files come from the SGML community, but are not part of the
+SGML standard itself. The catalog file format and semantics are
+defined in <A
+HREF="http://www.sil.org/sgml/sotr9401-a2.html">SGML Open
+Technical Resolution TR9401:1997</A>, and have since been implemented
+in the SP SGML parser, the DXP XML parser and xmlproc.
+</P>
+
+<P>
+The format used by SP (which extends the original format somewhat) has
+become the de facto standard for catalog files. xmlproc supports a
+subset of this format.
+</P>
+
+<H3>The catalog file format</H3>
+
+<P>
+Catalog files consist of entries: which start with a keyword, followed
+by arguments separated by whitespace. Arguments which contain spaces
+must be quoted. Entries are separated by whitespace and comments
+(which start with "--" and end with "--") can appear anywhere whitespace can appear.
+</P>
+
+<P>
+An example catalog file:
+</P>
+
+<PRE>
+-- DSSSL --
+
+PUBLIC "-//James Clark//DTD DSSSL Flow Object Tree//EN" "c:\programfiler\apps\jade\fot.dtd"
+PUBLIC "ISO/IEC 10179:1996//DTD DSSSL Architecture//EN" "c:\programfiler\apps\jade\dsssl.dtd"
+PUBLIC "-//James Clark//DTD DSSSL Style Sheet//EN" "c:\programfiler\apps\jade\style-sheet.dtd"
+
+-- HTML 2 --
+
+PUBLIC  "-//IETF//DTD HTML//EN"                           html2.dtd
+PUBLIC  "-//IETF//DTD HTML 2.0//EN"                       html2.dtd
+</PRE>
+
+<H2><A NAME="catsupp">Catalog file support in xmlproc</A></H2>
+
+<H3>Level of support</H3>
+
+<P>
+The support for catalog files has not been thoroughly tested and
+xmlproc probably will not handle the cases where there are conflicts
+between entries correctly. This part of xmlproc should be considered
+to be of demonstration quality.
+</P>
+
+<P>
+xmlproc supports the following keywords:
+</P>
+
+<DL>
+  <DT><PRE>PUBLIC <I>pubid sysid</I></PRE>
+  <DD>Specifies that the pubid should be mapped to sysid whenever it
+  occurs.
+  <DT><PRE>SYSTEM <I>sysid1 sysid2</I></PRE>
+  <DD>Specifies that whenever sysid1 appears as the explicit system
+  identifier sysid2 should be used instead.
+  <DT><PRE>DOCUMENT <I>sysid</I></PRE>
+  <DD>Specifies that if no document entity is supplied to the parser,
+  this document should be parsed.
+  <DT><PRE>CATALOG <I>sysid</I></PRE>
+  <DD>Includes the catalog file at sysid.
+  <DT><PRE>BASE <I>sysid</I></PRE>
+  <DD>Uses sysid as the base system identifier to resolve relative
+  system identifiers against below this point.
+  <DT><PRE>DELEGATE <I>pubid-prefix sysid</I></PRE>
+  <DD>Resolves public identifiers that begin with pubid-prefix with
+  the catalog file at sysid.
+</DL>
+
+<H3>How to make xmlproc use a catalog file</H3>
+
+<P>
+This is easily done. Here is some code that parses the catalog file
+referred to by the XMLSOCATALOG environment variable:
+</P>
+
+<PRE><CODE>
+import os
+from xml.parsers.xmlproc import xmlval,catalog
+
+p=xmlval.XMLValidator()
+
+cat=catalog.xmlproc_catalog(os.environ["XMLSOCATALOG"],\
+                            catalog.CatParserFactory())
+p.set_pubid_resolver(cat)
+p.parse_resource(sysid)
+</CODE></PRE>
+
+<H2><A NAME="catuse">Using the catalog file parser</A></H2>
+
+<P>
+The xmlproc implementation contains both a general catalog file parser
+and a general catalog file implementation, to which the xmlproc
+PubIdResolver is just one of many possible clients. This means that
+you can use this catalog file parser in your own applications.
+</P>
+
+<P>
+If you just want to make xmlproc use a catalog file you should look at
+the <A HREF="#xmlproc_catalog">xmlproc_catalog</A> class.
+</P>
+
+<P>
+The catalog module has the following classes and interfaces:
+</P>
+
+<UL>
+  <LI><A HREF="#CatalogParser">CatalogParser</A>
+  <LI><A HREF="#CatalogApp">CatalogApp</A>
+  <LI><A HREF="#CatalogManager">CatalogManager</A>
+  <LI><A HREF="#CatParserFactory">CatParserFactory</A>
+  <LI><A HREF="#xmlproc_catalog">xmlproc_catalog</A>
+  <LI><A HREF="#SAX_catalog">SAX_catalog</A>
+</UL>
+
+<H3><A NAME="CatalogParser">The CatalogParser class</A></H3>
+
+<P>
+The CatalogParser class is mainly useful if you want to develop your
+own catalog file support completely from scratch. It only parses the
+file and passes information to you, without doing anything with it.
+If you just want to query the parsed information you should probably
+look at the catalog manager below.
+</P>
+
+<P>
+The CatalogParser class has these methods:
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self,error_lang=None):</CODE>
+  <DD>This creates a parser ready for parsing. The error language can be set if desired, and accepts
+             the same values as xmlproc itself.
+
+  <DT><CODE>def set_application(self,app):</CODE>
+  <DD>This tells the parser where to send parse events. The
+      application object must conform to the
+      <A HREF="#CatalogApp">CatalogApp</A> interface.
+      
+  <DT><CODE>def set_error_handler(self,err):</CODE>
+  <DD>This tells the parser where to send error events. The
+      error handler must conform to the usual ErrorHandler interface.
+
+  <DT><CODE>def parse_resource(self,sysid):</CODE>
+  <DD>Parses the catalog file with the given system identifier,
+      passing error and data events.
+</DL>
+
+<H3><A NAME="CatalogApp">The CatalogApp interface</A></H3>
+
+<P>
+This is the definition of the interface used by applications that wish
+to receive catalog file parsing events. No attempt is made to
+interpret the entries or their parameters in any way. These methods
+are required:
+</P>
+
+<DL>
+  <DT><CODE>def handle_public(self,pubid,sysid):</CODE>
+  <DD>This notifies the application of a PUBLIC entry in the catalog file.
+
+  <DT><CODE>def handle_delegate(self,prefix,sysid):</CODE>
+  <DD>This notifies the application of a DELEGATE entry in the catalog
+  file.
+
+  <DT><CODE>def handle_document(self,sysid):</CODE>
+  <DD>This notifies the application of a DOCUMENT entry in the catalog
+  file.
+
+  <DT><CODE>def handle_system(self,sysid1,sysid2):</CODE>
+  <DD>This notifies the application of a SYSTEM entry in the catalog
+  file. 
+
+  <DT><CODE>def handle_base(self,sysid):</CODE>
+  <DD>This notifies the application of a BASE entry in the catalog
+  file. 
+
+  <DT><CODE>def handle_catalog(self,sysid):</CODE>
+  <DD>This notifies the application of a CATALOG entry in the catalog
+  file. 
+</DL>
+
+<H3><A NAME="CatalogManager">The CatalogManager class</A></H3>
+
+<P>
+The CatalogManager is a central class in the catalog implementation.
+Users that want to work with catalog files should instantiate a
+CatalogManager and let it parse and keep track of the catalog
+information for them, and only query it when information is needed.
+</P>
+
+<P>
+The CatalogManager class has these methods:
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self):</CODE>
+  <DD>This creates an empty CatalogManager, ready for use.
+
+  <DT><CODE>def set_error_handler(self,err):</CODE>
+  <DD>This tells the CatalogManager where to send error messages from
+  parsing.
+
+  <DT><CODE>def set_parser_factory(self,parser_fact):</CODE>
+  <DD>This gives the CatalogManager an object it can use to create
+  catalog parsers. The parser_fact object must conform to the
+  <A HREF="#CatParserFactory">CatParserFactory</A> interface.
+
+  <DT><CODE>def parse_catalog(self,sysid):</CODE>
+  <DD>Makes the CatalogManager parse the given catalog file and store
+  the information in it internally.
+
+  <DT><CODE>def report(self,out=sys.stdout):</CODE>
+  <DD>Makes the CatalogManager write a badly formatted report of its
+  internal information to the out file object.
+
+  <DT><CODE>def get_document_sysid(self):</CODE>
+  <DD>Returns the contents of the DOCUMENT entry in the catalog file.
+
+  <DT><CODE>def remap_sysid(self,sysid):</CODE>
+  <DD>Returns the system identifier after remapping it according to
+  the SYSTEM entries in the catalog file. (This should only be used
+  for system identifiers occurred alone, without an accompanying
+  public identifier.)
+
+  <DT><CODE>def resolve_sysid(self,pubid,sysid):</CODE>
+  <DD>Returns the correct system identifier for this combination of
+  system and public identifiers. If there was no public identifier the
+  pubid parameter should be None.
+
+   <DT><CODE>def get_public_ids(self):</CODE>
+   <DD>Returns a list of all declared public indentifiers in this catalog
+              and delegates.
+</DL>
+
+<H3><A NAME="CatParserFactory">The CatParserFactory interface</A></H3>
+
+<P>
+This class is used by the CatalogManager to create catalog parsers for
+parsing catalog files. It is mainly interesting if you want to control
+which parser the CatalogManager uses for parsing its catalog files,
+such as if you want to use your own subclass of CatalogParser instead
+of the usual class.
+</P>
+
+<P>
+The CatParserFactory has these methods:
+</P>
+
+<DL>
+  <DT><CODE>def make_parser(self,sysid):</CODE>
+  <DD>This method must return an object conforming to the
+  CatalogParser interface.
+</DL>
+
+<H3><A NAME="xmlproc_catalog">The xmlproc_catalog class</A></H3>
+
+<P>
+This class is a client to the CatalogManager that conforms to the
+PubIdResolver interface, and so can be used to make xmlproc use a
+catalog file. The xmlproc_catalog class has these methods:
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self,sysid,pf,error_handler=None):</CODE>
+  <DD><P>Creates an xmlproc_catalog object, ready to be given to the
+  xmlproc parser with the set_pubid_resolver method. The sysid
+  parameter holds the system identifier of the catalog file to use and
+  the pf parameter holds the
+  <A HREF="#CatParserFactory">CatParserFactory</A> used to create
+  catalog file parsers.
+
+  <P>The error_handler can be a reference to an error handler which
+  can receive notification of errors.
+</DL>
+
+<H3><A NAME="SAX_catalog">The SAX_catalog class</A></H3>
+
+<P>
+This class is a client to the CatalogManager that conforms to the SAX
+EntityResolver interface, and so can be used to make a SAX use a
+catalog file for resolving entity public identifiers. The
+SAX_catalog class has these methods:
+</P>
+
+<DL>
+  <DT><CODE>def __init__(self,sysid,pf):</CODE>
+  <DD>Creates an SAX_catalog object, ready to be given to the
+  SAX parser with the setEntityResolver method. The sysid
+  parameter holds the system identifier of the catalog file to use and
+  the pf parameter holds the
+  <A HREF="#CatParserFactory">CatParserFactory</A> used to create
+  catalog file parsers.
+</DL>
+
+<H2><A NAME="xcat">Support for XCatalog 0.1</A></H2>
+
+<P>
+Just before xmlproc 0.50 was released John Cowan proposed the XCatalog
+0.1 standard for catalog files in XML format. This proposal has an XML
+DTD which can be used to mark up catalog files instead of the special
+syntax used by SGML Open Catalogs. The XCatalog DTD only has a subset
+of the catalog file functionality implemented by xmlproc for SGML Open
+Catalogs.
+</P>
+
+<P>
+The xmlproc XCatalog implementation is found in the xcatalog module
+and consists of three classes:
+</P>
+
+<UL>
+  <LI>XCatalogParser: a CatalogParser that parses XCatalogs instead of
+  SGML Open Catalogs.
+  <LI>XCatParserFactory: a CatParserFactory that always creates
+  XCatalogParser objects.
+  <LI>FancyParserFactory: a CatParserFactory that creates
+  XCatalogParsers for catalog files with system identifiers ending in
+  ".xml", and CatalogParsers for all other catalog files.
+</UL>
+
+<P>
+The support for XCatalog should be considered an experimental feature.
+</P>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

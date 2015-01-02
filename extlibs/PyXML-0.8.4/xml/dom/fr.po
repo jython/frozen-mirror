@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 4DOM 0.8\n"
+"PO-Revision-Date: 2003-07-28 09:27:30+0200\n"
+"Last-Translator: Alexandre Fayolle <alexandre.fayolle@logilab.fr>\n"
+"Language-Team: French <traduc@traduc.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8-bit\n"
+"Generated-By: pygettext.py 1.1\n"
+
+
+#: Dom/MessageSource.py:33
+msgid "Attempt to modify a read-only object"
+msgstr "Tentative de modification d'un objet accessible en lecture seule"
+
+#: Dom/MessageSource.py:29
+msgid "Node manipulation results in invalid parent/child relationship."
+msgstr "La manipulation du noeud cause une relation parent/enfant invalide."
+
+#: Dom/MessageSource.py:49
+msgid "XML parse error at line %d, column %d: %s"
+msgstr "Erreur XML ligne %d, colonne %d: %s"
+
+#: Dom/MessageSource.py:32
+msgid "Node does not support data"
+msgstr "Ce noeud ne peut contenir de données"
+
+#: Dom/MessageSource.py:28
+msgid "DOMString exceeds maximum size"
+msgstr "La DOMString a dépassé la taille maximale"
+
+#: Dom/MessageSource.py:41
+msgid "Object does not support this operation or parameter"
+msgstr "L'objet ne supporte pas cette opération ou ce paramètre"
+
+#: Dom/MessageSource.py:45
+msgid "Uninitialized type in Event object"
+msgstr "Le chanmp type de l'objet Event n'a pas été initialié"
+
+#: Dom/MessageSource.py:35
+msgid "Object or operation not supported"
+msgstr "Objet ou opération non supporté"
+
+#: Dom/MessageSource.py:31
+msgid "Invalid or illegal character"
+msgstr "Charactère invalide ou illégal"
+
+#: Dom/MessageSource.py:30
+msgid "Node is from a different document"
+msgstr "Le noeud appartient à un autre document"
+
+#: Dom/MessageSource.py:36
+msgid "Attribute already in use by an element"
+msgstr "L'attribut est déjà utilisé par un autre élément"
+
+#: Dom/MessageSource.py:54
+msgid "Invalid Container Node"
+msgstr "Noeud conteneur invalide"
+
+#: Dom/MessageSource.py:37
+msgid "Object is not, or is no longer, usable"
+msgstr "Cet objet n'est pas ou plus utilisable"
+
+#: Dom/MessageSource.py:40
+msgid "Invalid or illegal namespace operation"
+msgstr "Opération sur les domaines nominaux invalide ou illégale"
+
+#: Dom/MessageSource.py:38
+msgid "Specified string is invalid or illegal"
+msgstr "La chaine est invalide ou illégale"
+
+#: Dom/MessageSource.py:27
+msgid "Index error accessing NodeList or NamedNodeMap"
+msgstr "Erreur d'indexe pour l'accès à la NodeList ou à la NamedNodeMap"
+
+#: Dom/MessageSource.py:39
+msgid "Attempt to modify the type of a node"
+msgstr "Tentative de modification du type d'un noeud"
+
+#: Dom/MessageSource.py:53
+msgid "Invalid Boundary Points specified for Range"
+msgstr "Des bornes invalides ont été passées à l'intervalles"
+
+#: Dom/MessageSource.py:34
+msgid "Node does not exist in this context"
+msgstr "Le noeud n'existe pas dans ce contexte"
+

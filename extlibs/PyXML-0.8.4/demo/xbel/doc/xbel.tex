@@ -1,0 +1,774 @@
+% When generating HTML, use:
+%   mkhowto --html --iconserver . --split 4 --link 2 xbel
+%
+% The catch:
+%   You have to be running the version of mkhowto from the Python
+%   1.5.2 (post-alpha2) tree, since that's when I added bibtex
+%   support.  ;-)
+
+\documentclass{howto}
+\usepackage{verbatim}
+
+% define some local macros:
+\newcommand{\element}[1]{\texttt{<#1>}}
+\newcommand{\attribute}[1]{\texttt{#1}}
+\newcommand{\nmtoken}[1]{\texttt{#1}}
+\newcommand{\paramentity}[1]{\texttt{\char`\%#1;}}
+
+\newenvironment{longexample}
+  {\begingroup\small}
+  {\endgroup}
+
+\newcommand{\contributor}[2]{\term{#1 \textnormal{(\email{#2})}}}
+\newenvironment{contributorlist}
+  {\begin{definitions}}
+  {\end{definitions}}
+
+
+\title{The XML Bookmark Exchange Language}
+
+\author{Fred L. Drake, Jr.}
+\authoraddress{
+        PythonLabs at Digital Creations \\
+        E-mail: \email{fdrake@acm.org}
+}
+
+\date{\today}			% XXX update before release!
+\release{1.1}
+\setshortversion{1.1}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+The XML Bookmark Exchange Language (XBEL) is a rich interchange
+format for ``bookmark'' data as used by most Internet browsers.  This
+document describes the origin of the design, the requirements which
+drove the design process, and the resulting document type.
+\end{abstract}
+
+\tableofcontents
+
+
+\section{Introduction
+         \label{intro}}
+
+  The XML Bookmark Exchange Language, or XBEL, is an interchange
+  format for the hierarchical bookmark data used by current Internet
+  browsers.  It is defined as an application of the Extensible Markup
+  Language, or XML \cite{w3c-xml}.
+
+  This section descibes the origin of the effort which created the XML
+  Bookmark Exchange Language (XBEL), identifies the contributors, and
+  provides information on the availability of the public text of the
+  DTD and additional documentation on the applications which support
+  XBEL.
+
+  \subsection{Origins
+              \label{origins}}
+
+    The XML Bookmark Exchange Language is a product of the Python XML
+    Special Interest Group (XML-SIG).  The initial intent of the XBEL
+    effort was to create a demonstration of XML facilities available
+    to Python programmers which would also be useful.
+
+  \subsection{Contributors
+              \label{contrib}}
+
+    The initial idea for XBEL was contributed by Mark Hammond.  Mark
+    sent his idea to the Python XML-SIG mailing list.  This was closely
+    followed by discussions and additional ideas by many of the list
+    participants.  The following people contributed to the design of
+    the DTD and the related software (listed in alphabetical order by
+    last name):
+
+    \begin{contributorlist}
+      \contributor{Fred L. Drake, Jr.}{fdrake@acm.org}
+        Documentation.  Design input on DTD and the storage of
+        metadata.  Implemented direct support for XBEL in Grail.
+
+      \contributor{David Faure}{david@mandrakesoft.com}
+        Suggested adding the \attribute{icon} attribute to
+        \element{folder} and \element{bookmark} elements, and
+        \attribute{icon} to \element{folder}.  Implemented XBEL in the
+        Konqueror file manager for the K Desktop Envionment (KDE).
+
+      \contributor{Stefane Fermigier}{fermigie@math.jussieu.fr}
+        Modified implementation of software for Internet Explorer
+        Favorites conversion using his original Python DOM
+        implementation.
+
+      \contributor{Lars Marius Garshol}{larsga@garshol.priv.no}
+        Extended the concept to cover all Internet browsers bookmarks
+        and came up with the name and acronym.  Implemented support
+        for Navigator and Opera bookmark formats.
+
+      \contributor{Geir Ove Gr{\o}nmo}{grove@infotek.no}
+        General input on XML and the desired level of complexity.
+
+      \contributor{Marc van Grootel}{bwaumg@urc.tue.nl}
+        Design input on the DTD, storage of metadata, and comments on
+        the use of XBEL with architectural forms.
+
+      \contributor{Mark Hammond}{MHammond@skippinet.com.au}
+        Original concept and DTD for an archival storage format for
+        Internet Explorer ``Favorites.''
+
+      \contributor{Jack Jansen}{Jack.Jansen@cwi.nl}
+        General input on potential advanced applications.
+
+      \contributor{Andrew M. Kuchling}{akuchling@acm.org}
+        Implemented conversion software between XBEL and Lynx
+        bookmarks.
+
+      \contributor{Fredrik Lundh}{fredrik@pythonware.com}
+        Initial software implementation for Internet Explorer.
+
+      \contributor{Sean McGrath}{digitome@iol.ie}
+        General input on XML and document type definitions.
+
+      \contributor{Greg Stein}{gstein@lyra.org}
+        General input on XML Namespaces and moderator of complexity.
+
+      \contributor{Walter R. Underwood}{wunder@infoseek.com}
+        General input on the use of XML character entites instead of
+        adding general entities, and discussion on date/time values in 
+        XML.
+    \end{contributorlist}
+
+  \subsection{Availability
+              \label{availability}}
+
+    Information on XBEL, including the public text and this document,
+    is available on the Python XML-SIG Web site at
+    \url{http://pyxml.sourceforge.net/topics/xml/xbel/} \cite{xbel-home}.
+    Please refer to this Web resource for information on new versions,
+    DTD variants, and supporting software.
+
+    The public text for XBEL will be made available through a SOCAT
+    catalog at available at:
+    \url{http://pyxml.sourceforge.net/topics/xml/dtds/catalog}.  This
+    catalog may be used by including a DELEGATE entry in a catalog
+    already used by XML processing software.  The DELEGATE entry
+    should be:
+
+\begin{verbatim}
+DELEGATE "+//IDN python.org" "http://www.python.org/topics/xml/dtds/catalog"
+\end{verbatim}
+
+
+  \subsection{Formal Identification
+              \label{formal-ident}}
+
+    The XBEL DTD documented in this report has the Formal Public
+    Identifier:
+
+\begin{verbatim}
++//IDN python.org//DTD XML Bookmark Exchange Language 1.1//EN//XML
+\end{verbatim}
+
+    Valid instances of this document type may use the following document
+    type declaration:
+
+\begin{verbatim}
+<!DOCTYPE xbel
+  PUBLIC "+//IDN python.org//DTD XML Bookmark Exchange Language 1.1//EN//XML"
+         "http://www.python.org/topics/xml/dtds/xbel-1.1.dtd">
+\end{verbatim}
+
+
+\section{Requirements
+         \label{requirements}}
+
+  This section describes the functional capabilities which this
+  document type supports.  There are three categories of
+  functionality supported:  basic bookmark exchange between browsers,
+  data storage for advanced Internet resource management tools, and
+  simplicity in extending the DTD if needed for specific
+  applications.
+
+  \subsection{Relation to Browser Functionality
+              \label{req-browser}}
+
+    XBEL instances must be able to describe sufficient data to
+    represent the bookmarks of all major Internet browsers.
+    It must be possible to convert browser-specific bookmark data to
+    XBEL in a lossless manner, though specific conversions may remove
+    data for application-specific reasons.  It is especially important
+    to consider privacy issues when exchanging bookmark data.
+
+    Conversion from XBEL to a browser-specific format may lose
+    information when the data originates from a browser supporting
+    bookmark features not available in all browsers.  It is expected
+    that software implementing the conversion be able to warn the user
+    if conversion will cause the loss of information, as appropriate.
+
+  \subsection{Advanced Application Support
+              \label{req-applications}}
+
+    XBEL must be able to support interchange requirements for
+    applications not currently implemented as part of typical Internet
+    browsers, including (but not limited to!) application-specific
+    preference and history information which only pertains to specific
+    bookmarks, metadata information, and alternate sources or formats
+    for the documents.
+
+    It must be possible for applications to operate on subsets of the
+    information stored in an XBEL instance without affecting private
+    information stored by other applications.  Application-specific
+    data stored in an XBEL instance may be simple text or may be
+    heavily structured.
+
+  \subsection{Extensibility
+              \label{req-extensibility}}
+
+    Some ability to extend the document type definition is required to 
+    encourage reuse of the existing design.  Due to the use of XML,
+    only a minimum of inherant flexibility is required, as new
+    document types may be formed using namespaces or by allowing the
+    use of well-formed but possibly invalid markup \cite{w3c-xml-names}.
+
+
+\section{XBEL Document Structure
+         \label{document-structure}}
+
+  This section describes the structure of XBEL documents.  This
+  includes information on each element and attribute defined in the
+  DTD.  Some descriptions include references to the parameter entities 
+  used to construct the DTD; these are described in Section
+  \ref{parameter-entities}, ``Use of Parameter Entities.''
+
+  \subsection{Date/time Attribute Values
+              \label{date-time}}
+
+    Several attributes defined in this document type require date/time
+    values stored as CDATA.  For these attributes, the value must be
+    formatted as an ISO 8601:1988 value containing a date
+    \cite{iso8601,iso8601-houston,iso8601-kuhn}.  A time value
+    should be supplied whenever the information is available to the
+    application which set the value.  The format of the values is
+    restricted to the forms specified in the profile defined in
+    \emph{Date and Time Formats} \cite{w3c-datetime}.  Attributes
+    which require this form of value are described below as having a
+    \dfn{date/time value} rather than a CDATA value.
+
+  \subsection{Top-level Information
+              \label{top-level}}
+
+    This section describes the top-level element type of XBEL
+    documents.
+
+    \subsubsection{The \element{xbel} Element
+                   \label{element-xbel}}
+
+      The \element{xbel} element defines the top-level data structure
+      stored in an XBEL instance.  It may contain optional
+      \element{title}, \element{info}, and \element{desc} elements,
+      followed by any number of elements from
+      \paramentity{nodes.mix}.  This is similar to the
+      \element{folder} element, but it may not be nested and carries
+      different attributes.
+
+      \paragraph*{Attributes}
+        The \element{xbel} element carries a \attribute{version}
+        attribute which has a fixed value that specifies the version
+        of the XBEL DTD.  Other attributes indicate the similarity to
+        the \element{folder} element.
+
+        \begin{definitions}
+          \term{\attribute{version}, \emph{fixed}}
+          Fixed value which specifies the version of the DTD in use.
+
+          \term{\attribute{id}}
+          ID value to allow linking to this element; only the
+          \element{alias} element's \attribute{ref} attribute supports
+          a corresponding IDREF value.
+
+          \term{\attribute{added}}
+          Date/time value which can be used to record when the
+          collection of bookmarks was created.
+	\end{definitions}
+
+      \paragraph*{Processing Expectations}
+        The \element{xbel} element is in many ways similar to a
+        \element{folder} element, but may not be ``folded.''
+        Auxillary information, such as an optional \element{title}
+        element, may be shown in a substantially different way than
+        for \element{folder} in a user interface.
+
+  \subsection{Common Elements
+              \label{common-elements}}
+
+    Elements described in this section may occur in different contexts
+    within an XBEL instance, but share fundamental semantic
+    interpretation in each case.
+
+    \subsubsection{The \element{title} Element
+                   \label{element-title}}
+
+      The \element{title} element is used to mark the title associated
+      with the immediately enclosing element.  It is used for
+      the \element{xbel}, \element{folder}, and \element{bookmark}
+      elements.  This element is always optional and may contain
+      only character data.
+
+      \paragraph*{Processing Expectations}
+        Software which presents bookmark information to the user in
+        any form should use the content of this element to identify
+        the resource to the user.  Additional information may be
+        needed to make the identification unambiguous.
+
+        Applications may use the text of the \element{title}
+        during search operations.
+
+      \paragraph*{Rationale}
+        Many Internet resources are described by a short title, often
+        displayed by the bookmarking facilities.  Storing the title
+        allows a significant improvement in user interface
+        responsiveness when compared to retrieving the resource to
+        reload the title.  Title storage is the approach taken by all
+        browsers known to the XBEL designers.
+
+    \subsubsection{The \element{desc} Element
+                   \label{element-desc}}
+
+      The \element{desc} element is used to store a human-readable
+      description of the enclosing element.  For a \element{folder} or 
+      the \element{xbel} element,
+      this may be used to more thoroughly explain the subject of the
+      bookmarks stored in the collection and why they may be
+      interesting.  For a \element{bookmark}, a summary of the
+      resource pointed to by the bookmark may be more appropriate.
+      This element is always optional and may contain only character
+      data.
+
+      \paragraph*{Processing Expectations}
+        The content of this element may be displayed to a user
+        requesting more information on the folder or bookmark
+        containing the description.  In the case of a
+        \element{bookmark}, this can be used before actually making a
+        request over the network to retrieve the resource.
+
+        Applications may use the text of the \element{desc}
+        during search operations.
+
+      \paragraph*{Rationale}
+        Many Internet browsers support simple annotation of bookmark
+        data with human readable text.  This element is required to
+        support exchange of this data.
+
+    \subsubsection{The \element{info} Element
+                   \label{element-info}}
+
+      The \element{info} element is used to store metadata related to
+      the immediately enclosing element.  The intended use is for
+      \element{info} to store a series of \element{metadata} elements,
+      each of which ``belongs'' to some application.  An
+      ``application'' in this sense may be either a program, such as a
+      specific Internet browser, or a more general metadata scheme,
+      such as the Dublin Core \cite{dublin-core}.
+
+      The \element{info} element is always optional.  If present, it
+      must contain one or more \element{metadata} elements.
+
+      \paragraph*{Processing Expectations}
+        Applications are expected to ignore \element{info} elements if
+        they are not able to deal with the contents of constituent
+        \element{metadata} elements.  Whether or not \element{info}
+        elements should be ``passed through'' transparently or removed
+        depends on the purpose of the processing application, but an
+        effort should be made to retain the information whenever the
+        enclosing element is retained, even in a modified form.
+
+      \paragraph*{Rationale}
+        This element provides a clean way of isolating
+        application-specific metadata from more generally supported
+        constructs within the bookmark data.
+
+    \subsubsection{The \element{metadata} Element
+                   \label{element-metadata}}
+
+      The \element{metadata} element is used as a container for all
+      auxillary information related to a node which belongs to a
+      single metadata scheme.  The specific contents of
+      \element{metadata} is highly dependent on the metadata scheme
+      which applies; XML namespaces should be used to identify
+      explicit markup used within the element.
+
+      The DTD for XBEL specifies the content model for
+      \element{metadata} as \code{EMPTY}, but any content should be
+      considered acceptable so long as the XBEL document is
+      well-formed.  The use of \code{EMPTY} avoids making the DTD too
+      loose; applications which do not validate need not be
+      concerned.  Derivative DTDs can define the parameter entity
+      \paramentity{metadata.mix} to be the appropriate content model
+      for the application.
+
+      \element{metadata} elements are always optional.  Note that an
+      \element{info} element which contains no \element{metadata}
+      elements must be removed.
+
+      \paragraph*{Attributes}
+        \begin{definitions}
+          \term{\attribute{owner}, \emph{required}}
+            CDATA value specifies the application which ``owns'' the
+            content of the element.  The value of this attribute
+            should be a URI which refers to a definition of the
+            application and content structure in either human- or
+            machine-processible form.  It is not required that the URI
+            be addressable through the network.
+	\end{definitions}
+
+        It is expected that namespace attributes will be added to
+        the element to specify the markup defined for the content of
+        the \element{metadata} element.
+
+      \paragraph*{Processing Expectations}
+        Within an \element{info} element, each \element{metadata}
+        element is required to have a unique value for the
+        \attribute{owner} attribute.  Programs which modify the
+        contents of \element{metadata} elements should ensure that
+        only one \element{metadata} exists for any \attribute{owner}
+        value normally modified by the application within affected
+        \element{info} elements.  \element{metadata} elements for
+        other owners should remain unaffected.
+
+        Specific interpretation of \element{metadata} content is
+        highly dependent on both the \attribute{owner} and the
+        application, and is not otherwise within the scope of this
+        document.
+
+      \paragraph*{Rationale}
+        The \element{metadata} element is required to support owner
+        identification.  It is entirely reasonable for multiple owners
+        of data to share a document type for their information, but
+        otherwise require separate processing.  The Resource
+        Description Framework provides an example of an approach which
+        would require multiple applications to share a namespace
+        \cite{w3c-rdf-syntax,w3c-rdf-schema}.  Some additional form of
+        ownership identification is required to ensure processors can
+        avoid destroying each other's data.
+
+  \subsection{Data Organization
+              \label{data-organization}}
+
+    The elements described in this section are used to impose
+    organization on a collection of \element{bookmark} nodes.
+    \element{folder} is used to support hierarchical organization and
+    \element{separator} is used to support non-hierarchical
+    organization.
+
+    \subsubsection{The \element{folder} Element
+                   \label{element-folder}}
+
+      The \element{folder} element is the element used to support
+      hierarchical data organization.  It is the only element type
+      which is allowed to nest within itself.
+
+      This element may contain optional \element{title},
+      \element{info} and \element{desc} elements.  After this, any
+      number of elements from \paramentity{nodes.mix} are allowed.
+
+      \paragraph*{Attributes}
+        \begin{definitions}
+          \term{\attribute{id}}
+          ID value to allow linking to this element; only the
+          \element{alias} element's \attribute{ref} attribute supports
+          a corresponding IDREF value.
+
+          \term{\attribute{added}}
+          Date/time value which records when the folder was added to
+          the bookmark collection represented by the instance.
+
+          \term{\attribute{folded}}
+          Token which records whether the contents of the folder
+          should be displayed by default in a user interface.  The
+          value may be \nmtoken{yes} or \nmtoken{no}.
+
+          \term{\attribute{icon}}
+          The value of this attribute is a name which identifies an
+          icon that the user agent can use to mark the folder for the
+          user.  The value must be mapped to an actual icon; is it not
+          a URI which points to an image file, since the names should
+          (in theory) be usable in multiple user agents which have
+          differing capabilities for image display, and may require
+          different format or sizes of icon.  Mechanisms to do this
+          are outside the scope of this specification.
+
+          \term{\attribute{toolbar}}
+          Token which records whether the contents of the folder
+          should be used for the ``Personal Toolbar'' provided by some
+          user agents.  The value may be \nmtoken{yes} or \nmtoken{no}.
+	\end{definitions}
+
+      \paragraph*{Processing Expectations}
+        User interfaces should display \element{folder} elements as
+        collapsing lists, allowing the user to display or hide the
+        contents of the element on demand.  Appropriate behavior
+        outside of user interfaces is expected to be application
+        specific.
+
+      \paragraph*{Rationale}
+        The \element{folder} element may be used to represent
+        hierarchical relationships within a collection of bookmarks,
+        as deployed in current Internet browsers.
+        The \attribute{toolbar} attribute is needed to support the
+        ``Personal Toolbar'' information from Netscape Navigator.
+
+    \subsubsection{The \element{separator} Element
+                   \label{element-separator}}
+
+      The \element{separator} element can be used to separate
+      bookmarks within a collection in a non-hierarchical fashion.  It 
+      may be used within a \element{folder} or the \element{xbel}
+      element.
+
+      \paragraph*{Processing Expectations}
+        The presence of this element may be represented by displaying
+        a horizontal line or vertical whitespace in an interactive
+        user interface or printed representation.
+
+      \paragraph*{Rationale}
+        A simple separator is required to support the bookmark
+        structures of existing Internet browsers.
+
+  \subsection{Bookmark Data
+              \label{bookmark-data}}
+
+    Only one element type is used to encapsulate information specific
+    to an individual bookmark.  No need for alternate elements has
+    been demonstrated.
+
+    \subsubsection{The \element{bookmark} Element
+                   \label{element-bookmark}}
+
+      A \element{bookmark} element is used to store information about
+      a specific resource.  This element may contain the optional
+      elements \element{title}, \element{info} and \element{desc}.
+
+      \paragraph*{Attributes}
+        The \element{bookmark} element carries more attributes than
+        other elements defined in XBEL.  These attributes are used to
+        carry much of the common information maintained on bookmarks
+        by the major browsers.
+
+        \begin{definitions}
+          \term{\attribute{href}, \emph{required}}
+          URI which specifies the resource described by the
+          \element{bookmark} element.
+
+          \term{\attribute{id}}
+          ID value to allow linking to this element; only the
+          \element{alias} element's \attribute{ref} attribute supports
+          a corresponding IDREF value.
+
+          \term{\attribute{icon}}
+          This is identical to the \attribute{icon} attribute of the
+          \element{folder} element; refer to that description for
+          information.
+
+          \term{\attribute{added}}
+          Date/time value which indicates when the \element{bookmark}
+          element was added to the bookmark collection.
+
+          \term{\attribute{modified}}
+          Date/time value which records the time of the
+          last known change to the resource identified by the
+          \element{bookmark}.
+
+          \term{\attribute{visited}}
+          Date/time value which represents the time of the user's last
+          ``visit'' to the resource.  Note that the value for
+          \attribute{modified} may be more recent than the value for
+          \attribute{visited} if software is used that checks for
+          resources which have changed since the user last visited the
+          resource.  This feature is increasingly common in browsers.
+	\end{definitions}
+
+      \paragraph*{Processing Expectations}
+        In a user interface, \element{bookmark} should typically be
+        represented by the contents of the \element{title} element, if 
+        present.  The representation of the bookmark should be
+        ``hot,'' allowing traversal to the referenced resource by the
+        user.  Additional information on the resource, such as the
+        description given in a \element{desc} element, should be
+        available to the user on demand.
+
+        Outside a user interface, processing may be too
+        application-specific to discuss here.
+
+      \paragraph*{Rationale}
+        The use of a single structured element type to represent
+        external resources simplifies processing while allowing a rich 
+        set of information to be maintained on each resource.
+
+  \subsection{Internal References
+              \label{internal-references}}
+
+    A single element is provided to support internal references to
+    other elements within an XBEL instance.
+
+    \subsubsection{The \element{alias} Element
+                   \label{element-alias}}
+
+      \paragraph*{Attributes}
+        Only one attribute is needed for \element{alias}, and is
+        required to identify the link referent.
+
+        \begin{definitions}
+          \term{\attribute{ref}, \emph{required}}
+          IDREF value which refers to a \element{bookmark} or
+          \element{folder} element, or the document \element{xbel}
+          element.
+	\end{definitions}
+
+      \paragraph*{Processing Expectations}
+        Software which presents bookmarks in a user interface should
+        distinguish aliases from other bookmarks visually, but
+        otherwise allow examination of the referent transparently.
+        Netscape Navigator does this by presenting the bookmark title
+        in an italic font; the appropriate visual distrinction is
+        likely to be dependent on other aspects of the user
+        interface.
+
+        Outside of user interface considerations, treatment of aliases 
+        is application-specific.  However, some guidance may prove
+        useful.  When encountering an \element{alias}, an application
+        should only need to traverse the \element{alias} and process
+        the referent if that referent would not otherwise be
+        processed, otherwise, the \element{alias} may usually be
+        ignored.  This should become an issue only when the
+        application is processing a portion of the bookmark hierarchy
+        rather than the complete tree.
+
+      \paragraph*{Rationale}
+        Netscape Navigator and Microsoft Internet Explorer bookmarks
+        can include ``aliases'' to other nodes in the hierarchical
+        structure.  Navigator supports only aliases to bookmark nodes,
+        while Internet Explorer also supports aliases to folders.
+
+        Navigator's format simply adds the attribute
+        \attribute{aliasid} to nodes which are referred to be aliases,
+        and the attribute \attribute{aliasof} to the actual alias.
+        All other information is duplicated for each alias of the
+        primary bookmark entry.  XBEL uses a distinct element and the
+        ID/IDREF mechanism provided by XML to avoid redundency and
+        support validation.
+
+
+\section{DTD Structure
+         \label{dtd-structure}}
+
+  This section discusses how the DTD itself is organized.  This is
+  mostly of interest to the maintainers of XBEL and any descendent
+  document types that may be defined in the future.
+
+  \subsection{Use of Parameter Entities
+              \label{parameter-entities}}
+
+    Limited use of parameter entities is made in the XBEL DTD.  The
+    suffix-notation is adopted from the ``XMLspec'' DTD report
+    \cite{w3c-xmlspec}.  Specifically, the \samp{.mix} suffix is used
+    for entities which define repeatable-or groups of elements, and
+    \samp{.att} is used for entities which define attributes.
+
+    \subsubsection{The \paramentity{metadata.mix} Entity
+                   \label{entity-metadata.mix}}
+
+      
+
+    \subsubsection{The \paramentity{nodes.mix} Entity
+                   \label{entity-nodes.mix}}
+
+      The \paramentity{nodes.mix} entity lists the element types which
+      may be used to form the nodes of the hierarchical data structure
+      described by an XBEL instance.  This entity species a mixture of
+      \element{bookmark}, \element{folder}, \element{separator} and
+      \element{alias} elements.
+
+    \subsubsection{The \paramentity{node.att} Entity
+                   \label{entity-node.att}}
+
+      This entity is used to define attributes for element types which 
+      hold the real content of the bookmark data.  It is used on the
+      \element{bookmark} and \element{folder} elements.  It defines
+      the optional \attribute{added} and \attribute{id} attributes.
+
+    \subsubsection{The \paramentity{url.att} Entity
+                   \label{entity-url.att}}
+
+      This entity defines the attributes which are available on
+      elements which refer to specific resources.  In XBEL 1.0 and
+      1.1, this is only used on the \element{bookmark} element.  It
+      defines a required \attribute{href} attribute and the optional
+      attributes \attribute{modified} and \attribute{visited}.
+
+  \subsection{Extending the DTD
+              \label{extending}}
+
+    Extensibility of XBEL relies on three foundations: XML namespaces
+    and the acceptability of well-formed instances, localized
+    parameters entities, and the simplicity of the DTD itself.
+
+    The primary expectation for DTD extensions is that new elements
+    and attributes will be introduced and defined using XML
+    namespaces.  Though still in the stage of a working draft within
+    the W3C, namespaces offer the most flexible extension mechanism
+    available for XML-based markup languages used in wide-spread
+    deployment.  Until validation requirements in the context of
+    namespaces are more clearly defined, XBEL instances using
+    namespaces can apply well-formedness rules as a vehicle for
+    partial validation.
+
+    More traditional document type extension uses parameter entities
+    reserved for localization.  The XBEL public text provides three
+    such entities as ``hooks'' to allow local customization.  For each 
+    of the parameter entities described in Section
+    \ref{parameter-entities}, ``Use of Parameter Entities,'' a
+    \paramentity{local.\var{name}} variant is declared and used in the 
+    definition of each of the entities described above.  This is less
+    flexible than the namespace approach, but allows a new document
+    type to be created which can be used for validation with current
+    tools without having to create a new public text from scratch.
+
+    The third foundation for extensibility, the simplicity of the DTD, 
+    can be effectively used only by taking a ``steal this code''
+    approach to reuse.  XBEL is sufficiently simple that it can easily 
+    be understood in its entirety, and a variant document type created 
+    by crafting a new public text.
+
+  \subsection{General Entities
+              \label{general-entities}}
+
+    The XBEL DTD defines no general entities.
+
+    \paragraph*{Rationale}
+      Since XBEL is intended as an interchange format for software and
+      not as an authoring format, there is no need to support typical
+      entities used to enter special characters.  Entities which do
+      not correspond to Unicode characters are too
+      application-specific to predict meaningfully
+      \cite{unicode20,unicode21}.
+
+
+\appendix
+\section{Public Text
+         \label{public-text}}
+
+  This section contains the entire public text of the XBEL DTD
+  corresponding to the Formal Public Identifier presented in Section
+  \ref{formal-ident}.  No additional external entities are
+  referenced.
+
+
+\begin{longexample}
+\verbatiminput{../xbel.dtd}
+\end{longexample}
+
+
+\nocite{*}
+\bibliographystyle{alpha}
+\bibliography{xbel}
+
+\end{document}

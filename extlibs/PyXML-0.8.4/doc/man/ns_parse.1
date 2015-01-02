@@ -1,0 +1,30 @@
+.TH NS_PARSE 1 "August 15, 2001" xbel-utils "User's Manual"
+.SH NAME
+ns_parse \- a simple utility to convert Netscape bookmarks to XBEL
+
+.SH SYNOPSIS
+.B ns_parse
+\fIINFILE\fR [\fIOUTFILE\fR]
+
+.SH DESCRIPTION
+The XML Bookmark Exchange Language, or XBEL, is an Internet "bookmarks"
+interchange format. \fBns_parse\fR parses Netscape bookmark files.
+
+.SH USAGE
+\fBns_parse\fR takes a netscape-bookmarks file (\fIINFILE\fR) as input and
+prints the XBEL representation to stdout, unless \fIOUTFILE\fR is specified.
+
+.SH REQUIRES
+Python
+
+.SH "SEE ALSO"
+.B adr_parse(1), lynx_parse(1), msie_parse(1), xbel_parse(1), xbel2html(1)
+
+.I http://pyxml.sourceforge.net/topics/xbel/
+
+.SH AUTHOR
+Python XML Special Interest Group (XML-SIG)
+
+This man-page was written by Jan Schaumann <jschauma@netmeister.org> as part of "The Missing
+Man Pages Project".  Please see \fIhttp://www.netmeister.org/misc/m2p2/index.html\fR
+for details.

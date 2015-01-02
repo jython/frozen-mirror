@@ -1,0 +1,67 @@
+#!/usr/bin/python
+#
+# This example program converts a chunk of HTML to a DOM tree.
+# It then prints the tree as HTML, as XML, and it prints a list of all
+# the hyperlinks in the document by using getElementsByTagName() to
+# retrieve all the A elements.
+
+from xml.dom.html_builder import HtmlBuilder
+from xml.dom.writer import HtmlWriter
+from xml.dom import core
+
+HTML_DATA = """<HTML>
+<HEAD><TITLE>Les HOWTO Linux</TITLE></HEAD>
+<BODY>
+<HR> <H1>Les HOWTO Linux</H1>
+<P>Les Howto que vous trouverez ci-dessous sont en fran&ccedil;ais. 
+Ils peuvent etre trouv&eacute;s dans les formats suivants
+sur le site 
+<A HREF="ftp://ftp.lip6.fr/pub/linux/french/docs/HOWTO">ftp.lip6.fr</a> 
+dans le r&eacute;pertoire /pub/linux/french/docs/HOWTO :
+<UL>
+<LI><A HREF="Access-HOWTO.html">Access-HOWTO</A> (Version <A
+HREF="Access-HOWTO.ps">Postscript</A>)</LI>
+</UL></BODY></HTML>
+"""
+
+# Construct an HtmlBuilder object and feed the data to it
+b = HtmlBuilder()
+b.feed(HTML_DATA)
+
+# Get the newly-constructed document object 
+doc = b.document
+
+# Output it as HTML
+print "============"
+print "HTML version"
+w = HtmlWriter()
+w.write(b.document)
+
+# Output it as XML
+print "\n==========="
+print "XML version"
+print doc.toxml()
+
+print "\n==========="
+print "Links in the document"
+
+# Retrieve all the link objects
+links = doc.getElementsByTagName('A')
+for node in links:
+    # Collect any children of the A element that are Text nodes
+    # (Note that this won't work on invalid HTML, like
+    # <a href="xxx"><b>Text</b></a>.  You could fix this by actually
+    # traversing all the child nodes of the A element.)
+
+    linktext = ""
+    for child in node.childNodes:
+        if child.nodeType == core.TEXT_NODE:
+            linktext = linktext + child.value
+    
+    # Get the HREF attribute, if present
+    url = node.getAttribute('HREF')
+    if  url != "":
+        print "HREF=", url, linktext
+            
+print links
+

@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="http://xslt.fourthought.com/api.xslt" type="text/xsl"?>
+<tech:ApiSpec title="4DOM Extensions"
+  xmlns:tech="http://namespaces.fourthought.com/technical"
+  xmlns:dc= "http://purl.org/dc/elements/1.1"
+  xmlns="http://docbook.org/docbook/xml/4.0/namespace"
+>
+
+  <dc:Title>4DOM Extensions</dc:Title>
+  <dc:Subject>4DOM</dc:Subject>
+  <dc:Subject>Extensions</dc:Subject>
+  <dc:Subject>DOM</dc:Subject>
+  <dc:Description>Documentation on 4DOM extensions and deviations from the DOM specification.</dc:Description>
+
+
+<para>
+These are utility classes and functions that provide capabilities not yet specified in the DOM spec. Some of these facilities, such as factories and readers are expected to be specified in later levels of the DOM, so we try to keep our proprietary interfaces simple for now so that you can more painlessly migrate when relevant standards emerge.
+</para>
+
+<para>
+See the demo directory for examples exercising many of these extensions.
+</para>
+
+
+<sect1><title>Reading</title>
+
+<para>
+The Reader package allows you to parse source strings in XML and HTML into DOM trees.  You select a reader module according to the nature of your input.  The readers that come with 4DOM are as follows:
+</para>
+
+<glosslist>
+<glossterm>PyExpat</glossterm>
+<glossdef>
+Read XML using pyexpat from PyXML.  Does not support validation.
+</glossdef>
+<glossterm>HtmlLib</glossterm>
+<glossdef>
+Read HTML using Python's htmllib.
+</glossdef>
+<glossterm>Sax2</glossterm>
+<glossdef>
+Read XML using the PyXML SAX2 package.  DTD validation is option.
+</glossdef>
+<glossterm>Sax (deprecated)</glossterm>
+<glossdef>
+Read XML using the PyXML SAX package.  DTD validation is option.
+</glossdef>
+<glossterm>Sgmlop</glossterm>
+<glossdef>
+Read XML using Sgmlop from PyXML.  Does not support validation.
+</glossdef>
+</glosslist>
+
+<para>
+The following two examples illustrate using PyExpat and HtmlLib readers.  Replace with the appropriate module and use in your own code.
+</para>
+
+<screen>
+# Parse XML using pyexpat
+from xml.dom.ext.reader import PyExpat
+reader = PyExpat.Reader()
+xml_doc = reader.fromStream(stream)
+
+#Parse HTML using htmllib
+from xml.dom.ext.reader import HtmlLib
+reader = HtmlLib.Reader()
+html_doc = reader.fromStream(stream)
+</screen>
+
+<!--
+<para>
+See also <ulink url="">this posting</ulink>.
+</para>
+-->
+
+<tech:Module>
+  <tech:Name>PyExpat</tech:Name>
+  <tech:Desc>Parse XML using pyexpat</tech:Desc>
+  <tech:Class>
+    <tech:Name>Reader</tech:Name>
+    <tech:Desc>Reusable utility to read XML documents.</tech:Desc>
+    <tech:Method>
+      <tech:Name>fromStream</tech:Name>
+      <tech:Desc>return a 4DOM node from the given stream</tech:Desc>
+      <tech:Arg><tech:Name>stream</tech:Name><tech:Type>Python file object</tech:Type><tech:Desc>The stream to be read for XML text</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+    <tech:Method>
+      <tech:Name>fromString</tech:Name>
+      <tech:Desc>return a 4DOM node from the given string</tech:Desc>
+      <tech:Arg><tech:Name>xmlString</tech:Name><tech:Type>string or unicode object</tech:Type><tech:Desc>The string to be parsed for XML text</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+    <tech:Method>
+      <tech:Name>fromUri</tech:Name>
+      <tech:Desc>return a 4DOM node from the given uri</tech:Desc>
+      <tech:Arg><tech:Name>uri</tech:Name><tech:Type>Python file object</tech:Type><tech:Desc>The uri from which XML text is to be retrieved</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created XML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+  </tech:Class>
+</tech:Module>
+
+
+<tech:Module>
+  <tech:Name>HtmlLib</tech:Name>
+  <tech:Desc>Parse HTML using htmllib</tech:Desc>
+  <tech:Class>
+    <tech:Name>Reader</tech:Name>
+    <tech:Desc>Reusable utility to read HTML documents.</tech:Desc>
+    <tech:Method>
+      <tech:Name>fromStream</tech:Name>
+      <tech:Desc>return a 4DOM node from the given stream</tech:Desc>
+      <tech:Arg><tech:Name>stream</tech:Name><tech:Type>Python file object</tech:Type><tech:Desc>The stream to be read for HTML text</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>charset</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+    <tech:Method>
+      <tech:Name>fromString</tech:Name>
+      <tech:Desc>return a 4DOM node from the given string</tech:Desc>
+      <tech:Arg><tech:Name>htmlString</tech:Name><tech:Type>string or unicode object</tech:Type><tech:Desc>The string to be parsed for HTML text</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>charset</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+    <tech:Method>
+      <tech:Name>fromUri</tech:Name>
+      <tech:Desc>return a 4DOM node from the given uri</tech:Desc>
+      <tech:Arg><tech:Name>uri</tech:Name><tech:Type>Python file object</tech:Type><tech:Desc>The uri from which HTML text is to be retrieved</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>ownerDoc</tech:Name><tech:Type>xml.dom.Document.Document</tech:Type><tech:Desc>A document to be used as owner of all the created nodes.  If None, a new document instance is created for the nodes.  Default is None.</tech:Desc></tech:Arg>
+      <tech:Arg><tech:Name>charset</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character set of the HTML text.  If None or empty string, the default is ISO-8859-1.  Default is empty string.</tech:Desc></tech:Arg>
+      <tech:Return><tech:Type></tech:Type>xml.dom.Document.Document or xml.dom.DocumentFragment.DocumentFragment<tech:Desc>a new document instance, or if the ownerDoc argument was not None, a document fragment.  In either case, the returned node roots the created HTML tree.</tech:Desc></tech:Return>
+      <tech:exception></tech:exception>
+    </tech:Method>
+  </tech:Class>
+</tech:Module>
+
+
+<!--
+<tech:Function>
+  <tech:Name>xml.dom.ext.reader.Sax2.FromXml</tech:Name>
+  <tech:Arg>
+    <tech:Name>str</tech:Name>
+    <tech:Type>well-formed XML string</tech:Type>
+    <tech:Desc>The XML source</tech:Desc>
+  </tech:Arg>
+  <tech:Arg>
+    <tech:Name>ownerDocument</tech:Name>
+    <tech:Type>xml.dom.Document</tech:Type>
+    <tech:Desc>An optional document to hold the generated nodes.  If None, a new document node will be created as the root node.  Default is None.</tech:Desc>
+  </tech:Arg>
+  <tech:Arg><tech:Name>validate</tech:Name><tech:Type>boolean</tech:Type><tech:Desc>Whether or not to validate the document.  Default is 0.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>keepAllWs</tech:Name><tech:Type>boolean</tech:Type><tech:Desc>Whether or not to maintain ignorable whitespace in the DOM tree as text nodes. Note that even if you set this flag, you can always get rid of the white space using xml.dom.ext.StripXml().  Default is 0.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>catName</tech:Name><tech:Type>string representing a file path</tech:Type><tech:Desc>An XCatalog file to use for looking up XML public identifiers.  A catalog is only useful if you choose to validate.  Default is None.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>saxHandlerClass</tech:Name><tech:Type>xml.sax.Handler</tech:Type><tech:Desc>SAX event consumer that builds a DOM tree accordingly .  Default is xml.dom.ext.reader.Sax2.XmlDomGenerator.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>xml.dom.Document</tech:Type><tech:Desc>The DOM tree resulting from the given text</tech:Desc></tech:Return>
+</tech:Function>
+-->
+
+</sect1>
+
+
+
+<sect1><title>Printing/Writing</title>
+
+<para>The Printer module allows you to write a text representation of DOM nodes
+to an output stream, including stdout. Note that limitations in the
+SAX interface used to parse in XML files, and in the DOM spec itself make
+it impossible at this point to handle an unchanged "round trip".
+That is, if you use the builder to build a DOM node from text and then
+use the Printer to turn it back to text, there may be differences;
+some may be significant.
+</para>
+
+<para>The easiest way to use the Printer module is through the front-end functions in the xml.dom.ext package.</para>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.Print</tech:Name>
+  <tech:Desc>Render the DOM tree to text with no special formatting.</tech:Desc>
+  <tech:Arg><tech:Name>root</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node to be printed, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>stream</tech:Name><tech:Type>output stream</tech:Type><tech:Desc>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>encoding</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character encoding to use for output.  Default is 'UTF-8'.</tech:Desc></tech:Arg>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.PrettyPrint</tech:Name>
+  <tech:Desc>Render the DOM tree to text, with added indentation and new-lines for enhanced readability.</tech:Desc>
+  <tech:Arg><tech:Name>root</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node to be pretty-printed, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>stream</tech:Name><tech:Type>output stream</tech:Type><tech:Desc>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>encoding</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character encoding to use for output.  Default is 'UTF-8'.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>indent</tech:Name><tech:Type>string</tech:Type><tech:Desc>The amount by which nested constructs are indented when printed on a fresh line.  Default is '\t'.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>width</tech:Name><tech:Type>positive integer</tech:Type><tech:Desc>The width of the output console. Used to make
+line-break decisions.  Default is 80.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>preserveElements</tech:Name><tech:Type>list of strings, each of which is an SGML generic identifier.</tech:Type><tech:Desc>Specifes elements in which white-space shouldn't be added.  Note that white-space is never added to in-line elements in an HTMLDocument.  Default is None.</tech:Desc></tech:Arg>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.XHtmlPrint</tech:Name>
+  <tech:Desc>Render an HTML DOM tree as XHTML with no special indentation or formatting.</tech:Desc>
+  <tech:Arg><tech:Name>root</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The HTML node to be printed, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>stream</tech:Name><tech:Type>output stream</tech:Type><tech:Desc>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>encoding</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character encoding to use for output.  Default is 'UTF-8'.</tech:Desc></tech:Arg>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.XHtmlPrettyPrint</tech:Name>
+  <tech:Desc>Render an HTML DOM tree to text, with added indentation and new-lines for enhanced readability.</tech:Desc>
+  <tech:Arg><tech:Name>root</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node to be pretty-printed, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>stream</tech:Name><tech:Type>output stream</tech:Type><tech:Desc>The output stream. Note: can be a StringIO object if you want to generate a string instead.  Default is sys.stdout.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>encoding</tech:Name><tech:Type>string</tech:Type><tech:Desc>The character encoding to use for output.  Default is 'UTF-8'.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>indent</tech:Name><tech:Type>string</tech:Type><tech:Desc>The amount by which nested constructs are indented when printed on a fresh line.  Default is '\t'.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>width</tech:Name><tech:Type>positive integer</tech:Type><tech:Desc>The width of the output console. Used to make
+line-break decisions.  Default is 80.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>preserveElements</tech:Name><tech:Type>list of strings, each of which is an SGML generic identifier.</tech:Type><tech:Desc>Specifes elements in which white-space shouldn't be added.  Note that white-space is never added to in-line elements in an HTMLDocument.  Default is None.</tech:Desc></tech:Arg>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+</sect1>
+
+
+<sect1><title>Miscellaneous</title>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.NodeTypeToInterface</tech:Name>
+  <tech:Desc>Look up a node type (as returned from getNodeType()) and returns a corresponding interface name.</tech:Desc>
+  <tech:Arg><tech:Name>nodeType</tech:Name><tech:Type>One of the integers defined as node types in xml.dom.Node</tech:Type><tech:Desc>The node type to look up.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>string</tech:Type><tech:Desc>Name of corresponding DOM interface from spec.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<!--
+<tech:Function>
+  <tech:Name>xml.dom.ext.ReleaseNode</tech:Name>
+  <tech:Desc>Reclaims a Node from the DOM tree by cutting all links from parent to child and thus eliminating circular references.</tech:Desc>
+  <tech:Arg><tech:Name>node</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>Node to reclaim</tech:Desc></tech:Arg>
+</tech:Function>
+-->
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.StripHtml</tech:Name>
+  <tech:Desc>Strips extraneous white-space from an HTML DOM tree.</tech:Desc>
+  <tech:Arg><tech:Name>startNode</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node to be stripped, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>preserveElements</tech:Name><tech:Type>list of strings, each of which is an SGML generic identifier, or None to indicate an empty list.</tech:Type><tech:Desc>Specifes elements from which white-space shouldn't be stripped.  Note that white-space is never stripped from in-line elements in an HTMLDocument.  Default is None.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The startNode with descendant ignorable white-space stripped.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.StripXml</tech:Name>
+  <tech:Desc>Strips extraneous white-space from an XML DOM tree.  Takes xml:space attributes into account.</tech:Desc>
+  <tech:Arg><tech:Name>startNode</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node to be stripped, with all its children recursively.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>preserveElements</tech:Name><tech:Type>list of strings, each of which is an SGML generic identifier, or None to indicate an empty list.</tech:Type><tech:Desc>Specifes elements from which white-space shouldn't be stripped.  Default is None.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The startNode with descendant ignorable white-space stripped.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.GetElementById</tech:Name>
+  <tech:Desc>Returns the element node whose "ID" attribute is as given.</tech:Desc>
+  <tech:Arg><tech:Name>startNode</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node whose descendants are to be searched.</tech:Desc></tech:Arg>
+  <tech:Arg><tech:Name>targetId</tech:Name><tech:Type>string conforming to XML ID type</tech:Type><tech:Desc>The XML ID to find.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>xml.dom.Element</tech:Type><tech:Desc>The elemtn with the given ID, or None to indicate no match.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.GetAllNs</tech:Name>
+  <tech:Desc>Returns all the namespaces in effect on the given node, including the default namespace and the xml namespace.</tech:Desc>
+  <tech:Arg><tech:Name>node</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node for which all in-scope namespaces are returned.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>doctionary</tech:Type><tech:Desc>Dictionary mapping all in-scope namespaces to URIs, with '' as prefix for the default namespace.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.XmlSpaceState</tech:Name>
+  <tech:Desc>Determines whether the xml:space state at a given node is "preserve" or "default" (See the XML 1.0 spec).</tech:Desc>
+  <tech:Arg><tech:Name>node</tech:Name><tech:Type>xml.dom.Node</tech:Type><tech:Desc>The node whose space state is to be found.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>string</tech:Type><tech:Desc>"preserve" or "default".</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+<tech:Function>
+  <tech:Name>xml.dom.ext.SplitQName</tech:Name>
+  <tech:Desc>Splits a valid QName from the XML Namespaces 1.0 spec into prefix and suffix (the local name in the case of element and attribute names, and the declared prefix in the case of namespace declarations.</tech:Desc>
+  <tech:Arg><tech:Name>qname</tech:Name><tech:Type>string matching QName production in XML Namespaces 1.0 spec</tech:Type><tech:Desc>The name to be split.</tech:Desc></tech:Arg>
+  <tech:Return><tech:Type>tuple with 2 items.</tech:Type><tech:Desc>a tuple of the form (prefix, suffix).  If there is exactly one colon in the qname, prefix is the part before and suffix the part after the colon.  Otherwise prefix is '' and suffix is the entire input string.</tech:Desc></tech:Return>
+  <!--<tech:exception></tech:exception>-->
+</tech:Function>
+
+</sect1>
+
+</tech:ApiSpec>

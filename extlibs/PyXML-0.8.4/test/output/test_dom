@@ -1,0 +1,25 @@
+test_dom
+Simple document
+<?xml version='1.0' encoding='UTF-8'?>
+<doc>
+  <title>This is a test</title>
+  <h1>Don't panic</h1>
+  <p>Maybe it will work.</p>
+  <h2>We can handle it</h2>
+  <h3>Yes we can</h3>
+  <h3>Or maybe not</h3>
+End of test.
+</doc>
+
+
+Output of docstring example
+<?xml version='1.0' encoding='UTF-8'?>
+<html attr='value'>
+  <head>
+    <title>Title goes here</title>
+  </head>
+</html>
+
+
+Running detailed test suite
+Test suite completed

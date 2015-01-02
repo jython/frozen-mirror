@@ -1,0 +1,52 @@
+.TH XMLPROC_VAL 1 "August 15, 2001" python-xml "User's Manual"
+.SH NAME
+xmlproc_val \- a validating xml file parser using the xmlproc parser
+
+.SH SYNOPSIS
+.B xmlproc_val [
+.I options
+.B ] [
+.I urltodoc
+.B ]
+
+.SH DESCRIPTION
+.B xmlproc_val
+is a command line XML file parser. It can parse and validate a document read 
+from a URL, a file or a stream on its standard input, and check if it is 
+well-formed and valid XML. It can also output the parsed XML to several 
+formats if you use the
+.B -o
+command line option.
+
+.SH OPTIONS
+
+.IP "\-l language"
+ISO 3166 language code for language to use in error messages
+.IP "\-o format"
+Format to output parsed XML. 'e': ESIS, 'x': canonical XML  and 'n': normalized XML. No data will be output if this option is not specified.
+.IP -n
+Report qualified names as 'URI name'. (Namespace processing.)
+.IP "\-c catalog"
+Path to catalog file to use to resolve public identifiers
+.IP  \-\-nowarn
+Don't write warnings to console.
+.IP  \-\-entstck
+Show entity stack on errors.
+.IP  \-\-extsub
+Read the external subset of documents.
+.IP urltodoc
+URL to the document to parse. (You can use plain file names as well.) Can be omitted if a catalog is specified and contains a DOCUMENT entry.
+
+
+.SH REQUIRES
+Python
+
+.SH "SEE ALSO"
+.B xmlproc_parse(1)
+
+.I http://pyxml.sourceforge.net/
+
+.SH AUTHOR
+Python XML Special Interest Group (XML-SIG)
+
+This manpage was written by Alexandre Fayolle <alexandre.fayolle@logilab.fr>.

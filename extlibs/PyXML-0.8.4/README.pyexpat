@@ -1,0 +1,31 @@
+Python Expat wrapper module
+===========================
+
+Building the pyexpat module
+---------------------------
+
+The module is built as part of running setup.py.  Regression tests are
+included as part of the PyXML test suite.
+
+
+Using the pyexpat module
+------------------------
+
+Since this module is also included with Python, documentation can be
+found at
+
+  http://www.python.org/doc/current/lib/module-xml.parsers.expat.html
+
+
+Feedback
+--------
+
+Please report problems to xml-sig@python.org.
+
+The author is Jack Jansen, jack@cwi.nl.  The Expat parser was
+originally written by James Clark and is now maintained by others on
+SourceForge.  More information about Expat can be found at
+http://www.libexpat.org/.
+
+        Jack Jansen, CWI, Amsterdam
+        jack@cwi.nl

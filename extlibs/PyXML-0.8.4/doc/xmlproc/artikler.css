@@ -1,0 +1,62 @@
+ /* --- COMMON TO ALL ARTICLES --- */
+
+BODY { margin-left: 15%; margin-right: 15%; margin-top: 5%;  
+       text-align: justify; background: white none; color: black }
+
+DFN  { font-style: italic }
+
+CODE { color: #0000AA; background: white none; }
+
+H1,H2,H3,H4,H5,H6 { font-family: Arial, Helvetica, Sans-Serif;
+	            text-align: left }
+
+H1   { text-align: center } /* Overrides above rule as it appears below it */
+
+.subtitle { text-align: center; font-size: 60% }
+
+H2   { padding-top: 2em }
+
+DT   { font-weight: bold }
+
+.uferdig   { color: #AA0000     } /* Used for parts not yet finished */
+
+P.center   { text-align: center }
+P.author   { text-align: center }
+P.contents { text-align: center; padding-bottom: 2em }
+P.note	   { background: white none; color: #AA0000; font-weight: bold }
+
+DL	  { margin-left: 5% }
+DT	  { font-weight: bold }
+DD	  { padding-bottom: 0.7em }
+
+PRE	  { background: white none; color: #0000AA }
+
+A:link	  { background: white none; color: #0000EE }
+A:visited { background: white none; color: #551A8B }
+
+HR        { padding-top: 1em }
+
+ADDRESS   { font-size: small; font-style: italic }
+
+DIV.partof     { font-size: small; text-align: right }
+
+#problemstilling { margin-left: 4%; margin-right: 4%; font-style: italic }
+
+BLOCKQUOTE { margin-left: 5%; font-style: italic; font-size: small }
+
+P.origin   { text-align: right; margin-left: 10% }
+
+P.termdef  { margin-left: 10%; margin-right: 10%;
+             background-color: #f5dcb3; border-width: 1px;
+             padding: 15px }
+
+UL  { text-align: left }
+
+/* --- ONLY FOR THE CSS INTRO --- */
+
+LI.serif      { font-family: serif      }
+LI.sans-serif { font-family: sans-serif }
+LI.fantasy    { font-family: fantasy    }
+LI.monospace  { font-family: monospace  }
+LI.cursive    { font-family: cursive    }
+ 

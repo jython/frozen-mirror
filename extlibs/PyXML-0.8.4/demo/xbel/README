@@ -1,0 +1,16 @@
+This directory contains various scripts for processing XBEL, the XML
+Bookmark Exchange Language proposed by Mark Hammond on the XML-SIG.
+Scripts are provided to convert the bookmark files for various Web
+browsers to XBEL, and to render an XBEL document as HTML.
+
+xbel-1.1.dtd	The Document Type Definition for XBEL 1.1.
+xbel-1.0.dtd	The Document Type Definition for XBEL 1.0.
+bookmark.py     Contains the Bookmarks and Bookmark classes, which represent
+		a bookmark file, and can be output in any of the
+		browser formats, or in XBEL.
+ns_parse.py	A class that parses Netscape bookmark files. 
+msie_parse.py	A class that parses Internet Explorer bookmark files. 
+adr_parse.py    A class that parses Opera bookmark files.
+lynx_parse.py   A class that parses Lynx bookmark files.
+xbel_parse.py   A class that parses an XBEL input file and can output it
+		in any of the other formats.

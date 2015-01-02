@@ -1,0 +1,13 @@
+The various subdirectories here contain demo programs that show how to
+use various XML processing interfaces.  The subdirectories are:
+
+dom		Sample code that uses the DOM interface [demos not up to date,
+                see xml/dom/demo]
+genxml		Demonstration of generating XML from non-XML data, using
+		DOM, SAX, and simply writing to a file.
+quotes		A simple application which processes an XML markup for
+		maintaining a list of quotations.
+sax		Sample code that uses the SAX interface.
+sgmlop          Benchmark example for the sgmlop parser [currently broken]
+xbel		Code for XBEL, an XML markup for Web browser bookmark files.
+xmlproc		Sample code for the xmlproc parser

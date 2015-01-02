@@ -1,0 +1,28 @@
+<?xml version = "1.0"?>
+<!DOCTYPE ADDRBOOK SYSTEM "addr_book.dtd">
+<ADDRBOOK xmlns:xlink="http://www.w3.org/XML/XLink/0.9">
+	<ENTRY ID="pa">
+		<NAME>Pieter Aaron</NAME>
+		<ADDRESS>404 Error Way</ADDRESS>
+		<PHONENUM DESC="Work">404-555-1234</PHONENUM>
+		<PHONENUM DESC="Fax">404-555-4321</PHONENUM>
+		<PHONENUM DESC="Pager">404-555-5555</PHONENUM>
+		<EMAIL>pieter.aaron@inter.net</EMAIL>
+	</ENTRY>
+	<ENTRY-LINK xlink:link="simple" xlink:href="addr_book2.xml"/>
+	<ENTRY ID="en">
+		<NAME>Emeka Ndubuisi</NAME>
+		<ADDRESS>42 Spam Blvd</ADDRESS>
+		<PHONENUM DESC="Work">767-555-7676</PHONENUM>
+		<PHONENUM DESC="Fax">767-555-7642</PHONENUM>
+		<PHONENUM DESC="Pager">800-SKY-PAGEx767676</PHONENUM>
+		<EMAIL>endubuisi@spamtron.com</EMAIL>
+	</ENTRY>
+	<ENTRY ID="vz">
+		<NAME>Vasia Zhugenev</NAME>
+		<ADDRESS>2000 Disaster Plaza</ADDRESS>
+		<PHONENUM DESC="Work">000-987-6543</PHONENUM>
+		<PHONENUM DESC="Cell">000-000-0000</PHONENUM>
+		<EMAIL>vxz@magog.ru</EMAIL>
+	</ENTRY>
+</ADDRBOOK>

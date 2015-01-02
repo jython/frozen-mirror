@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+
+   This is a partial credits-file of people who have contributed to
+   the Python/XML package.  It is sorted by name, and written as
+   well-formed XML, though no DTD exists for it.  The subelements of a
+   <xml-hacker> element are: <name>, <email>, <home-page>, <public-key>,
+   <task>, and <snail-mail>.
+
+   This list is not complete; if you've been left out, or if you're
+   listed and something you've done hasn't been included, send a note
+   to akuchlin@mems-exchange.org.
+
+-->
+
+<xml-hackers>
+  <xml-hacker>
+    <name> Evgeny Cherkashin </name>
+    <email> eugeneai@icc.ru </email>
+    <task> Expose Python codecs to pyexpat </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> James Clark </name>
+    <task> Expat parser </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Fred L. Drake, Jr. </name>
+    <email> fdrake@acm.org </email>
+    <home-page> http://python.starship.net/~fdrake/ </home-page>
+    <task> XBEL maintainer </task>
+    <task> Expat maintainer </task>
+    <task> General minidom maintenance </task>
+    <task> pyexpat maintenance </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Karl Waclawek </name>
+    <task> Expat maintainer </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Stefane Fermigier </name>
+    <task> First version of the DOM code. </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Lars Marius Garshol </name>
+    <task> saxlib SAX implementation </task>
+    <task> xmlproc XML parser </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Geir Ove Grønmo </name>
+    <task> xmlarch architectural forms code </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Jack Jansen </name>
+    <task> PyExpat extension module </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Jeff Johnson </name>
+    <task> xml.dom.utils.FileReader class </task>
+    <task> Lots of DOM bug reports </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Jeremy Kloth </name>
+    <name> 4DOM, and various other things. </name>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> A.M. Kuchling </name>
+    <email> akuchlin@mems-exchange.org </email>
+    <home-page> http://www.amk.ca </home-page>
+    <task> Packaging </task>
+    <task> XML HOWTO </task>
+    <task> XML topic guide (http://pyxml.sourceforge.net/topics/) </task>
+    <snail-mail> CNRI, 1895 Preston White Drive, Suite 100, Reston VA, 20191
+    </snail-mail>
+    <public-key type="gpg">1024D/8BBD77F0 8A1A 67CB B3E5 3972 06DE  3D3B 913B DC5E 8BBD 77F0 </public-key>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Martin von Löwis </name>
+    <task> Original unicode wide-string module </task>
+    <task> Synchronization of Python 2 and PyXML </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Fredrik Lundh </name>
+    <task> sgmlop extension module </task>
+    <task> Modified version of xmllib.py for use with sgmlop </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Sjoerd Mullender </name>
+    <task> xmllib.py XML parser </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Sean McGrath </name>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Uche Ogbuji </name>
+    <name> 4DOM, and various other things. </name>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Mike Olson </name>
+    <name> 4DOM, and various other things. </name>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Paul Prescod </name>
+    <task> minidom </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Guido van Rossum </name>
+    <task> Benevolent dictator </task>
+    <task> Convincing AMK about the __cmp__ method for DOM nodes </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Greg Stein </name>
+    <task> xml.utils.qp_xml module </task>
+    <task> Admin the XML-SIG CVS repository
+       <href> http://www.lyra.org/cgi-bin/viewcvs.cgi/xml/ </href>
+    </task>
+    <email> gstein@lyra.org </email>
+    <home-page> http://www.lyra.org/greg/ </home-page>
+    <snail-mail> PO Box 760, Palo Alto, CA, 94302 </snail-mail>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> James Tauber </name>
+    <email> jtauber@bowstreet.com </email>
+    <task> PyTREX </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Robin Thomas </name>
+    <task> Strict and loose marshalling for WDDX. </task>
+    <task> Various fixes to the xml.marshal.generic module. </task>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Christian Tismer </name>
+  </xml-hacker>
+
+  <xml-hacker>
+    <name> Stephan Tolksdorf </name>
+    <task> Add various minidom features </task>
+  </xml-hacker>
+
+</xml-hackers>

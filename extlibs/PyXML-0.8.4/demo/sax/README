@@ -1,0 +1,21 @@
+These examples demonstrate the Python SAX API, version 1. In all examples,
+the sax driver can be specified by setting the PY_SAX_PARSER environment
+variable. Valid settings are 
+- xml.sax.drivers.drv_pyexpat
+- xml.sax.drivers.drw_xmlproc
+- xml.sax.drivers.drv_sgmlop
+as well as any other driver listed in the xml/sax/drivers directory.
+
+sax2obj.py     ???
+saxdemo.py     Parses an XML file, and prints it in canonical form.
+               Invoke as 'python saxdemo.py filename.xml'.
+               The standard driver will be pyexpat. 
+               Alternative drivers can be specified with the -d option 
+               of saxdemo.py; the prefix 'xml.sax.drivers.drv_' is 
+               automatically added to the driver.
+saxhack.py     appears to be broken
+saxstats.py    Prints statistics about an xml file.
+saxtimer.py    Times parsing a document; arguments are the parser name
+               (the prefix 'xml.sax.drivers.drv_' is automatically added)
+               and the document name.
+saxtrace.py    parses a document using xmlproc, and prints all SAX events.

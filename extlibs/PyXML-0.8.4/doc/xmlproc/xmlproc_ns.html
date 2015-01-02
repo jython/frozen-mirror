@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+  <TITLE>xmlproc and namespaces</TITLE>
+  <META NAME="Author"      CONTENT="Lars Marius Garshol">
+  <META NAME="Generator"   CONTENT="Homemade">
+  <META NAME="Description" CONTENT="This page documents the namespace support in
+	xmlproc.">
+  <META NAME="Keywords"    CONTENT="XML, Python, XML parser, namespaces">
+  <LINK REL=stylesheet HREF="standard.css" TYPE="text/css" MEDIA=screen>
+</HEAD>
+
+<BODY>
+
+<H1>xmlproc and namespaces</H1>
+
+<P>
+xmlproc now supports XML namespaces through the addition of the
+xml.parsers.xmlproc.namespace module. In this module there is a
+NamespaceFilter class which is implemented as a parser filter.  This
+means that it is registered with the parser as an application, and
+that your application then registers with the filter as the real
+application.
+</P>
+
+<P>
+The parser will then parse as normal and send parse events to the
+NamespaceFilter, which will do namespace transformations and pass the
+events on to your application.
+</P>
+
+<h2>An example</h2>
+
+<P>
+This is an example of how namespace processing can be set up:
+</P>
+
+<PRE><CODE>
+from xml.parsers.xmlproc import xmlproc,namespace
+
+class MyApplication(xmlproc.Application):
+    pass # Add some useful stuff here
+
+p=xmlproc.XMLProcessor()
+
+nsf=namespace.NamespaceFilter(p)
+nsf.set_application(MyApplication())
+# register error handlers and all other handlers with the parser,
+# not the filter
+
+p.set_application(nsf)
+p.parse_resource("foo.xml")
+</CODE></PRE>
+
+<P>
+MyApplication will now receive parse events where all prefixed names
+have been processed into names consisting of the namespace URI,
+followed by a space and then the local part of the name. If this isn't
+clear to you, try using the -n option to xvcmd.py and xpcmd.py and
+-o&nbsp;x to see what the filter does.
+</P>
+
+<h2>The NamespaceFilter interface</h2>
+
+<P>
+This is the complete NamespaceFilter interface:
+</P>
+
+<dl>
+  <dt><CODE>def __init__(self,parser):</CODE>
+  <dd>Creates the filter and gives it a reference to the parser.
+
+  <dt><CODE>def set_application(self,app):</CODE>
+  <dd>Gives the filter an object to send filtered events to.
+
+  <dt><CODE>def set_report_ns_attributes(self,action):</CODE>
+  <dd>If action is set to true xmlns attributes are reported to the
+  application. If it is set to false they are silently removed.
+</dl>
+
+
+<HR>
+
+<ADDRESS>
+Last update 2000-05-11 14:20, by 
+<a href="mailto:larsga@garshol.priv.no">Lars Marius Garshol</a>.
+</ADDRESS>
+
+</DIV>
+
+</BODY>
+</HTML>

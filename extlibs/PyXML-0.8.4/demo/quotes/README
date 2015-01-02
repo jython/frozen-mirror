@@ -1,0 +1,21 @@
+The files in this directory demonstrate maintaining a quotation
+collection in XML.  The still-unnamed markup language contains
+'quotation' elements, which contain the text of the quotation and
+optional 'author' and 'source' elements.  For the quotation text,
+there are some simple semantic markups such as 'em', 'cite', and
+'foreign'.
+
+quotations.dtd		DTD for the markup language.
+sample.xml              A sample quotation file.
+qtfmt.py		Program to read a file marked up using the language
+			specified in quotations.dtd, and output the 
+			list in HTML, text, or fortune format.
+
+The qtfmt.py script requires Python 2.0, since it assumes UTF-8 output
+and uses the codecs module to convert its output to Latin-1.
+
+Contact amk1@bigfoot.com if you have questions or comments about the
+contents of this directory.  For the author's complete quotation
+collections, please go to http://starship.python.net/crew/amk/quotations/
+
+

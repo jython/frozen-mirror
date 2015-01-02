@@ -1,0 +1,81 @@
+4DOM
+
+Description
+===========
+
+4DOM is a Python-based implementation of the W3C-recommended
+Document Object Model API.  Specifically, 4DOM implements
+
+  * DOM Level 2 Core Version 1.0 (13 November 2000 Recommendation),
+  * DOM HTML Level 2 (13 November 2000 Working Draft), and
+  * DOM Level 2 Traversal (13 November 2000 Recommendation)
+
+4DOM should work on all platforms supported by Python.
+
+
+Installation
+============
+
+4DOM is built and installed with PyXML's other libraries when you run
+setup.py.  It cannot be installed separately.
+
+
+License/Copyright
+=================
+
+For now, 4DOM retains its license and copyright that it had when
+developed by Fourthought, Inc. <http://fourthought.com/>.  See the
+LICENCE file in the PyXML distribution and/or the COPYRIGHT file in
+the xml/dom subdirectory for complete copyright and terms of license.
+
+
+Documentation
+=============
+
+Python's generic DOM API, as shared by both 4DOM and minidom, is
+documented at
+
+  http://www.python.org/doc/current/lib/module-xml.dom.html
+
+The DOM APIs that are implemented in 4DOM are specified at
+
+  http://www.w3.org/TR/DOM-Level-2-Core/
+  http://www.w3.org/TR/DOM-Level-2-HTML/
+  http://www.w3.org/TR/DOM-Level-2-Traversal-Range/
+
+Compliance issues in the 4DOM core API are summarized at
+
+  http://pyxml.sourceforge.net/topics/compliance.html
+
+
+Development
+===========
+
+4DOM is open-source and is maintained by the PyXML development
+community.  Most of 4DOM's original development was undertaken by
+Fourthought, Inc., from 1998-2000.  4DOM was incorporated into PyXML
+starting with the PyXML 0.6.0 release in September 2000, and was
+distributed in both PyXML and 4Suite for a time.  It ceased being
+distributed in 4Suite starting with the PyXML 0.6.4 release in
+February 2001, at which time maintenance was handed over entirely to
+the PyXML team.  Most development since then has concentrated on bug
+fixes and compatibility issues.
+
+
+Contact and Support
+===================
+
+Please direct comments and questions to the Python XML-SIG mailing
+list at xml-sig@python.org. For more information about the list and
+to subscribe or browse the archives, visit
+
+  http://mail.python.org/mailman/listinfo/xml-sig
+
+To search the archives, use a search engine and restrict matches to
+pages in the domain mail.python.org. For example, in Google, include
+the search term site:mail.python.org
+
+You may file bug reports in the PyXML bug tracker at
+
+  http://sourceforge.net/tracker/?group_id=6473&atid=106473
+

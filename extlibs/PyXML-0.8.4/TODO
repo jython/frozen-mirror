@@ -1,0 +1,10 @@
+TODO list:
+	* More demo programs 
+	* Lots of docstrings for pydoc's sake
+	* Flesh out the test suite more (measure coverage first)
+	* Scripts for running the demo programs and verifying that they work
+
+demo/xbel/	
+	* Update all the software to match the current XBEL DTD
+	* Add a test suite for the basic parser
+
