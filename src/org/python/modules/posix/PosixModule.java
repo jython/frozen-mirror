@@ -1138,6 +1138,11 @@ public class PosixModule implements ClassDictInit {
             if (asPath(path).endsWith(File.separator)) {
                 absolutePath = absolutePath + File.separator;
             }
+
+            if ("".equals(asPath(path))) {
+                // issue1948: CPython compatibility
+                throw Py.OSError(Errno.ENOENT);
+            }
             return PyStatResult.fromFileStat(posix.stat(absolutePath));
         }
     }

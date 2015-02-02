@@ -58,6 +58,9 @@ class OSFileTestCase(unittest.TestCase):
             else:
                 self.assertTrue(False)
 
+    def test_issue1948(self):
+        self.assertFalse(os.path.exists(''), 'Jython should return False for empty path (like cpython does)')
+
 
 class OSDirTestCase(unittest.TestCase):
 
@@ -259,7 +262,7 @@ class LocaleTestCase(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(
-        OSFileTestCase, 
+        OSFileTestCase,
         OSDirTestCase,
         OSStatTestCase,
         OSWriteTestCase,
