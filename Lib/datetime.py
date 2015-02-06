@@ -1499,7 +1499,11 @@ class datetime(date):
 
         The year, month and day arguments are required. tzinfo may be None, or an
         instance of a tzinfo subclass. The remaining arguments may be ints or longs."""
-        return cls(*(_time.strptime(date_string, format))[0:6])
+        #return cls(*(_time.strptime(date_string, format))[0:6])
+		
+        'string, format -> new datetime parsed from a string (like time.strptime()).'
+        import _strptime
+        return _strptime._strptime_datetime(cls, date_string, format)
 
     strptime = classmethod(strptime)
 
