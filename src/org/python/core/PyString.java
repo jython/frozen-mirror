@@ -6,10 +6,10 @@ import java.lang.ref.SoftReference;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.python.core.buffer.BaseBuffer;
 import org.python.core.buffer.SimpleStringBuffer;
@@ -1050,7 +1050,21 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_lower_doc)
     final String str_lower() {
-        return getString().toLowerCase(Locale.ROOT);
+        String s = getString();
+        int n = s.length();
+        if (n == 1) {
+            // Special-case single byte string
+            char c = s.charAt(0);
+            return _isupper(c) ? String.valueOf((char)(c ^ SWAP_CASE)) : s;
+        } else {
+            // Copy chars to buffer, converting to lower-case.
+            char[] buf = new char[n];
+            for (int i = 0; i < n; i++) {
+                char c = s.charAt(i);
+                buf[i] = _isupper(c) ? (char)(c ^ SWAP_CASE) : c;
+            }
+            return new String(buf);
+        }
     }
 
     public String upper() {
@@ -1059,7 +1073,21 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_upper_doc)
     final String str_upper() {
-        return getString().toUpperCase(Locale.ROOT);
+        String s = getString();
+        int n = s.length();
+        if (n == 1) {
+            // Special-case single byte string
+            char c = s.charAt(0);
+            return _islower(c) ? String.valueOf((char)(c ^ SWAP_CASE)) : s;
+        } else {
+            // Copy chars to buffer, converting to upper-case.
+            char[] buf = new char[n];
+            for (int i = 0; i < n; i++) {
+                char c = s.charAt(i);
+                buf[i] = _islower(c) ? (char)(c ^ SWAP_CASE) : c;
+            }
+            return new String(buf);
+        }
     }
 
     public String title() {
@@ -1070,19 +1098,25 @@ public class PyString extends PyBaseString implements BufferProtocol {
     final String str_title() {
         char[] chars = getString().toCharArray();
         int n = chars.length;
-
         boolean previous_is_cased = false;
         for (int i = 0; i < n; i++) {
             char ch = chars[i];
-            if (previous_is_cased) {
-                chars[i] = Character.toLowerCase(ch);
-            } else {
-                chars[i] = Character.toTitleCase(ch);
-            }
-
-            if (Character.isLowerCase(ch) || Character.isUpperCase(ch) || Character.isTitleCase(ch)) {
+            if (_isalpha(ch)) {
+                if (previous_is_cased) {
+                    // Should be lower case
+                    if (_isupper(ch)) {
+                        chars[i] = (char)(ch ^ SWAP_CASE);
+                    }
+                } else {
+                    // Should be upper case
+                    if (_islower(ch)) {
+                        chars[i] = (char)(ch ^ SWAP_CASE);
+                    }
+                }
+                // And this was a letter
                 previous_is_cased = true;
             } else {
+                // This was not a letter
                 previous_is_cased = false;
             }
         }
@@ -1095,18 +1129,25 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_swapcase_doc)
     final String str_swapcase() {
-        char[] chars = getString().toCharArray();
-        int n = chars.length;
-        for (int i = 0; i < n; i++) {
-            char c = chars[i];
-            if (Character.isUpperCase(c)) {
-                chars[i] = Character.toLowerCase(c);
-            } else if (Character.isLowerCase(c)) {
-                chars[i] = Character.toUpperCase(c);
+        String s = getString();
+        int n = s.length();
+        if (n == 1) {
+            // Special-case single byte string
+            char c = s.charAt(0);
+            return _isalpha(c) ? String.valueOf((char)(c ^ SWAP_CASE)) : s;
+        } else {
+            // Copy chars to buffer, converting lower to upper case, upper to lower case.
+            char[] buf = new char[n];
+            for (int i = 0; i < n; i++) {
+                char c = s.charAt(i);
+                buf[i] = _isalpha(c) ? (char)(c ^ SWAP_CASE) : c;
             }
+            return new String(buf);
         }
-        return new String(chars);
     }
+
+    // Bit to twiddle (XOR) for lowercase letter to uppercase and vice-versa.
+    private static final int SWAP_CASE = 0x20;
 
     /**
      * Equivalent of Python <code>str.strip()</code> with no argument, meaning strip whitespace. Any
@@ -2662,8 +2703,8 @@ public class PyString extends PyBaseString implements BufferProtocol {
      * Return the (lazily) compiled regular expression for a Python complex number. This is used
      * within the regular expression patterns that define a priori acceptable strings in the complex
      * constructors. The expression contributes five named capture groups a, b, x, y and j. x and y
-     * are the two floats encountered, and if j is present, one of them is the imaginary part.
-     * a and b are the optional parentheses. They must either both be present or both omitted.
+     * are the two floats encountered, and if j is present, one of them is the imaginary part. a and
+     * b are the optional parentheses. They must either both be present or both omitted.
      */
     private static synchronized Pattern getComplexPattern() {
         if (complexPattern == null) {
@@ -3071,11 +3112,22 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_capitalize_doc)
     final String str_capitalize() {
-        if (getString().length() == 0) {
-            return getString();
+        String s = getString();
+        int n = s.length();
+        if (n == 0) {
+            return s;
+        } else {
+            char[] buf = new char[n];
+            // At least one byte: if lower convert to upper case.
+            char c = s.charAt(0);
+            buf[0] = _islower(c) ? (char)(c ^ SWAP_CASE) : c;
+            // Copy the rest, converting to lower case.
+            for (int i = 1; i < n; i++) {
+                c = s.charAt(i);
+                buf[i] = _isupper(c) ? (char)(c ^ SWAP_CASE) : c;
+            }
+            return new String(buf);
         }
-        String first = getString().substring(0, 1).toUpperCase();
-        return first.concat(getString().substring(1).toLowerCase());
     }
 
     /**
@@ -3602,24 +3654,33 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_islower_doc)
     final boolean str_islower() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isLowerCase(getString().charAt(0));
+            // Special case single character strings.
+            return _islower(s.charAt(0));
         }
 
         boolean cased = false;
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (Character.isUpperCase(ch) || Character.isTitleCase(ch)) {
+            char ch = s.charAt(i);
+            if (_isupper(ch)) {
                 return false;
-            } else if (!cased && Character.isLowerCase(ch)) {
+            } else if (!cased && _islower(ch)) {
                 cased = true;
             }
         }
         return cased;
+    }
+
+    private boolean _islower(char ch) {
+        if (ch < 256) {
+            return BaseBytes.islower((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isupper() {
@@ -3628,24 +3689,33 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_isupper_doc)
     final boolean str_isupper() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isUpperCase(getString().charAt(0));
+            // Special case single character strings.
+            return _isupper(s.charAt(0));
         }
 
         boolean cased = false;
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (Character.isLowerCase(ch) || Character.isTitleCase(ch)) {
+            char ch = s.charAt(i);
+            if (_islower(ch)) {
                 return false;
-            } else if (!cased && Character.isUpperCase(ch)) {
+            } else if (!cased && _isupper(ch)) {
                 cased = true;
             }
         }
         return cased;
+    }
+
+    private boolean _isupper(char ch) {
+        if (ch < 256) {
+            return BaseBytes.isupper((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isalpha() {
@@ -3654,25 +3724,29 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_isalpha_doc)
     final boolean str_isalpha() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isLetter(getString().charAt(0));
-        }
-
-        if (n == 0) {
-            return false;
+            // Special case single character strings.
+            return _isalpha(s.charAt(0));
         }
 
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (!Character.isLetter(ch)) {
+            if (!_isalpha(s.charAt(i))) {
                 return false;
             }
         }
-        return true;
+        return n > 0;
+    }
+
+    private boolean _isalpha(char ch) {
+        if (ch < 256) {
+            return BaseBytes.isalpha((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isalnum() {
@@ -3681,33 +3755,30 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_isalnum_doc)
     final boolean str_isalnum() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return _isalnum(getString().charAt(0));
-        }
-
-        if (n == 0) {
-            return false;
+            // Special case single character strings.
+            return _isalnum(s.charAt(0));
         }
 
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (!_isalnum(ch)) {
+            if (!_isalnum(s.charAt(i))) {
                 return false;
             }
         }
-        return true;
+        return n > 0;
     }
 
     private boolean _isalnum(char ch) {
-        // This can ever be entirely compatible with CPython. In CPython
-        // The type is not used, the numeric property is determined from
-        // the presense of digit, decimal or numeric fields. These fields
-        // are not available in exactly the same way in java.
-        return Character.isLetterOrDigit(ch) || Character.getType(ch) == Character.LETTER_NUMBER;
+        // This is now entirely compatible with CPython, as long as only bytes are stored.
+        if (ch < 256) {
+            return BaseBytes.isalnum((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isdecimal() {
@@ -3715,27 +3786,8 @@ public class PyString extends PyBaseString implements BufferProtocol {
     }
 
     @ExposedMethod(doc = BuiltinDocs.unicode_isdecimal_doc)
-    final boolean str_isdecimal() {
-        int n = getString().length();
-
-        /* Shortcut for single character strings */
-        if (n == 1) {
-            char ch = getString().charAt(0);
-            return _isdecimal(ch);
-        }
-
-        if (n == 0) {
-            return false;
-        }
-
-        for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (!_isdecimal(ch)) {
-                return false;
-            }
-        }
-        return true;
+    final boolean str_isdecimal() { // XXX this ought not to exist in str (in Python 2)
+        return str_isdigit();
     }
 
     private boolean _isdecimal(char ch) {
@@ -3749,25 +3801,29 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_isdigit_doc)
     final boolean str_isdigit() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isDigit(getString().charAt(0));
-        }
-
-        if (n == 0) {
-            return false;
+            // Special case single character strings.
+            return _isdigit(s.charAt(0));
         }
 
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (!Character.isDigit(ch)) {
+            if (!_isdigit(s.charAt(i))) {
                 return false;
             }
         }
-        return true;
+        return n > 0;
+    }
+
+    private boolean _isdigit(char ch) {
+        if (ch < 256) {
+            return BaseBytes.isdigit((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isnumeric() {
@@ -3775,31 +3831,8 @@ public class PyString extends PyBaseString implements BufferProtocol {
     }
 
     @ExposedMethod(doc = BuiltinDocs.unicode_isnumeric_doc)
-    final boolean str_isnumeric() {
-        int n = getString().length();
-
-        /* Shortcut for single character strings */
-        if (n == 1) {
-            return _isnumeric(getString().charAt(0));
-        }
-
-        if (n == 0) {
-            return false;
-        }
-
-        for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-            if (!_isnumeric(ch)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean _isnumeric(char ch) {
-        int type = Character.getType(ch);
-        return type == Character.DECIMAL_DIGIT_NUMBER || type == Character.LETTER_NUMBER
-                || type == Character.OTHER_NUMBER;
+    final boolean str_isnumeric() { // XXX this ought not to exist in str (in Python 2)
+        return str_isdigit();
     }
 
     public boolean istitle() {
@@ -3808,26 +3841,25 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_istitle_doc)
     final boolean str_istitle() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isTitleCase(getString().charAt(0))
-                    || Character.isUpperCase(getString().charAt(0));
+            // Special case single character strings.
+            return _isupper(s.charAt(0));
         }
 
         boolean cased = false;
         boolean previous_is_cased = false;
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (Character.isUpperCase(ch) || Character.isTitleCase(ch)) {
+            char ch = s.charAt(i);
+            if (_isupper(ch)) {
                 if (previous_is_cased) {
                     return false;
                 }
                 previous_is_cased = true;
                 cased = true;
-            } else if (Character.isLowerCase(ch)) {
+            } else if (_islower(ch)) {
                 if (!previous_is_cased) {
                     return false;
                 }
@@ -3846,25 +3878,29 @@ public class PyString extends PyBaseString implements BufferProtocol {
 
     @ExposedMethod(doc = BuiltinDocs.str_isspace_doc)
     final boolean str_isspace() {
-        int n = getString().length();
+        String s = getString();
+        int n = s.length();
 
-        /* Shortcut for single character strings */
         if (n == 1) {
-            return Character.isWhitespace(getString().charAt(0));
-        }
-
-        if (n == 0) {
-            return false;
+            // Special case single character strings.
+            return _isspace(s.charAt(0));
         }
 
         for (int i = 0; i < n; i++) {
-            char ch = getString().charAt(i);
-
-            if (!Character.isWhitespace(ch)) {
+            if (!_isspace(s.charAt(i))) {
                 return false;
             }
         }
-        return true;
+        return n > 0;
+    }
+
+    private boolean _isspace(char ch) {
+        if (ch < 256) {
+            return BaseBytes.isspace((byte)ch);
+        } else {
+            // This is an internal error. Really, the test should be unnecessary.
+            throw new java.lang.IllegalArgumentException("non-byte character in PyString");
+        }
     }
 
     public boolean isunicode() {

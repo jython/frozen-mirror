@@ -84,12 +84,12 @@ oracle.jar=C:/workspace/HEAD/for_development/bisdevsrv28/jboss/server/infra/lib/
         <property name="PY_RELEASE_LEVEL_SNAPSHOT" value="170"/> <!-- 0xAA -->
 
         <!-- The current version info -->
-        <property name="jython.version" value="2.7.0+"/>
-        <property name="jython.version.noplus" value="2.7.0"/>
+        <property name="jython.version" value="2.7.1b2"/>
+        <property name="jython.version.noplus" value="2.7.1b2"/>
         <property name="jython.major_version" value="2"/>
         <property name="jython.minor_version" value="7"/>
-        <property name="jython.micro_version" value="0"/>
-        <property name="jython.release_level" value="${PY_RELEASE_LEVEL_FINAL}"/>
+        <property name="jython.micro_version" value="2"/>
+        <property name="jython.release_level" value="${PY_RELEASE_LEVEL_BETA}"/>
         <!-- Usually zero, only used for alpha, beta and candidate versions
              where it must be greater than zero. -->
         <property name="jython.release_serial" value="0"/>
@@ -173,16 +173,16 @@ oracle.jar=C:/workspace/HEAD/for_development/bisdevsrv28/jboss/server/infra/lib/
             <pathelement path="${extlibs.dir}/jffi-x86_64-SunOS.jar"/>
             <pathelement path="${extlibs.dir}/jffi-x86_64-Windows.jar"/>
             <pathelement path="${extlibs.dir}/jffi-1.2.7.jar"/>
-            <pathelement path="${extlibs.dir}/jnr-ffi-2.0.1.jar"/>
+            <pathelement path="${extlibs.dir}/jnr-ffi-2.0.4.jar"/>
             <pathelement path="${extlibs.dir}/jnr-netdb-1.1.4.jar"/>
-            <pathelement path="${extlibs.dir}/jnr-posix-3.0.9.jar"/>
-            <pathelement path="${extlibs.dir}/jnr-constants-0.8.6.jar"/>
+            <pathelement path="${extlibs.dir}/jnr-posix-3.0.17.jar"/>
+            <pathelement path="${extlibs.dir}/jnr-constants-0.8.8.jar"/>
             <pathelement path="${extlibs.dir}/jline-2.12.1.jar"/>
-            <pathelement path="${extlibs.dir}/netty-buffer-4.0.25.Final.jar"/>
-            <pathelement path="${extlibs.dir}/netty-codec-4.0.25.Final.jar"/>
-            <pathelement path="${extlibs.dir}/netty-common-4.0.25.Final.jar"/>
-            <pathelement path="${extlibs.dir}/netty-handler--4.0.25.Final.jar"/>
-            <pathelement path="${extlibs.dir}/netty-transport-4.0.25.Final.jar"/>
+            <pathelement path="${extlibs.dir}/netty-buffer-4.0.31.Final.jar"/>
+            <pathelement path="${extlibs.dir}/netty-codec-4.0.31.Final.jar"/>
+            <pathelement path="${extlibs.dir}/netty-common-4.0.31.Final.jar"/>
+            <pathelement path="${extlibs.dir}/netty-handler--4.0.31.Final.jar"/>
+            <pathelement path="${extlibs.dir}/netty-transport-4.0.31.Final.jar"/>
         </path>
 
         <available property="informix.present" classname="com.informix.jdbc.IfxDriver" classpath="${informix.jar}" />
@@ -412,8 +412,8 @@ jython.build.hg_version=${build.hg.version}</echo>
     <target name="brand-readme-version" depends="checkout" if="do.snapshot.build">
         <!-- change README.txt version string, if so defined: used for
         snapshot builds. XXX: a bit broken for now-->
-        <replace file="${jython.base.dir}/README.txt" token='2.7b3+'
-        value='2.7b${xxx.revision}' />
+        <replace file="${jython.base.dir}/README.txt" token='2.7.1b2+'
+        value='2.7.1b${xxx.revision}' />
         <replace file="${jython.base.dir}/README.txt">
             <replacetoken>=======================</replacetoken>
             <replacevalue>--------------------------
@@ -589,15 +589,15 @@ The readme text for the next release will be like:
             <rule pattern="com.google.**" result="org.python.google.@1"/>
             <zipfileset src="extlibs/icu4j-54_1_1.jar"/>
             <rule pattern="com.ibm.icu.**" result="org.python.icu.@1"/>
-            <zipfileset src="extlibs/netty-buffer-4.0.25.Final.jar" excludes="META-INF/**"/>
+            <zipfileset src="extlibs/netty-buffer-4.0.31.Final.jar" excludes="META-INF/**"/>
             <rule pattern="io.netty.**" result="org.python.netty.@1"/>
-            <zipfileset src="extlibs/netty-codec-4.0.25.Final.jar" excludes="META-INF/**"/>
+            <zipfileset src="extlibs/netty-codec-4.0.31.Final.jar" excludes="META-INF/**"/>
             <rule pattern="io.netty.**" result="org.python.netty.@1"/>
-            <zipfileset src="extlibs/netty-common-4.0.25.Final.jar" excludes="META-INF/**"/>
+            <zipfileset src="extlibs/netty-common-4.0.31.Final.jar" excludes="META-INF/**"/>
             <rule pattern="io.netty.**" result="org.python.netty.@1"/>
-            <zipfileset src="extlibs/netty-handler-4.0.25.Final.jar" excludes="META-INF/**"/>
+            <zipfileset src="extlibs/netty-handler-4.0.31.Final.jar" excludes="META-INF/**"/>
             <rule pattern="io.netty.**" result="org.python.netty.@1"/>
-            <zipfileset src="extlibs/netty-transport-4.0.25.Final.jar" excludes="META-INF/**"/>
+            <zipfileset src="extlibs/netty-transport-4.0.31.Final.jar" excludes="META-INF/**"/>
             <rule pattern="io.netty.**" result="org.python.netty.@1"/>
             <zipfileset src="extlibs/jffi-arm-Linux.jar"/>
             <zipfileset src="extlibs/jffi-Darwin.jar"/>
@@ -618,10 +618,10 @@ The readme text for the next release will be like:
             <zipfileset src="extlibs/jffi-x86_64-SunOS.jar"/>
             <zipfileset src="extlibs/jffi-x86_64-Windows.jar"/>
             <zipfileset src="extlibs/jffi-1.2.7.jar"/>
-            <zipfileset src="${extlibs.dir}/jnr-ffi-2.0.1.jar"/>
+            <zipfileset src="${extlibs.dir}/jnr-ffi-2.0.4.jar"/>
 	    <zipfileset src="${extlibs.dir}/jnr-netdb-1.1.4.jar"/>
-	    <zipfileset src="${extlibs.dir}/jnr-posix-3.0.9.jar"/>
-            <zipfileset src="${extlibs.dir}/jnr-constants-0.8.6.jar"/>
+	    <zipfileset src="${extlibs.dir}/jnr-posix-3.0.17.jar"/>
+            <zipfileset src="${extlibs.dir}/jnr-constants-0.8.8.jar"/>
             <zipfileset src="extlibs/xml-apis-2.11.0.jar" excludes="META-INF/services/*"/>
             <zipfileset src="extlibs/xercesImpl-2.11.0.jar" excludes="META-INF/services/*"/>
             <rule pattern="org.apache.xml.**" result="org.python.apache.xml.@1"/>
