@@ -265,6 +265,18 @@ class ZipSupportTests(ImportHooksBaseTestCase):
             # See CPython Issue 14255 (back-ported for Jython)
             self.assertIn(os.path.normcase(run_name.encode('utf-8')), data)
 
+    def test_unicode_char_in_path(self):
+        test_src = "def foo(): pass\n"
+        with temp_dir() as d:
+            init_name = make_script(d, u"\u03BB", test_src)
+            name_in_zip = os.path.join('zip_pkg',
+                                       os.path.basename(init_name))
+            zip_name, run_name = make_zip_script(d, 'test_zip',
+                                                init_name, name_in_zip)
+            os.remove(init_name)
+            sys.path.insert(0, zip_name)
+            import zip_pkg
+            self.assertEqual(inspect.getsource(zip_pkg.foo), test_src)
 
 def test_main():
     test.test_support.run_unittest(ZipSupportTests)
