@@ -972,6 +972,84 @@ public class PosixModule implements ClassDictInit {
         return posix.umask(mask);
     }
 
+    public static PyString __doc__uname = new PyString(
+        "uname() -> (sysname, nodename, release, version, machine)\n\n" +
+        "Return a tuple identifying the current operating system.");
+
+    /* Obtaining these values via exec is expensive, so we store them here.
+     * We store them here near uname, because they are needed exclusively
+     * by uname.
+     */
+    private static String uname_nodename = null;
+    private static String uname_machine = null;
+    private static String uname_sysver = null;
+
+    /**
+     * Resembles CPython's uname with the addition that we also attempt a
+     * windows-equivalent variant on win-systems. Implementation overview: <br>
+     * <br>
+     * Original/CPython (posix only):<br>
+     * (uname -s, uname -n, uname -r, uname -v, uname -m)
+     * <br>
+     * This version (non-windows):<br>
+     * (property os.name, uname -n, property os.version, uname -v, uname -m)
+     * <br>
+     * This version (windows):<br>
+     * (property os.name, hostname, property os.version, ver, echo %PROCESSOR_ARCHITECTURE%)
+     *
+     * @return PyTuple containing sysname, nodename, release, version, machine
+     */
+    public static PyTuple uname() {
+        String sysname = System.getProperty("os.name");
+        String sysrelease = System.getProperty("os.version");
+        boolean win = sysname.startsWith("Windows");
+        
+        if (uname_nodename == null) {
+            try {
+                Process p = Runtime.getRuntime().exec(
+                        win ? "hostname" : "uname -n");
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(p.getInputStream()));
+                uname_nodename = br.readLine();
+                br.close();
+            } catch (Exception e) {
+                uname_nodename = "";
+            }
+        }
+        if (uname_sysver == null) {
+            try {
+                Process p = Runtime.getRuntime().exec(
+                        win ? "ver" : "uname -v");
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(p.getInputStream()));
+                uname_sysver = br.readLine();
+                br.close();
+            } catch (Exception e) {
+                uname_sysver = "";
+            }
+        }
+        if (uname_machine == null) {
+            try {
+                Process p = Runtime.getRuntime().exec(
+                        win ? "echo %PROCESSOR_ARCHITECTURE%" : "uname -m");
+                java.io.BufferedReader br = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(p.getInputStream()));
+                uname_machine = br.readLine();
+                br.close();
+            } catch (Exception e) {
+                uname_machine = "";
+            }
+        }
+        PyObject[] vals = {
+                Py.newString(sysname),
+                Py.newString(uname_nodename),
+                Py.newString(sysrelease),
+                Py.newString(uname_sysver),
+                Py.newString(uname_machine)
+        };
+        return new PyTuple(vals, false);
+    }
+
     public static PyString __doc__unlink = new PyString("unlink(path)\n\n"
             + "Remove a file (same as remove(path)).");
 
