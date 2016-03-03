@@ -995,7 +995,7 @@ public class PosixModule implements ClassDictInit {
      * (property os.name, uname -n, property os.version, uname -v, uname -m)
      * <br>
      * This version (windows):<br>
-     * (property os.name, hostname, property os.version, ver, echo %PROCESSOR_ARCHITECTURE%)
+     * (property os.name, env USERDOMAIN, property os.version, cmd.exe /C ver, env PROCESSOR_ARCHITECTURE)
      *
      * @return PyTuple containing sysname, nodename, release, version, machine
      */
@@ -1004,6 +1004,9 @@ public class PosixModule implements ClassDictInit {
         String sysrelease = System.getProperty("os.version");
         boolean win = sysname.startsWith("Windows");
         
+        if (uname_nodename == null && win) {
+            uname_nodename = System.getenv("USERDOMAIN");
+        }
         if (uname_nodename == null) {
             try {
                 Process p = Runtime.getRuntime().exec(
@@ -1019,10 +1022,13 @@ public class PosixModule implements ClassDictInit {
         if (uname_sysver == null) {
             try {
                 Process p = Runtime.getRuntime().exec(
-                        win ? "ver" : "uname -v");
+                        win ? "cmd.exe /C ver" : "uname -v");
                 java.io.BufferedReader br = new java.io.BufferedReader(
                         new java.io.InputStreamReader(p.getInputStream()));
                 uname_sysver = br.readLine();
+                while (uname_sysver.length() == 0) {
+                    uname_sysver = br.readLine();
+                }
                 br.close();
             } catch (Exception e) {
                 uname_sysver = "";
@@ -1030,12 +1036,15 @@ public class PosixModule implements ClassDictInit {
         }
         if (uname_machine == null) {
             try {
-                Process p = Runtime.getRuntime().exec(
-                        win ? "echo %PROCESSOR_ARCHITECTURE%" : "uname -m");
-                java.io.BufferedReader br = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(p.getInputStream()));
-                uname_machine = br.readLine();
-                br.close();
+                if (win) {
+                    uname_machine = System.getenv("PROCESSOR_ARCHITECTURE");
+                } else {
+                    Process p = Runtime.getRuntime().exec("uname -m");
+                    java.io.BufferedReader br = new java.io.BufferedReader(
+                            new java.io.InputStreamReader(p.getInputStream()));
+                    uname_machine = br.readLine();
+                    br.close();
+                }
             } catch (Exception e) {
                 uname_machine = "";
             }
