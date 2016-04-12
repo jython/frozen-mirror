@@ -986,16 +986,40 @@ public class PosixModule implements ClassDictInit {
 
     /**
      * Resembles CPython's uname with the addition that we also attempt a
-     * windows-equivalent variant on win-systems. Implementation overview: <br>
+     * Windows-equivalent variant on win-systems. Implementation overview:<br>
      * <br>
-     * Original/CPython (posix only):<br>
-     * (uname -s, uname -n, uname -r, uname -v, uname -m)
+     * Original/CPython (POSIX only):<br>
+     * (uname -s, uname -n, uname -r, uname -v, uname -m)<br>
      * <br>
-     * This version (non-windows):<br>
-     * (property os.name, uname -n, property os.version, uname -v, uname -m)
+     * This version (non-Windows):<br>
+     * (property os.name, InetAddress.getLocalHost().getHostName(), property os.version, uname -v, uname -m)<br>
      * <br>
-     * This version (windows):<br>
-     * (property os.name, env USERDOMAIN, property os.version, cmd.exe /C ver, env PROCESSOR_ARCHITECTURE)
+     * Fallbacks:<br>
+     * nodename/uname -n: exec uname -n<br>
+     * version/uname -v: ""<br>
+     * machine/uname -m: property os.arch<br>
+     * <br>
+     * This version (Windows):<br>
+     * (property os.name, InetAddress.getLocalHost().getHostName(), property os.version, cmd.exe /C ver, env PROCESSOR_ARCHITECTURE)<br>
+     * <br>
+     * Fallback for nodename/uname -n on Windows:<br>
+     * - env USERDOMAIN<br>
+     * - exec hostname<br>
+     * <br>
+     * For machine-entry on Windows this is a simplified description.
+     * It is actually mapped to typical uname -m values as follows (pseudo-code):<br>
+     * <br>
+     * PROCESSOR_ARCHITECTURE = x86 and PROCESSOR_ARCHITEW6432 undefined: "i686"<br>
+     * PROCESSOR_ARCHITECTURE = AMD64 or PROCESSOR_ARCHITECTURE = EM64T: "x86_64"<br>
+     * PROCESSOR_ARCHITECTURE = IA64: "ia64"<br>
+     * else: PROCESSOR_ARCHITECTURE.toLowerCase()<br>
+     * <br>
+     * Potential flaws:<br>
+     * - could be a 32-bit machine, but actually not i686<br>
+     * - user might need to discriminate AMD64 from EM64T<br>
+     * <br>
+     * In the rare case that your application is sensitive to one of these flaws you shouldn't be
+     * using our uname-hack for Windows, but directly look at PROCESSOR_ARCHITECTURE and friends.
      *
      * @return PyTuple containing sysname, nodename, release, version, machine
      */
@@ -1003,7 +1027,14 @@ public class PosixModule implements ClassDictInit {
         String sysname = System.getProperty("os.name");
         String sysrelease = System.getProperty("os.version");
         boolean win = sysname.startsWith("Windows");
-        
+
+        if (uname_nodename == null) {
+        	try {
+        		uname_nodename = java.net.InetAddress.getLocalHost().getHostName();
+        	} catch (Exception e) {
+        		// Do nothing to leverage fallback
+        	}
+        }
         if (uname_nodename == null && win) {
             uname_nodename = System.getenv("USERDOMAIN");
         }
@@ -1014,7 +1045,13 @@ public class PosixModule implements ClassDictInit {
                 java.io.BufferedReader br = new java.io.BufferedReader(
                         new java.io.InputStreamReader(p.getInputStream()));
                 uname_nodename = br.readLine();
+                // to end the process sanely in case we deal with some
+                // implementation that emits additional new-lines:
+                while (br.readLine() != null);
                 br.close();
+                if (p.waitFor() != 0) {
+                	uname_nodename = "";
+                }
             } catch (Exception e) {
                 uname_nodename = "";
             }
@@ -1026,10 +1063,17 @@ public class PosixModule implements ClassDictInit {
                 java.io.BufferedReader br = new java.io.BufferedReader(
                         new java.io.InputStreamReader(p.getInputStream()));
                 uname_sysver = br.readLine();
-                while (uname_sysver.length() == 0) {
+                while (uname_sysver != null && uname_sysver.length() == 0) {
                     uname_sysver = br.readLine();
                 }
+                // to end the process sanely in case we deal with some
+                // implementation that emits additional new-lines:
+                while (br.readLine() != null);
                 br.close();
+                if (p.waitFor() != 0) {
+                	// No fallback for sysver available
+                	uname_sysver = "";
+                }
             } catch (Exception e) {
                 uname_sysver = "";
             }
@@ -1037,16 +1081,48 @@ public class PosixModule implements ClassDictInit {
         if (uname_machine == null) {
             try {
                 if (win) {
-                    uname_machine = System.getenv("PROCESSOR_ARCHITECTURE");
+                    String machine = System.getenv("PROCESSOR_ARCHITECTURE");
+                    if (machine.equals("x86")) {
+                        // maybe 32-bit process running on 64 bit machine
+                        machine = System.getenv("PROCESSOR_ARCHITEW6432");
+                        // if machine == null it's actually a 32-bit machine
+                    }
+                    if (machine == null) {
+                        uname_machine = "i686";
+                    } else if (machine.equals("AMD64") || machine.equals("EM64T")) {
+                        uname_machine = "x86_64";
+                    } else if (machine.equals("IA64")) {
+                        uname_machine = "ia64";
+                    } else {
+                        uname_machine = machine.toLowerCase();
+                    }
                 } else {
                     Process p = Runtime.getRuntime().exec("uname -m");
                     java.io.BufferedReader br = new java.io.BufferedReader(
                             new java.io.InputStreamReader(p.getInputStream()));
                     uname_machine = br.readLine();
+                    // to end the process sanely in case we deal with some
+                    // implementation that emits additional new-lines:
+                    while (br.readLine() != null);
                     br.close();
+                    if (p.waitFor() != 0) {
+                    	// To leverage os.arch-fallback:
+                    	uname_machine = null;
+                    }
                 }
             } catch (Exception e) {
-                uname_machine = "";
+            	// Do nothing to leverage os.arch-fallback
+            }
+            if (uname_machine == null) {
+	            String machine = System.getProperty("os.arch");
+	        	if (machine == null) {
+	        		uname_machine = "";
+	        	} else if (machine.equals("amd64")) {
+	        		// Normalize the common amd64-case to x86_64:
+	        		uname_machine = "x86_64";
+	        	} else {
+	        		uname_machine = machine;
+	        	}
             }
         }
         PyObject[] vals = {
