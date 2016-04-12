@@ -1029,11 +1029,11 @@ public class PosixModule implements ClassDictInit {
         boolean win = sysname.startsWith("Windows");
 
         if (uname_nodename == null) {
-        	try {
-        		uname_nodename = java.net.InetAddress.getLocalHost().getHostName();
-        	} catch (Exception e) {
-        		// Do nothing to leverage fallback
-        	}
+            try {
+                uname_nodename = java.net.InetAddress.getLocalHost().getHostName();
+            } catch (Exception e) {
+                // Do nothing to leverage fallback
+            }
         }
         if (uname_nodename == null && win) {
             uname_nodename = System.getenv("USERDOMAIN");
@@ -1050,7 +1050,7 @@ public class PosixModule implements ClassDictInit {
                 while (br.readLine() != null);
                 br.close();
                 if (p.waitFor() != 0) {
-                	uname_nodename = "";
+                    uname_nodename = "";
                 }
             } catch (Exception e) {
                 uname_nodename = "";
@@ -1071,8 +1071,8 @@ public class PosixModule implements ClassDictInit {
                 while (br.readLine() != null);
                 br.close();
                 if (p.waitFor() != 0) {
-                	// No fallback for sysver available
-                	uname_sysver = "";
+                    // No fallback for sysver available
+                    uname_sysver = "";
                 }
             } catch (Exception e) {
                 uname_sysver = "";
@@ -1106,23 +1106,25 @@ public class PosixModule implements ClassDictInit {
                     while (br.readLine() != null);
                     br.close();
                     if (p.waitFor() != 0) {
-                    	// To leverage os.arch-fallback:
-                    	uname_machine = null;
+                        // To leverage os.arch-fallback:
+                        uname_machine = null;
                     }
                 }
             } catch (Exception e) {
-            	// Do nothing to leverage os.arch-fallback
+                // Do nothing to leverage os.arch-fallback
             }
             if (uname_machine == null) {
-	            String machine = System.getProperty("os.arch");
-	        	if (machine == null) {
-	        		uname_machine = "";
-	        	} else if (machine.equals("amd64")) {
-	        		// Normalize the common amd64-case to x86_64:
-	        		uname_machine = "x86_64";
-	        	} else {
-	        		uname_machine = machine;
-	        	}
+                String machine = System.getProperty("os.arch");
+                if (machine == null) {
+                    uname_machine = "";
+                } else if (machine.equals("amd64")) {
+                    // Normalize the common amd64-case to x86_64:
+                    uname_machine = "x86_64";
+                } else if (machine.equals("x86")) {
+                    uname_machine = "i686";
+                } else {
+                    uname_machine = machine;
+                }
             }
         }
         PyObject[] vals = {
