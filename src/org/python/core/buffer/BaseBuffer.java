@@ -221,6 +221,12 @@ public abstract class BaseBuffer implements PyBuffer {
     }
 
     @Override
+    public boolean isDirectNIOBuffer(){
+        // AS_ARRAY is a non-navigational flag, so is inverted in gFeatureFlags
+        return (gFeatureFlags & AS_DIRECT_NIO) != 0;
+    }
+
+    @Override
     public int getNdim() {
         return shape.length;
     }
@@ -734,6 +740,8 @@ public abstract class BaseBuffer implements PyBuffer {
             return bufferIsNot("writable");
         } else if ((syndrome & AS_ARRAY) != 0) {
             return bufferIsNot("accessible as a Java array");
+        } else if ((syndrome & AS_DIRECT_NIO) != 0) {
+            return bufferIsNot("accessible as a direct java.nio.ByteBuffer");
         } else if ((syndrome & C_CONTIGUOUS) != 0) {
             return bufferIsNot("C-contiguous");
         } else if ((syndrome & F_CONTIGUOUS) != 0) {

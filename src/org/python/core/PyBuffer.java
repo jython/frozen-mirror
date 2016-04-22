@@ -265,6 +265,8 @@ public interface PyBuffer extends PyBUF, BufferProtocol, AutoCloseable {
      * using the <code>shape</code>, <code>strides</code> and maybe <code>suboffsets</code> provided
      * by the API.
      *
+     * @see #isDirectNIOBuffer()
+     *
      * @return a ByteBuffer equivalent to the exported data contents.
      */
     ByteBuffer getNIOByteBuffer();
@@ -275,11 +277,26 @@ public interface PyBuffer extends PyBUF, BufferProtocol, AutoCloseable {
     /**
      * Determine whether the exporter is able to offer direct access to the exported storage as a
      * Java byte array (through the API that involves class {@link Pointer}), or only supports the
-     * abstract API. See also {@link PyBUF#AS_ARRAY}.
+     * abstract API.
+     * 
+     * @see PyBUF#AS_ARRAY
      *
      * @return true if array access is supported, false if it is not.
      */
     boolean hasArray();
+
+    /**
+     * Determine whether the exporter is able to offer the exported storage backed by a direct
+     * {@link java.nio.ByteBuffer}, i.e. allowing
+     * <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#nio_support" target="_blank">
+     * native access via JNI</a>.
+     *
+     * @see PyBUF#AS_DIRECT_NIO
+     * @see #getNIOByteBuffer()
+     *
+     * @return true if array access is supported, false if it is not.
+     */
+    boolean isDirectNIOBuffer();
 
     /**
      * A class that references a <code>byte[]</code> array and a particular offset within it, as the
