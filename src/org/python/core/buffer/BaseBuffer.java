@@ -222,7 +222,7 @@ public abstract class BaseBuffer implements PyBuffer {
 
     @Override
     public boolean isDirectNIOBuffer(){
-        // AS_ARRAY is a non-navigational flag, so is inverted in gFeatureFlags
+        // AS_DIRECT_NIO is a non-navigational flag, so is inverted in gFeatureFlags
         return (gFeatureFlags & AS_DIRECT_NIO) != 0;
     }
 

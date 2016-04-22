@@ -264,8 +264,15 @@ public interface PyBuffer extends PyBUF, BufferProtocol, AutoCloseable {
      * limit is one item beyond the valid data. However, it is necessary to navigate <code>bb</code>
      * using the <code>shape</code>, <code>strides</code> and maybe <code>suboffsets</code> provided
      * by the API.
+     * <p>
+     * Note that the returned ByteBuffer likely won't be direct in terms of a direct
+     * java.nio.ByteBuffer by default. I.e. it would not be suitable to provide
+     * <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#nio_support" target="_blank">
+     * native data access via JNI</a>. Use the flag {@link PyBUF#AS_DIRECT_NIO} to request a buffer
+     * capable of this feature (always fails as of this writing).
      *
      * @see #isDirectNIOBuffer()
+     * @see PyBUF#AS_DIRECT_NIO
      *
      * @return a ByteBuffer equivalent to the exported data contents.
      */
@@ -294,7 +301,7 @@ public interface PyBuffer extends PyBUF, BufferProtocol, AutoCloseable {
      * @see PyBUF#AS_DIRECT_NIO
      * @see #getNIOByteBuffer()
      *
-     * @return true if array access is supported, false if it is not.
+     * @return true if backed by a direct java.nio.ByteBuffer, false if not.
      */
     boolean isDirectNIOBuffer();
 
