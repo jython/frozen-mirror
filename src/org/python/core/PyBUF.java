@@ -220,8 +220,30 @@ public interface PyBUF {
      * specify that it expects to access the buffer contents directly as an array (rather than
      * through the purely abstract part of the API). <code>getBuffer</code> will raise an exception
      * if the exporter cannot expose its storage as Java array.
+     * Note that it depends on JVM-implementation (i.e. it is in general unspecified) whether it is
+     * possible to supply a buffer conforming with the flags {@link #AS_ARRAY} and
+     * {@link #AS_DIRECT_NIO} at the same time.
+     *
+     * @see PyBuffer#hasArray()
      */
     static final int AS_ARRAY = 0x10000000;
+
+    /**
+     * A constant used by the consumer in its call to {@link BufferProtocol#getBuffer(int)} to
+     * specify that it expects the buffer to be backed by a direct {@link java.nio.ByteBuffer}.
+     * This is especially relevant if the consumer intends to
+     * <a href="http://docs.oracle.com/javase/7/docs/technotes/guides/jni/spec/functions.html#nio_support" target="_blank">
+     * access the buffer from native code using JNI</a>.
+     * <code>getBuffer</code> will raise an exception if the exporter cannot expose its storage as
+     * a direct java.nio.ByteBuffer.
+     * Note that it depends on JVM-implementation (i.e. it is in general unspecified) whether it is
+     * possible to supply a buffer conforming with the flags {@link #AS_ARRAY} and
+     * {@link #AS_DIRECT_NIO} at the same time.
+     *
+     * @see PyBuffer#isDirectNIOBuffer()
+     * @see PyBuffer#getNIOByteBuffer()
+     */
+    static final int AS_DIRECT_NIO = 0x20000000;
 
     /* Constants for readability, not standard for CPython */
 
