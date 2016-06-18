@@ -423,17 +423,21 @@ public class PyJavaType extends PyType {
             String fldname = field.getName();
             if (Modifier.isStatic(field.getModifiers())) {
                 if (fldname.startsWith("__doc__") && fldname.length() > 7
-                        && field.getType() == PyString.class) {
+                        && (field.getType() == PyString.class ||
+                            field.getType() == String.class)) {
                     String fname = fldname.substring(7).intern();
                     PyObject memb = dict.__finditem__(fname);
                     if (memb != null && memb instanceof PyReflectedFunction) {
-                        PyString doc = null;
+                        Object doc = null;
                         try {
-                            doc = (PyString)field.get(null);
+                            doc = field.get(null);
                         } catch (IllegalAccessException e) {
                             throw Py.JavaError(e);
                         }
-                        ((PyReflectedFunction)memb).__doc__ = doc;
+                        if (doc instanceof String) {
+                            doc = new PyString((String)doc);
+                        }
+                        ((PyReflectedFunction)memb).__doc__ = (PyString)doc;
                     }
                 }
             }
