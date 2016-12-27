@@ -21,6 +21,7 @@ xml/etree/**
 __future__.py
 _LWPCookieJar.py
 _MozillaCookieJar.py
+_osx_support.py
 _pyio.py
 _strptime.py
 _threading_local.py
