@@ -60,7 +60,11 @@ public class PyDefaultDict extends PyDictionary implements Traverseproc {
         backingMap = CacheBuilder.newBuilder().build(
                 new CacheLoader<PyObject, PyObject>() {
                     public PyObject load(PyObject key) {
-                        return __missing__(key);
+                        try {
+                            return __missing__(key);
+                        } catch (RuntimeException ex) {
+                            throw new MissingThrownException(ex);
+                        }
                     }
                 });
     }
@@ -166,6 +170,10 @@ public class PyDefaultDict extends PyDictionary implements Traverseproc {
         try {
             return backingMap.get(key);
         } catch (Exception ex) {
+            Throwable cause = ex.getCause();
+            if (cause != null && cause instanceof MissingThrownException) {
+                throw ((MissingThrownException) cause).thrownByMissing;
+            }
             throw Py.KeyError(key);
         }
     }
@@ -219,5 +227,13 @@ public class PyDefaultDict extends PyDictionary implements Traverseproc {
             return false;
         }
         return backingMap.asMap().containsKey(ob) || backingMap.asMap().containsValue(ob);
+    }
+
+    private static class MissingThrownException extends RuntimeException {
+        final RuntimeException thrownByMissing;
+        MissingThrownException(RuntimeException thrownByMissing) {
+            super(thrownByMissing);
+            this.thrownByMissing = thrownByMissing;
+        }
     }
 }

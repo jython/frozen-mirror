@@ -119,6 +119,35 @@ class GetVariantsTestCase(unittest.TestCase):
         self.assertEquals(d.items(), [("vivify", [])]) 
 
 
+#
+# http://bugs.jython.org/issue2523
+#
+class GetItemPropagateWhateverMissingRaisedTestCase(unittest.TestCase):
+
+    def test_getitem_propagate_default_factory_raises(self):
+
+        class FooError(Exception):
+            pass
+
+        def defaultfactory():
+            raise FooError()
+
+        d = defaultdict(defaultfactory)
+        self.assertRaises(FooError, d.__getitem__, 'bar')
+
+    def test_getitem_propagate_overridden_missing_raises(self):
+
+        class FooError(Exception):
+            pass
+
+        class DefaultDict(defaultdict):
+
+            def __missing__(self, key):
+                raise FooError()
+
+        d = DefaultDict(int)
+        self.assertRaises(FooError, d.__getitem__, 'bar')
+
 
 class OverrideMissingTestCase(unittest.TestCase):
     class KeyDefaultDict(defaultdict):
@@ -151,7 +180,9 @@ class OverrideMissingTestCase(unittest.TestCase):
 
 
 def test_main():
-    test_support.run_unittest(PickleTestCase, ThreadSafetyTestCase, GetVariantsTestCase, OverrideMissingTestCase)
+    test_support.run_unittest(PickleTestCase, ThreadSafetyTestCase,
+                              GetVariantsTestCase, OverrideMissingTestCase,
+                              GetItemPropagateWhateverMissingRaisedTestCase)
 
 
 if __name__ == '__main__':
