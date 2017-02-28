@@ -50,6 +50,18 @@ class CoerceTestCase(unittest.TestCase):
         Coercion.string_array(l2)
         Coercion.string_array(l3)
 
+    def test_enum_coerce__(self):
+        Coercion.enumMethod('ONE') # Shouldn't raise exception
+        Coercion.enumMethod('TWO') # Shouldn't raise exception
+        Coercion.enumMethod('THREE') # Shouldn't raise exception
+
+        # Conversion to enum from all these should fail
+        self.assertRaises(TypeError, Coercion.enumMethod, 'FOO') # A string not in javatest.TestEnum
+        self.assertRaises(TypeError, Coercion.enumMethod, 12) # int
+        self.assertRaises(TypeError, Coercion.enumMethod, 1.2345) # float
+        self.assertRaises(TypeError, Coercion.enumMethod, True) # bool
+        self.assertRaises(TypeError, Coercion.enumMethod, ['ONE']) # array
+
 def test_main():
     test_support.run_unittest(CoerceTestCase)
 
