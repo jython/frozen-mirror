@@ -657,6 +657,10 @@ class SerializationTest(unittest.TestCase):
         date_list = [Date(), Date()]
         self.assertEqual(date_list, roundtrip_serialization(date_list))
 
+    def test_java_serialization_unicode(self):
+            str = "test_str"
+            self.assertEqual(str, roundtrip_serialization(str))
+
     def test_java_serialization_pycode(self):
         def universal_answer():
             return 42
