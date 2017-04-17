@@ -467,15 +467,15 @@ def byte_compile (py_files,
     # First, if the caller didn't force us into direct or indirect mode,
     # figure out which mode we should be in.  We take a conservative
     # approach: choose direct mode *only* if the current interpreter is
-    # in debug mode and optimize is 0.  If we're not in debug mode (-O
-    # or -OO), we don't know which level of optimization this
-    # interpreter is running with, so we can't do direct
+    # in standalone mode (sys.executable is None) or debug mode and optimize is 0.
+    # If we're not in debug mode (-O or -OO), we don't know which level of
+    # optimization this interpreter is running with, so we can't do direct
     # byte-compilation and be certain that it's the right thing.  Thus,
     # always compile indirectly if the current interpreter is in either
     # optimize mode, or if either optimization level was requested by
     # the caller.
     if direct is None:
-        direct = (__debug__ and optimize == 0)
+        direct = not sys.executable or (__debug__ and optimize == 0)
 
     # "Indirect" byte-compilation: write a temporary script and then
     # run it with the appropriate flags.

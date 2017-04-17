@@ -5,6 +5,7 @@ import sys
 import StringIO
 import unittest
 
+from distutils.command.build import build
 from distutils.command.build_py import build_py
 from distutils.core import Distribution
 from distutils.errors import DistutilsFileError
@@ -108,6 +109,22 @@ class BuildPyTestCase(support.TempdirManager,
             sys.dont_write_bytecode = old_dont_write_bytecode
 
         self.assertTrue('byte-compiling is disabled' in self.logs[0][1])
+
+    def test_self_executable_cond_set(self):
+        # Make sure self.executable is only set when not using a standalone jar
+        pkg_dir, dist = self.create_dist()
+        cmd = build(dist)
+        cmd.initialize_options()
+        old_exe = sys.executable
+        sys.executable = None
+        cmd.finalize_options()
+        self.assertEqual(cmd.executable, None)
+
+        sys.executable = "/fake/path"
+        cmd.finalize_options()
+        self.assertEqual(cmd.executable, "/fake/path")
+
+        sys.executable = old_exe
 
 def test_suite():
     return unittest.makeSuite(BuildPyTestCase)
