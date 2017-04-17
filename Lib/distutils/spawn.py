@@ -58,7 +58,9 @@ def _nt_quote_args(args):
     # have to be escaped?  Is there an escaping mechanism other than
     # quoting?)
     for i, arg in enumerate(args):
-        if ' ' in arg:
+        if not arg:
+            args[i] = ''
+        elif ' ' in arg:
             args[i] = '"%s"' % arg
     return args
 
