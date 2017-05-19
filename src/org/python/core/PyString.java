@@ -751,6 +751,15 @@ public class PyString extends PyBaseString implements BufferProtocol {
             return this;
         }
 
+        // If going to an enum try to convert from string to the enum type
+        if (c.isEnum()) {
+            try {
+                return Enum.valueOf((Class<Enum>) c, getString());
+            } catch (IllegalArgumentException e) {
+                // Can't be converted to enum
+            }
+        }
+
         return Py.NoConversion;
     }
 
