@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Function;
 
 import org.python.expose.ExposeAsSuperclass;
 import org.python.expose.ExposedDelete;
@@ -1536,45 +1537,43 @@ public class PyType extends PyObject implements Serializable, Traverseproc {
         return fromClass(c, true);
     }
 
-    public static PyType fromClass(Class<?> c, boolean hardRef) {
-        PyType type = getClassToType().get(c);
-        if (type != null) {
-            // synchronize on the c here to make sure the compiler does not re-order
-            synchronized (c) {
-                return type;
-            }
-        }
-        // We haven't seen this class before, so its type needs to be created. If it's being
-        // exposed as a Java class, defer processing its inner types until it's completely
-        // created in case the inner class references a class that references this class.
-        Set<PyJavaType> needsInners = Generic.set();
-        PyType result = addFromClass(c, needsInners);
-        for (PyJavaType javaType : needsInners) {
-            Class<?> forClass = javaType.getProxyType();
-            if (forClass == null) {
-                continue;
-            }
-            for (Class<?> inner : forClass.getClasses()) {
-                // Only add the class if there isn't something else with that name and it came from this
-                // class
-                if (inner.getDeclaringClass() == forClass &&
-                        javaType.dict.__finditem__(inner.getSimpleName()) == null) {
-                    // If this class is currently being loaded, any exposed types it contains won't have
-                    // set their builder in PyType yet, so add them to BOOTSTRAP_TYPES so they're
-                    // created as PyType instead of PyJavaType
-                    if (inner.getAnnotation(ExposedType.class) != null
-                            || ExposeAsSuperclass.class.isAssignableFrom(inner)) {
-                        BootstrapTypesSingleton.getInstance().add(inner);
+    public static PyType fromClass(final Class<?> c, final boolean hardRef) {
+        // If the classToType map already has this class just return it, else compute and return it
+        return getClassToType().computeIfAbsent(c, new Function<Class<?>, PyType>() {
+            @Override
+            public PyType apply(Class<?> c) {
+                // We haven't seen this class before, so its type needs to be created. If it's being
+                // exposed as a Java class, defer processing its inner types until it's completely
+                // created in case the inner class references a class that references this class.
+                Set<PyJavaType> needsInners = Generic.set();
+                PyType result = addFromClass(c, needsInners);
+                for (PyJavaType javaType : needsInners) {
+                    Class<?> forClass = javaType.getProxyType();
+                    if (forClass == null) {
+                        continue;
                     }
-                    javaType.dict.__setitem__(inner.getSimpleName(), PyType.fromClass(inner, hardRef));
+                    for (Class<?> inner : forClass.getClasses()) {
+                        // Only add the class if there isn't something else with that name and it came from this
+                        // class
+                        if (inner.getDeclaringClass() == forClass &&
+                                javaType.dict.__finditem__(inner.getSimpleName()) == null) {
+                            // If this class is currently being loaded, any exposed types it contains won't have
+                            // set their builder in PyType yet, so add them to BOOTSTRAP_TYPES so they're
+                            // created as PyType instead of PyJavaType
+                            if (inner.getAnnotation(ExposedType.class) != null
+                                    || ExposeAsSuperclass.class.isAssignableFrom(inner)) {
+                                BootstrapTypesSingleton.getInstance().add(inner);
+                            }
+                            javaType.dict.__setitem__(inner.getSimpleName(), PyType.fromClass(inner, hardRef));
+                        }
+                    }
                 }
-            }
-        }
-        if (hardRef && result != null) {
-            getExposedTypes().add(result) ;
-        }
-
-        return result;
+                if (hardRef && result != null) {
+                    getExposedTypes().add(result) ;
+                }
+                return result;
+            };
+        });
     }
 
     static PyType fromClassSkippingInners(Class<?> c, Set<PyJavaType> needsInners) {
