@@ -317,6 +317,9 @@ public class PyString extends PyBaseString implements BufferProtocol {
      * @return encoded string (possibly the same string if unchanged)
      */
     public static String encode_UnicodeEscape(String str, char quote) {
+        if (str == null) {
+            return null;
+        }
 
         // Choose whether to quote and the actual quote character
         boolean use_quotes;
