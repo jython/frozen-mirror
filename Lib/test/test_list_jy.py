@@ -6,7 +6,7 @@ from test import test_support
 import test_list
 
 if test_support.is_jython:
-    from java.util import ArrayList
+    from java.util import ArrayList, LinkedList, Vector
     from java.lang import Integer, String
 
 class ListTestCase(unittest.TestCase):
@@ -228,16 +228,16 @@ class JavaListTestCase(test_list.ListTest):
         self.assertEqual(a, b)
 
     def test_extend_java_ArrayList(self):
-        jl = ArrayList([])
+        jl = self.type2test([])
         jl.extend([1,2])
-        self.assertEqual(jl, ArrayList([1,2]))
-        jl.extend(ArrayList([3,4]))
+        self.assertEqual(jl, self.type2test([1,2]))
+        jl.extend(self.type2test([3,4]))
         self.assertEqual(jl, [1,2,3,4])
     
     def test_remove(self):
         # Verifies that overloaded java.util.List#remove(int) method can still be used, but with Python index semantics
         # http://bugs.jython.org/issue2456
-        jl = ArrayList(xrange(10, -1, -1))      # 10 .. 0, inclusive
+        jl = self.type2test(xrange(10, -1, -1))      # 10 .. 0, inclusive
         jl.remove(0)  # removes jl[-1] (=0) 
         self.assertEqual(jl, range(10, 0, -1))  # 10 .. 1
         self.assertRaises(ValueError, jl.remove, Integer(0))  # j.l.Integer does not support __index__ - maybe it should!
@@ -251,11 +251,87 @@ class JavaListTestCase(test_list.ListTest):
 
         a_to_z = list(chr(i) for i in xrange(ord('a'), ord('z') + 1))
         b_to_z_by_2 = list(chr(i) for i in xrange(ord('b'), ord('z') + 1, 2))
-        jl = ArrayList(a_to_z)
+        jl = self.type2test(a_to_z)
         for i in xrange(13):
             jl.remove(i)
         self.assertEqual(jl, b_to_z_by_2)
 
+    def test_equality_empty_list(self):
+        jl = self.type2test()
+        self.assertTrue(jl == [])
+        self.assertTrue([] == jl)
+    
+    def test_equality_simple_list(self):
+        jl = self.type2test()
+        self.assertFalse(jl == [1])
+        self.assertFalse([1] == jl)
+
+    def test_equality_mixed_types_list(self):
+        ref = [False, 1, 3**9, "3"]
+        alt = [0, True, 3L**9, u"3"]
+        self.assertEqual(ref, alt) # test assumption
+        jref = self.type2test(ref)
+
+        for v in [ref, alt, jref]:
+            self.assertTrue(jref == v)
+            self.assertTrue(v == jref)
+            self.assertTrue(jref == self.type2test(v))
+
+        alt = [False, 1, 2e4, "3"]
+        for v in [alt, ref[:-1], ref+[{}], []]:
+            self.assertFalse(jref == v)
+            self.assertFalse(v == jref)
+            self.assertFalse(jref == self.type2test(v))
+
+    # Test for http://bugs.jython.org/issue2639
+    # This is to test the != comparisons between Java and Python lists
+    def test_inequality_empty_list(self):
+        jl = self.type2test()
+        self.assertFalse(jl != [])
+        self.assertFalse([] != jl)
+    
+    def test_inequality_simple_list(self):
+        jl = self.type2test()
+        self.assertTrue(jl != [1])
+        self.assertTrue([1] != jl)
+
+    def test_inequality_mixed_types_list(self):
+        ref = [False, 1, 3**9, "3"]
+        alt = [0, True, 3L**9, u"3"]
+        self.assertEqual(ref, alt) # test assumption
+        jref = self.type2test(ref)
+
+        for v in [ref, alt, jref]:
+            self.assertFalse(jref != v)
+            self.assertFalse(v != jref)
+            self.assertFalse(jref != self.type2test(v))
+
+        alt = [False, 1, 2e4, "3"]
+        for v in [alt, ref[:-1], ref+[{}], []]:
+            self.assertTrue(jref != v)
+            self.assertTrue(v != jref)
+            self.assertTrue(jref != self.type2test(v))
+
+class JavaArrayListTestCase(JavaListTestCase):
+    type2test = ArrayList
+
+class JavaLinkedListTestCase(JavaListTestCase):
+    type2test = LinkedList
+
+    # Fails for LinkedList see http://bugs.jython.org/issue2645
+    def test_pop(self):
+        pass
+
+    # Seems to hang
+    def test_bigrepeat(self):
+        pass 
+
+class JavaVectorTestCase(JavaListTestCase):
+    type2test = Vector
+
+    # Takes a long time and can cause OutOfMemory
+    def test_bigrepeat(self):
+        pass 
 
 class ListSubclassTestCase(unittest.TestCase):
 
@@ -298,11 +374,13 @@ class ListSubclassTestCase(unittest.TestCase):
 
 
 def test_main():
-    test_support.run_unittest(ListSubclassTestCase,
-                              ListTestCase,
+    test_support.run_unittest(ListTestCase,
                               ThreadSafetyTestCase,
                               ExtendedSliceTestCase,
-                              JavaListTestCase)
+                              JavaArrayListTestCase,
+                              JavaLinkedListTestCase,
+                              JavaVectorTestCase,
+                              ListSubclassTestCase)
     
 if __name__ == "__main__":
     test_main()
