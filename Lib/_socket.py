@@ -1206,17 +1206,11 @@ class _realsocket(object):
         if not self._can_write:
             raise error(errno.ENOTCONN, 'Socket not connected')
 
-        bytes_writable = self.channel.bytesBeforeUnwritable()
-        if bytes_writable > len(data):
-            bytes_writable = len(data)
-
-        sent_data = data[:bytes_writable]
-
-        future = self.channel.writeAndFlush(Unpooled.wrappedBuffer(sent_data))
+        future = self.channel.writeAndFlush(Unpooled.wrappedBuffer(data))
         self._handle_channel_future(future, "send")
-        log.debug("Sent data <<<{!r:.20}>>>".format(sent_data), extra={"sock": self})
+        log.debug("Sent data <<<{!r:.20}>>>".format(data), extra={"sock": self})
 
-        return len(sent_data)
+        return len(data)
 
     sendall = send   # FIXME see note above!
 
