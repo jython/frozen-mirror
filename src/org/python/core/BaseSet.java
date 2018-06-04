@@ -269,9 +269,22 @@ public abstract class BaseSet extends PyObject implements Set, Traverseproc {
     }
 
     final PyObject baseset___eq__(PyObject other) {
-        if (other instanceof BaseSet) {
-            return Py.newBoolean(_set.equals(((BaseSet)other)._set));
+        Object jobj = other.__tojava__(Set.class); // jobj might be Py.NoConversion if other is not a Set
+        if (jobj instanceof Set) {
+            final Set jSet = (Set) jobj;
+            // If the sizes differ must be not equal
+            if (jSet.size() != size()) {
+                return Py.False;
+            }
+            // Now need to perform element comparison
+            for(Object otherItem: jSet) {
+                if (!contains(otherItem)) {
+                    return Py.False; // If any item is not contained then they are not equal
+                }
+            }
+            return Py.True; // All items are contained and the lentgh is the same so we are equal
         }
+        // other wasn't a set so not equal
         return Py.False;
     }
 
@@ -280,9 +293,22 @@ public abstract class BaseSet extends PyObject implements Set, Traverseproc {
     }
 
     final PyObject baseset___ne__(PyObject other) {
-        if (other instanceof BaseSet) {
-            return Py.newBoolean(!_set.equals(((BaseSet)other)._set));
+        Object jobj = other.__tojava__(Set.class); // jobj might be Py.NoConversion if other is not a Set
+        if (jobj instanceof Set) {
+            final Set jSet = (Set) jobj;
+            // If the sizes differ must be not equal
+            if (jSet.size() != size()) {
+                return Py.True;
+            }
+            // Now need to perform element comparison
+            for(Object otherItem: jSet) {
+                if (!contains(otherItem)) {
+                    return Py.True; // If any item is not contained then they are not equal
+                }
+            }
+            return Py.False; // All items are contained and the lentgh is the same so we are equal
         }
+        // other wasn't a set so not equal
         return Py.True;
     }
 

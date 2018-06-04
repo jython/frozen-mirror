@@ -1,7 +1,9 @@
 package org.python.core;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -36,33 +38,59 @@ class JavaProxyMap {
         }
     }
 
-    private static PyObject mapEq(PyObject self, PyObject other) {
-        Map<Object, Object> selfMap = ((Map<Object, Object>) self.getJavaProxy());
-        if (other.getType().isSubType(PyDictionary.TYPE)) {
+    /**
+     * Compares this object with other to check for equality. Used to implement __eq __ and __ne__.
+     * May return null if the other object cannot be compared i.e. is not a Python dict or Java Map.
+     * 
+     * @param other The object to compare to this
+     * @return true is equal, false if not equal and null if we can't compare
+     */
+    private static PyBoolean mapEq(PyObject self, PyObject other) {
+        if (isPyDict(other)) {
+            // Being compared to Python dict
             PyDictionary oDict = (PyDictionary) other;
+            Map<Object, Object> selfMap = (Map<Object, Object>) self.getJavaProxy();
             if (selfMap.size() != oDict.size()) {
+                // Map/dict are different sizes therefore not equal 
                 return Py.False;
             }
-            for (Object jkey : selfMap.keySet()) {
-                Object jval = selfMap.get(jkey);
+            // Loop through all entries checking the keys and values are matched
+            for (Entry<Object, Object> entry : selfMap.entrySet()) {
+                Object jkey = entry.getKey();
+                Object jval = entry.getValue();
                 PyObject oVal = oDict.__finditem__(Py.java2py(jkey));
                 if (oVal == null) {
+                    // No value for this key in oDict, therefore not equal
                     return Py.False;
                 }
                 if (!Py.java2py(jval)._eq(oVal).__nonzero__()) {
+                    // The values for this key differ therefore not equal
                     return Py.False;
                 }
             }
+            // All keys and values are equal therefore map/dict are equal
             return Py.True;
         } else {
+            // Being compared to something that is not a Python dict
             Object oj = other.getJavaProxy();
             if (oj instanceof Map) {
-                Map<Object, Object> oMap = (Map<Object, Object>) oj;
-                return Py.newBoolean(selfMap.equals(oMap));
+                // Being compared to a Java Map convert to Python
+                Map<Object, Object> jMap = (Map) oj; 
+                final Map<PyObject, PyObject> pyMap = new HashMap<>();
+                for (Entry<Object, Object> el : jMap.entrySet()) {
+                    pyMap.put(Py.java2py(el.getKey()), Py.java2py(el.getValue()));
+                }
+                // Compare again this time after conversion to Python dict
+                return mapEq(self, new PyDictionary(pyMap));
             } else {
+                // other is not a Python dict or Java Map, so we don't know if were equal therefore return null
                 return null;
             }
         }
+    }
+    
+    private static boolean isPyDict(PyObject object) {
+        return object.getType().isSubType(PyDictionary.TYPE);
     }
 
     // Map ordering comparisons (lt, le, gt, ge) are based on the key sets;
@@ -119,6 +147,18 @@ class JavaProxyMap {
         @Override
         public PyObject __call__(PyObject other) {
             return mapEq(self, other);
+        }
+    };
+    private static final PyBuiltinMethodNarrow mapNeProxy = new MapMethod("__ne__", 1) {
+        @Override
+        public PyObject __call__(PyObject other) {
+            // mapEq may return null if we don't know how to compare to other.
+            PyBoolean equal = mapEq(self, other);
+            if (equal != null) {
+                // implement NOT equal by the inverse of equal
+                return equal.__not__();
+            }
+            return null;
         }
     };
     private static final PyBuiltinMethodNarrow mapLeProxy = new MapMethod("__le__", 1) {
@@ -481,6 +521,7 @@ class JavaProxyMap {
                 mapIterProxy,
                 mapReprProxy,
                 mapEqProxy,
+                mapNeProxy,
                 mapLeProxy,
                 mapLtProxy,
                 mapGeProxy,

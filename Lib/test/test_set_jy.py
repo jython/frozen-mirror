@@ -84,7 +84,7 @@ class SetInJavaTestCase(unittest.TestCase):
 
 
 class TestJavaSet(test_set.TestSet):
-    thetype = HashSet
+    type2test = HashSet
 
     def test_init(self):
         # Instances of Java types cannot be re-initialized
@@ -102,12 +102,77 @@ class TestJavaSet(test_set.TestSet):
             dup = pickle.loads(p)
             self.assertEqual(self.s, dup, "%s != %s" % (self.s, dup))
 
+    def test_equality_empty_set(self):
+        js = self.type2test()
+        self.assertTrue(js == set())
+        self.assertTrue(set() == js)
+    
+    def test_equality_simple_set(self):
+        js = self.type2test()
+        self.assertFalse(js == set([1]))
+        self.assertFalse(set([1]) == js)
+
+    def test_equality_mixed_types_set(self):
+        ref = {False, 1, 3**9, "3"}
+        alt = {0, True, 3L**9, u"3"}
+        self.assertEqual(ref, alt) # test assumption
+        jref = self.type2test(ref)
+        for v in [ref, alt, jref]:
+            self.assertTrue(jref == v)
+            self.assertTrue(v == jref)
+            self.assertTrue(jref == self.type2test(v))
+            self.assertTrue(self.type2test(v) == jref)
+
+        alt1 = {False, 1.01, 3**9, "3"}
+        alt2 = {False, 1, "3"};
+        alt3 = {False, 1, 3**9, "3", ""};
+        for v in [alt1, alt2, alt3, set()]:
+            self.assertFalse(jref == v)
+            self.assertFalse(v == jref)
+            self.assertFalse(jref == self.type2test(v))
+            self.assertFalse(self.type2test(v) == jref)
+
+    # Test for http://bugs.jython.org/issue2639
+    # This is to test the != comparisons between Java and Python sets
+    def test_inequality_empty_set(self):
+        js = self.type2test()
+        self.assertFalse(js != set())
+        self.assertFalse(set() != js)
+
+    def test_inequality_simple_set(self):
+        js = self.type2test()
+        self.assertTrue(js != set([1]))
+        self.assertTrue(set([1]) != js)
+
+    def test_inequality_mixed_types_set(self):
+        ref = {False, 1, 3**9, "3"}
+        alt = {0, True, 3L**9, u"3"}
+        self.assertEqual(ref, alt) # test assumption
+        jref = self.type2test(ref)
+
+        for v in [ref, alt, jref]:
+            self.assertFalse(jref != v)
+            self.assertFalse(v != jref)
+            self.assertFalse(jref != self.type2test(v))
+            self.assertFalse(self.type2test(v) != jref)
+
+        alt1 = {False, 1.01, 3**9, "3"}
+        alt2 = {False, 1, "3"};
+        alt3 = {False, 1, 3**9, "3", ""};
+        for v in [alt1, alt2, alt3, set()]:
+            self.assertTrue(jref != v)
+            self.assertTrue(v != jref)
+            self.assertTrue(jref != self.type2test(v))
+            self.assertTrue(self.type2test(v) != jref)
+
 
 class TestJavaHashSet(TestJavaSet):
-    thetype = HashSet
+    type2test = HashSet
+
 
 class TestJavaLinkedHashSet(TestJavaSet):
-    thetype = LinkedHashSet
+    type2test = LinkedHashSet
+
 
 class SetSubclassCallsSuperMethods(set):
 
