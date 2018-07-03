@@ -7,28 +7,29 @@ from test import test_support
 from test.test_support import run_unittest
 
 
-def compile_(source,name="<input>",symbol="single"):
-    return compile(source,name,symbol)
+def compile_(source, name="<input>", symbol="single"):
+    return compile(source, name, symbol)
+
 
 class CompileTests(unittest.TestCase):
 
-    def assertValid(self, str, symbol='single',values=None,value=None):
+    def assertValid(self, str, symbol='single', values=None, value=None):
         '''succeed iff str is a valid piece of code'''
         code = compile_(str, "<input>", symbol)
         if values:
             d = {}
             exec code in d
             del d['__builtins__']
-            self.assertEquals(d,values)
+            self.assertEquals(d, values)
         elif value is not None:
-            self.assertEquals(eval(code,self.eval_d),value)
+            self.assertEquals(eval(code, self.eval_d), value)
         else:
             self.assert_(code)
 
     def assertInvalid(self, str, symbol='single', is_syntax=1):
         '''succeed iff str is the start of an invalid piece of code'''
         try:
-            compile_(str,symbol=symbol)
+            compile_(str, symbol=symbol)
             self.fail("No exception thrown for invalid code")
         except SyntaxError:
             self.assert_(is_syntax)
@@ -47,11 +48,11 @@ class CompileTests(unittest.TestCase):
         # to decide if we need to match CPython.
         av("\n\n")
         av("# a\n")
-        av("\n\na = 1\n\n",values={'a':1})
-        av("\n\nif 1: a=1\n\n",values={'a':1})
+        av("\n\na = 1\n\n", values={'a': 1})
+        av("\n\nif 1: a=1\n\n", values={'a': 1})
         av("def x():\n  pass\n ")
         av("def x():\n  pass\n  ")
-        av("#a\n\n   \na=3\n",values={'a':3})
+        av("#a\n\n   \na=3\n", values={'a': 3})
         av("def f():\n pass\n#foo")
 
     # these tests fail in Jython in test_codeop.py because PythonPartial.g

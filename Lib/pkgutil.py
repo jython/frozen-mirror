@@ -29,14 +29,17 @@ def read_jython_code(fullname, stream, filename):
     except IllegalArgumentException:
         return None
 
+
 def read_code(stream):
     filename = stream.name
     fullname = os.path.splitext(os.path.split(filename)[1])[0]
     return read_jython_code(fullname, stream, filename)
 
+
 def simplegeneric(func):
     """Make a trivial single-dispatch generic function"""
     registry = {}
+
     def wrapper(*args, **kw):
         ob = args[0]
         try:
@@ -128,7 +131,7 @@ def walk_packages(path=None, prefix='', onerror=None):
                 # don't traverse path items we've seen before
                 path = [p for p in path if not seen(p)]
 
-                for item in walk_packages(path, name+'.', onerror):
+                for item in walk_packages(path, name + '.', onerror):
                     yield item
 
 
@@ -156,11 +159,12 @@ def iter_modules(path=None, prefix=''):
                 yield i, name, ispkg
 
 
-#@simplegeneric
+# @simplegeneric
 def iter_importer_modules(importer, prefix=''):
     if not hasattr(importer, 'iter_modules'):
         return []
     return importer.iter_modules(prefix)
+
 
 iter_importer_modules = simplegeneric(iter_importer_modules)
 
@@ -201,12 +205,11 @@ class ImpImporter:
         yielded = {}
         import inspect
 
-        filenames = os.listdir(self.path)
-        filenames.sort()  # handle packages before same-named modules
+        filenames = sorted(os.listdir(self.path))
 
         for fn in filenames:
             modname = inspect.getmodulename(fn)
-            if modname=='__init__' or modname in yielded:
+            if modname == '__init__' or modname in yielded:
                 continue
 
             path = os.path.join(self.path, fn)
@@ -221,7 +224,7 @@ class ImpImporter:
                     dircontents = []
                 for fn in dircontents:
                     subname = inspect.getmodulename(fn)
-                    if subname=='__init__':
+                    if subname == '__init__':
                         ispkg = True
                         break
                 else:
@@ -264,7 +267,7 @@ class ImpLoader:
     def _reopen(self):
         if self.file and self.file.closed:
             mod_type = self.etc[2]
-            if mod_type==imp.PY_SOURCE:
+            if mod_type == imp.PY_SOURCE:
                 self.file = open(self.filename, 'rU')
             elif mod_type in (imp.PY_COMPILED, imp.C_EXTENSION):
                 self.file = open(self.filename, 'rb')
@@ -279,22 +282,23 @@ class ImpLoader:
 
     def is_package(self, fullname):
         fullname = self._fix_name(fullname)
-        return self.etc[2]==imp.PKG_DIRECTORY
+        return self.etc[2] == imp.PKG_DIRECTORY
 
     def get_code(self, fullname=None):
         fullname = self._fix_name(fullname)
         if self.code is None:
             mod_type = self.etc[2]
-            if mod_type==imp.PY_SOURCE:
+            if mod_type == imp.PY_SOURCE:
                 source = self.get_source(fullname)
                 self.code = compile(source, self.filename, 'exec')
-            elif mod_type==imp.PY_COMPILED:
+            elif mod_type == imp.PY_COMPILED:
                 self._reopen()
                 try:
-                    self.code = read_jython_code(fullname, self.file, self.filename)
+                    self.code = read_jython_code(
+                        fullname, self.file, self.filename)
                 finally:
                     self.file.close()
-            elif mod_type==imp.PKG_DIRECTORY:
+            elif mod_type == imp.PKG_DIRECTORY:
                 self.code = self._get_delegate().get_code()
         return self.code
 
@@ -302,23 +306,22 @@ class ImpLoader:
         fullname = self._fix_name(fullname)
         if self.source is None:
             mod_type = self.etc[2]
-            if mod_type==imp.PY_SOURCE:
+            if mod_type == imp.PY_SOURCE:
                 self._reopen()
                 try:
                     self.source = self.file.read()
                 finally:
                     self.file.close()
-            elif mod_type==imp.PY_COMPILED:
+            elif mod_type == imp.PY_COMPILED:
                 if os.path.exists(self.filename[:-1]):
                     f = open(self.filename[:-1], 'rU')
                     try:
                         self.source = f.read()
                     finally:
                         f.close()
-            elif mod_type==imp.PKG_DIRECTORY:
+            elif mod_type == imp.PKG_DIRECTORY:
                 self.source = self._get_delegate().get_source()
         return self.source
-
 
     def _get_delegate(self):
         return ImpImporter(self.filename).find_module('__init__')
@@ -326,7 +329,7 @@ class ImpLoader:
     def get_filename(self, fullname=None):
         fullname = self._fix_name(fullname)
         mod_type = self.etc[2]
-        if self.etc[2]==imp.PKG_DIRECTORY:
+        if self.etc[2] == imp.PKG_DIRECTORY:
             return self._get_delegate().get_filename()
         elif self.etc[2] in (imp.PY_SOURCE, imp.PY_COMPILED, imp.C_EXTENSION):
             return self.filename
@@ -338,8 +341,8 @@ try:
     from zipimport import zipimporter
 
     def iter_zipimport_modules(importer, prefix=''):
-        dirlist = zipimport._zip_directory_cache[importer.archive].keys()
-        dirlist.sort()
+        dirlist = sorted(
+            zipimport._zip_directory_cache[importer.archive].keys())
         _prefix = importer.prefix
         plen = len(_prefix)
         yielded = {}
@@ -350,16 +353,16 @@ try:
 
             fn = fn[plen:].split(os.sep)
 
-            if len(fn)==2 and fn[1].startswith('__init__.py'):
+            if len(fn) == 2 and fn[1].startswith('__init__.py'):
                 if fn[0] not in yielded:
                     yielded[fn[0]] = 1
                     yield fn[0], True
 
-            if len(fn)!=1:
+            if len(fn) != 1:
                 continue
 
             modname = inspect.getmodulename(fn[0])
-            if modname=='__init__':
+            if modname == '__init__':
                 continue
 
             if modname and '.' not in modname and modname not in yielded:
@@ -447,6 +450,7 @@ def iter_importers(fullname=""):
     if '.' not in fullname:
         yield ImpImporter()
 
+
 def get_loader(module_or_name):
     """Get a PEP 302 "loader" object for module_or_name
 
@@ -476,6 +480,7 @@ def get_loader(module_or_name):
     else:
         fullname = module_or_name
     return find_loader(fullname)
+
 
 def find_loader(fullname):
     """Find a PEP 302 "loader" object for fullname
@@ -531,13 +536,13 @@ def extend_path(path, name):
         # frozen package.  Return the path unchanged in that case.
         return path
 
-    pname = os.path.join(*name.split('.')) # Reconstitute as relative path
+    pname = os.path.join(*name.split('.'))  # Reconstitute as relative path
     # Just in case os.extsep != '.'
     sname = os.extsep.join(name.split('.'))
     sname_pkg = sname + os.extsep + "pkg"
     init_py = "__init__" + os.extsep + "py"
 
-    path = path[:] # Start with a copy of the existing path
+    path = path[:]  # Start with a copy of the existing path
 
     for dir in sys.path:
         if not isinstance(dir, basestring) or not os.path.isdir(dir):
@@ -554,7 +559,7 @@ def extend_path(path, name):
         if os.path.isfile(pkgfile):
             try:
                 f = open(pkgfile)
-            except IOError, msg:
+            except IOError as msg:
                 sys.stderr.write("Can't open %s: %s\n" %
                                  (pkgfile, msg))
             else:
@@ -563,11 +568,12 @@ def extend_path(path, name):
                         line = line.rstrip('\n')
                         if not line or line.startswith('#'):
                             continue
-                        path.append(line) # Don't check for existence!
+                        path.append(line)  # Don't check for existence!
                 finally:
                     f.close()
 
     return path
+
 
 def get_data(package, resource):
     """Get a resource from a package.

@@ -26,7 +26,7 @@ Written by Marc-Andre Lemburg (mal@lemburg.com).
 
 (c) Copyright CNRI, All Rights Reserved. NO WARRANTY.
 
-"""#"
+"""  # "
 
 import codecs
 from encodings import aliases, _java
@@ -43,11 +43,12 @@ _norm_encoding_map = ('                                              . '
                       '                ')
 _aliases = aliases.aliases
 
+
 class CodecRegistryError(LookupError, SystemError):
     pass
 
-def normalize_encoding(encoding):
 
+def normalize_encoding(encoding):
     """ Normalize an encoding name.
 
         Normalization works as follows: all non-alphanumeric
@@ -68,6 +69,7 @@ def normalize_encoding(encoding):
         encoding = encoding.encode('latin-1')
     return '_'.join(encoding.translate(_norm_encoding_map).split())
 
+
 def search_function(encoding):
 
     # Cache lookup
@@ -84,7 +86,7 @@ def search_function(encoding):
     #
     norm_encoding = normalize_encoding(encoding)
     aliased_encoding = _aliases.get(norm_encoding) or \
-                       _aliases.get(norm_encoding.replace('.', '_'))
+        _aliases.get(norm_encoding.replace('.', '_'))
     if aliased_encoding is not None:
         modnames = [aliased_encoding,
                     norm_encoding]
@@ -113,7 +115,8 @@ def search_function(encoding):
 
     if mod is None:
         # First, see if we can load the encoding using java.nio.Charset;
-        # FIXME this could include encodings not known to Python, so we should test that out as well
+        # FIXME this could include encodings not known to Python, so we should
+        # test that out as well
         entry, codecaliases = _java._java_factory(encoding)
         if entry is not None:
             _cache[encoding] = entry
@@ -130,20 +133,31 @@ def search_function(encoding):
     entry = getregentry()
     if not isinstance(entry, codecs.CodecInfo):
         if not 4 <= len(entry) <= 7:
-            raise CodecRegistryError,\
-                 'module "%s" (%s) failed to register' % \
-                  (mod.__name__, mod.__file__)
-        if not hasattr(entry[0], '__call__') or \
-           not hasattr(entry[1], '__call__') or \
-           (entry[2] is not None and not hasattr(entry[2], '__call__')) or \
-           (entry[3] is not None and not hasattr(entry[3], '__call__')) or \
-           (len(entry) > 4 and entry[4] is not None and not hasattr(entry[4], '__call__')) or \
-           (len(entry) > 5 and entry[5] is not None and not hasattr(entry[5], '__call__')):
-            raise CodecRegistryError,\
-                'incompatible codecs in module "%s" (%s)' % \
-                (mod.__name__, mod.__file__)
-        if len(entry)<7 or entry[6] is None:
-            entry += (None,)*(6-len(entry)) + (mod.__name__.split(".", 1)[1],)
+            raise CodecRegistryError('module "%s" (%s) failed to register' %
+                                     (mod.__name__, mod.__file__))
+        if not hasattr(
+            entry[0],
+            '__call__') or not hasattr(
+            entry[1],
+            '__call__') or (
+            entry[2] is not None and not hasattr(
+                entry[2],
+                '__call__')) or (
+                    entry[3] is not None and not hasattr(
+                        entry[3],
+                        '__call__')) or (
+                            len(entry) > 4 and entry[4] is not None and not hasattr(
+                                entry[4],
+                                '__call__')) or (
+                                    len(entry) > 5 and entry[5] is not None and not hasattr(
+                                        entry[5],
+                                        '__call__')):
+            raise CodecRegistryError(
+                'incompatible codecs in module "%s" (%s)' %
+                (mod.__name__, mod.__file__))
+        if len(entry) < 7 or entry[6] is None:
+            entry += (None,) * (6 - len(entry)) + \
+                (mod.__name__.split(".", 1)[1],)
         entry = codecs.CodecInfo(*entry)
 
     # Cache the codec registry entry
@@ -162,6 +176,7 @@ def search_function(encoding):
 
     # Return the registry entry
     return entry
+
 
 # Register the search_function in the Python codec registry
 codecs.register(search_function)

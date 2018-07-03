@@ -10,6 +10,4 @@ support.compileJava("test340j.java")
 
 rc = support.runJava("test340j", classpath=".", expectError=1)
 if rc != 42:
-     support.TestError("Did not catch exception correctly %d" % rc)
-
-
+    support.TestError("Did not catch exception correctly %d" % rc)

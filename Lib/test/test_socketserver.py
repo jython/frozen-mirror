@@ -27,10 +27,12 @@ HOST = test.test_support.HOST
 HAVE_UNIX_SOCKETS = hasattr(socket, "AF_UNIX")
 HAVE_FORKING = hasattr(os, "fork") and os.name != "os2"
 
+
 def signal_alarm(n):
     """Call signal.alarm when it exists (i.e. not on Windows)."""
     if hasattr(signal, 'alarm') and not test.test_support.is_jython:
         signal.alarm(n)
+
 
 select_fn = select.select
 
@@ -40,7 +42,8 @@ def receive(sock, n, timeout=20):
     if sock in r:
         return sock.recv(n)
     else:
-        raise RuntimeError, "timed out on %r" % (sock,)
+        raise RuntimeError("timed out on %r" % (sock,))
+
 
 if HAVE_UNIX_SOCKETS:
     class ForkingUnixStreamServer(SocketServer.ForkingMixIn,
@@ -121,7 +124,8 @@ class SocketServerTest(unittest.TestCase):
                 line = self.rfile.readline()
                 self.wfile.write(line)
 
-        if verbose: print "creating server"
+        if verbose:
+            print "creating server"
         server = MyServer(addr, MyHandler)
         self.assertEqual(server.server_address, server.socket.getsockname())
         return server
@@ -144,17 +148,21 @@ class SocketServerTest(unittest.TestCase):
             # Short poll interval to make the test finish quickly.
             # Time between requests is short enough that we won't wake
             # up spuriously too many times.
-            kwargs={'poll_interval':0.01})
+            kwargs={'poll_interval': 0.01})
         t.daemon = True  # In case this function raises.
         t.start()
-        if verbose: print "server running"
+        if verbose:
+            print "server running"
         for i in range(3):
-            if verbose: print "test client", i
+            if verbose:
+                print "test client", i
             testfunc(svrcls.address_family, addr)
-        if verbose: print "waiting for server"
+        if verbose:
+            print "waiting for server"
         server.shutdown()
         t.join()
-        if verbose: print "done"
+        if verbose:
+            print "done"
 
     def stream_examine(self, proto, addr):
         s = socket.socket(proto, socket.SOCK_STREAM)
@@ -265,7 +273,7 @@ class SocketServerTest(unittest.TestCase):
             t = threading.Thread(
                 name='MyServer serving',
                 target=s.serve_forever,
-                kwargs={'poll_interval':0.01})
+                kwargs={'poll_interval': 0.01})
             t.daemon = True  # In case this function raises.
             threads.append((t, s))
         for t, s in threads:
@@ -281,6 +289,7 @@ def test_main():
         raise unittest.SkipTest("can't run when import lock is held")
 
     test.test_support.run_unittest(SocketServerTest)
+
 
 if __name__ == "__main__":
     test_main()

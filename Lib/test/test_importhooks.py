@@ -18,8 +18,10 @@ test_path = "!!!_test_!!!"
 
 class ImportTracker:
     """Importer that only tracks attempted imports."""
+
     def __init__(self):
         self.imports = []
+
     def find_module(self, fullname, path=None):
         self.imports.append(fullname)
         return None
@@ -66,6 +68,7 @@ class MetaImporter(TestImporter):
     def _get__path__(self):
         return []
 
+
 class PathImporter(TestImporter):
     def _get__path__(self):
         return [self.path]
@@ -75,16 +78,19 @@ class ImportBlocker:
     """Place an ImportBlocker instance on sys.meta_path and you
     can be sure the modules you specified can't be imported, even
     if it's a builtin."""
+
     def __init__(self, *namestoblock):
         #self.namestoblock = dict.fromkeys(namestoblock)
         self.namestoblock = {}
         [self.namestoblock.__setitem__(x, None) for x in namestoblock]
+
     def find_module(self, fullname, path=None):
         if fullname in self.namestoblock:
             return self
         return None
+
     def load_module(self, fullname):
-        raise ImportError, "I dare you"
+        raise ImportError("I dare you")
 
 
 class ImpWrapper:
@@ -107,6 +113,7 @@ class ImpWrapper:
         except ImportError:
             return None
         return ImpLoader(file, filename, stuff)
+
 
 class ImpLoader:
 
@@ -207,8 +214,10 @@ class ImportHooksTestCase(ImportHooksBaseTestCase):
     def testImpWrapperNoContext(self):
         self.doTestImpWrapper(lambda: None, lambda: None)
 
+
 def test_main():
     test_support.run_unittest(ImportHooksTestCase)
+
 
 if __name__ == "__main__":
     test_main()

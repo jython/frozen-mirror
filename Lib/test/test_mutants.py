@@ -49,6 +49,7 @@ mutate = 0
 # dict, it picks one of {dict1, dict2} at random, and deletes a random
 # entry from it; or, more rarely, adds a random element.
 
+
 def maybe_mutate():
     global mutate
     if not mutate:
@@ -64,7 +65,7 @@ def maybe_mutate():
     if random.random() < 0.2:
         # Insert a new key.
         mutate = 0   # disable mutation until key inserted
-        while 1:
+        while True:
             newkey = Horrid(random.randrange(100))
             if newkey not in target:
                 break
@@ -85,6 +86,7 @@ def maybe_mutate():
 
 # A horrid class that triggers random mutations of dict1 and dict2 when
 # instances are compared.
+
 
 class Horrid:
     def __init__(self, i):
@@ -111,6 +113,7 @@ class Horrid:
 # where i and j are selected at random from the candidates list.
 # Return d.keys() after filling.
 
+
 def fill_dict(d, candidates, numentries):
     d.clear()
     for i in xrange(numentries):
@@ -122,6 +125,7 @@ def fill_dict(d, candidates, numentries):
 # Note that dict comparison is trivial if they don't have the same number
 # of entires (then the "shorter" dict is instantly considered to be the
 # smaller one, without even looking at the entries).
+
 
 def test_one(n):
     global mutate, dict1, dict2, dict1keys, dict2keys
@@ -151,9 +155,11 @@ def test_one(n):
 # code doesn't hold on to refcounts *too* long (in which case memory would
 # leak).
 
+
 def test(n):
     for i in xrange(n):
         test_one(random.randrange(1, 100))
+
 
 # See last comment block for clues about good values for n.
 test(100)
@@ -161,9 +167,11 @@ test(100)
 ##########################################################################
 # Another segfault bug, distilled by Michael Hudson from a c.l.py post.
 
+
 class Child:
     def __init__(self, parent):
         self.__dict__['parent'] = parent
+
     def __getattr__(self, attr):
         self.parent.a = 1
         self.parent.b = 1
@@ -176,6 +184,7 @@ class Child:
         self.parent.i = 1
         return getattr(self.parent, attr)
 
+
 class Parent:
     def __init__(self):
         self.a = Child(self)
@@ -184,6 +193,7 @@ class Parent:
 # we're specifically trying to test the tp_print slot here, and this is
 # the clearest way to do it.  We print the result to a temp file so that
 # the expected-output file doesn't need to change.
+
 
 f = open(TESTFN, "w")
 print >> f, Parent().__dict__
@@ -201,6 +211,7 @@ for i in range(1, 10):
 
 f = open(TESTFN, "w")
 
+
 class Machiavelli:
     def __repr__(self):
         dict.clear()
@@ -209,7 +220,7 @@ class Machiavelli:
         # Tim sez:  "luck of the draw; crashes with or without for me."
         print >> f
 
-        return `"machiavelli"`
+        return repr("machiavelli")
 
     def __hash__(self):
         return 0
@@ -219,6 +230,7 @@ class Machiavelli:
 # evil, doesn't it?
 
 #dict[Machiavelli()] = Machiavelli()
+
 
 print >> f, str(dict)
 f.close()
@@ -235,6 +247,7 @@ dict = {}
 for i in range(1, 10):
     dict[i] = i
 
+
 class Machiavelli2:
     def __eq__(self, other):
         dict.clear()
@@ -242,6 +255,7 @@ class Machiavelli2:
 
     def __hash__(self):
         return 0
+
 
 dict[Machiavelli2()] = Machiavelli2()
 
@@ -261,6 +275,7 @@ dict = {}
 for i in range(1, 10):
     dict[i] = i
 
+
 class Machiavelli3:
     def __init__(self, id):
         self.id = id
@@ -273,10 +288,11 @@ class Machiavelli3:
             return 0
 
     def __repr__(self):
-        return "%s(%s)"%(self.__class__.__name__, self.id)
+        return "%s(%s)" % (self.__class__.__name__, self.id)
 
     def __hash__(self):
         return 0
+
 
 dict[Machiavelli3(1)] = Machiavelli3(0)
 dict[Machiavelli3(2)] = Machiavelli3(0)

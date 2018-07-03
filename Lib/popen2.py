@@ -16,6 +16,7 @@ MAXFD = subprocess.MAXFD
 _active = subprocess._active
 _cleanup = subprocess._cleanup
 
+
 class Popen3:
     """Class representing a child process.  Normally instances are created
     by the factory functions popen2() and popen3()."""
@@ -147,11 +148,13 @@ else:
 
     __all__.extend(["Popen3", "Popen4"])
 
+
 def _test():
     # When the test runs, there shouldn't be any open pipes
     _cleanup()
-    assert not _active, "Active pipes when test starts " + repr([c.cmd for c in _active])
-    cmd  = "cat"
+    assert not _active, "Active pipes when test starts " + \
+        repr([c.cmd for c in _active])
+    cmd = "cat"
     teststr = "ab cd\n"
     if os.name in ("nt", "java"):
         cmd = "more"
@@ -169,7 +172,7 @@ def _test():
     print "testing popen3..."
     try:
         r, w, e = popen3([cmd])
-    except:
+    except BaseException:
         r, w, e = popen3(cmd)
     w.write(teststr)
     w.close()
@@ -185,6 +188,7 @@ def _test():
     if _active:
         raise ValueError("_active not empty")
     print "All OK"
+
 
 if __name__ == '__main__':
     _test()

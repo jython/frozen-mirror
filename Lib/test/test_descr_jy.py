@@ -6,6 +6,7 @@ import types
 import unittest
 from test import test_support
 
+
 class Old:
     pass
 
@@ -35,8 +36,10 @@ class TestDescrTestCase(unittest.TestCase):
     def test_descr___get__(self):
         class Foo(object):
             __slots__ = 'bar'
+
             def hello(self):
                 pass
+
             def hi(self):
                 pass
             hi = staticmethod(hi)
@@ -79,8 +82,8 @@ class TestDescrTestCase(unittest.TestCase):
             def __get__(self, instance, type):
                 raise AttributeError("Custom message")
 
-
-        class CustomAttributeError(AttributeError): pass
+        class CustomAttributeError(AttributeError):
+            pass
 
         class RaisesCustomErr(object):
             def __get__(self, instance, type):
@@ -93,8 +96,8 @@ class TestDescrTestCase(unittest.TestCase):
         self.assertRaises(CustomAttributeError, lambda: Foo().custom_err)
         try:
             Foo().custom_msg
-            self.assert_(False) # Previous line should raise AttributteError
-        except AttributeError, e:
+            self.assert_(False)  # Previous line should raise AttributteError
+        except AttributeError as e:
             self.assertEquals("Custom message", str(e))
 
     def test_set_without_get(self):
@@ -124,6 +127,7 @@ class SubclassDescrTestCase(unittest.TestCase):
         class B(int):
             def __ge__(self, other):
                 return "B.__ge__"
+
             def __le__(self, other):
                 return "B.__le__"
 
@@ -135,6 +139,7 @@ class SubclassDescrTestCase(unittest.TestCase):
         class C(object):
             def __ge__(self, other):
                 return "C.__ge__"
+
             def __le__(self, other):
                 return "C.__le__"
 
@@ -146,6 +151,7 @@ class SubclassDescrTestCase(unittest.TestCase):
         class D(C):
             def __ge__(self, other):
                 return "D.__ge__"
+
             def __le__(self, other):
                 return "D.__le__"
 
@@ -162,13 +168,13 @@ class SubclassDescrTestCase(unittest.TestCase):
         self.assertEqual(E() >= 1, "C.__ge__")
         self.assertEqual(1 >= E(), "C.__le__")
         self.assertEqual(E() >= C(), "C.__ge__")
-        self.assertEqual(C() >= E(), "C.__le__") # different
+        self.assertEqual(C() >= E(), "C.__le__")  # different
 
     def test_subclass_binop(self):
         def raises(exc, expected, callable, *args):
             try:
                 callable(*args)
-            except exc, msg:
+            except exc as msg:
                 if str(msg) != expected:
                     self.assert_(False, "Message %r, expected %r" % (str(msg),
                                                                      expected))
@@ -195,50 +201,77 @@ class SubclassDescrTestCase(unittest.TestCase):
         # XXX: There's probably work to be done here besides just emulating this
         # message
         if test_support.is_jython:
-            mapping.append((lambda o: u'foo' + o,
-                            TypeError, "cannot concatenate 'unicode' and 'B' objects",
-                            "u'foo' + C()"))
+            mapping.append(
+                (lambda o: u'foo' + o,
+                 TypeError,
+                 "cannot concatenate 'unicode' and 'B' objects",
+                 "u'foo' + C()"))
         else:
-            mapping.append((lambda o: u'foo' + o,
-                            TypeError,
-                            'coercing to Unicode: need string or buffer, B found',
-                            "u'foo' + C()"))
-        mapping.append((lambda o: [1, 2] + o,
-                        TypeError, 'can only concatenate list (not "B") to list',
-                        '[1, 2] + C()'))
-        mapping.append((lambda o: ('foo', 'bar') + o,
-                        TypeError, 'can only concatenate tuple (not "B") to tuple',
-                        "('foo', 'bar') + C()"))
+            mapping.append(
+                (lambda o: u'foo' + o,
+                 TypeError,
+                 'coercing to Unicode: need string or buffer, B found',
+                 "u'foo' + C()"))
+        mapping.append(
+            (lambda o: [
+                1,
+                2] + o,
+                TypeError,
+                'can only concatenate list (not "B") to list',
+                '[1, 2] + C()'))
+        mapping.append(
+            (lambda o: (
+                'foo',
+                'bar') + o,
+                TypeError,
+                'can only concatenate tuple (not "B") to tuple',
+                "('foo', 'bar') + C()"))
 
         # * binop
-        mapping.append((lambda o: 'foo' * o,
-                        TypeError, "can't multiply sequence by non-int of type 'B'",
-                        "'foo' * C()"))
-        mapping.append((lambda o: u'foo' * o,
-                        TypeError, "can't multiply sequence by non-int of type 'B'",
-                        "u'foo' * C()"))
-        mapping.append((lambda o: [1, 2] * o,
-                        TypeError, "can't multiply sequence by non-int of type 'B'",
-                        '[1, 2] * C()'))
-        mapping.append((lambda o: ('foo', 'bar') * o,
-                        TypeError, "can't multiply sequence by non-int of type 'B'",
-                        "('foo', 'bar') * C()"))
+        mapping.append(
+            (lambda o: 'foo' * o,
+             TypeError,
+             "can't multiply sequence by non-int of type 'B'",
+             "'foo' * C()"))
+        mapping.append(
+            (lambda o: u'foo' * o,
+             TypeError,
+             "can't multiply sequence by non-int of type 'B'",
+             "u'foo' * C()"))
+        mapping.append(
+            (lambda o: [
+                1,
+                2] * o,
+                TypeError,
+                "can't multiply sequence by non-int of type 'B'",
+                '[1, 2] * C()'))
+        mapping.append(
+            (lambda o: (
+                'foo',
+                'bar') * o,
+                TypeError,
+                "can't multiply sequence by non-int of type 'B'",
+                "('foo', 'bar') * C()"))
 
         for func, bexc, bexc_msg, cresult in mapping:
-            raises(bexc, bexc_msg, lambda : func(B()))
+            raises(bexc, bexc_msg, lambda: func(B()))
             self.assertEqual(func(C()), cresult)
 
     def test_overriding_base_binop(self):
         class MulBase(object):
             def __init__(self, value):
                 self.value = value
+
             def __mul__(self, other):
                 return self.value * other.value
+
             def __rmul__(self, other):
                 return other.value * self.value
+
         class DoublerBase(MulBase):
             def __mul__(self, other):
                 return 2 * (self.value * other.value)
+
         class AnotherDoubler(DoublerBase):
             pass
         self.assertEquals(DoublerBase(2) * AnotherDoubler(3), 12)
@@ -246,6 +279,7 @@ class SubclassDescrTestCase(unittest.TestCase):
     def test_oldstyle_binop_notimplemented(self):
         class Foo:
             pass
+
         class Bar(object):
             def __radd__(self, other):
                 return 3
@@ -267,10 +301,13 @@ class InPlaceTestCase(unittest.TestCase):
         class Foo(object):
             def __add__(self, other):
                 return 1
+
             def __radd__(self, other):
                 return 2
+
         class Bar(object):
             pass
+
         class Baz(object):
             def __iadd__(self, other):
                 return NotImplemented
@@ -288,6 +325,7 @@ class InPlaceTestCase(unittest.TestCase):
         class FooInplace(list):
             def __imul__(self, other):
                 return [1]
+
         class Bar(FooInplace):
             def __mul__(self, other):
                 return [2]
@@ -321,6 +359,7 @@ class InPlaceTestCase(unittest.TestCase):
         class Bar(object):
             def __radd__(self, other):
                 return 1
+
             def __rmul__(self, other):
                 return 2
         l = []
@@ -379,7 +418,8 @@ class GetAttrTestCase(unittest.TestCase):
     def test_raising_custom_attribute_error(self):
         # Very similar to
         # test_descr_jy.TestDescrTestCase.test_raising_custom_attribute_error
-        class BarAttributeError(AttributeError): pass
+        class BarAttributeError(AttributeError):
+            pass
 
         class Bar(object):
             def __getattr__(self, name):
@@ -402,14 +442,14 @@ class GetAttrTestCase(unittest.TestCase):
 
         try:
             Foo().x
-            self.assert_(False) # Previous line should raise AttributteError
-        except AttributeError, e:
+            self.assert_(False)  # Previous line should raise AttributteError
+        except AttributeError as e:
             self.assertEquals("Custom message", str(e))
 
         try:
             FooClassic().x
-            self.assert_(False) # Previous line should raise AttributteError
-        except AttributeError, e:
+            self.assert_(False)  # Previous line should raise AttributteError
+        except AttributeError as e:
             self.assertEquals("Custom message", str(e))
 
 
@@ -439,11 +479,11 @@ def refop(x, y, opname, ropname):
         return rop(y, x)
     if rop and where1 is not where2:
         if (issubclass(t2, t1) and not issubclass(where1, where2) and
-            not issubclass(t1, where2)):
+                not issubclass(t1, where2)):
             return rop(y, x)
     if op is None:
         return "TypeError"
-    return op(x,y)
+    return op(x, y)
 
 
 def do_test(X, Y, name, impl):
@@ -471,7 +511,7 @@ def do_test(X, Y, name, impl):
             check(y, x)
             return
 
-        f = lambda self, other: (n, self.name, other.name)
+        def f(self, other): return (n, self.name, other.name)
         if n % 2 == 0:
             name = opname
         else:
@@ -487,7 +527,7 @@ def do_test(X, Y, name, impl):
                 delattr(C, name)
 
     override_in_hier()
-    #print count[0]
+    # print count[0]
     return fail
 
 
@@ -499,31 +539,34 @@ class BinopCombinationsTestCase(unittest.TestCase):
     def test_binop_combinations_mul(self):
         class X(Base):
             pass
+
         class Y(X):
             pass
 
-        fail = do_test(X, Y, 'mul', lambda x, y: x*y)
-        #print len(fail)
+        fail = do_test(X, Y, 'mul', lambda x, y: x * y)
+        # print len(fail)
         self.assert_(not fail)
 
     def test_binop_combinations_sub(self):
         class X(Base):
             pass
+
         class Y(X):
             pass
 
-        fail = do_test(X, Y, 'sub', lambda x, y: x-y)
-        #print len(fail)
+        fail = do_test(X, Y, 'sub', lambda x, y: x - y)
+        # print len(fail)
         self.assert_(not fail)
 
     def test_binop_combinations_pow(self):
         class X(Base):
             pass
+
         class Y(X):
             pass
 
         fail = do_test(X, Y, 'pow', lambda x, y: x**y)
-        #print len(fail)
+        # print len(fail)
         self.assert_(not fail)
 
     def test_binop_combinations_more_exhaustive(self):
@@ -549,7 +592,7 @@ class BinopCombinationsTestCase(unittest.TestCase):
             pass
 
         fail = do_test(X, Y, 'sub', lambda x, y: x - y)
-        #print len(fail)
+        # print len(fail)
         self.assert_(not fail)
 
 

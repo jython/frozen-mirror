@@ -9,7 +9,7 @@ from org.python.core import ArgParser, PyObject
 
 try:
     # test(1, arg1=2)
-    args = jarray.array([1,2], PyObject)
+    args = jarray.array([1, 2], PyObject)
     kwds = jarray.array(['arg1'], java.lang.String)
     ArgParser('test', args, kwds, 'arg1', 'arg2')
 except TypeError:

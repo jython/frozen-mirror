@@ -7,6 +7,7 @@ import os
 import unittest
 from test import test_support
 
+
 class NTAbspathTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -15,7 +16,7 @@ class NTAbspathTestCase(unittest.TestCase):
 
         # Move to the same drive as TESTFN
         drive, self.path = os.path.splitdrive(os.path.abspath(
-                test_support.TESTFN))
+            test_support.TESTFN))
         self.orig_cwd = os.getcwd()
         os.chdir(os.path.join(drive, os.sep))
 

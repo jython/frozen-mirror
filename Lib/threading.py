@@ -42,6 +42,7 @@ else:
     class _Verbose(object):
         def __init__(self, verbose=None):
             pass
+
         def _note(self, *args):
             pass
 
@@ -50,15 +51,15 @@ else:
 _profile_hook = None
 _trace_hook = None
 
+
 def setprofile(func):
     global _profile_hook
     _profile_hook = func
 
+
 def settrace(func):
     global _trace_hook
     _trace_hook = func
-
-
 
 
 class Semaphore(object):
@@ -86,13 +87,14 @@ class Semaphore(object):
 
 
 ThreadStates = {
-    java.lang.Thread.State.NEW : 'initial',
+    java.lang.Thread.State.NEW: 'initial',
     java.lang.Thread.State.RUNNABLE: 'started',
     java.lang.Thread.State.BLOCKED: 'started',
     java.lang.Thread.State.WAITING: 'started',
     java.lang.Thread.State.TIMED_WAITING: 'started',
     java.lang.Thread.State.TERMINATED: 'stopped',
 }
+
 
 class JavaThread(object):
     def __init__(self, thread):
@@ -102,8 +104,10 @@ class JavaThread(object):
     def __repr__(self):
         _thread = self._thread
         status = ThreadStates[_thread.getState()]
-        if _thread.isDaemon(): status + " daemon"
-        return "<%s(%s, %s %s)>" % (self.__class__.__name__, self.getName(), status, self.ident)
+        if _thread.isDaemon():
+            status + " daemon"
+        return "<%s(%s, %s %s)>" % (self.__class__.__name__,
+                                    self.getName(), status, self.ident)
 
     def __eq__(self, other):
         if isinstance(other, JavaThread):
@@ -182,16 +186,23 @@ class JavaThread(object):
 _threads = dict_builder(MapMaker().weakValues().makeMap)()
 _active = _threads
 
+
 def _register_thread(jthread, pythread):
     _threads[jthread.getId()] = pythread
+
 
 def _unregister_thread(jthread):
     _threads.pop(jthread.getId(), None)
 
 
-
 class Thread(JavaThread):
-    def __init__(self, group=None, target=None, name=None, args=None, kwargs=None):
+    def __init__(
+            self,
+            group=None,
+            target=None,
+            name=None,
+            args=None,
+            kwargs=None):
         assert group is None, "group argument must be None for now"
         _thread = self._create_thread()
         JavaThread.__init__(self, _thread)
@@ -227,13 +238,13 @@ class Thread(JavaThread):
                 # _systemrestart
                 if not jython.shouldRestart:
                     raise
-            except:
+            except BaseException:
                 # If sys.stderr is no more (most likely from interpreter
                 # shutdown) use self.__stderr.  Otherwise still use sys (as in
                 # _sys) in case sys.stderr was redefined.
                 if _sys:
                     _sys.stderr.write("Exception in thread %s:" %
-                            self.getName())
+                                      self.getName())
                     _print_exc(file=_sys.stderr)
                 else:
                     # Do the best job possible w/o a huge amt. of code to
@@ -252,7 +263,8 @@ class Thread(JavaThread):
                                     exc_tb.tb_lineno,
                                     exc_tb.tb_frame.f_code.co_name))
                             exc_tb = exc_tb.tb_next
-                        print>>self.__stderr, ("%s: %s" % (exc_type, exc_value))
+                        print>>self.__stderr, ("%s: %s" %
+                                               (exc_type, exc_value))
                     # Make sure that exc_tb gets deleted since it is a memory
                     # hog; deleting everything else is just for thoroughness
                     finally:
@@ -262,7 +274,7 @@ class Thread(JavaThread):
             self.__stop()
             try:
                 self.__delete()
-            except:
+            except BaseException:
                 pass
 
     def __stop(self):
@@ -297,11 +309,13 @@ class _MainThread(Thread):
             t.join()
             t = _pickSomeNonDaemonThread()
 
+
 def _pickSomeNonDaemonThread():
     for t in enumerate():
         if not t.isDaemon() and t.isAlive():
             return t
     return None
+
 
 def currentThread():
     jthread = java.lang.Thread.currentThread()
@@ -310,15 +324,20 @@ def currentThread():
         pythread = JavaThread(jthread)
     return pythread
 
+
 current_thread = currentThread
+
 
 def activeCount():
     return len(_threads)
 
+
 active_count = activeCount
+
 
 def enumerate():
     return _threads.values()
+
 
 from thread import stack_size
 
@@ -333,6 +352,7 @@ _MainThread()
 
 def Timer(*args, **kwargs):
     return _Timer(*args, **kwargs)
+
 
 class _Timer(Thread):
     """Call a function after a specified number of seconds:
@@ -405,8 +425,10 @@ class _Semaphore(_Verbose):
 def BoundedSemaphore(*args, **kwargs):
     return _BoundedSemaphore(*args, **kwargs)
 
+
 class _BoundedSemaphore(_Semaphore):
     """Semaphore that checks that # releases is <= # acquires"""
+
     def __init__(self, value=1, verbose=None):
         _Semaphore.__init__(self, value, verbose)
         self._initial_value = value
@@ -417,7 +439,7 @@ class _BoundedSemaphore(_Semaphore):
 
     def release(self):
         if self._Semaphore__value >= self._initial_value:
-            raise ValueError, "Semaphore released too many times"
+            raise ValueError("Semaphore released too many times")
         return _Semaphore.release(self)
 
     def __exit__(self, t, v, tb):
@@ -426,6 +448,7 @@ class _BoundedSemaphore(_Semaphore):
 
 def Event(*args, **kwargs):
     return _Event(*args, **kwargs)
+
 
 class _Event(_Verbose):
 
@@ -462,7 +485,8 @@ class _Event(_Verbose):
             if not self.__flag:
                 self.__cond.wait(timeout)
             # Issue 2005: Since CPython 2.7, threading.Event.wait(timeout) returns boolean.
-            # The function should return False if timeout is reached before the event is set.
+            # The function should return False if timeout is reached before the
+            # event is set.
             return self.__flag
         finally:
             self.__cond.release()

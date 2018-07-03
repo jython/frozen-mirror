@@ -11,6 +11,7 @@ from xml.sax import saxutils
 # Invalid XML characters (control chars)
 EVIL_CHARACTERS_RE = re.compile(r"[\000-\010\013\014\016-\037]")
 
+
 class JUnitXMLTestRunner:
 
     """A unittest runner that writes results to a JUnit XML file in
@@ -128,7 +129,7 @@ class TestInfo(object):
             self.exc_name = exc_name(exc_info)
             self.message = exc_message(exc_info)
             self.traceback = safe_str(''.join(
-                    traceback.format_exception(*exc_info)))
+                traceback.format_exception(*exc_info)))
         else:
             self.exc_name = self.message = self.traceback = ''
 
@@ -146,9 +147,11 @@ class TestInfo(object):
             stream.write('/>\n')
             return
 
-        stream.write('>\n    <%s type="%s" message=%s><![CDATA[%s]]></%s>\n' %
-                     (self.type, self.exc_name, saxutils.quoteattr(self.message),
-                      escape_cdata(self.traceback), self.type))
+        stream.write(
+            '>\n    <%s type="%s" message=%s><![CDATA[%s]]></%s>\n' %
+            (self.type, self.exc_name, saxutils.quoteattr(
+                self.message), escape_cdata(
+                self.traceback), self.type))
         stream.write('  </testcase>\n')
 
 
@@ -184,6 +187,7 @@ def write_testsuite_xml(stream, tests, errors, failures, skipped, name, took):
                  (tests, errors, failures))
     stream.write('skipped="%d" name="%s" time="%.3f">\n' % (skipped, name,
                                                             took))
+
 
 def write_stdouterr_xml(stream, stdout, stderr):
     """Write the stdout/err tags"""

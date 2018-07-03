@@ -23,6 +23,7 @@ Subject: Simple Test
 This is a dummy message.
 """
 
+
 class MaildirTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -103,17 +104,19 @@ class MaildirTestCase(unittest.TestCase):
         self.assert_(self.mbox.next() is None)
 
     def test_unix_mbox(self):
-        ### should be better!
+        # should be better!
         import email.Parser
         fname = self.createMessage("cur", True)
         n = 0
         with open(fname) as fp:
-            for msg in mailbox.PortableUnixMailbox(fp,
-                                                   email.Parser.Parser().parse):
+            for msg in mailbox.PortableUnixMailbox(
+                    fp, email.Parser.Parser().parse):
                 n += 1
                 self.assertEqual(msg["subject"], "Simple Test")
-                self.assertEqual(len(str(msg)), len(FROM_)+len(DUMMY_MESSAGE))
+                self.assertEqual(len(str(msg)), len(
+                    FROM_) + len(DUMMY_MESSAGE))
         self.assertEqual(n, 1)
+
 
 class MboxTestCase(unittest.TestCase):
     def setUp(self):
@@ -123,7 +126,7 @@ class MboxTestCase(unittest.TestCase):
     def tearDown(self):
         os.unlink(self._path)
 
-    def test_from_regex (self):
+    def test_from_regex(self):
         # Testing new regex from bug #1633678
         f = open(self._path, 'w')
         f.write("""From fred@example.com Mon May 31 13:24:50 2004 +0200
@@ -149,7 +152,7 @@ body4
         self.assert_(len(messages) == 4)
         for message in messages:
             message.fp.close()
-        box.fp.close() # Jython addition: explicit close needed
+        box.fp.close()  # Jython addition: explicit close needed
 
     # XXX We still need more tests!
 

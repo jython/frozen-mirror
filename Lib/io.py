@@ -74,7 +74,7 @@ from _io import (DEFAULT_BUFFER_SIZE, BlockingIOError, UnsupportedOperation,
                  BufferedWriter, BufferedRWPair, BufferedRandom,
                  IncrementalNewlineDecoder, TextIOWrapper)
 
-OpenWrapper = _io.open # for compatibility with _pyio
+OpenWrapper = _io.open  # for compatibility with _pyio
 
 # for seek()
 SEEK_SET = 0
@@ -84,17 +84,23 @@ SEEK_END = 2
 # Declaring ABCs in C is tricky so we do it here.
 # Method descriptions and default implementations are inherited from the C
 # version however.
+
+
 class IOBase(_io._IOBase):
     __metaclass__ = abc.ABCMeta
+
 
 class RawIOBase(_io._RawIOBase, IOBase):
     pass
 
+
 class BufferedIOBase(_io._BufferedIOBase, IOBase):
     pass
 
+
 class TextIOBase(_io._TextIOBase, IOBase):
     pass
+
 
 RawIOBase.register(FileIO)
 

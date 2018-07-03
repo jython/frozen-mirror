@@ -10,21 +10,26 @@ import struct
 
 BIG = 100000
 
+
 def fail():
     raise SyntaxError
     yield 1
+
 
 class BadCmp:
     def __eq__(self, other):
         raise RuntimeError
 
+
 class MutateCmp:
     def __init__(self, deque, result):
         self.deque = deque
         self.result = result
+
     def __eq__(self, other):
         self.deque.clear()
         return self.result
+
 
 class TestBasic(unittest.TestCase):
 
@@ -115,13 +120,15 @@ class TestBasic(unittest.TestCase):
             d.maxlen = 10
 
     def test_count(self):
-        for s in ('', 'abracadabra', 'simsalabim'*500+'abc'):
+        for s in ('', 'abracadabra', 'simsalabim' * 500 + 'abc'):
             s = list(s)
             d = deque(s)
             for letter in 'abcdefghijklmnopqrstuvwxyz':
-                self.assertEqual(s.count(letter), d.count(letter), (s, d, letter))
+                self.assertEqual(
+                    s.count(letter), d.count(letter), (s, d, letter))
         self.assertRaises(TypeError, d.count)       # too few args
-        self.assertRaises(TypeError, d.count, 1, 2) # too many args
+        self.assertRaises(TypeError, d.count, 1, 2)  # too many args
+
         class BadCompare:
             def __eq__(self, other):
                 raise ArithmeticError
@@ -129,6 +136,7 @@ class TestBasic(unittest.TestCase):
         self.assertRaises(ArithmeticError, d.count, 2)
         d = deque([1, 2, 3])
         self.assertRaises(ArithmeticError, d.count, BadCompare())
+
         class MutatingCompare:
             def __eq__(self, other):
                 self.d.pop()
@@ -139,8 +147,9 @@ class TestBasic(unittest.TestCase):
         self.assertRaises(RuntimeError, d.count, 3)
 
         # test issue11004
-        # block advance failed after rotation aligned elements on right side of block
-        d = deque([None]*16)
+        # block advance failed after rotation aligned elements on right side of
+        # block
+        d = deque([None] * 16)
         for i in range(len(d)):
             d.rotate(-1)
         d.rotate(1)
@@ -148,21 +157,37 @@ class TestBasic(unittest.TestCase):
         self.assertEqual(d.count(None), 16)
 
     def test_comparisons(self):
-        d = deque('xabc'); d.popleft()
+        d = deque('xabc')
+        d.popleft()
         for e in [d, deque('abc'), deque('ab'), deque(), list(d)]:
-            self.assertEqual(d==e, type(d)==type(e) and list(d)==list(e))
-            self.assertEqual(d!=e, not(type(d)==type(e) and list(d)==list(e)))
+            self.assertEqual(
+                d == e, isinstance(
+                    d, type(e)) and list(d) == list(e))
+            self.assertEqual(
+                d != e, not(
+                    isinstance(
+                        d, type(e)) and list(d) == list(e)))
 
-        args = map(deque, ('', 'a', 'b', 'ab', 'ba', 'abc', 'xba', 'xabc', 'cba'))
+        args = map(
+            deque,
+            ('',
+             'a',
+             'b',
+             'ab',
+             'ba',
+             'abc',
+             'xba',
+             'xabc',
+             'cba'))
         for x in args:
             for y in args:
-                self.assertEqual(x == y, list(x) == list(y), (x,y))
-                self.assertEqual(x != y, list(x) != list(y), (x,y))
-                self.assertEqual(x <  y, list(x) <  list(y), (x,y))
-                self.assertEqual(x <= y, list(x) <= list(y), (x,y))
-                self.assertEqual(x >  y, list(x) >  list(y), (x,y))
-                self.assertEqual(x >= y, list(x) >= list(y), (x,y))
-                self.assertEqual(cmp(x,y), cmp(list(x),list(y)), (x,y))
+                self.assertEqual(x == y, list(x) == list(y), (x, y))
+                self.assertEqual(x != y, list(x) != list(y), (x, y))
+                self.assertEqual(x < y, list(x) < list(y), (x, y))
+                self.assertEqual(x <= y, list(x) <= list(y), (x, y))
+                self.assertEqual(x > y, list(x) > list(y), (x, y))
+                self.assertEqual(x >= y, list(x) >= list(y), (x, y))
+                self.assertEqual(cmp(x, y), cmp(list(x), list(y)), (x, y))
 
     def test_extend(self):
         d = deque('a')
@@ -201,7 +226,7 @@ class TestBasic(unittest.TestCase):
             if random.random() < 0.5:
                 d.append(i)
                 l.append(i)
-            for j in xrange(1-len(l), len(l)):
+            for j in xrange(1 - len(l), len(l)):
                 assert d[j] == l[j]
 
         d = deque('superman')
@@ -216,20 +241,20 @@ class TestBasic(unittest.TestCase):
         d = deque(xrange(n))
         for i in xrange(n):
             d[i] = 10 * i
-        self.assertEqual(list(d), [10*i for i in xrange(n)])
+        self.assertEqual(list(d), [10 * i for i in xrange(n)])
         l = list(d)
-        for i in xrange(1-n, 0, -1):
-            d[i] = 7*i
-            l[i] = 7*i
+        for i in xrange(1 - n, 0, -1):
+            d[i] = 7 * i
+            l[i] = 7 * i
         self.assertEqual(list(d), l)
 
     def test_delitem(self):
         n = 500         # O(n**2) test, don't make this too big
         d = deque(xrange(n))
-        self.assertRaises(IndexError, d.__delitem__, -n-1)
+        self.assertRaises(IndexError, d.__delitem__, -n - 1)
         self.assertRaises(IndexError, d.__delitem__, n)
         for i in xrange(n):
-            self.assertEqual(len(d), n-i)
+            self.assertEqual(len(d), n - i)
             j = random.randrange(-len(d), len(d))
             val = d[j]
             self.assertIn(val, d)
@@ -263,7 +288,7 @@ class TestBasic(unittest.TestCase):
         d.rotate()              # check default to 1
         self.assertEqual(tuple(d), s)
 
-        for i in xrange(n*3):
+        for i in xrange(n * 3):
             d = deque(s)
             e = deque(d)
             d.rotate(i)         # check vs. rot(1) n times
@@ -272,10 +297,10 @@ class TestBasic(unittest.TestCase):
             self.assertEqual(tuple(d), tuple(e))
             d.rotate(-i)        # check that it works in reverse
             self.assertEqual(tuple(d), s)
-            e.rotate(n-i)       # check that it wraps forward
+            e.rotate(n - i)       # check that it wraps forward
             self.assertEqual(tuple(e), s)
 
-        for i in xrange(n*3):
+        for i in xrange(n * 3):
             d = deque(s)
             e = deque(d)
             d.rotate(-i)
@@ -284,19 +309,19 @@ class TestBasic(unittest.TestCase):
             self.assertEqual(tuple(d), tuple(e))
             d.rotate(i)         # check that it works in reverse
             self.assertEqual(tuple(d), s)
-            e.rotate(i-n)       # check that it wraps backaround
+            e.rotate(i - n)       # check that it wraps backaround
             self.assertEqual(tuple(e), s)
 
         d = deque(s)
         e = deque(s)
-        e.rotate(BIG+17)        # verify on long series of rotates
+        e.rotate(BIG + 17)        # verify on long series of rotates
         dr = d.rotate
-        for i in xrange(BIG+17):
+        for i in xrange(BIG + 17):
             dr()
         self.assertEqual(tuple(d), tuple(e))
 
         self.assertRaises(TypeError, d.rotate, 'x')   # Wrong arg type
-        self.assertRaises(TypeError, d.rotate, 1, 10) # Too many args
+        self.assertRaises(TypeError, d.rotate, 1, 10)  # Too many args
 
         d = deque()
         d.rotate()              # rotate an empty deque
@@ -378,8 +403,8 @@ class TestBasic(unittest.TestCase):
             test_support.unlink(test_support.TESTFN)
 
     def test_init(self):
-        self.assertRaises(TypeError, deque, 'abc', 2, 3);
-        self.assertRaises(TypeError, deque, 1);
+        self.assertRaises(TypeError, deque, 'abc', 2, 3)
+        self.assertRaises(TypeError, deque, 1)
 
     def test_hash(self):
         self.assertRaises(TypeError, hash, deque('abc'))
@@ -392,8 +417,8 @@ class TestBasic(unittest.TestCase):
                 append(i)
                 x = pop()
                 if x != i - size:
-                    self.assertEqual(x, i-size)
-            self.assertEqual(list(d), range(BIG-size, BIG))
+                    self.assertEqual(x, i - size)
+            self.assertEqual(list(d), range(BIG - size, BIG))
 
     def test_long_steadystate_queue_popright(self):
         for size in (0, 1, 2, 100, 1000):
@@ -403,8 +428,8 @@ class TestBasic(unittest.TestCase):
                 append(i)
                 x = pop()
                 if x != i - size:
-                    self.assertEqual(x, i-size)
-            self.assertEqual(list(reversed(list(d))), range(BIG-size, BIG))
+                    self.assertEqual(x, i - size)
+            self.assertEqual(list(reversed(list(d))), range(BIG - size, BIG))
 
     def test_big_queue_popleft(self):
         pass
@@ -463,10 +488,10 @@ class TestBasic(unittest.TestCase):
             self.assertNotEqual(id(d), id(e))
             self.assertEqual(list(d), list(e))
 
-##    def test_pickle_recursive(self):
+# def test_pickle_recursive(self):
 ##        d = deque('abc')
-##        d.append(d)
-##        for i in range(pickle.HIGHEST_PROTOCOL + 1):
+# d.append(d)
+# for i in range(pickle.HIGHEST_PROTOCOL + 1):
 ##            e = pickle.loads(pickle.dumps(d, i))
 ##            self.assertNotEqual(id(d), id(e))
 ##            self.assertEqual(id(e), id(e[-1]))
@@ -533,17 +558,21 @@ class TestBasic(unittest.TestCase):
         check(deque('a' * (BLOCKLEN // 2 + 1)), basesize + 2 * blocksize)
         check(deque('a' * (42 * BLOCKLEN)), basesize + 43 * blocksize)
 
+
 class TestVariousIteratorArgs(unittest.TestCase):
 
     def test_constructor(self):
-        for s in ("123", "", range(1000), ('do', 1.2), xrange(2000,2200,5)):
+        for s in ("123", "", range(1000), ('do', 1.2), xrange(2000, 2200, 5)):
             for g in (seq_tests.Sequence, seq_tests.IterFunc,
                       seq_tests.IterGen, seq_tests.IterFuncStop,
                       seq_tests.itermulti, seq_tests.iterfunc):
                 self.assertEqual(list(deque(g(s))), list(g(s)))
             self.assertRaises(TypeError, deque, seq_tests.IterNextOnly(s))
             self.assertRaises(TypeError, deque, seq_tests.IterNoNext(s))
-            self.assertRaises(ZeroDivisionError, deque, seq_tests.IterGenExc(s))
+            self.assertRaises(
+                ZeroDivisionError,
+                deque,
+                seq_tests.IterGenExc(s))
 
     def test_iter_with_altered_data(self):
         d = deque('abcdefg')
@@ -557,12 +586,15 @@ class TestVariousIteratorArgs(unittest.TestCase):
         d.append(10)
         self.assertRaises(RuntimeError, it.next)
 
+
 class Deque(deque):
     pass
+
 
 class DequeWithBadIter(deque):
     def __iter__(self):
         raise TypeError
+
 
 class TestSubclass(unittest.TestCase):
 
@@ -622,9 +654,9 @@ class TestSubclass(unittest.TestCase):
         self.assertEqual(type(d), type(e))
         self.assertEqual(list(d), list(e))
 
-##    def test_pickle(self):
+# def test_pickle(self):
 ##        d = Deque('abc')
-##        d.append(d)
+# d.append(d)
 ##
 ##        e = pickle.loads(pickle.dumps(d))
 ##        self.assertNotEqual(id(d), id(e))
@@ -655,22 +687,24 @@ class TestSubclass(unittest.TestCase):
         class X(deque):
             def __iter__(self):
                 return iter([])
-        d1 = X([1,2,3])
-        d2 = X([4,5,6])
+        d1 = X([1, 2, 3])
+        d2 = X([4, 5, 6])
         d1 == d2   # not clear if this is supposed to be True or False,
-                   # but it used to give a SystemError
+        # but it used to give a SystemError
 
 
 class SubclassWithKwargs(deque):
     def __init__(self, newarg=1):
         deque.__init__(self)
 
+
 class TestSubclassWithKwargs(unittest.TestCase):
     def test_subclass_with_kwargs(self):
         # SF bug #1486663 -- this used to erroneously raise a TypeError
         SubclassWithKwargs(newarg=1)
 
-#==============================================================================
+# ==============================================================================
+
 
 libreftest = """
 Example from the Library Reference:  Doc/lib/libcollections.tex
@@ -773,9 +807,10 @@ h
 """
 
 
-#==============================================================================
+# ==============================================================================
 
-__test__ = {'libreftest' : libreftest}
+__test__ = {'libreftest': libreftest}
+
 
 def test_main(verbose=None):
     import sys
@@ -801,6 +836,7 @@ def test_main(verbose=None):
     # doctests
     from test import test_deque
     test_support.run_doctest(test_deque, verbose)
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

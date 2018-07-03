@@ -6,7 +6,7 @@ matches its new spot.
 
 fname = 'test392m.py'
 
-open(fname, 'w').close()#touch!
+open(fname, 'w').close()  # touch!
 
 import test392m
 del test392m
@@ -21,4 +21,3 @@ if ret == 1:
     raise support.TestError, '__file__ on test392m reflected where it was compiled, not where it was imported.'
 elif ret != 0:
     raise support.TestError, 'running test392importer.py exited with an unexpected code'
-

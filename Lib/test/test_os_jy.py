@@ -44,18 +44,18 @@ class OSFileTestCase(unittest.TestCase):
         testfnu = unicode(test_support.TESTFN)
         try:
             os.open(testfnu, os.O_RDONLY)
-        except OSError, e:
+        except OSError as e:
             self.assertTrue(isinstance(e.filename, unicode))
             self.assertEqual(e.filename, testfnu)
         else:
             self.assertTrue(False)
 
         # XXX: currently fail
-        #for fn in os.chdir, os.listdir, os.rmdir:
+        # for fn in os.chdir, os.listdir, os.rmdir:
         for fn in (os.rmdir,):
             try:
                 fn(testfnu)
-            except OSError, e:
+            except OSError as e:
                 self.assertTrue(isinstance(e.filename, unicode))
                 self.assertEqual(e.filename, testfnu)
             else:
@@ -64,7 +64,9 @@ class OSFileTestCase(unittest.TestCase):
     def test_issue2068(self):
         os.remove(test_support.TESTFN)
         for i in range(2):
-            fd = os.open(test_support.TESTFN, os.O_RDWR | os.O_CREAT | os.O_APPEND)
+            fd = os.open(
+                test_support.TESTFN,
+                os.O_RDWR | os.O_CREAT | os.O_APPEND)
             try:
                 os.write(fd, bytes('one'))
                 os.write(fd, bytes('two'))
@@ -77,7 +79,8 @@ class OSFileTestCase(unittest.TestCase):
         self.assertEqual(content, 2 * b'onetwothree')
 
     def test_issue1793(self):
-        # prepare the input file containing 256 bytes of sorted byte-sized numbers
+        # prepare the input file containing 256 bytes of sorted byte-sized
+        # numbers
         fd = file(test_support.TESTFN, 'wb')
         try:
             for x in range(256):
@@ -91,15 +94,17 @@ class OSFileTestCase(unittest.TestCase):
             # read forward from the beginning
             for x in range(256):
                 pos = fd.tell()
-                self.assertEqual(pos, x,
-                        '[forward] before read: pos should be %d but is %d' % (x, pos))
+                self.assertEqual(
+                    pos, x, '[forward] before read: pos should be %d but is %d' %
+                    (x, pos))
 
                 # read just one byte
                 c = struct.unpack('B', fd.read(1))[0]
 
                 pos = fd.tell()
-                self.assertEqual(pos, x + 1,
-                        '[forward] after read: pos should be %d but is %d' % (x + 1, pos))
+                self.assertEqual(
+                    pos, x + 1, '[forward] after read: pos should be %d but is %d' %
+                    (x + 1, pos))
 
                 self.assertEqual(c, x)
 
@@ -107,15 +112,17 @@ class OSFileTestCase(unittest.TestCase):
             fd.seek(-1, os.SEEK_END)
             for x in range(255, -1, -1):
                 pos = fd.tell()
-                self.assertEqual(pos, x,
-                        '[backward] before read: pos should be %d but is %d' % (x, pos))
+                self.assertEqual(
+                    pos, x, '[backward] before read: pos should be %d but is %d' %
+                    (x, pos))
 
                 # read just one byte
                 c = ord(fd.read(1))
 
                 pos = fd.tell()
-                self.assertEqual(pos, x + 1,
-                        '[backward] after read: pos should be %d but is %d' % (x + 1, pos))
+                self.assertEqual(
+                    pos, x + 1, '[backward] after read: pos should be %d but is %d' %
+                    (x + 1, pos))
 
                 self.assertEqual(c, x)
 
@@ -171,28 +178,36 @@ class OSWriteTestCase(unittest.TestCase):
         self.fd = os.open(test_support.TESTFN, os.O_WRONLY | os.O_CREAT)
 
     def tearDown(self):
-        if self.fd :
+        if self.fd:
             os.close(self.fd)
             if os.path.exists(test_support.TESTFN):
                 os.remove(test_support.TESTFN)
 
     def do_write(self, b, nx=None):
-        if nx is None : nx = len(b)
+        if nx is None:
+            nx = len(b)
         n = os.write(self.fd, b)
         self.assertEqual(n, nx, "os.write length error: " + repr(b))
 
-    def test_write_buffer(self): # Issue 2062
+    def test_write_buffer(self):  # Issue 2062
         s = b"Big Red Book"
-        for type2test in (str, buffer, bytearray, (lambda x : array.array('b',x))) :
+        for type2test in (
+            str,
+            buffer,
+            bytearray,
+            (lambda x: array.array(
+                'b',
+                x))):
             self.do_write(type2test(s))
 
-        with memoryview(s) as m :
+        with memoryview(s) as m:
             self.do_write(m)
             # not contiguous:
             self.assertRaises(BufferError, self.do_write, m[1::2])
 
         # lacks buffer api:
         self.assertRaises(TypeError, self.do_write, 1.5, 4)
+
 
 class UnicodeTestCase(unittest.TestCase):
 
@@ -202,19 +217,20 @@ class UnicodeTestCase(unittest.TestCase):
             # but it will accept unicode additions.
             newenv = os.environ.copy()
             newenv["TEST_HOME"] = expected = u"首页"
-            # Environment passed as UTF-16 String[] by Java, arrives FS-encoded.
+            # Environment passed as UTF-16 String[] by Java, arrives
+            # FS-encoded.
             for encoding in ('utf-8', 'gbk'):
                 # Emit the value of TEST_HOME explicitly encoded.
                 p = subprocess.Popen(
-                        [sys.executable, "-c",
-                                'import sys, os;' \
-                                'sys.stdout.write(os.getenv("TEST_HOME")' \
-                                '.decode(sys.getfilesystemencoding())' \
-                                '.encode("%s"))' \
-                                % encoding],
-                        stdout=subprocess.PIPE,
-                        env=newenv)
-                # Decode with chosen encoding 
+                    [sys.executable, "-c",
+                     'import sys, os;'
+                     'sys.stdout.write(os.getenv("TEST_HOME")'
+                     '.decode(sys.getfilesystemencoding())'
+                     '.encode("%s"))'
+                     % encoding],
+                    stdout=subprocess.PIPE,
+                    env=newenv)
+                # Decode with chosen encoding
                 self.assertEqual(p.stdout.read().decode(encoding), u"首页")
 
     def test_env_naively(self):
@@ -226,11 +242,11 @@ class UnicodeTestCase(unittest.TestCase):
             # Environment passed as UTF-16 String[] by Java, arrives FS-encoded.
             # However, emit TEST_HOME without thinking about the encoding.
             p = subprocess.Popen(
-                    [sys.executable, "-c",
-                            'import sys, os;' \
-                            'sys.stdout.write(os.getenv("TEST_HOME"))'],
-                    stdout=subprocess.PIPE,
-                    env=newenv)
+                [sys.executable, "-c",
+                 'import sys, os;'
+                 'sys.stdout.write(os.getenv("TEST_HOME"))'],
+                stdout=subprocess.PIPE,
+                env=newenv)
             # Decode with FS encoding used by subprocess communication
             self.assertEqual(p.stdout.read().decode('utf-8'), expected)
 
@@ -239,9 +255,9 @@ class UnicodeTestCase(unittest.TestCase):
             # os.getcwd reports the working directory as an FS-encoded str,
             # which is also the encoding used in subprocess communication.
             p = subprocess.Popen([
-                    sys.executable, "-c",
-                    'import sys,os;' \
-                    'sys.stdout.write(os.getcwd())'],
+                sys.executable, "-c",
+                'import sys,os;'
+                'sys.stdout.write(os.getcwd())'],
                 stdout=subprocess.PIPE)
             self.assertEqual(p.stdout.read(), temp_cwd)
 
@@ -250,9 +266,9 @@ class UnicodeTestCase(unittest.TestCase):
             # os.getcwdu reports the working directory as unicode,
             # which must be encoded for subprocess communication.
             p = subprocess.Popen([
-                    sys.executable, "-c",
-                    'import sys,os;' \
-                    'sys.stdout.write(os.getcwdu().encode(sys.getfilesystemencoding()))'],
+                sys.executable, "-c",
+                'import sys,os;'
+                'sys.stdout.write(os.getcwdu().encode(sys.getfilesystemencoding()))'],
                 stdout=subprocess.PIPE)
             self.assertEqual(p.stdout.read(), temp_cwd)
 
@@ -312,28 +328,31 @@ class UnicodeTestCase(unittest.TestCase):
             # Verify Java integration. But we will need to construct
             # an absolute path since chdir doesn't work with Java
             # (except for subprocesses, like below in test_env)
-            for entry in entries: # list(unicode)
+            for entry in entries:  # list(unicode)
                 # new_cwd is bytes while chinese_path is unicode.
                 # But new_cwd is not guaranteed to be just ascii, so decode it.
                 new_cwd = new_cwd.decode(FS)
                 entry_path = os.path.join(new_cwd, chinese_path, entry)
                 f = File(entry_path)
-                self.assertTrue(f.exists(),
-                    "File %r (%r) should be testable for existence" %
+                self.assertTrue(
+                    f.exists(), "File %r (%r) should be testable for existence" %
                     (f, entry_path))
+
 
 class LocaleTestCase(unittest.TestCase):
 
     def get_installed_locales(self, codes, msg=None):
         def normalize(code):
-            # OS X and Ubuntu (at the very least) differ slightly in locale code formatting
+            # OS X and Ubuntu (at the very least) differ slightly in locale
+            # code formatting
             return code.strip().replace("-", "").lower()
 
         try:
             installed_codes = dict(((normalize(code), code) for
                                     code in subprocess.check_output(["locale", "-a"]).split()))
         except (subprocess.CalledProcessError, OSError):
-            raise unittest.SkipTest("locale command not available, cannot test")
+            raise unittest.SkipTest(
+                "locale command not available, cannot test")
 
         if msg is None:
             msg = "One of %s tested locales is not installed" % (codes,)
@@ -347,7 +366,9 @@ class LocaleTestCase(unittest.TestCase):
     # must be on posix and turkish locale supported
     def test_turkish_locale_posix_module(self):
         # Verifies fix of http://bugs.jython.org/issue1874
-        self.get_installed_locales(["tr_TR.UTF-8"], "Turkish locale not installed, cannot test")
+        self.get_installed_locales(
+            ["tr_TR.UTF-8"],
+            "Turkish locale not installed, cannot test")
         newenv = os.environ.copy()
         newenv["LC_ALL"] = "tr_TR.UTF-8"  # set to Turkish locale
         self.assertEqual(
@@ -359,7 +380,9 @@ class LocaleTestCase(unittest.TestCase):
 
     def test_turkish_locale_string_lower_upper(self):
         # Verifies fix of http://bugs.jython.org/issue1874
-        self.get_installed_locales(["tr_TR.UTF-8"], "Turkish locale not installed, cannot test")
+        self.get_installed_locales(
+            ["tr_TR.UTF-8"],
+            "Turkish locale not installed, cannot test")
         newenv = os.environ.copy()
         newenv["LC_ALL"] = "tr_TR.UTF-8"  # set to Turkish locale
         self.assertIn(
@@ -420,7 +443,7 @@ class SystemTestCase(unittest.TestCase):
             self.assertEqual(
                 subprocess.check_output(
                     [sys.executable, "-S", "-c",
-                     "import traceback; import os; os.system('echo 42'); os.system('echo 47')"])\
+                     "import traceback; import os; os.system('echo 42'); os.system('echo 47')"])
                 .replace("\r", ""),  # in case of running on Windows
                 "42\n47\n")
 
@@ -437,7 +460,7 @@ class SystemTestCase(unittest.TestCase):
             self.assertEqual(
                 subprocess.check_output(
                     [sys.executable, "-c",
-                     "import os; os.environ['TEST_ENVVAR'] = 'works on 2.7.1+'; os.system('%s')" % echo_command])\
+                     "import os; os.environ['TEST_ENVVAR'] = 'works on 2.7.1+'; os.system('%s')" % echo_command])
                 .replace("\r", ""),  # in case of running on Windows
                 "works on 2.7.1+\n")
 
@@ -470,7 +493,11 @@ class LinkTestCase(unittest.TestCase):
                 self.assertEqual(f.read(), "TARGET")
 
 
-@unittest.skipUnless(hasattr(os, 'symlink'), "symbolic link support  not available")
+@unittest.skipUnless(
+    hasattr(
+        os,
+        'symlink'),
+    "symbolic link support  not available")
 class SymbolicLinkTestCase(unittest.TestCase):
 
     def test_bad_symlink(self):
@@ -527,6 +554,7 @@ def test_main():
         LinkTestCase,
         SymbolicLinkTestCase,
     )
+
 
 if __name__ == '__main__':
     test_main()

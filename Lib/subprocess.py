@@ -398,30 +398,37 @@ import traceback
 import signal
 
 # Exception classes used by this module.
+
+
 class CalledProcessError(Exception):
     """This exception is raised when a process run by check_call() or
     check_output() returns a non-zero exit status.
     The exit status will be stored in the returncode attribute;
     check_output() will also store the output in the output attribute.
     """
+
     def __init__(self, returncode, cmd, output=None):
         self.returncode = returncode
         self.cmd = cmd
         self.output = output
+
     def __str__(self):
-        return "Command '%s' returned non-zero exit status %d" % (self.cmd, self.returncode)
+        return "Command '%s' returned non-zero exit status %d" % (
+            self.cmd, self.returncode)
 
 
 if mswindows:
     import threading
     import msvcrt
     import _subprocess
+
     class STARTUPINFO:
         dwFlags = 0
         hStdInput = None
         hStdOutput = None
         hStdError = None
         wShowWindow = 0
+
     class pywintypes:
         error = IOError
 elif jython:
@@ -462,14 +469,15 @@ if mswindows:
     __all__.extend(["CREATE_NEW_CONSOLE", "CREATE_NEW_PROCESS_GROUP"])
 try:
     MAXFD = os.sysconf("SC_OPEN_MAX")
-except:
+except BaseException:
     MAXFD = 256
 
 _active = []
 
+
 def _cleanup():
     for inst in _active[:]:
-        res = inst._internal_poll(_deadstate=sys.maxint)
+        res = inst._internal_poll(_deadstate=sys.maxsize)
         if res is not None and res >= 0:
             try:
                 _active.remove(inst)
@@ -477,6 +485,7 @@ def _cleanup():
                 # This can happen if two threads create a new Popen instance.
                 # It's harmless that it was already removed, so ignore.
                 pass
+
 
 PIPE = -1
 STDOUT = -2
@@ -486,7 +495,7 @@ def _eintr_retry_call(func, *args):
     while True:
         try:
             return func(*args)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.EINTR:
                 continue
             raise
@@ -636,7 +645,7 @@ def list2cmdline(seq):
                 bs_buf.append(c)
             elif c == '"':
                 # Double backslashes.
-                result.append('\\' * len(bs_buf)*2)
+                result.append('\\' * len(bs_buf) * 2)
                 bs_buf = []
                 result.append('\\"')
             else:
@@ -729,10 +738,13 @@ if jython:
 
         if os._name in _win_oses:
             _cmdline2listimpl = _cmdline2list
-            _escape_args = lambda args: [list2cmdline([arg]) for arg in args]
+
+            def _escape_args(args): return [
+                list2cmdline([arg]) for arg in args]
         else:
-            _cmdline2listimpl = lambda args: [args]
-            _escape_args = lambda args: args
+            def _cmdline2listimpl(args): return [args]
+
+            def _escape_args(args): return args
 
         for shell_command in os._get_shell_commands():
             executable = shell_command[0]
@@ -750,7 +762,6 @@ if jython:
             warnings.warn('Unable to determine _shell_command for '
                           'underlying os: %s' % os._name, RuntimeWarning, 3)
     _setup_platform()
-
 
     class _CouplerThread(java.lang.Thread):
 
@@ -788,11 +799,11 @@ if jython:
                     buf.flip()
                     self.write_func(buf)
                     buf.flip()
-                except IOError, ioe:
+                except IOError as ioe:
                     if self.close_func:
                         try:
                             self.close_func()
-                        except:
+                        except BaseException:
                             pass
                     # XXX: hack, should really be a
                     # ClosedByInterruptError(IOError) exception
@@ -848,8 +859,9 @@ class Popen(object):
                                  "platforms")
             if close_fds and (stdin is not None or stdout is not None or
                               stderr is not None):
-                raise ValueError("close_fds is not supported on Windows "
-                                 "platforms if you redirect stdin/stdout/stderr")
+                raise ValueError(
+                    "close_fds is not supported on Windows "
+                    "platforms if you redirect stdin/stdout/stderr")
         else:
             # POSIX
             if startupinfo is not None:
@@ -973,14 +985,12 @@ class Popen(object):
             else:
                 self.stderr = os.fdopen(errread, 'rb', bufsize)
 
-
     def _translate_newlines(self, data):
         data = data.replace("\r\n", "\n")
         data = data.replace("\r", "\n")
         return data
 
-
-    def __del__(self, _maxint=sys.maxint, _active=_active):
+    def __del__(self, _maxint=sys.maxsize, _active=_active):
         if not self._child_created:
             # We didn't get to successfully create a child process.
             return
@@ -989,7 +999,6 @@ class Popen(object):
         if self.returncode is None and _active is not None:
             # Child is still running, keep us alive until we can wait on it.
             _active.append(self)
-
 
     def communicate(self, input=None):
         """Interact with process: Send data to stdin.  Read data from
@@ -1020,10 +1029,8 @@ class Popen(object):
 
         return self._communicate(input)
 
-
     def poll(self):
         return self._internal_poll()
-
 
     if mswindows or jython:
         #
@@ -1032,10 +1039,9 @@ class Popen(object):
         def _readerthread(self, fh, buffer):
             buffer.append(fh.read())
 
-
         def _communicate(self, input):
-            stdout = None # Return
-            stderr = None # Return
+            stdout = None  # Return
+            stderr = None  # Return
 
             if self.stdout:
                 stdout = []
@@ -1079,7 +1085,6 @@ class Popen(object):
             self.wait()
             return (stdout, stderr)
 
-
     if mswindows:
         #
         # Windows methods
@@ -1096,7 +1101,8 @@ class Popen(object):
             errread, errwrite = None, None
 
             if stdin is None:
-                p2cread = _subprocess.GetStdHandle(_subprocess.STD_INPUT_HANDLE)
+                p2cread = _subprocess.GetStdHandle(
+                    _subprocess.STD_INPUT_HANDLE)
                 if p2cread is None:
                     p2cread, _ = _subprocess.CreatePipe(None, 0)
             elif stdin == PIPE:
@@ -1109,7 +1115,8 @@ class Popen(object):
             p2cread = self._make_inheritable(p2cread)
 
             if stdout is None:
-                c2pwrite = _subprocess.GetStdHandle(_subprocess.STD_OUTPUT_HANDLE)
+                c2pwrite = _subprocess.GetStdHandle(
+                    _subprocess.STD_OUTPUT_HANDLE)
                 if c2pwrite is None:
                     _, c2pwrite = _subprocess.CreatePipe(None, 0)
             elif stdout == PIPE:
@@ -1122,7 +1129,8 @@ class Popen(object):
             c2pwrite = self._make_inheritable(c2pwrite)
 
             if stderr is None:
-                errwrite = _subprocess.GetStdHandle(_subprocess.STD_ERROR_HANDLE)
+                errwrite = _subprocess.GetStdHandle(
+                    _subprocess.STD_ERROR_HANDLE)
                 if errwrite is None:
                     _, errwrite = _subprocess.CreatePipe(None, 0)
             elif stderr == PIPE:
@@ -1140,19 +1148,21 @@ class Popen(object):
                     c2pread, c2pwrite,
                     errread, errwrite)
 
-
         def _make_inheritable(self, handle):
             """Return a duplicate of handle, which is inheritable"""
-            return _subprocess.DuplicateHandle(_subprocess.GetCurrentProcess(),
-                                handle, _subprocess.GetCurrentProcess(), 0, 1,
-                                _subprocess.DUPLICATE_SAME_ACCESS)
-
+            return _subprocess.DuplicateHandle(
+                _subprocess.GetCurrentProcess(),
+                handle,
+                _subprocess.GetCurrentProcess(),
+                0,
+                1,
+                _subprocess.DUPLICATE_SAME_ACCESS)
 
         def _find_w9xpopen(self):
             """Find and return absolut path to w9xpopen.exe"""
             w9xpopen = os.path.join(
-                            os.path.dirname(_subprocess.GetModuleFileName(0)),
-                                    "w9xpopen.exe")
+                os.path.dirname(_subprocess.GetModuleFileName(0)),
+                "w9xpopen.exe")
             if not os.path.exists(w9xpopen):
                 # Eeek - file-not-found - possibly an embedding
                 # situation - see if we can locate it in sys.exec_prefix
@@ -1163,7 +1173,6 @@ class Popen(object):
                                        "needed for Popen to work with your "
                                        "shell or platform.")
             return w9xpopen
-
 
         def _execute_child(self, args, executable, preexec_fn, close_fds,
                            cwd, env, universal_newlines,
@@ -1189,7 +1198,7 @@ class Popen(object):
                 startupinfo.dwFlags |= _subprocess.STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = _subprocess.SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
-                args = '{} /c "{}"'.format (comspec, args)
+                args = '{} /c "{}"'.format(comspec, args)
                 if (_subprocess.GetVersion() >= 0x80000000 or
                         os.path.basename(comspec).lower() == "command.com"):
                     # Win9x, or using command.com on NT. We need to
@@ -1209,14 +1218,15 @@ class Popen(object):
             # Start the process
             try:
                 hp, ht, pid, tid = _subprocess.CreateProcess(executable, args,
-                                         # no special security
-                                         None, None,
-                                         int(not close_fds),
-                                         creationflags,
-                                         env,
-                                         cwd,
-                                         startupinfo)
-            except pywintypes.error, e:
+                                                             # no special
+                                                             # security
+                                                             None, None,
+                                                             int(not close_fds),
+                                                             creationflags,
+                                                             env,
+                                                             cwd,
+                                                             startupinfo)
+            except pywintypes.error as e:
                 # Translate pywintypes.error to WindowsError, which is
                 # a subclass of OSError.  FIXME: We should really
                 # translate errno using _sys_errlist (or simliar), but
@@ -1242,7 +1252,9 @@ class Popen(object):
             self.pid = pid
             ht.Close()
 
-        def _internal_poll(self, _deadstate=None,
+        def _internal_poll(
+                self,
+                _deadstate=None,
                 _WaitForSingleObject=_subprocess.WaitForSingleObject,
                 _WAIT_OBJECT_0=_subprocess.WAIT_OBJECT_0,
                 _GetExitCodeProcess=_subprocess.GetExitCodeProcess):
@@ -1257,7 +1269,6 @@ class Popen(object):
                 if _WaitForSingleObject(self._handle, 0) == _WAIT_OBJECT_0:
                     self.returncode = _GetExitCodeProcess(self._handle)
             return self.returncode
-
 
         def wait(self):
             """Wait for child process to terminate.  Returns returncode
@@ -1315,7 +1326,6 @@ class Popen(object):
                     c2pread, c2pwrite,
                     errread, errwrite)
 
-
         def _stderr_is_stdout(self, errwrite, c2pwrite):
             """Determine if the subprocess' stderr should be redirected
             to stdout
@@ -1323,13 +1333,9 @@ class Popen(object):
             return (errwrite == STDOUT or c2pwrite not in (None, PIPE) and
                     c2pwrite is errwrite)
 
-
         def _coupler_thread(self, *args, **kwargs):
             """Return a _CouplerThread"""
             return _CouplerThread(*args, **kwargs)
-
-
-
 
         def _execute_child(self, args, executable, preexec_fn, close_fds,
                            cwd, env, universal_newlines,
@@ -1362,11 +1368,14 @@ class Popen(object):
             builder = java.lang.ProcessBuilder(args)
 
             if stdin is None:
-                builder.redirectInput(java.lang.ProcessBuilder.Redirect.INHERIT)
+                builder.redirectInput(
+                    java.lang.ProcessBuilder.Redirect.INHERIT)
             if stdout is None:
-                builder.redirectOutput(java.lang.ProcessBuilder.Redirect.INHERIT)
+                builder.redirectOutput(
+                    java.lang.ProcessBuilder.Redirect.INHERIT)
             if stderr is None:
-                builder.redirectError(java.lang.ProcessBuilder.Redirect.INHERIT)
+                builder.redirectError(
+                    java.lang.ProcessBuilder.Redirect.INHERIT)
 
             # os.environ may be inherited for compatibility with CPython.
             # Elements taken from os.environ are FS-decoded to unicode.
@@ -1381,7 +1390,9 @@ class Popen(object):
                 if not os.path.exists(cwd):
                     raise OSError(errno.ENOENT, os.strerror(errno.ENOENT), cwd)
                 elif not os.path.isdir(cwd):
-                    raise OSError(errno.ENOTDIR, os.strerror(errno.ENOTDIR), cwd)
+                    raise OSError(
+                        errno.ENOTDIR, os.strerror(
+                            errno.ENOTDIR), cwd)
             builder.directory(java.io.File(cwd))
 
             # Let Java manage redirection of stderr to stdout (it's more
@@ -1394,17 +1405,17 @@ class Popen(object):
             try:
                 self._process = builder.start()
             except (java.io.IOException,
-                    java.lang.IllegalArgumentException), e:
+                    java.lang.IllegalArgumentException) as e:
                 msg = e.getMessage()
 
-                # Does not raise the more descriptive FileNotFoundException, resort to string matching
+                # Does not raise the more descriptive FileNotFoundException,
+                # resort to string matching
                 if msg and 'error=2,' in msg:
                     raise OSError(errno.ENOENT, os.strerror(errno.ENOENT))
                 raise OSError(msg or e)
 
             self.pid = self._get_pid()
             self._child_created = True
-
 
         # Getting pid based on http://stackoverflow.com/questions/4750470
 
@@ -1418,7 +1429,7 @@ class Popen(object):
             else:
                 return field
 
-        if hasattr(java.lang.Process, "pid"): # Java 9 onwards
+        if hasattr(java.lang.Process, "pid"):  # Java 9 onwards
 
             def _get_pid(self, pid_field=None):
                 return self._process.pid()
@@ -1443,7 +1454,6 @@ class Popen(object):
                     return None
                 return self._handle_to_pid(field.getLong(self._process))
 
-
         def poll(self, _deadstate=None):
             """Check if child process has terminated.  Returns returncode
             attribute."""
@@ -1461,7 +1471,8 @@ class Popen(object):
                 try:
                     self.returncode = self._process.exitValue()
                 except java.lang.IllegalThreadStateException:
-                    # The child process is not ready to return status, so None os still right.
+                    # The child process is not ready to return status, so None
+                    # os still right.
                     pass
                 except (java.io.IOException, AttributeError) as e:
                     # Child has exited but returncode lost?
@@ -1512,7 +1523,6 @@ class Popen(object):
                 else:
                     raise ValueError("Unsupported signal: {}".format(sig))
 
-
     else:
         #
         # POSIX methods
@@ -1561,7 +1571,6 @@ class Popen(object):
                     c2pread, c2pwrite,
                     errread, errwrite)
 
-
         def _set_cloexec_flag(self, fd, cloexec=True):
             try:
                 cloexec_flag = fcntl.FD_CLOEXEC
@@ -1574,7 +1583,6 @@ class Popen(object):
             else:
                 fcntl.fcntl(fd, fcntl.F_SETFD, old & ~cloexec_flag)
 
-
         def _close_fds(self, but):
             if hasattr(os, 'closerange'):
                 os.closerange(3, but)
@@ -1585,9 +1593,8 @@ class Popen(object):
                         continue
                     try:
                         os.close(i)
-                    except:
+                    except BaseException:
                         pass
-
 
         def _execute_child(self, args, executable, preexec_fn, close_fds,
                            cwd, env, universal_newlines,
@@ -1620,11 +1627,12 @@ class Popen(object):
 
                     gc_was_enabled = gc.isenabled()
                     # Disable gc to avoid bug where gc -> file_dealloc ->
-                    # write to stderr -> hang.  http://bugs.python.org/issue1336
+                    # write to stderr -> hang.
+                    # http://bugs.python.org/issue1336
                     gc.disable()
                     try:
                         self.pid = os.fork()
-                    except:
+                    except BaseException:
                         if gc_was_enabled:
                             gc.enable()
                         raise
@@ -1656,7 +1664,7 @@ class Popen(object):
 
                             # Close pipe fds.  Make sure we don't close the
                             # same fd more than once, or standard fds.
-                            closed = { None }
+                            closed = {None}
                             for fd in [p2cread, c2pwrite, errwrite]:
                                 if fd not in closed and fd > 2:
                                     os.close(fd)
@@ -1677,9 +1685,10 @@ class Popen(object):
                             else:
                                 os.execvpe(executable, args, env)
 
-                        except:
+                        except BaseException:
                             exc_type, exc_value, tb = sys.exc_info()
-                            # Save the traceback and attach it to the exception object
+                            # Save the traceback and attach it to the exception
+                            # object
                             exc_lines = traceback.format_exception(exc_type,
                                                                    exc_value,
                                                                    tb)
@@ -1723,10 +1732,9 @@ class Popen(object):
                         os.close(fd)
                 raise child_exception
 
-
         def _handle_exitstatus(self, sts, _WIFSIGNALED=os.WIFSIGNALED,
-                _WTERMSIG=os.WTERMSIG, _WIFEXITED=os.WIFEXITED,
-                _WEXITSTATUS=os.WEXITSTATUS):
+                               _WTERMSIG=os.WTERMSIG, _WIFEXITED=os.WIFEXITED,
+                               _WEXITSTATUS=os.WEXITSTATUS):
             # This method is called (indirectly) by __del__, so it cannot
             # refer to anything outside of its local scope."""
             if _WIFSIGNALED(sts):
@@ -1737,9 +1745,8 @@ class Popen(object):
                 # Should never happen
                 raise RuntimeError("Unknown child exit status!")
 
-
         def _internal_poll(self, _deadstate=None, _waitpid=os.waitpid,
-                _WNOHANG=os.WNOHANG, _os_error=os.error):
+                           _WNOHANG=os.WNOHANG, _os_error=os.error):
             """Check if child process has terminated.  Returns returncode
             attribute.
 
@@ -1757,7 +1764,6 @@ class Popen(object):
                         self.returncode = _deadstate
             return self.returncode
 
-
         def wait(self):
             """Wait for child process to terminate.  Returns returncode
             attribute."""
@@ -1773,7 +1779,6 @@ class Popen(object):
                     sts = 0
                 self._handle_exitstatus(sts)
             return self.returncode
-
 
         def _communicate(self, input):
             if self.stdin:
@@ -1807,14 +1812,14 @@ class Popen(object):
             self.wait()
             return (stdout, stderr)
 
-
         def _communicate_with_poll(self, input):
-            stdout = None # Return
-            stderr = None # Return
+            stdout = None  # Return
+            stderr = None  # Return
             fd2file = {}
             fd2output = {}
 
             poller = select.poll()
+
             def register_and_append(file_obj, eventmask):
                 poller.register(file_obj.fileno(), eventmask)
                 fd2file[file_obj.fileno()] = file_obj
@@ -1839,14 +1844,14 @@ class Popen(object):
             while fd2file:
                 try:
                     ready = poller.poll()
-                except select.error, e:
+                except select.error as e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
 
                 for fd, mode in ready:
                     if mode & select.POLLOUT:
-                        chunk = input[input_offset : input_offset + _PIPE_BUF]
+                        chunk = input[input_offset: input_offset + _PIPE_BUF]
                         input_offset += os.write(fd, chunk)
                         if input_offset >= len(input):
                             close_unregister_and_remove(fd)
@@ -1861,12 +1866,11 @@ class Popen(object):
 
             return (stdout, stderr)
 
-
         def _communicate_with_select(self, input):
             read_set = []
             write_set = []
-            stdout = None # Return
-            stderr = None # Return
+            stdout = None  # Return
+            stderr = None  # Return
 
             if self.stdin and input:
                 write_set.append(self.stdin)
@@ -1880,14 +1884,15 @@ class Popen(object):
             input_offset = 0
             while read_set or write_set:
                 try:
-                    rlist, wlist, xlist = select.select(read_set, write_set, [])
-                except select.error, e:
+                    rlist, wlist, xlist = select.select(
+                        read_set, write_set, [])
+                except select.error as e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
 
                 if self.stdin in wlist:
-                    chunk = input[input_offset : input_offset + _PIPE_BUF]
+                    chunk = input[input_offset: input_offset + _PIPE_BUF]
                     bytes_written = os.write(self.stdin.fileno(), chunk)
                     input_offset += bytes_written
                     if input_offset >= len(input):
@@ -1909,7 +1914,6 @@ class Popen(object):
                     stderr.append(data)
 
             return (stdout, stderr)
-
 
         def send_signal(self, sig):
             """Send a signal to the process
@@ -1951,7 +1955,7 @@ def _os_system(command):
     try:
         return builder.start().waitFor()
     except (java.io.IOException,
-            java.lang.IllegalArgumentException), e:
+            java.lang.IllegalArgumentException) as e:
         raise OSError(e.getMessage() or e)
 
 
@@ -1985,7 +1989,7 @@ def _demo_posix():
     print "Trying a weird file..."
     try:
         print Popen(["/this/path/does/not/exist"]).communicate()
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOENT:
             print "The file didn't exist.  I thought so..."
             print "Child traceback:"

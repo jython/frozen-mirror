@@ -24,44 +24,52 @@ BAD_CLAZZ = "test398j1"
 GOOD_CLAZZ = "test398j2"
 JARDIR = "test398jar"
 JARFILE = "test398.jar"
-GOOD_CLAZZ_FILE = File(PACKAGE, "%s.class" % GOOD_CLAZZ) # java.io.File
-BAD_CLAZZ_FILE = File(PACKAGE, "%s.class" % BAD_CLAZZ) # java.io.File
+GOOD_CLAZZ_FILE = File(PACKAGE, "%s.class" % GOOD_CLAZZ)  # java.io.File
+BAD_CLAZZ_FILE = File(PACKAGE, "%s.class" % BAD_CLAZZ)  # java.io.File
+
 
 def mkdir(dir):
-  if not os.path.exists(dir):
-    os.mkdir(dir)
-  
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
+
 def mkjavaclass():
-  mkdir(PACKAGE)
-  f = open("%s/%s.java" % (PACKAGE, GOOD_CLAZZ), "w")
-  f.write("""
+    mkdir(PACKAGE)
+    f = open("%s/%s.java" % (PACKAGE, GOOD_CLAZZ), "w")
+    f.write("""
 package %s;
 public class %s {
 }
 """ % (PACKAGE, GOOD_CLAZZ))
-  f.close()
-  support.compileJava("%s/%s.java" % (PACKAGE, GOOD_CLAZZ))
+    f.close()
+    support.compileJava("%s/%s.java" % (PACKAGE, GOOD_CLAZZ))
+
 
 def mkbadclass():
-  mkdir(PACKAGE)
-  f = open("%s/%s.class" % (PACKAGE, BAD_CLAZZ), "w")
-  f.close()
+    mkdir(PACKAGE)
+    f = open("%s/%s.class" % (PACKAGE, BAD_CLAZZ), "w")
+    f.close()
+
 
 def mkjar():
-  mkdir(JARDIR)
-  jarFile = File(JARDIR, JARFILE)
-  jarPacker = support.JarPacker(jarFile, bufsize=128)
-  jarPacker.addFile(GOOD_CLAZZ_FILE, parentDirName=PACKAGE)
-  jarPacker.addFile(BAD_CLAZZ_FILE, parentDirName=PACKAGE)
-  jarPacker.close()
-  return jarFile
+    mkdir(JARDIR)
+    jarFile = File(JARDIR, JARFILE)
+    jarPacker = support.JarPacker(jarFile, bufsize=128)
+    jarPacker.addFile(GOOD_CLAZZ_FILE, parentDirName=PACKAGE)
+    jarPacker.addFile(BAD_CLAZZ_FILE, parentDirName=PACKAGE)
+    jarPacker.close()
+    return jarFile
+
 
 def mkprops():
     props = Properties()
-    props.setProperty("java.ext.dirs", String(JARDIR));
-    props.setProperty("python.security.respectJavaAccessibility", String("true"));
+    props.setProperty("java.ext.dirs", String(JARDIR))
+    props.setProperty(
+        "python.security.respectJavaAccessibility",
+        String("true"))
     return props
-    
+
+
 # create a .jar file containing a .class file
 mkjavaclass()
 mkbadclass()

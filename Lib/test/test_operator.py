@@ -3,32 +3,46 @@ import unittest
 import inspect
 
 from test import test_support
+import collections
+import numbers
+
 
 class Seq1:
     def __init__(self, lst):
         self.lst = lst
+
     def __len__(self):
         return len(self.lst)
+
     def __getitem__(self, i):
         return self.lst[i]
+
     def __add__(self, other):
         return self.lst + other.lst
+
     def __mul__(self, other):
         return self.lst * other
+
     def __rmul__(self, other):
         return other * self.lst
+
 
 class Seq2(object):
     def __init__(self, lst):
         self.lst = lst
+
     def __len__(self):
         return len(self.lst)
+
     def __getitem__(self, i):
         return self.lst[i]
+
     def __add__(self, other):
         return self.lst + other.lst
+
     def __mul__(self, other):
         return self.lst * other
+
     def __rmul__(self, other):
         return other * self.lst
 
@@ -68,7 +82,7 @@ class OperatorTestCase(unittest.TestCase):
         class C(object):
             def __eq__(self, other):
                 raise SyntaxError
-            __hash__ = None # Silence Py3k warning
+            __hash__ = None  # Silence Py3k warning
         self.failUnlessRaises(TypeError, operator.eq)
         self.failUnlessRaises(SyntaxError, operator.eq, C(), C())
         self.failIf(operator.eq(1, 0))
@@ -202,10 +216,12 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_isCallable(self):
         self.failUnlessRaises(TypeError, operator.isCallable)
+
         class C:
             pass
+
         def check(self, o, v):
-            self.assertEqual(operator.isCallable(o), v)
+            self.assertEqual(hasattr(o, '__call__'), v)
             with test_support.check_py3k_warnings():
                 self.assertEqual(callable(o), v)
         check(self, 4, 0)
@@ -215,28 +231,30 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_isMappingType(self):
         self.failUnlessRaises(TypeError, operator.isMappingType)
-        self.failIf(operator.isMappingType(1))
-        self.failIf(operator.isMappingType(operator.isMappingType))
-        self.failUnless(operator.isMappingType(operator.__dict__))
-        self.failUnless(operator.isMappingType({}))
+        self.failIf(isinstance(1, collections.Mapping))
+        self.failIf(isinstance(operator.isMappingType, collections.Mapping))
+        self.failUnless(isinstance(operator.__dict__, collections.Mapping))
+        self.failUnless(isinstance({}, collections.Mapping))
 
     def test_isNumberType(self):
         self.failUnlessRaises(TypeError, operator.isNumberType)
-        self.failUnless(operator.isNumberType(8))
-        self.failUnless(operator.isNumberType(8j))
-        self.failUnless(operator.isNumberType(8L))
-        self.failUnless(operator.isNumberType(8.3))
-        self.failIf(operator.isNumberType(dir()))
+        self.failUnless(isinstance(8, numbers.Number))
+        self.failUnless(isinstance(8j, numbers.Number))
+        self.failUnless(isinstance(8, numbers.Number))
+        self.failUnless(isinstance(8.3, numbers.Number))
+        self.failIf(isinstance(dir(), numbers.Number))
 
     def test_isSequenceType(self):
         self.failUnlessRaises(TypeError, operator.isSequenceType)
-        self.failUnless(operator.isSequenceType(dir()))
-        self.failUnless(operator.isSequenceType(()))
-        self.failUnless(operator.isSequenceType(xrange(10)))
-        self.failUnless(operator.isSequenceType('yeahbuddy'))
-        self.failIf(operator.isSequenceType(3))
-        class Dict(dict): pass
-        self.failIf(operator.isSequenceType(Dict()))
+        self.failUnless(isinstance(dir(), collections.Sequence))
+        self.failUnless(isinstance((), collections.Sequence))
+        self.failUnless(isinstance(xrange(10), collections.Sequence))
+        self.failUnless(isinstance('yeahbuddy', collections.Sequence))
+        self.failIf(isinstance(3, collections.Sequence))
+
+        class Dict(dict):
+            pass
+        self.failIf(isinstance(Dict(), collections.Sequence))
 
     def test_lshift(self):
         self.failUnlessRaises(TypeError, operator.lshift)
@@ -279,8 +297,8 @@ class OperatorTestCase(unittest.TestCase):
     def test_pow(self):
         self.failUnlessRaises(TypeError, operator.pow)
         self.failUnlessRaises(TypeError, operator.pow, None, None)
-        self.failUnless(operator.pow(3,5) == 3**5)
-        self.failUnless(operator.__pow__(3,5) == 3**5)
+        self.failUnless(operator.pow(3, 5) == 3**5)
+        self.failUnless(operator.__pow__(3, 5) == 3**5)
         self.assertRaises(TypeError, operator.pow, 1)
         self.assertRaises(TypeError, operator.pow, 1, 2, 3)
 
@@ -288,25 +306,25 @@ class OperatorTestCase(unittest.TestCase):
         a = range(3)
         self.failUnlessRaises(TypeError, operator.repeat)
         self.failUnlessRaises(TypeError, operator.repeat, a, None)
-        self.failUnless(operator.repeat(a, 2) == a+a)
-        self.failUnless(operator.repeat(a, 1) == a)
-        self.failUnless(operator.repeat(a, 0) == [])
+        self.failUnless(operator.mul(a, 2) == a + a)
+        self.failUnless(operator.mul(a, 1) == a)
+        self.failUnless(operator.mul(a, 0) == [])
         a = (1, 2, 3)
-        self.failUnless(operator.repeat(a, 2) == a+a)
-        self.failUnless(operator.repeat(a, 1) == a)
-        self.failUnless(operator.repeat(a, 0) == ())
+        self.failUnless(operator.mul(a, 2) == a + a)
+        self.failUnless(operator.mul(a, 1) == a)
+        self.failUnless(operator.mul(a, 0) == ())
         a = '123'
-        self.failUnless(operator.repeat(a, 2) == a+a)
-        self.failUnless(operator.repeat(a, 1) == a)
-        self.failUnless(operator.repeat(a, 0) == '')
+        self.failUnless(operator.mul(a, 2) == a + a)
+        self.failUnless(operator.mul(a, 1) == a)
+        self.failUnless(operator.mul(a, 0) == '')
         a = Seq1([4, 5, 6])
-        self.failUnless(operator.repeat(a, 2) == [4, 5, 6, 4, 5, 6])
-        self.failUnless(operator.repeat(a, 1) == [4, 5, 6])
-        self.failUnless(operator.repeat(a, 0) == [])
+        self.failUnless(operator.mul(a, 2) == [4, 5, 6, 4, 5, 6])
+        self.failUnless(operator.mul(a, 1) == [4, 5, 6])
+        self.failUnless(operator.mul(a, 0) == [])
         a = Seq2([4, 5, 6])
-        self.failUnless(operator.repeat(a, 2) == [4, 5, 6, 4, 5, 6])
-        self.failUnless(operator.repeat(a, 1) == [4, 5, 6])
-        self.failUnless(operator.repeat(a, 0) == [])
+        self.failUnless(operator.mul(a, 2) == [4, 5, 6, 4, 5, 6])
+        self.failUnless(operator.mul(a, 1) == [4, 5, 6])
+        self.failUnless(operator.mul(a, 0) == [])
         if not test_support.is_jython:
             # Jython repeat is mul
             self.failUnlessRaises(TypeError, operator.repeat, 6, 7)
@@ -323,8 +341,8 @@ class OperatorTestCase(unittest.TestCase):
         self.assertRaises(TypeError, operator.contains, None, None)
         self.assertTrue(operator.contains(range(4), 2))
         self.assertFalse(operator.contains(range(4), 5))
-        self.assertTrue(operator.sequenceIncludes(range(4), 2))
-        self.assertFalse(operator.sequenceIncludes(range(4), 5))
+        self.assertTrue(operator.contains(range(4), 2))
+        self.assertFalse(operator.contains(range(4), 5))
 
     def test_setitem(self):
         a = range(3)
@@ -337,7 +355,13 @@ class OperatorTestCase(unittest.TestCase):
     def test_setslice(self):
         a = range(4)
         self.failUnlessRaises(TypeError, operator.setslice, a)
-        self.failUnlessRaises(TypeError, operator.setslice, a, None, None, None)
+        self.failUnlessRaises(
+            TypeError,
+            operator.setslice,
+            a,
+            None,
+            None,
+            None)
         self.failUnless(operator.setslice(a, 1, 3, [2, 1]) is None)
         self.assert_(a == [0, 2, 1, 3])
         operator.setslice(a, 0, test_support.MAX_Py_ssize_t, [])
@@ -369,14 +393,14 @@ class OperatorTestCase(unittest.TestCase):
         c = a[:3] + b[3:]
         self.failUnlessRaises(TypeError, operator.is_)
         self.failUnless(operator.is_(a, b))
-        self.failIf(operator.is_(a,c))
+        self.failIf(operator.is_(a, c))
 
     def test_is_not(self):
         a = b = 'xyzpdq'
         c = a[:3] + b[3:]
         self.failUnlessRaises(TypeError, operator.is_not)
         self.failIf(operator.is_not(a, b))
-        self.failUnless(operator.is_not(a,c))
+        self.failUnless(operator.is_not(a, c))
 
     def test_attrgetter(self):
         class A:
@@ -396,7 +420,9 @@ class OperatorTestCase(unittest.TestCase):
         record.x = 'X'
         record.y = 'Y'
         record.z = 'Z'
-        self.assertEqual(operator.attrgetter('x','z','y')(record), ('X', 'Z', 'Y'))
+        self.assertEqual(
+            operator.attrgetter(
+                'x', 'z', 'y')(record), ('X', 'Z', 'Y'))
         self.assertRaises(TypeError, operator.attrgetter('x', (), 'y'), record)
 
         class C(object):
@@ -450,19 +476,21 @@ class OperatorTestCase(unittest.TestCase):
         inventory = [('apple', 3), ('banana', 2), ('pear', 5), ('orange', 1)]
         getcount = operator.itemgetter(1)
         self.assertEqual(map(getcount, inventory), [3, 2, 5, 1])
-        self.assertEqual(sorted(inventory, key=getcount),
-            [('orange', 1), ('banana', 2), ('apple', 3), ('pear', 5)])
+        self.assertEqual(sorted(inventory, key=getcount), [
+                         ('orange', 1), ('banana', 2), ('apple', 3), ('pear', 5)])
 
         # multiple gets
         data = map(str, range(20))
-        self.assertEqual(operator.itemgetter(2,10,5)(data), ('2', '10', '5'))
+        self.assertEqual(operator.itemgetter(2, 10, 5)(data), ('2', '10', '5'))
         self.assertRaises(TypeError, operator.itemgetter(2, 'x', 5), data)
 
     def test_methodcaller(self):
         self.assertRaises(TypeError, operator.methodcaller)
+
         class A:
             def foo(self, *args, **kwds):
                 return args[0] + args[1]
+
             def bar(self, f=42):
                 return f
         a = A()
@@ -478,51 +506,65 @@ class OperatorTestCase(unittest.TestCase):
 
     def test_inplace(self):
         class C(object):
-            def __iadd__     (self, other): return "iadd"
-            def __iand__     (self, other): return "iand"
-            def __idiv__     (self, other): return "idiv"
+            def __iadd__(self, other): return "iadd"
+
+            def __iand__(self, other): return "iand"
+
+            def __idiv__(self, other): return "idiv"
+
             def __ifloordiv__(self, other): return "ifloordiv"
-            def __ilshift__  (self, other): return "ilshift"
-            def __imod__     (self, other): return "imod"
-            def __imul__     (self, other): return "imul"
-            def __ior__      (self, other): return "ior"
-            def __ipow__     (self, other): return "ipow"
-            def __irshift__  (self, other): return "irshift"
-            def __isub__     (self, other): return "isub"
-            def __itruediv__ (self, other): return "itruediv"
-            def __ixor__     (self, other): return "ixor"
+
+            def __ilshift__(self, other): return "ilshift"
+
+            def __imod__(self, other): return "imod"
+
+            def __imul__(self, other): return "imul"
+
+            def __ior__(self, other): return "ior"
+
+            def __ipow__(self, other): return "ipow"
+
+            def __irshift__(self, other): return "irshift"
+
+            def __isub__(self, other): return "isub"
+
+            def __itruediv__(self, other): return "itruediv"
+
+            def __ixor__(self, other): return "ixor"
+
             def __getitem__(self, other): return 5  # so that C is a sequence
         c = C()
-        self.assertEqual(operator.iadd     (c, 5), "iadd")
-        self.assertEqual(operator.iand     (c, 5), "iand")
-        self.assertEqual(operator.idiv     (c, 5), "idiv")
+        self.assertEqual(operator.iadd(c, 5), "iadd")
+        self.assertEqual(operator.iand(c, 5), "iand")
+        self.assertEqual(operator.idiv(c, 5), "idiv")
         self.assertEqual(operator.ifloordiv(c, 5), "ifloordiv")
-        self.assertEqual(operator.ilshift  (c, 5), "ilshift")
-        self.assertEqual(operator.imod     (c, 5), "imod")
-        self.assertEqual(operator.imul     (c, 5), "imul")
-        self.assertEqual(operator.ior      (c, 5), "ior")
-        self.assertEqual(operator.ipow     (c, 5), "ipow")
-        self.assertEqual(operator.irshift  (c, 5), "irshift")
-        self.assertEqual(operator.isub     (c, 5), "isub")
-        self.assertEqual(operator.itruediv (c, 5), "itruediv")
-        self.assertEqual(operator.ixor     (c, 5), "ixor")
-        self.assertEqual(operator.iconcat  (c, c), "iadd")
-        self.assertEqual(operator.irepeat  (c, 5), "imul")
-        self.assertEqual(operator.__iadd__     (c, 5), "iadd")
-        self.assertEqual(operator.__iand__     (c, 5), "iand")
-        self.assertEqual(operator.__idiv__     (c, 5), "idiv")
+        self.assertEqual(operator.ilshift(c, 5), "ilshift")
+        self.assertEqual(operator.imod(c, 5), "imod")
+        self.assertEqual(operator.imul(c, 5), "imul")
+        self.assertEqual(operator.ior(c, 5), "ior")
+        self.assertEqual(operator.ipow(c, 5), "ipow")
+        self.assertEqual(operator.irshift(c, 5), "irshift")
+        self.assertEqual(operator.isub(c, 5), "isub")
+        self.assertEqual(operator.itruediv(c, 5), "itruediv")
+        self.assertEqual(operator.ixor(c, 5), "ixor")
+        self.assertEqual(operator.iconcat(c, c), "iadd")
+        self.assertEqual(operator.imul(c, 5), "imul")
+        self.assertEqual(operator.__iadd__(c, 5), "iadd")
+        self.assertEqual(operator.__iand__(c, 5), "iand")
+        self.assertEqual(operator.__idiv__(c, 5), "idiv")
         self.assertEqual(operator.__ifloordiv__(c, 5), "ifloordiv")
-        self.assertEqual(operator.__ilshift__  (c, 5), "ilshift")
-        self.assertEqual(operator.__imod__     (c, 5), "imod")
-        self.assertEqual(operator.__imul__     (c, 5), "imul")
-        self.assertEqual(operator.__ior__      (c, 5), "ior")
-        self.assertEqual(operator.__ipow__     (c, 5), "ipow")
-        self.assertEqual(operator.__irshift__  (c, 5), "irshift")
-        self.assertEqual(operator.__isub__     (c, 5), "isub")
-        self.assertEqual(operator.__itruediv__ (c, 5), "itruediv")
-        self.assertEqual(operator.__ixor__     (c, 5), "ixor")
-        self.assertEqual(operator.__iconcat__  (c, c), "iadd")
-        self.assertEqual(operator.__irepeat__  (c, 5), "imul")
+        self.assertEqual(operator.__ilshift__(c, 5), "ilshift")
+        self.assertEqual(operator.__imod__(c, 5), "imod")
+        self.assertEqual(operator.__imul__(c, 5), "imul")
+        self.assertEqual(operator.__ior__(c, 5), "ior")
+        self.assertEqual(operator.__ipow__(c, 5), "ipow")
+        self.assertEqual(operator.__irshift__(c, 5), "irshift")
+        self.assertEqual(operator.__isub__(c, 5), "isub")
+        self.assertEqual(operator.__itruediv__(c, 5), "itruediv")
+        self.assertEqual(operator.__ixor__(c, 5), "ixor")
+        self.assertEqual(operator.__iconcat__(c, c), "iadd")
+        self.assertEqual(operator.__irepeat__(c, 5), "imul")
+
 
 def test_main(verbose=None):
     import sys
@@ -541,6 +583,7 @@ def test_main(verbose=None):
             gc.collect()
             counts[i] = sys.gettotalrefcount()
         print counts
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

@@ -6,6 +6,7 @@ import subprocess
 from test import test_support
 from test.script_helper import assert_python_ok
 
+
 class TestTool(unittest.TestCase):
     data = """
 
@@ -37,11 +38,13 @@ class TestTool(unittest.TestCase):
     ]
     """)
 
-    @unittest.skipIf(test_support.is_jython, "Revisit when http://bugs.jython.org/issue695383 is fixed")
+    @unittest.skipIf(
+        test_support.is_jython,
+        "Revisit when http://bugs.jython.org/issue695383 is fixed")
     def test_stdin_stdout(self):
         proc = subprocess.Popen(
-                (sys.executable, '-m', 'json.tool'),
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            (sys.executable, '-m', 'json.tool'),
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         out, err = proc.communicate(self.data.encode())
         self.assertEqual(out.splitlines(), self.expect.encode().splitlines())
         self.assertEqual(err, None)
@@ -57,7 +60,9 @@ class TestTool(unittest.TestCase):
     # this tool. Instead it seems to be a problem in simply testing
     # it. TODO fix this underlying issue that's been outstanding for a
     # while in Jython.
-    @unittest.skipIf(test_support.is_jython, "Revisit when http://bugs.jython.org/issue695383 is fixed")
+    @unittest.skipIf(
+        test_support.is_jython,
+        "Revisit when http://bugs.jython.org/issue695383 is fixed")
     def test_infile_stdout(self):
         infile = self._create_infile()
         rc, out, err = assert_python_ok('-m', 'json.tool', infile)

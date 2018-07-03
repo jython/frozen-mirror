@@ -95,27 +95,27 @@ class TestMain(unittest.TestCase):
         err = StringIO.StringIO()
         suffix = "TEST"
         ret = self.run_2to3_capture(
-                ["-n", "--add-suffix", suffix, "--write-unchanged-files",
-                 "--no-diffs", "--output-dir",
-                 self.py3_dest_dir, self.py2_src_dir],
-                StringIO.StringIO(""), out, err)
+            ["-n", "--add-suffix", suffix, "--write-unchanged-files",
+             "--no-diffs", "--output-dir",
+             self.py3_dest_dir, self.py2_src_dir],
+            StringIO.StringIO(""), out, err)
         self.assertEqual(ret, 0)
         stderr = err.getvalue()
         self.assertIn(" implies -w.", stderr)
         self.assertIn(
-                "Output in %r will mirror the input directory %r layout" % (
-                        self.py3_dest_dir, self.py2_src_dir), stderr)
-        self.assertEqual(set(name+suffix for name in self.setup_files),
+            "Output in %r will mirror the input directory %r layout" % (
+                self.py3_dest_dir, self.py2_src_dir), stderr)
+        self.assertEqual(set(name + suffix for name in self.setup_files),
                          set(os.listdir(self.py3_dest_dir)))
         for name in self.setup_files:
             self.assertIn("Writing converted %s to %s" % (
-                    os.path.join(self.py2_src_dir, name),
-                    os.path.join(self.py3_dest_dir, name+suffix)), stderr)
+                os.path.join(self.py2_src_dir, name),
+                os.path.join(self.py3_dest_dir, name + suffix)), stderr)
         sep = re.escape(os.sep)
         self.assertRegexpMatches(
-                stderr, r"No changes to .*/__init__\.py".replace("/", sep))
+            stderr, r"No changes to .*/__init__\.py".replace("/", sep))
         self.assertNotRegex(
-                stderr, r"No changes to .*/trivial\.py".replace("/", sep))
+            stderr, r"No changes to .*/trivial\.py".replace("/", sep))
 
     def test_filename_changing_on_output_two_files(self):
         """2to3 two files in one directory with a new output dir."""
@@ -124,14 +124,14 @@ class TestMain(unittest.TestCase):
         py2_files = [self.trivial_py2_file, self.init_py2_file]
         expected_files = set(os.path.basename(name) for name in py2_files)
         ret = self.run_2to3_capture(
-                ["-n", "-w", "--write-unchanged-files",
-                 "--no-diffs", "--output-dir", self.py3_dest_dir] + py2_files,
-                StringIO.StringIO(""), StringIO.StringIO(), err)
+            ["-n", "-w", "--write-unchanged-files",
+             "--no-diffs", "--output-dir", self.py3_dest_dir] + py2_files,
+            StringIO.StringIO(""), StringIO.StringIO(), err)
         self.assertEqual(ret, 0)
         stderr = err.getvalue()
         self.assertIn(
-                "Output in %r will mirror the input directory %r layout" % (
-                        self.py3_dest_dir, self.py2_src_dir), stderr)
+            "Output in %r will mirror the input directory %r layout" % (
+                self.py3_dest_dir, self.py2_src_dir), stderr)
         self.assertEqual(expected_files, set(os.listdir(self.py3_dest_dir)))
 
     def test_filename_changing_on_output_single_file(self):
@@ -139,14 +139,14 @@ class TestMain(unittest.TestCase):
         self.setup_test_source_trees()
         err = StringIO.StringIO()
         ret = self.run_2to3_capture(
-                ["-n", "-w", "--no-diffs", "--output-dir", self.py3_dest_dir,
-                 self.trivial_py2_file],
-                StringIO.StringIO(""), StringIO.StringIO(), err)
+            ["-n", "-w", "--no-diffs", "--output-dir", self.py3_dest_dir,
+             self.trivial_py2_file],
+            StringIO.StringIO(""), StringIO.StringIO(), err)
         self.assertEqual(ret, 0)
         stderr = err.getvalue()
         self.assertIn(
-                "Output in %r will mirror the input directory %r layout" % (
-                        self.py3_dest_dir, self.py2_src_dir), stderr)
+            "Output in %r will mirror the input directory %r layout" % (
+                self.py3_dest_dir, self.py2_src_dir), stderr)
         self.assertEqual(set([os.path.basename(self.trivial_py2_file)]),
                          set(os.listdir(self.py3_dest_dir)))
 

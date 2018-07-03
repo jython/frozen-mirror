@@ -37,7 +37,7 @@ class ASDLVisitor(asdl.VisitorBase):
         pass
 
     def emit(self, line, level=0):
-        indent = "    "*level
+        indent = "    " * level
         self.stream.write(indent + line + "\n")
 
 
@@ -135,7 +135,9 @@ class ASTNodeVisitor(ASDLVisitor):
             if field.opt:
                 doing_something = True
                 flag = self.data.field_masks[field]
-                self.emit("if not self.initialization_state & %i:" % (flag,), 3)
+                self.emit(
+                    "if not self.initialization_state & %i:" %
+                    (flag,), 3)
                 default = "0" if field.type.value == "int" else "None"
                 self.emit("self.%s = %s" % (field.name, default), 4)
         if not doing_something:
@@ -165,7 +167,9 @@ class ASTNodeVisitor(ASDLVisitor):
                 if attr.opt:
                     self.emit("if self.%s:" % (attr.name,), 2)
                     level += 1
-                self.emit("self.%s.sync_app_attrs(space)" % (attr.name,), level)
+                self.emit(
+                    "self.%s.sync_app_attrs(space)" %
+                    (attr.name,), level)
         self.emit("")
 
     def make_constructor(self, fields, node, extras=None, base=None):
@@ -307,10 +311,11 @@ class GenericASTVisitorVisitor(ASDLVisitor):
 
 
 asdl_type_map = {
-    "int" : "int_w",
-    "identifier" : "str_w",
-    "bool" : "bool_w"
+    "int": "int_w",
+    "identifier": "str_w",
+    "bool": "bool_w"
 }
+
 
 def get_unwrapper(tp, name, simple_types):
     if tp in asdl.builtin_types:
@@ -351,7 +356,9 @@ class AppExposeVisitor(ASDLVisitor):
                      fields_name="_fields", concrete=False, needs_init=False):
         if display_name is None:
             display_name = name
-        self.emit("%s.typedef = typedef.TypeDef(\"%s\"," % (name, display_name))
+        self.emit(
+            "%s.typedef = typedef.TypeDef(\"%s\"," %
+            (name, display_name))
         self.emit("%s.typedef," % (base,), 1)
         comma_fields = ", ".join(repr(field.name.value) for field in fields)
         self.emit("%s=_FieldsWrapper([%s])," % (fields_name, comma_fields), 1)
@@ -377,7 +384,9 @@ class AppExposeVisitor(ASDLVisitor):
         config = (name, comma_fields)
         self.emit("_%s_field_unroller = unrolling_iterable([%s])" % config)
         self.emit("def %s_init(space, w_self, args):" % (name,))
-        self.emit("w_self = space.descr_self_interp_w(%s, w_self)" % (name,), 1)
+        self.emit(
+            "w_self = space.descr_self_interp_w(%s, w_self)" %
+            (name,), 1)
         for field in fields:
             if field.seq:
                 self.emit("w_self.w_%s = None" % (field.name,), 1)
@@ -386,16 +395,16 @@ class AppExposeVisitor(ASDLVisitor):
         arity = len(fields)
         if arity:
             self.emit("if len(args_w) != %i:" % (arity,), 2)
-            self.emit("w_err = space.wrap(\"%s constructor takes 0 or %i " \
-                          "positional arguments\")" % (name, arity), 3)
+            self.emit("w_err = space.wrap(\"%s constructor takes 0 or %i "
+                      "positional arguments\")" % (name, arity), 3)
             self.emit("raise OperationError(space.w_TypeError, w_err)", 3)
             self.emit("i = 0", 2)
             self.emit("for field in _%s_field_unroller:" % (name,), 2)
             self.emit("space.setattr(w_self, space.wrap(field), args_w[i])", 3)
             self.emit("i += 1", 3)
         else:
-            self.emit("w_err = space.wrap(\"%s constructor takes no " \
-                          " arguments\")" % (name,), 2)
+            self.emit("w_err = space.wrap(\"%s constructor takes no "
+                      " arguments\")" % (name,), 2)
             self.emit("raise OperationError(space.w_TypeError, w_err)", 2)
         self.emit("for field, w_value in kwargs_w.iteritems():", 1)
         self.emit("space.setattr(w_self, space.wrap(field), w_value)", 2)
@@ -405,7 +414,10 @@ class AppExposeVisitor(ASDLVisitor):
 
     def visitConstructor(self, cons, base):
         super(AppExposeVisitor, self).visitConstructor(cons, cons.name)
-        self.make_init(cons.name, cons.fields + self.data.cons_attributes[cons])
+        self.make_init(
+            cons.name,
+            cons.fields +
+            self.data.cons_attributes[cons])
         self.make_typedef(cons.name, base, cons.fields, concrete=True,
                           needs_init=True)
 
@@ -452,15 +464,16 @@ class AppExposeVisitor(ASDLVisitor):
             self.emit("return space.wrap(w_self.%s)" % (field.name,), 1)
         self.emit("")
 
-        func = "def %s_set_%s(space, w_self, w_new_value):" % (name, field.name)
+        func = "def %s_set_%s(space, w_self, w_new_value):" % (
+            name, field.name)
         self.emit(func)
         if field.seq:
             self.emit("w_self.w_%s = w_new_value" % (field.name,), 1)
         elif field.type.value not in asdl.builtin_types:
             # These are always other AST nodes.
             if field.type.value in self.data.simple_types:
-                self.emit("obj = space.interp_w(%s, w_new_value)" % \
-                              (field.type,), 1)
+                self.emit("obj = space.interp_w(%s, w_new_value)" %
+                          (field.type,), 1)
                 self.emit("w_self.%s = obj.to_simple_int(space)" %
                           (field.name,), 1)
             else:
@@ -477,8 +490,8 @@ class AppExposeVisitor(ASDLVisitor):
             if field.type.value == "object":
                 self.emit("w_self.%s = w_new_value" % (field.name,), level)
             elif field.type.value == "string":
-                self.emit("if not space.is_true(space.isinstance(" \
-                              "w_new_value, space.w_basestring)):", level)
+                self.emit("if not space.is_true(space.isinstance("
+                          "w_new_value, space.w_basestring)):", level)
                 line = "w_err = space.wrap(\"some kind of string required\")"
                 self.emit(line, level + 1)
                 self.emit("raise OperationError(space.w_TypeError, w_err)",
@@ -505,6 +518,7 @@ class ASDLData(object):
         required_masks = {}
         optional_masks = {}
         cons_attributes = {}
+
         def add_masks(fields, node):
             required_mask = 0
             optional_mask = 0

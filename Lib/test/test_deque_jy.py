@@ -14,7 +14,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
             t = threading.Thread(target=f)
             t.start()
             threads.append(t)
-        timeout = 10. # be especially generous
+        timeout = 10.  # be especially generous
         for t in threads:
             t.join(timeout)
             timeout = 0.
@@ -24,6 +24,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
     def test_append_remove(self):
         # derived from Itamar Shtull-Trauring's test for issue 521701
         d = deque(['sentinel'])
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -35,6 +36,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
 
     def test_append_pop(self):
         d = deque(['sentinel'])
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -46,6 +48,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
 
     def test_appendleft_popleft(self):
         d = deque()
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -56,7 +59,8 @@ class ThreadSafetyTestCase(unittest.TestCase):
         self.assertEqual(d, deque())
 
     def test_count_reverse(self):
-        d = deque([0,1,2,3,4,5,6,7,8,9,10,0])
+        d = deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0])
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -65,13 +69,13 @@ class ThreadSafetyTestCase(unittest.TestCase):
                     time.sleep(0.0001)
                 d.reverse()
                 self.assertEqual(d.count(0), 2)
-                self.assert_(d[1] in (1,10))
+                self.assert_(d[1] in (1, 10))
         self.run_threads(tester)
 
 
 def test_main():
     test_support.run_unittest(ThreadSafetyTestCase)
 
+
 if __name__ == "__main__":
     test_main()
-

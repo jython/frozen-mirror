@@ -17,17 +17,22 @@ class DateTimeTests(TestCase):
         from cookielib import time2isoz
 
         base = 1019227000
-        day = 24*3600
+        day = 24 * 3600
         self.assertEqual(time2isoz(base), "2002-04-19 14:36:40Z")
-        self.assertEqual(time2isoz(base+day), "2002-04-20 14:36:40Z")
-        self.assertEqual(time2isoz(base+2*day), "2002-04-21 14:36:40Z")
-        self.assertEqual(time2isoz(base+3*day), "2002-04-22 14:36:40Z")
+        self.assertEqual(time2isoz(base + day), "2002-04-20 14:36:40Z")
+        self.assertEqual(time2isoz(base + 2 * day), "2002-04-21 14:36:40Z")
+        self.assertEqual(time2isoz(base + 3 * day), "2002-04-22 14:36:40Z")
 
         az = time2isoz()
         bz = time2isoz(500000)
         for text in (az, bz):
-            self.assertTrue(re.search(r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ$", text),
-                         "bad time2isoz format: %s %s" % (az, bz))
+            self.assertTrue(
+                re.search(
+                    r"^\d{4}-\d\d-\d\d \d\d:\d\d:\d\dZ$",
+                    text),
+                "bad time2isoz format: %s %s" %
+                (az,
+                 bz))
 
     def test_http2time(self):
         from cookielib import http2time
@@ -49,23 +54,24 @@ class DateTimeTests(TestCase):
         # test http2time for supported dates.  Test cases with 2 digit year
         # will probably break in year 2044.
         tests = [
-         'Thu, 03 Feb 1994 00:00:00 GMT',  # proposed new HTTP format
-         'Thursday, 03-Feb-94 00:00:00 GMT',  # old rfc850 HTTP format
-         'Thursday, 03-Feb-1994 00:00:00 GMT',  # broken rfc850 HTTP format
+            'Thu, 03 Feb 1994 00:00:00 GMT',  # proposed new HTTP format
+            'Thursday, 03-Feb-94 00:00:00 GMT',  # old rfc850 HTTP format
+            'Thursday, 03-Feb-1994 00:00:00 GMT',  # broken rfc850 HTTP format
 
-         '03 Feb 1994 00:00:00 GMT',  # HTTP format (no weekday)
-         '03-Feb-94 00:00:00 GMT',  # old rfc850 (no weekday)
-         '03-Feb-1994 00:00:00 GMT',  # broken rfc850 (no weekday)
-         '03-Feb-1994 00:00 GMT',  # broken rfc850 (no weekday, no seconds)
-         '03-Feb-1994 00:00',  # broken rfc850 (no weekday, no seconds, no tz)
+            '03 Feb 1994 00:00:00 GMT',  # HTTP format (no weekday)
+            '03-Feb-94 00:00:00 GMT',  # old rfc850 (no weekday)
+            '03-Feb-1994 00:00:00 GMT',  # broken rfc850 (no weekday)
+            '03-Feb-1994 00:00 GMT',  # broken rfc850 (no weekday, no seconds)
+            '03-Feb-1994 00:00',
+            # broken rfc850 (no weekday, no seconds, no tz)
 
-         '03-Feb-94',  # old rfc850 HTTP format (no weekday, no time)
-         '03-Feb-1994',  # broken rfc850 HTTP format (no weekday, no time)
-         '03 Feb 1994',  # proposed new HTTP format (no weekday, no time)
+            '03-Feb-94',  # old rfc850 HTTP format (no weekday, no time)
+            '03-Feb-1994',  # broken rfc850 HTTP format (no weekday, no time)
+            '03 Feb 1994',  # proposed new HTTP format (no weekday, no time)
 
-         # A few tests with extra space at various places
-         '  03   Feb   1994  0:00  ',
-         '  03-Feb-1994  ',
+            # A few tests with extra space at various places
+            '  03   Feb   1994  0:00  ',
+            '  03-Feb-1994  ',
         ]
 
         test_t = 760233600  # assume broken POSIX counting of seconds
@@ -79,8 +85,9 @@ class DateTimeTests(TestCase):
             t2 = http2time(s.lower())
             t3 = http2time(s.upper())
 
-            self.assertTrue(t == t2 == t3 == test_t,
-                         "'%s'  =>  %s, %s, %s (%s)" % (s, t, t2, t3, test_t))
+            self.assertTrue(
+                t == t2 == t3 == test_t, "'%s'  =>  %s, %s, %s (%s)" %
+                (s, t, t2, t3, test_t))
 
     def test_http2time_garbage(self):
         from cookielib import http2time
@@ -96,11 +103,11 @@ class DateTimeTests(TestCase):
             '01-01-1980 25:00:00',
             '01-01-1980 00:61:00',
             '01-01-1980 00:00:62',
-            ]:
+        ]:
             self.assertTrue(http2time(test) is None,
-                         "http2time(%s) is not None\n"
-                         "http2time(test) %s" % (test, http2time(test))
-                         )
+                            "http2time(%s) is not None\n"
+                            "http2time(test) %s" % (test, http2time(test))
+                            )
 
 
 class HeaderTests(TestCase):
@@ -109,11 +116,12 @@ class HeaderTests(TestCase):
         from cookielib import parse_ns_headers
 
         # quotes should be stripped
-        expected = [[('foo', 'bar'), ('expires', 2209069412L), ('version', '0')]]
+        expected = [
+            [('foo', 'bar'), ('expires', 2209069412), ('version', '0')]]
         for hdr in [
             'foo=bar; expires=01 Jan 2040 22:23:32 GMT',
             'foo=bar; expires="01 Jan 2040 22:23:32 GMT"',
-            ]:
+        ]:
             self.assertEqual(parse_ns_headers([hdr]), expected)
 
     def test_parse_ns_headers_version(self):
@@ -124,7 +132,7 @@ class HeaderTests(TestCase):
         for hdr in [
             'foo=bar; version="1"',
             'foo=bar; Version="1"',
-            ]:
+        ]:
             self.assertEqual(parse_ns_headers([hdr]), expected)
 
     def test_parse_ns_headers_special_names(self):
@@ -134,7 +142,8 @@ class HeaderTests(TestCase):
 
         # Cookie with name 'expires'
         hdr = 'expires=01 Jan 2040 22:23:32 GMT'
-        expected = [[("expires", "01 Jan 2040 22:23:32 GMT"), ("version", "0")]]
+        expected = [
+            [("expires", "01 Jan 2040 22:23:32 GMT"), ("version", "0")]]
         self.assertEqual(parse_ns_headers([hdr]), expected)
 
     def test_join_header_words(self):
@@ -165,17 +174,18 @@ class HeaderTests(TestCase):
             (r'foo; bar=baz, spam=, foo="\,\;\"", bar= ',
              [[("foo", None), ("bar", "baz")],
               [("spam", "")], [("foo", ',;"')], [("bar", "")]]),
-            ]
+        ]
 
         for arg, expect in tests:
             try:
                 result = split_header_words([arg])
-            except:
-                import traceback, StringIO
+            except BaseException:
+                import traceback
+                import StringIO
                 f = StringIO.StringIO()
                 traceback.print_exc(None, f)
                 result = "(error -- traceback follows)\n\n%s" % f.getvalue()
-            self.assertEqual(result,  expect, """
+            self.assertEqual(result, expect, """
 When parsing: '%s'
 Expected:     '%s'
 Got:          '%s'
@@ -204,7 +214,7 @@ Got:          '%s'
 
             (r'Basic realm="\"foo\\\\bar\""',
              r'Basic; realm="\"foo\\\\bar\""')
-            ]
+        ]
 
         for arg, expect in tests:
             input = split_header_words([arg])
@@ -222,17 +232,22 @@ class FakeResponse:
         """
         headers: list of RFC822-style 'Key: value' strings
         """
-        import mimetools, StringIO
+        import mimetools
+        import StringIO
         f = StringIO.StringIO("\n".join(headers))
         self._headers = mimetools.Message(f)
         self._url = url
+
     def info(self): return self._headers
+
 
 def interact_2965(cookiejar, url, *set_cookie_hdrs):
     return _interact(cookiejar, url, set_cookie_hdrs, "Set-Cookie2")
 
+
 def interact_netscape(cookiejar, url, *set_cookie_hdrs):
     return _interact(cookiejar, url, set_cookie_hdrs, "Set-Cookie")
+
 
 def _interact(cookiejar, url, set_cookie_hdrs, hdr_name):
     """Perform a single request / response cycle, returning Cookie: header."""
@@ -261,8 +276,10 @@ class FileCookieJarTests(TestCase):
             c = LWPCookieJar()
             c.load(filename, ignore_discard=True)
         finally:
-            try: os.unlink(filename)
-            except OSError: pass
+            try:
+                os.unlink(filename)
+            except OSError:
+                pass
         self.assertEqual(c._cookies["www.acme.com"]["/"]["boo"].value, None)
 
     def test_bad_magic(self):
@@ -274,7 +291,7 @@ class FileCookieJarTests(TestCase):
             try:
                 c.load(filename="for this test to work, a file with this "
                                 "filename should not exist")
-            except IOError, exc:
+            except IOError as exc:
                 # exactly IOError, not LoadError
                 self.assertEqual(exc.__class__, IOError)
             else:
@@ -288,8 +305,11 @@ class FileCookieJarTests(TestCase):
                 c = cookiejar_class()
                 self.assertRaises(LoadError, c.load, filename)
         finally:
-            try: os.unlink(filename)
-            except OSError: pass
+            try:
+                os.unlink(filename)
+            except OSError:
+                pass
+
 
 class CookieTests(TestCase):
     # XXX
@@ -317,26 +337,26 @@ class CookieTests(TestCase):
 
     # Netscape peculiarities list from Ronald Tschalar.
     # The first two still need tests, the rest are covered.
-## - Quoting: only quotes around the expires value are recognized as such
-##   (and yes, some folks quote the expires value); quotes around any other
-##   value are treated as part of the value.
-## - White space: white space around names and values is ignored
-## - Default path: if no path parameter is given, the path defaults to the
-##   path in the request-uri up to, but not including, the last '/'. Note
-##   that this is entirely different from what the spec says.
-## - Commas and other delimiters: Netscape just parses until the next ';'.
-##   This means it will allow commas etc inside values (and yes, both
-##   commas and equals are commonly appear in the cookie value). This also
-##   means that if you fold multiple Set-Cookie header fields into one,
-##   comma-separated list, it'll be a headache to parse (at least my head
-##   starts hurting every time I think of that code).
-## - Expires: You'll get all sorts of date formats in the expires,
-##   including emtpy expires attributes ("expires="). Be as flexible as you
-##   can, and certainly don't expect the weekday to be there; if you can't
-##   parse it, just ignore it and pretend it's a session cookie.
-## - Domain-matching: Netscape uses the 2-dot rule for _all_ domains, not
-##   just the 7 special TLD's listed in their spec. And folks rely on
-##   that...
+    # - Quoting: only quotes around the expires value are recognized as such
+    # (and yes, some folks quote the expires value); quotes around any other
+    # value are treated as part of the value.
+    # - White space: white space around names and values is ignored
+    # - Default path: if no path parameter is given, the path defaults to the
+    # path in the request-uri up to, but not including, the last '/'. Note
+    # that this is entirely different from what the spec says.
+    # - Commas and other delimiters: Netscape just parses until the next ';'.
+    # This means it will allow commas etc inside values (and yes, both
+    # commas and equals are commonly appear in the cookie value). This also
+    # means that if you fold multiple Set-Cookie header fields into one,
+    # comma-separated list, it'll be a headache to parse (at least my head
+    # starts hurting every time I think of that code).
+    # - Expires: You'll get all sorts of date formats in the expires,
+    # including emtpy expires attributes ("expires="). Be as flexible as you
+    # can, and certainly don't expect the weekday to be there; if you can't
+    # parse it, just ignore it and pretend it's a session cookie.
+    # - Domain-matching: Netscape uses the 2-dot rule for _all_ domains, not
+    # just the 7 special TLD's listed in their spec. And folks rely on
+    # that...
 
     def test_domain_return_ok(self):
         # test optimization: .domain_return_ok() should filter out most
@@ -344,7 +364,8 @@ class CookieTests(TestCase):
         # may require disk access -- in particular, with MSIECookieJar)
         # This is only a rough check for performance reasons, so it's not too
         # critical as long as it's sufficiently liberal.
-        import cookielib, urllib2
+        import cookielib
+        import urllib2
         pol = cookielib.DefaultCookiePolicy()
         for url, domain, ok in [
             ("http://foo.bar.com/", "blah.com", False),
@@ -363,11 +384,13 @@ class CookieTests(TestCase):
             ("http://foo/", "foo", True),
             ("http://foo/", "foo.local", True),
             ("http://foo/", ".local", True),
-            ]:
+        ]:
             request = urllib2.Request(url)
             r = pol.domain_return_ok(domain, request)
-            if ok: self.assertTrue(r)
-            else: self.assertTrue(not r)
+            if ok:
+                self.assertTrue(r)
+            else:
+                self.assertTrue(not r)
 
     def test_missing_value(self):
         from cookielib import MozillaCookieJar, lwp_cookie_str
@@ -399,7 +422,7 @@ class CookieTests(TestCase):
             repr(c),
             re.sub("path_specified=%s" % True, "path_specified=%s" % False,
                    old_str)
-            )
+        )
         self.assertEqual(interact_netscape(c, "http://www.acme.com/foo/"),
                          '"spam"; eggs')
 
@@ -417,7 +440,7 @@ class CookieTests(TestCase):
             (False, True, 1),
             (True, False, 0),
             (True, True, 0),
-            ]:
+        ]:
             policy = DefaultCookiePolicy(
                 rfc2109_as_netscape=rfc2109_as_netscape,
                 rfc2965=rfc2965)
@@ -426,7 +449,8 @@ class CookieTests(TestCase):
             try:
                 cookie = c._cookies["www.example.com"]["/"]["ni"]
             except KeyError:
-                self.assertTrue(version is None)  # didn't expect a stored cookie
+                # didn't expect a stored cookie
+                self.assertTrue(version is None)
             else:
                 self.assertEqual(cookie.version, version)
                 # 2965 cookies are unaffected
@@ -455,7 +479,7 @@ class CookieTests(TestCase):
         self.assertTrue(not cookie.port_specified)
         # case is preserved
         self.assertTrue(cookie.has_nonstandard_attr("blArgh") and
-                     not cookie.has_nonstandard_attr("blargh"))
+                        not cookie.has_nonstandard_attr("blargh"))
 
         cookie = c._cookies["www.acme.com"]["/"]["ni"]
         self.assertEqual(cookie.domain, "www.acme.com")
@@ -491,11 +515,11 @@ class CookieTests(TestCase):
 
         # if expires is in future, keep cookie...
         c = CookieJar()
-        future = time2netscape(time.time()+3600)
+        future = time2netscape(time.time() + 3600)
         interact_netscape(c, "http://www.acme.com/", 'spam="bar"; expires=%s' %
                           future)
         self.assertEqual(len(c), 1)
-        now = time2netscape(time.time()-1)
+        now = time2netscape(time.time() - 1)
         # ... and if in past or present, discard it
         interact_netscape(c, "http://www.acme.com/", 'foo="eggs"; expires=%s' %
                           now)
@@ -598,7 +622,7 @@ class CookieTests(TestCase):
             ("/\175foo/bar", "/%7Dfoo/bar"),
             # unicode
             (u"/foo/bar\uabcd", "/foo/bar%EA%AF%8D"),  # UTF-8 encoded
-            ]
+        ]
         for arg, result in cases:
             self.assertEqual(escape_path(arg), result)
 
@@ -778,9 +802,9 @@ class CookieTests(TestCase):
         interact_netscape(c, "http://foo.net/", 'nini="ni"; domain=.net')
         self.assertEqual(len(c), 3)
 
-##         # Netscape protocol doesn't allow non-special top level domains (such
-##         # as co.uk) in the domain attribute unless there are at least three
-##         # dots in it.
+# Netscape protocol doesn't allow non-special top level domains (such
+# as co.uk) in the domain attribute unless there are at least three
+# dots in it.
         # Oh yes it does!  Real implementations don't check this, and real
         # cookies (of course) rely on that behaviour.
         interact_netscape(c, "http://foo.co.uk", 'nasty=trick; domain=.co.uk')
@@ -893,7 +917,7 @@ class CookieTests(TestCase):
         req = Request("http://www.roadrunner.net/")
         c.add_cookie_header(req)
         self.assertTrue((req.has_header("Cookie") and
-                      req.has_header("Cookie2")))
+                         req.has_header("Cookie2")))
 
         c.clear()
         pol.set_blocked_domains([".acme.com"])
@@ -927,7 +951,7 @@ class CookieTests(TestCase):
                 c.set_policy(pol)
                 url = "http://www.acme.com/"
                 int(c, url, "foo1=bar%s%s" % (vs, whitespace))
-                int(c, url, "foo2=bar%s; secure%s" %  (vs, whitespace))
+                int(c, url, "foo2=bar%s; secure%s" % (vs, whitespace))
                 self.assertTrue(
                     not c._cookies["www.acme.com"]["/"]["foo1"].secure,
                     "non-secure cookie registered secure")
@@ -1012,7 +1036,7 @@ class CookieTests(TestCase):
         interact_2965(c, url, "spam=eggs; Version=1; Port")
         h = interact_2965(c, url)
         self.assertTrue(re.search("\$Port([^=]|$)", h),
-                     "port with no value not returned with no value")
+                        "port with no value not returned with no value")
 
         c = CookieJar(pol)
         url = "http://foo.bar.com/"
@@ -1084,17 +1108,17 @@ class CookieTests(TestCase):
             parse_ns_headers(["foo=bar; path=/; domain"]),
             [[("foo", "bar"),
               ("path", "/"), ("domain", None), ("version", "0")]]
-            )
+        )
         # invalid expires value
         self.assertEqual(
             parse_ns_headers(["foo=bar; expires=Foo Bar 12 33:22:11 2000"]),
             [[("foo", "bar"), ("expires", None), ("version", "0")]]
-            )
+        )
         # missing cookie value (valid cookie)
         self.assertEqual(
             parse_ns_headers(["foo"]),
             [[("foo", None), ("version", "0")]]
-            )
+        )
         # shouldn't add version if header is empty
         self.assertEqual(parse_ns_headers([""]), [])
 
@@ -1119,7 +1143,7 @@ class CookieTests(TestCase):
             ["Set-Cookie: b=foo; max-age=oops"],
             # bad version
             ["Set-Cookie: b=foo; version=spam"],
-            ]:
+        ]:
             c = cookiejar_from_cookie_headers(headers)
             # these bad cookies shouldn't be set
             self.assertEqual(len(c), 0)
@@ -1138,7 +1162,7 @@ class LWPCookieTests(TestCase):
         from cookielib import CookieJar, DefaultCookiePolicy
         from urllib2 import Request
 
-        #-------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # First we check that it works for the original example at
         # http://www.netscape.com/newsref/std/cookie_spec.html
 
@@ -1178,9 +1202,9 @@ class LWPCookieTests(TestCase):
 
         headers = []
 
-        c = CookieJar(DefaultCookiePolicy(rfc2965 = True))
+        c = CookieJar(DefaultCookiePolicy(rfc2965=True))
 
-        #req = Request("http://1.1.1.1/",
+        # req = Request("http://1.1.1.1/",
         #              headers={"Host": "www.acme.com:80"})
         req = Request("http://www.acme.com:80/",
                       headers={"Host": "www.acme.com:80"})
@@ -1253,7 +1277,8 @@ class LWPCookieTests(TestCase):
         #       Cookie: PART_NUMBER=RIDING_ROCKET_0023; PART_NUMBER=ROCKET_LAUNCHER_0001
         #
         #       NOTE: There are two name/value pairs named "PART_NUMBER" due to
-        #       the inheritance of the "/" mapping in addition to the "/ammo" mapping.
+        # the inheritance of the "/" mapping in addition to the "/ammo"
+        # mapping.
 
         c = CookieJar()
         headers = []
@@ -1268,7 +1293,7 @@ class LWPCookieTests(TestCase):
         c.add_cookie_header(req)
 
         self.assertEqual(req.get_header("Cookie"),
-                          "PART_NUMBER=ROCKET_LAUNCHER_0001")
+                         "PART_NUMBER=ROCKET_LAUNCHER_0001")
 
         headers.append(
             "Set-Cookie: PART_NUMBER=RIDING_ROCKET_0023; path=/ammo")
@@ -1279,12 +1304,12 @@ class LWPCookieTests(TestCase):
         c.add_cookie_header(req)
 
         self.assertTrue(re.search(r"PART_NUMBER=RIDING_ROCKET_0023;\s*"
-                               "PART_NUMBER=ROCKET_LAUNCHER_0001",
-                               req.get_header("Cookie")))
+                                  "PART_NUMBER=ROCKET_LAUNCHER_0001",
+                                  req.get_header("Cookie")))
 
     def test_ietf_example_1(self):
         from cookielib import CookieJar, DefaultCookiePolicy
-        #-------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Then we test with the examples from draft-ietf-http-state-man-mec-03.txt
         #
         # 5.  EXAMPLES
@@ -1335,7 +1360,7 @@ class LWPCookieTests(TestCase):
 
         cookie = interact_2965(c, 'http://www.acme.com/acme/pickitem',
                                'Part_Number="Rocket_Launcher_0001"; '
-                               'Version="1"; Path="/acme"');
+                               'Version="1"; Path="/acme"')
         self.assertTrue(re.search(
             r'^\$Version="?1"?; Customer="?WILE_E_COYOTE"?; \$Path="/acme"$',
             cookie))
@@ -1363,9 +1388,11 @@ class LWPCookieTests(TestCase):
 
         self.assertTrue(re.search(r'^\$Version="?1"?;', cookie))
         self.assertTrue(re.search(r'Part_Number="?Rocket_Launcher_0001"?;'
-                               '\s*\$Path="\/acme"', cookie))
-        self.assertTrue(re.search(r'Customer="?WILE_E_COYOTE"?;\s*\$Path="\/acme"',
-                               cookie))
+                                  '\s*\$Path="\/acme"', cookie))
+        self.assertTrue(
+            re.search(
+                r'Customer="?WILE_E_COYOTE"?;\s*\$Path="\/acme"',
+                cookie))
 
         #
         #   7.  User Agent -> Server
@@ -1523,8 +1550,8 @@ class LWPCookieTests(TestCase):
         # encoded path
         # LWP has this test, but unescaping allowed path characters seems
         # like a bad idea, so I think this should fail:
-##         cookie = interact_2965(c, "http://www.sol.no/foo/",
-##                           r'foo8=bar; version=1; path="/%66oo"')
+# cookie = interact_2965(c, "http://www.sol.no/foo/",
+# r'foo8=bar; version=1; path="/%66oo"')
         # but this is OK, because '<' is not an allowed HTTP URL path
         # character:
         cookie = interact_2965(c, "http://www.sol.no/<oo/",
@@ -1541,8 +1568,10 @@ class LWPCookieTests(TestCase):
             c = LWPCookieJar(policy=pol)
             c.load(filename, ignore_discard=True)
         finally:
-            try: os.unlink(filename)
-            except OSError: pass
+            try:
+                os.unlink(filename)
+            except OSError:
+                pass
 
         self.assertEqual(old, repr(c))
 
@@ -1557,7 +1586,7 @@ class LWPCookieTests(TestCase):
 
         cookie = interact_2965(
             c, "http://www.acme.com/foo%2f%25/<<%0anewå/æøå",
-            'bar=baz; path="/foo/"; version=1');
+            'bar=baz; path="/foo/"; version=1')
         version_re = re.compile(r'^\$version=\"?1\"?', re.I)
         self.assertTrue("foo=bar" in cookie and version_re.search(cookie))
 
@@ -1599,8 +1628,10 @@ class LWPCookieTests(TestCase):
                                          DefaultCookiePolicy(rfc2965=True))
                 new_c.load(ignore_discard=ignore_discard)
             finally:
-                try: os.unlink(filename)
-                except OSError: pass
+                try:
+                    os.unlink(filename)
+                except OSError:
+                    pass
             return new_c
 
         new_c = save_and_restore(c, True)
@@ -1657,7 +1688,7 @@ class LWPCookieTests(TestCase):
     def test_intranet_domains_ns(self):
         from cookielib import CookieJar, DefaultCookiePolicy
 
-        c = CookieJar(DefaultCookiePolicy(rfc2965 = False))
+        c = CookieJar(DefaultCookiePolicy(rfc2965=False))
         interact_netscape(c, "http://example/", "foo1=bar")
         cookie = interact_netscape(c, "http://example/",
                                    'foo2=bar; domain=.local')
@@ -1679,7 +1710,7 @@ class LWPCookieTests(TestCase):
         #
         # ie. with Path set to nothing.
         # In this case, extract_cookies() must set cookie to / (root)
-        c = CookieJar(DefaultCookiePolicy(rfc2965 = True))
+        c = CookieJar(DefaultCookiePolicy(rfc2965=True))
         headers = []
 
         req = Request("http://www.ants.com/")
@@ -1756,7 +1787,8 @@ def test_main(verbose=None):
         CookieTests,
         FileCookieJarTests,
         LWPCookieTests,
-        )
+    )
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

@@ -8,6 +8,7 @@ import unittest
 from array import array
 from test import test_support
 
+
 class HashlibTestCase(unittest.TestCase):
 
     def test_unicode(self):

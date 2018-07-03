@@ -13,7 +13,7 @@ import time
 from test import test_support
 try:
     import mmap
-except:
+except BaseException:
     mmap = None
 import uuid
 
@@ -21,6 +21,8 @@ warnings.filterwarnings("ignore", "tempnam", RuntimeWarning, __name__)
 warnings.filterwarnings("ignore", "tmpnam", RuntimeWarning, __name__)
 
 # Tests creating TESTFN
+
+
 class FileTests(unittest.TestCase):
     def setUp(self):
         test_support.gc_collect()
@@ -29,7 +31,7 @@ class FileTests(unittest.TestCase):
     tearDown = setUp
 
     def test_access(self):
-        f = os.open(test_support.TESTFN, os.O_CREAT|os.O_RDWR)
+        f = os.open(test_support.TESTFN, os.O_CREAT | os.O_RDWR)
         os.close(f)
         self.assertTrue(os.access(test_support.TESTFN, os.W_OK))
 
@@ -37,7 +39,7 @@ class FileTests(unittest.TestCase):
                      "Does not properly close files under Windows")
     @unittest.skipUnless(hasattr(os, "dup"), "No os.dup function")
     def test_closerange(self):
-        first = os.open(test_support.TESTFN, os.O_CREAT|os.O_RDWR)
+        first = os.open(test_support.TESTFN, os.O_CREAT | os.O_RDWR)
         # We must allocate two consecutive file descriptors, otherwise
         # it will mess up other file descriptors (perhaps even the three
         # standard ones).
@@ -81,7 +83,7 @@ class TemporaryFileTests(unittest.TestCase):
     def check_tempfile(self, name):
         # make sure it doesn't already exist:
         self.assertFalse(os.path.exists(name),
-                    "file already exists for temporary file")
+                         "file already exists for temporary file")
         # make sure we can create the file
         open(name, "w")
         self.files.append(name)
@@ -128,14 +130,14 @@ class TemporaryFileTests(unittest.TestCase):
                     os.remove(name)
                 try:
                     fp = open(name, 'w')
-                except IOError, first:
+                except IOError as first:
                     # open() failed, assert tmpfile() fails in the same way.
                     # Although open() raises an IOError and os.tmpfile() raises an
                     # OSError(), 'args' will be (13, 'Permission denied') in both
                     # cases.
                     try:
                         fp = os.tmpfile()
-                    except OSError, second:
+                    except OSError as second:
                         self.assertEqual(first.args, second.args)
                     else:
                         self.fail("expected os.tmpfile() to raise OSError")
@@ -148,7 +150,7 @@ class TemporaryFileTests(unittest.TestCase):
 
             fp = os.tmpfile()
             fp.write("foobar")
-            fp.seek(0,0)
+            fp.seek(0, 0)
             s = fp.read()
             fp.close()
             self.assertTrue(s == "foobar")
@@ -179,11 +181,13 @@ class TemporaryFileTests(unittest.TestCase):
                 # put temp files, and, depending on privileges, the user
                 # may not even be able to open a file in the root directory.
                 self.assertFalse(os.path.exists(name),
-                            "file already exists for temporary file")
+                                 "file already exists for temporary file")
             else:
                 self.check_tempfile(name)
 
 # Test attributes on return values from os.*stat* family.
+
+
 class StatAttributeTests(unittest.TestCase):
     def setUp(self):
         os.mkdir(test_support.TESTFN)
@@ -254,10 +258,10 @@ class StatAttributeTests(unittest.TestCase):
 
         # Use the constructr with a too-long tuple.
         try:
-            result2 = os.stat_result((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
+            result2 = os.stat_result(
+                (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14))
         except TypeError:
             pass
-
 
     def test_statvfs_attributes(self):
         if not hasattr(os, "statvfs"):
@@ -265,7 +269,7 @@ class StatAttributeTests(unittest.TestCase):
 
         try:
             result = os.statvfs(self.fname)
-        except OSError, e:
+        except OSError as e:
             # On AtheOS, glibc always returns ENOSYS
             if e.errno == errno.ENOSYS:
                 return
@@ -275,7 +279,7 @@ class StatAttributeTests(unittest.TestCase):
 
         # Make sure all the attributes are there.
         members = ('bsize', 'frsize', 'blocks', 'bfree', 'bavail', 'files',
-                    'ffree', 'favail', 'flag', 'namemax')
+                   'ffree', 'favail', 'flag', 'namemax')
         for value, member in enumerate(members):
             self.assertEqual(getattr(result, 'f_' + member), result[value])
 
@@ -301,7 +305,8 @@ class StatAttributeTests(unittest.TestCase):
 
         # Use the constructr with a too-long tuple.
         try:
-            result2 = os.statvfs_result((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14))
+            result2 = os.statvfs_result(
+                (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14))
         except TypeError:
             pass
 
@@ -310,9 +315,9 @@ class StatAttributeTests(unittest.TestCase):
         st = os.stat(test_support.TESTFN)
         # round to int, because some systems may support sub-second
         # time stamps in stat, but not in utime.
-        os.utime(test_support.TESTFN, (st.st_atime, int(st.st_mtime-delta)))
+        os.utime(test_support.TESTFN, (st.st_atime, int(st.st_mtime - delta)))
         st2 = os.stat(test_support.TESTFN)
-        self.assertEqual(st2.st_mtime, int(st.st_mtime-delta))
+        self.assertEqual(st2.st_mtime, int(st.st_mtime - delta))
 
     # Restrict test to Win32, since there is no guarantee other
     # systems support centiseconds
@@ -322,7 +327,8 @@ class StatAttributeTests(unittest.TestCase):
             import ctypes
             kernel32 = ctypes.windll.kernel32
             buf = ctypes.create_string_buffer("", 100)
-            if kernel32.GetVolumeInformationA(root, None, 0, None, None, None, buf, len(buf)):
+            if kernel32.GetVolumeInformationA(
+                    root, None, 0, None, None, None, buf, len(buf)):
                 return buf.value
 
         if get_file_system(test_support.TESTFN) == "NTFS":
@@ -332,7 +338,7 @@ class StatAttributeTests(unittest.TestCase):
                 self.assertEqual(os.stat(self.fname).st_mtime, t1)
 
             def test_large_time(self):
-                t1 = 5000000000 # some day in 2128
+                t1 = 5000000000  # some day in 2128
                 os.utime(self.fname, (t1, t1))
                 self.assertEqual(os.stat(self.fname).st_mtime, t1)
 
@@ -340,24 +346,30 @@ class StatAttributeTests(unittest.TestCase):
             # Verify that an open file can be stat'ed
             try:
                 os.stat(r"c:\pagefile.sys")
-            except WindowsError, e:
-                if e.errno == 2: # file does not exist; cannot run test
+            except WindowsError as e:
+                if e.errno == 2:  # file does not exist; cannot run test
                     return
                 self.fail("Could not stat pagefile.sys")
 
+
 from test import mapping_tests
+
 
 class EnvironTests(mapping_tests.BasicTestMappingProtocol):
     """check that os.environ object conform to mapping protocol"""
     type2test = None
+
     def _reference(self):
-        return {"KEY1":"VALUE1", "KEY2":"VALUE2", "KEY3":"VALUE3"}
+        return {"KEY1": "VALUE1", "KEY2": "VALUE2", "KEY3": "VALUE3"}
+
     def _empty_mapping(self):
         os.environ.clear()
         return os.environ
+
     def setUp(self):
         self.__save = dict(os.environ)
         os.environ.clear()
+
     def tearDown(self):
         os.environ.clear()
         os.environ.update(self.__save)
@@ -369,6 +381,7 @@ class EnvironTests(mapping_tests.BasicTestMappingProtocol):
             with os.popen("/bin/sh -c 'echo $HELLO'") as popen:
                 value = popen.read().strip()
                 self.assertEqual(value, "World")
+
 
 class WalkTests(unittest.TestCase):
     """Tests for os.walk()."""
@@ -478,6 +491,7 @@ class WalkTests(unittest.TestCase):
                     os.remove(dirname)
         os.rmdir(test_support.TESTFN)
 
+
 class MakedirTests (unittest.TestCase):
     def setUp(self):
         os.mkdir(test_support.TESTFN)
@@ -491,14 +505,18 @@ class MakedirTests (unittest.TestCase):
 
         # Try paths with a '.' in them
         self.assertRaises(OSError, os.makedirs, os.curdir)
-        path = os.path.join(base, 'dir1', 'dir2', 'dir3', 'dir4', 'dir5', os.curdir)
+        path = os.path.join(
+            base,
+            'dir1',
+            'dir2',
+            'dir3',
+            'dir4',
+            'dir5',
+            os.curdir)
         os.makedirs(path)
         path = os.path.join(base, 'dir1', os.curdir, 'dir2', 'dir3', 'dir4',
                             'dir5', 'dir6')
         os.makedirs(path)
-
-
-
 
     def tearDown(self):
         path = os.path.join(test_support.TESTFN, 'dir1', 'dir2', 'dir3',
@@ -511,6 +529,7 @@ class MakedirTests (unittest.TestCase):
 
         os.removedirs(path)
 
+
 class DevNullTests (unittest.TestCase):
     def test_devnull(self):
         f = file(os.devnull, 'w')
@@ -519,6 +538,7 @@ class DevNullTests (unittest.TestCase):
         f = file(os.devnull, 'r')
         self.assertEqual(f.read(), '')
         f.close()
+
 
 class URandomTests (unittest.TestCase):
     def test_urandom(self):
@@ -539,9 +559,15 @@ class URandomTests (unittest.TestCase):
     def test_execvpe_with_bad_arglist(self):
         self.assertRaises(ValueError, os.execvpe, 'notepad', [], None)
 
+
 class Win32ErrorTests(unittest.TestCase):
     def test_rename(self):
-        self.assertRaises(WindowsError, os.rename, test_support.TESTFN, test_support.TESTFN+".bak")
+        self.assertRaises(
+            WindowsError,
+            os.rename,
+            test_support.TESTFN,
+            test_support.TESTFN +
+            ".bak")
 
     def test_remove(self):
         self.assertRaises(WindowsError, os.remove, test_support.TESTFN)
@@ -563,18 +589,20 @@ class Win32ErrorTests(unittest.TestCase):
     def test_chmod(self):
         self.assertRaises(WindowsError, os.chmod, test_support.TESTFN, 0)
 
+
 class TestInvalidFD(unittest.TestCase):
     singles = ["fchdir", "fdopen", "dup", "fdatasync", "fstat",
                "fstatvfs", "fsync", "tcgetpgrp", "ttyname"]
-    #singles.append("close")
-    #We omit close because it doesn'r raise an exception on some platforms
+    # singles.append("close")
+    # We omit close because it doesn'r raise an exception on some platforms
+
     def get_single(f):
         def helper(self):
-            if  hasattr(os, f):
+            if hasattr(os, f):
                 self.check(getattr(os, f))
         return helper
     for f in singles:
-        locals()["test_"+f] = get_single(f)
+        locals()["test_" + f] = get_single(f)
 
     def check(self, f, *args):
         try:
@@ -594,11 +622,13 @@ class TestInvalidFD(unittest.TestCase):
 
     def test_closerange(self):
         if hasattr(os, "closerange"):
-            fd = int(test_support.make_bad_fd())  # need to take an int for Jython, given this test
+            # need to take an int for Jython, given this test
+            fd = int(test_support.make_bad_fd())
             # Make sure none of the descriptors we are about to close are
             # currently valid (issue 6542).
             for i in range(10):
-                try: os.fstat(fd+i)
+                try:
+                    os.fstat(fd + i)
                 except OSError:
                     pass
                 else:
@@ -606,7 +636,7 @@ class TestInvalidFD(unittest.TestCase):
             if i < 2:
                 raise unittest.SkipTest(
                     "Unable to acquire a range of invalid file descriptors")
-            self.assertEqual(os.closerange(fd, fd + i-1), None)
+            self.assertEqual(os.closerange(fd, fd + i - 1), None)
 
     def test_dup2(self):
         if hasattr(os, "dup2"):
@@ -644,6 +674,7 @@ class TestInvalidFD(unittest.TestCase):
         if hasattr(os, "write"):
             self.check(os.write, " ")
 
+
 if sys.platform != 'win32':
     class Win32ErrorTests(unittest.TestCase):
         pass
@@ -653,56 +684,57 @@ if sys.platform != 'win32':
             def test_setuid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.setuid, 0)
-                self.assertRaises(OverflowError, os.setuid, 1<<32)
+                self.assertRaises(OverflowError, os.setuid, 1 << 32)
 
         if hasattr(os, 'setgid'):
             def test_setgid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.setgid, 0)
-                self.assertRaises(OverflowError, os.setgid, 1<<32)
+                self.assertRaises(OverflowError, os.setgid, 1 << 32)
 
         if hasattr(os, 'seteuid'):
             def test_seteuid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.seteuid, 0)
-                self.assertRaises(OverflowError, os.seteuid, 1<<32)
+                self.assertRaises(OverflowError, os.seteuid, 1 << 32)
 
         if hasattr(os, 'setegid'):
             def test_setegid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.setegid, 0)
-                self.assertRaises(OverflowError, os.setegid, 1<<32)
+                self.assertRaises(OverflowError, os.setegid, 1 << 32)
 
         if hasattr(os, 'setreuid'):
             def test_setreuid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.setreuid, 0, 0)
-                self.assertRaises(OverflowError, os.setreuid, 1<<32, 0)
-                self.assertRaises(OverflowError, os.setreuid, 0, 1<<32)
+                self.assertRaises(OverflowError, os.setreuid, 1 << 32, 0)
+                self.assertRaises(OverflowError, os.setreuid, 0, 1 << 32)
 
             def test_setreuid_neg1(self):
                 # Needs to accept -1.  We run this in a subprocess to avoid
                 # altering the test runner's process state (issue8045).
                 subprocess.check_call([
-                        sys.executable, '-c',
-                        'import os,sys;os.setreuid(-1,-1);sys.exit(0)'])
+                    sys.executable, '-c',
+                    'import os,sys;os.setreuid(-1,-1);sys.exit(0)'])
 
         if hasattr(os, 'setregid'):
             def test_setregid(self):
                 if os.getuid() != 0:
                     self.assertRaises(os.error, os.setregid, 0, 0)
-                self.assertRaises(OverflowError, os.setregid, 1<<32, 0)
-                self.assertRaises(OverflowError, os.setregid, 0, 1<<32)
+                self.assertRaises(OverflowError, os.setregid, 1 << 32, 0)
+                self.assertRaises(OverflowError, os.setregid, 0, 1 << 32)
 
             def test_setregid_neg1(self):
                 # Needs to accept -1.  We run this in a subprocess to avoid
                 # altering the test runner's process state (issue8045).
                 subprocess.check_call([
-                        sys.executable, '-c',
-                        'import os,sys;os.setregid(-1,-1);sys.exit(0)'])
+                    sys.executable, '-c',
+                    'import os,sys;os.setregid(-1,-1);sys.exit(0)'])
 else:
     class PosixUidGidTests(unittest.TestCase):
         pass
+
 
 @unittest.skipUnless(sys.platform == "win32", "Win32 specific tests")
 class Win32KillTests(unittest.TestCase):
@@ -721,12 +753,13 @@ class Win32KillTests(unittest.TestCase):
         # is started and running at a point where it could handle a signal.
         PeekNamedPipe = ctypes.windll.kernel32.PeekNamedPipe
         PeekNamedPipe.restype = wintypes.BOOL
-        PeekNamedPipe.argtypes = (wintypes.HANDLE, # Pipe handle
-                                  ctypes.POINTER(ctypes.c_char), # stdout buf
-                                  wintypes.DWORD, # Buffer size
-                                  ctypes.POINTER(wintypes.DWORD), # bytes read
-                                  ctypes.POINTER(wintypes.DWORD), # bytes avail
-                                  ctypes.POINTER(wintypes.DWORD)) # bytes left
+        PeekNamedPipe.argtypes = (wintypes.HANDLE,  # Pipe handle
+                                  ctypes.POINTER(ctypes.c_char),  # stdout buf
+                                  wintypes.DWORD,  # Buffer size
+                                  ctypes.POINTER(wintypes.DWORD),  # bytes read
+                                  ctypes.POINTER(
+                                      wintypes.DWORD),  # bytes avail
+                                  ctypes.POINTER(wintypes.DWORD))  # bytes left
         msg = "running"
         proc = subprocess.Popen([sys.executable, "-c",
                                  "import sys;"
@@ -742,7 +775,8 @@ class Win32KillTests(unittest.TestCase):
 
         count, max = 0, 100
         while count < max and proc.poll() is None:
-            # Create a string buffer to store the result of stdout from the pipe
+            # Create a string buffer to store the result of stdout from the
+            # pipe
             buf = ctypes.create_string_buffer(len(msg))
             # Obtain the text currently in proc.stdout
             # Bytes read/avail/left are left as NULL and unused
@@ -774,9 +808,9 @@ class Win32KillTests(unittest.TestCase):
         m[0] = '0'
         # Run a script which has console control handling enabled.
         proc = subprocess.Popen([sys.executable,
-                   os.path.join(os.path.dirname(__file__),
-                                "win_console_handler.py"), tagname],
-                   creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+                                 os.path.join(os.path.dirname(__file__),
+                                              "win_console_handler.py"), tagname],
+                                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
         # Let the interpreter startup before we send signals. See #3137.
         count, max = 0, 20
         while count < max and proc.poll() is None:
@@ -814,7 +848,7 @@ class Win32KillTests(unittest.TestCase):
 
         self._kill_with_event(signal.CTRL_C_EVENT, "CTRL_C_EVENT")
 
-    @unittest.skipIf(mmap == None, "This test depends on mmap")
+    @unittest.skipIf(mmap is None, "This test depends on mmap")
     def test_CTRL_BREAK_EVENT(self):
         self._kill_with_event(signal.CTRL_BREAK_EVENT, "CTRL_BREAK_EVENT")
 
@@ -834,6 +868,7 @@ def test_main():
         PosixUidGidTests,
         Win32KillTests
     )
+
 
 if __name__ == "__main__":
     test_main()

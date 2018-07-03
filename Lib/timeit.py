@@ -87,9 +87,11 @@ def inner(_it, _timer):
     return _t1 - _t0
 """
 
+
 def reindent(src, indent):
     """Helper to reindent a multi-line statement."""
-    return src.replace("\n", "\n" + " "*indent)
+    return src.replace("\n", "\n" + " " * indent)
+
 
 def _template_func(setup, func):
     """Create a timer function. Used if the "statement" is a callable."""
@@ -101,6 +103,7 @@ def _template_func(setup, func):
         _t1 = _timer()
         return _t1 - _t0
     return inner
+
 
 class Timer:
     """Class for timing execution speed of small code snippets.
@@ -132,7 +135,7 @@ class Timer:
                 ns['_setup'] = setup
             else:
                 raise ValueError("setup is neither a string nor callable")
-            self.src = src # Save for traceback display
+            self.src = src  # Save for traceback display
             code = compile(src, dummy_src_name, "exec")
             exec code in globals(), ns
             self.inner = ns["inner"]
@@ -140,6 +143,7 @@ class Timer:
             self.src = None
             if isinstance(setup, basestring):
                 _setup = setup
+
                 def setup():
                     exec _setup in globals(), ns
             elif not hasattr(setup, '__call__'):
@@ -165,7 +169,8 @@ class Timer:
         The optional file argument directs where the traceback is
         sent; it defaults to sys.stderr.
         """
-        import linecache, traceback
+        import linecache
+        import traceback
         if self.src is not None:
             linecache.cache[dummy_src_name] = (len(self.src),
                                                None,
@@ -193,7 +198,7 @@ class Timer:
         try:
             gc.disable()
         except NotImplementedError:
-            pass # ignore on platforms like Jython
+            pass  # ignore on platforms like Jython
         timing = self.inner(it, self.timer)
         if gcold:
             gc.enable()
@@ -225,15 +230,18 @@ class Timer:
             r.append(t)
         return r
 
+
 def timeit(stmt="pass", setup="pass", timer=default_timer,
            number=default_number):
     """Convenience function to create Timer object and call timeit method."""
     return Timer(stmt, setup, timer).timeit(number)
 
+
 def repeat(stmt="pass", setup="pass", timer=default_timer,
            repeat=default_repeat, number=default_number):
     """Convenience function to create Timer object and call repeat method."""
     return Timer(stmt, setup, timer).repeat(repeat, number)
+
 
 def main(args=None):
     """Main program, used when run as a script.
@@ -255,13 +263,13 @@ def main(args=None):
         opts, args = getopt.getopt(args, "n:s:r:tcvh",
                                    ["number=", "setup=", "repeat=",
                                     "time", "clock", "verbose", "help"])
-    except getopt.error, err:
+    except getopt.error as err:
         print err
         print "use -h/--help for command line help"
         return 2
     timer = default_timer
     stmt = "\n".join(args) or "pass"
-    number = 0 # auto-determine
+    number = 0  # auto-determine
     setup = []
     repeat = default_repeat
     verbose = 0
@@ -299,7 +307,7 @@ def main(args=None):
             number = 10**i
             try:
                 x = t.timeit(number)
-            except:
+            except BaseException:
                 t.print_exc()
                 return 1
             if verbose:
@@ -308,7 +316,7 @@ def main(args=None):
                 break
     try:
         r = t.repeat(repeat, number)
-    except:
+    except BaseException:
         t.print_exc()
         return 1
     best = min(r)
@@ -326,6 +334,7 @@ def main(args=None):
             sec = msec / 1000
             print "best of %d: %.*g sec per loop" % (repeat, precision, sec)
     return None
+
 
 if __name__ == "__main__":
     sys.exit(main())

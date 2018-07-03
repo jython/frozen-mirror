@@ -1,6 +1,12 @@
-import os, sys, string, random, tempfile, unittest
+import os
+import sys
+import string
+import random
+import tempfile
+import unittest
 
 from test.test_support import run_unittest, is_jython
+
 
 class TestImport(unittest.TestCase):
 
@@ -22,9 +28,10 @@ class TestImport(unittest.TestCase):
         self.package_dir = os.path.join(self.test_dir,
                                         self.package_name)
         os.mkdir(self.package_dir)
-        open(os.path.join(self.package_dir, '__init__'+os.extsep+'py'),
+        open(os.path.join(self.package_dir, '__init__' + os.extsep + 'py'),
              'w').close()
-        self.module_path = os.path.join(self.package_dir, 'foo'+os.extsep+'py')
+        self.module_path = os.path.join(
+            self.package_dir, 'foo' + os.extsep + 'py')
 
     def tearDown(self):
         for file in os.listdir(self.package_dir):
@@ -56,9 +63,12 @@ class TestImport(unittest.TestCase):
 
         # ...try loading the module when there's a SyntaxError
         self.rewrite_file('for')
-        try: __import__(self.module_name)
-        except SyntaxError: pass
-        else: raise RuntimeError, 'Failed to induce SyntaxError'
+        try:
+            __import__(self.module_name)
+        except SyntaxError:
+            pass
+        else:
+            raise RuntimeError('Failed to induce SyntaxError')
         self.assertTrue(self.module_name not in sys.modules)
         self.assertFalse(hasattr(sys.modules[self.package_name], 'foo'))
 
@@ -71,9 +81,12 @@ class TestImport(unittest.TestCase):
         # ...make a module that just contains that
         self.rewrite_file(var)
 
-        try: __import__(self.module_name)
-        except NameError: pass
-        else: raise RuntimeError, 'Failed to induce NameError.'
+        try:
+            __import__(self.module_name)
+        except NameError:
+            pass
+        else:
+            raise RuntimeError('Failed to induce NameError.')
 
         # ...now  change  the module  so  that  the NameError  doesn't
         # happen

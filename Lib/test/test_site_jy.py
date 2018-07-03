@@ -6,7 +6,7 @@ from test import test_support
 
 
 class ImportSiteTestCase(unittest.TestCase):
-    
+
     def test_empty_python_home(self):
         # http://bugs.jython.org/issue2283
         with test_support.temp_cwd() as temp_cwd:
@@ -14,7 +14,7 @@ class ImportSiteTestCase(unittest.TestCase):
             self.assertEqual(
                 subprocess.check_output(
                     [sys.executable, "-Dpython.home=", "-c",
-                     "import os; os.system('echo 42'); os.system('echo 47')"])\
+                     "import os; os.system('echo 42'); os.system('echo 47')"])
                 .replace("\r", ""),  # in case of running on Windows
                 "42\n47\n")
 
@@ -53,6 +53,7 @@ def test_main():
     test_support.run_unittest(
         ImportSiteTestCase,
     )
+
 
 if __name__ == '__main__':
     test_main()

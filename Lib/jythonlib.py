@@ -14,4 +14,3 @@ except ImportError:
     import com.google.common as guava
     from com.google.common.collect import MapMaker
     from com.google.common.cache import CacheBuilder, CacheLoader
-

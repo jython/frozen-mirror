@@ -17,7 +17,8 @@ On the Mac EasyDialogs.AskPassword is used, if available.
 import os
 import sys
 
-__all__ = ["getpass","getuser"]
+__all__ = ["getpass", "getuser"]
+
 
 def jython_getpass(prompt='Password: ', stream=None):
     """Prompt for a password, with echo turned off.
@@ -27,7 +28,7 @@ def jython_getpass(prompt='Password: ', stream=None):
     """
     try:
         reader = sys._jy_console.reader
-    except:
+    except BaseException:
         return default_getpass(prompt)
     if stream is not None:
         stream.write(prompt)
@@ -46,13 +47,13 @@ def unix_getpass(prompt='Password: ', stream=None):
 
     try:
         fd = sys.stdin.fileno()
-    except:
+    except BaseException:
         return default_getpass(prompt)
 
     old = termios.tcgetattr(fd)     # a copy to save
     new = old[:]
 
-    new[3] = new[3] & ~termios.ECHO # 3 == 'lflags'
+    new[3] = new[3] & ~termios.ECHO  # 3 == 'lflags'
     try:
         termios.tcsetattr(fd, termios.TCSADRAIN, new)
         passwd = _raw_input(prompt, stream)
@@ -71,7 +72,7 @@ def win_getpass(prompt='Password: ', stream=None):
     for c in prompt:
         msvcrt.putch(c)
     pw = ""
-    while 1:
+    while True:
         c = msvcrt.getch()
         if c == '\r' or c == '\n':
             break
@@ -124,6 +125,7 @@ def getuser():
     # If this fails, the exception will "explain" why
     import pwd
     return pwd.getpwuid(os.getuid())[0]
+
 
 # Bind the name getpass to the appropriate function
 try:

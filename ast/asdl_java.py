@@ -3,12 +3,15 @@
 # TO DO
 # handle fields that have a type but no name
 
-import os, sys, traceback
+import os
+import sys
+import traceback
 
 import asdl
 
 TABSIZE = 4
 MAX_COL = 76
+
 
 def reflow_lines(s, depth):
     """Reflow the line s indented depth tabs.
@@ -29,19 +32,20 @@ def reflow_lines(s, depth):
     padding = ""
     while len(cur) > size:
         i = cur.rfind(' ', 0, size)
-        assert i != -1, "Impossible line to reflow: %s" % `s`
+        assert i != -1, "Impossible line to reflow: %s" % repr(s)
         lines.append(padding + cur[:i])
         if len(lines) == 1:
             # find new size based on brace
             j = cur.find('{', 0, i)
             if j >= 0:
-                j += 2 # account for the brace and the space after it
+                j += 2  # account for the brace and the space after it
                 size -= j
                 padding = " " * j
-        cur = cur[i+1:]
+        cur = cur[i + 1:]
     else:
         lines.append(padding + cur)
     return lines
+
 
 class EmitVisitor(asdl.VisitorBase):
     """Visit that emits lines"""
@@ -59,7 +63,7 @@ class EmitVisitor(asdl.VisitorBase):
             print >> self.file, 'import java.io.DataOutputStream;'
             print >> self.file, 'import java.io.IOException;'
         print >> self.file
-    
+
     def close(self):
         self.file.close()
 
@@ -71,13 +75,13 @@ class EmitVisitor(asdl.VisitorBase):
             self.file.write(line)
 
 
-
-# This step will add a 'simple' boolean attribute to all Sum and Product 
+# This step will add a 'simple' boolean attribute to all Sum and Product
 # nodes and add a 'typedef' link to each Field node that points to the
 # Sum or Product node that defines the field.
 
 class AnalyzeVisitor(EmitVisitor):
     index = 0
+
     def makeIndex(self):
         self.index += 1
         return self.index
@@ -117,7 +121,6 @@ class AnalyzeVisitor(EmitVisitor):
         field.typedef = self.types.get(str(field.type))
 
 
-
 # The code generator itself.
 #
 class JavaVisitor(EmitVisitor):
@@ -139,22 +142,22 @@ class JavaVisitor(EmitVisitor):
         self.emit("public interface %(name)sType {" % locals(), depth)
         for i in range(len(sum.types)):
             type = sum.types[i]
-            self.emit("public static final int %s = %d;" % (type.name, i+1),
-                                                    depth + 1)
+            self.emit("public static final int %s = %d;" % (type.name, i + 1),
+                      depth + 1)
         self.emit("", 0)
-        self.emit("public static final String[] %sTypeNames = new String[] {" % 
-                    name, depth+1)
-        self.emit('"<undef>",', depth+2)
+        self.emit("public static final String[] %sTypeNames = new String[] {" %
+                  name, depth + 1)
+        self.emit('"<undef>",', depth + 2)
         for type in sum.types:
-            self.emit('"%s",' % type.name, depth+2)
-        self.emit("};", depth+1)
+            self.emit('"%s",' % type.name, depth + 2)
+        self.emit("};", depth + 1)
         self.emit("}", depth)
         self.close()
-   
+
     def sum_with_constructor(self, sum, name, depth):
         self.open("%sType" % name)
         self.emit("public abstract class %(name)sType extends SimpleNode {" %
-                    locals(), depth)
+                  locals(), depth)
         self.emit("}", depth)
         self.close()
         for t in sum.types:
@@ -162,13 +165,15 @@ class JavaVisitor(EmitVisitor):
 
     def visitProduct(self, product, name, depth):
         self.open("%sType" % name, useDataOutput=1)
-        self.emit("public class %(name)sType extends SimpleNode {" % locals(), depth)
+        self.emit(
+            "public class %(name)sType extends SimpleNode {" %
+            locals(), depth)
         for f in product.fields:
             self.visit(f, depth + 1)
         self.emit("", depth)
 
         self.javaMethods(product, name, "%sType" % name, product.fields,
-                         depth+1)
+                         depth + 1)
 
         self.emit("}", depth)
         self.close()
@@ -184,12 +189,12 @@ class JavaVisitor(EmitVisitor):
         else:
             s = ""
         self.emit("public class %s extends %sType %s{" %
-                    (cons.name, name, s), depth)
+                  (cons.name, name, s), depth)
         for f in cons.fields:
             self.visit(f, depth + 1)
         self.emit("", depth)
 
-        self.javaMethods(cons, cons.name, cons.name, cons.fields, depth+1)
+        self.javaMethods(cons, cons.name, cons.name, cons.fields, depth + 1)
 
         self.emit("}", depth)
         self.close()
@@ -200,74 +205,82 @@ class JavaVisitor(EmitVisitor):
 
         self.emit("public %s(%s) {" % (ctorname, fpargs), depth)
         for f in fields:
-            self.emit("this.%s = %s;" % (f.name, f.name), depth+1)
+            self.emit("this.%s = %s;" % (f.name, f.name), depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
         if fpargs:
             fpargs += ", "
-        self.emit("public %s(%sSimpleNode parent) {" % (ctorname, fpargs), depth)
+        self.emit(
+            "public %s(%sSimpleNode parent) {" %
+            (ctorname, fpargs), depth)
         self.emit("this(%s);" %
-                    ", ".join([str(f.name) for f in fields]), depth+1)
-        self.emit("this.beginLine = parent.beginLine;", depth+1);
-        self.emit("this.beginColumn = parent.beginColumn;", depth+1);
+                  ", ".join([str(f.name) for f in fields]), depth + 1)
+        self.emit("this.beginLine = parent.beginLine;", depth + 1)
+        self.emit("this.beginColumn = parent.beginColumn;", depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
         # The toString() method
         self.emit("public String toString() {", depth)
         self.emit('StringBuffer sb = new StringBuffer("%s[");' % clsname,
-                    depth+1)
+                  depth + 1)
         for f in fields:
-            self.emit('sb.append("%s=");' % f.name, depth+1)
-            if not self.bltinnames.has_key(str(f.type)) and f.typedef.simple:
+            self.emit('sb.append("%s=");' % f.name, depth + 1)
+            if str(f.type) not in self.bltinnames and f.typedef.simple:
                 self.emit("sb.append(dumpThis(this.%s, %sType.%sTypeNames));" %
-                        (f.name, f.type, f.type), depth+1)
+                          (f.name, f.type, f.type), depth + 1)
             else:
-                self.emit("sb.append(dumpThis(this.%s));" % f.name, depth+1)
+                self.emit("sb.append(dumpThis(this.%s));" % f.name, depth + 1)
             if f != fields[-1]:
-                self.emit('sb.append(", ");', depth+1)
-        self.emit('sb.append("]");', depth+1)
-        self.emit("return sb.toString();", depth+1)
+                self.emit('sb.append(", ");', depth + 1)
+        self.emit('sb.append("]");', depth + 1)
+        self.emit("return sb.toString();", depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
         # The pickle() method
-        self.emit("public void pickle(DataOutputStream ostream) throws IOException {", depth)
-        self.emit("pickleThis(%s, ostream);" % type.index, depth+1);
+        self.emit(
+            "public void pickle(DataOutputStream ostream) throws IOException {",
+            depth)
+        self.emit("pickleThis(%s, ostream);" % type.index, depth + 1)
         for f in fields:
-            self.emit("pickleThis(this.%s, ostream);" % f.name, depth+1)
+            self.emit("pickleThis(this.%s, ostream);" % f.name, depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
         # The accept() method
-        self.emit("public Object accept(VisitorIF visitor) throws Exception {", depth)
+        self.emit(
+            "public Object accept(VisitorIF visitor) throws Exception {",
+            depth)
         if clsname == ctorname:
-            self.emit('return visitor.visit%s(this);' % clsname, depth+1)
+            self.emit('return visitor.visit%s(this);' % clsname, depth + 1)
         else:
-            self.emit('traverse(visitor);' % clsname, depth+1)
-            self.emit('return null;' % clsname, depth+1)
+            self.emit('traverse(visitor);' % clsname, depth + 1)
+            self.emit('return null;' % clsname, depth + 1)
         self.emit("}", depth)
         self.emit("", 0)
 
         # The visitChildren() method
-        self.emit("public void traverse(VisitorIF visitor) throws Exception {", depth)
+        self.emit(
+            "public void traverse(VisitorIF visitor) throws Exception {",
+            depth)
         for f in fields:
-            if self.bltinnames.has_key(str(f.type)):
+            if str(f.type) in self.bltinnames:
                 continue
             if f.typedef.simple:
                 continue
             if f.seq:
-                self.emit('if (%s != null) {' % f.name, depth+1)
+                self.emit('if (%s != null) {' % f.name, depth + 1)
                 self.emit('for (int i = 0; i < %s.length; i++) {' % f.name,
-                        depth+2)
-                self.emit('if (%s[i] != null)' % f.name, depth+3)
-                self.emit('%s[i].accept(visitor);' % f.name, depth+4)
-                self.emit('}', depth+2)
-                self.emit('}', depth+1)
+                          depth + 2)
+                self.emit('if (%s[i] != null)' % f.name, depth + 3)
+                self.emit('%s[i].accept(visitor);' % f.name, depth + 4)
+                self.emit('}', depth + 2)
+                self.emit('}', depth + 1)
             else:
-                self.emit('if (%s != null)' % f.name, depth+1)
-                self.emit('%s.accept(visitor);' % f.name, depth+2)
+                self.emit('if (%s != null)' % f.name, depth + 1)
+                self.emit('%s.accept(visitor);' % f.name, depth + 2)
         self.emit('}', depth)
         self.emit("", 0)
 
@@ -275,11 +288,11 @@ class JavaVisitor(EmitVisitor):
         self.emit("public %s;" % self.fieldDef(field), depth)
 
     bltinnames = {
-        'int' : 'int',
-        'bool' : 'boolean',
-        'identifier' : 'String',
-        'string' : 'String',
-        'object' : 'Object', # was PyObject
+        'int': 'int',
+        'bool': 'boolean',
+        'identifier': 'String',
+        'string': 'String',
+        'object': 'Object',  # was PyObject
     }
 
     def fieldDef(self, field):
@@ -297,7 +310,6 @@ class VisitorVisitor(EmitVisitor):
     def __init__(self):
         EmitVisitor.__init__(self)
         self.ctors = []
-        
 
     def visitModule(self, mod):
         for dfn in mod.dfns:
@@ -305,24 +317,29 @@ class VisitorVisitor(EmitVisitor):
         self.open("VisitorIF", refersToSimpleNode=0)
         self.emit('public interface VisitorIF {', 0)
         for ctor in self.ctors:
-            self.emit("public Object visit%s(%s node) throws Exception;" % 
-                    (ctor, ctor), 1)
+            self.emit("public Object visit%s(%s node) throws Exception;" %
+                      (ctor, ctor), 1)
         self.emit('}', 0)
         self.close()
 
         self.open("VisitorBase")
-        self.emit('public abstract class VisitorBase implements VisitorIF {', 0)
+        self.emit(
+            'public abstract class VisitorBase implements VisitorIF {', 0)
         for ctor in self.ctors:
-            self.emit("public Object visit%s(%s node) throws Exception {" % 
-                    (ctor, ctor), 1)
+            self.emit("public Object visit%s(%s node) throws Exception {" %
+                      (ctor, ctor), 1)
             self.emit("Object ret = unhandled_node(node);", 2)
             self.emit("traverse(node);", 2)
             self.emit("return ret;", 2)
             self.emit('}', 1)
             self.emit('', 0)
 
-        self.emit("abstract protected Object unhandled_node(SimpleNode node) throws Exception;", 1)
-        self.emit("abstract public void traverse(SimpleNode node) throws Exception;", 1)
+        self.emit(
+            "abstract protected Object unhandled_node(SimpleNode node) throws Exception;",
+            1)
+        self.emit(
+            "abstract public void traverse(SimpleNode node) throws Exception;",
+            1)
         self.emit('}', 0)
         self.close()
 
@@ -341,7 +358,6 @@ class VisitorVisitor(EmitVisitor):
         self.ctors.append(cons.name)
 
 
-
 class ChainOfVisitors:
     def __init__(self, *visitors):
         self.visitors = visitors
@@ -349,6 +365,7 @@ class ChainOfVisitors:
     def visit(self, object):
         for v in self.visitors:
             v.visit(object)
+
 
 if __name__ == "__main__":
     mod = asdl.parse(sys.argv[1])

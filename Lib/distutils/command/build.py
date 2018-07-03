@@ -4,15 +4,18 @@ Implements the Distutils 'build' command."""
 
 __revision__ = "$Id$"
 
-import sys, os
+import sys
+import os
 
 from distutils.util import get_platform
 from distutils.core import Command
 from distutils.errors import DistutilsOptionError
 
+
 def show_compilers():
     from distutils.ccompiler import show_compilers
     show_compilers()
+
 
 class build(Command):
 
@@ -43,14 +46,14 @@ class build(Command):
          "forcibly build everything (ignore file timestamps)"),
         ('executable=', 'e',
          "specify final destination interpreter path (build.py)"),
-        ]
+    ]
 
     boolean_options = ['debug', 'force']
 
     help_options = [
         ('help-compiler', None,
          "list available compilers", show_compilers),
-        ]
+    ]
 
     def initialize_options(self):
         self.build_base = 'build'
@@ -76,8 +79,8 @@ class build(Command):
             # other platforms.
             if os.name != 'nt':
                 raise DistutilsOptionError(
-                            "--plat-name only supported on Windows (try "
-                            "using './configure --help' on your platform)")
+                    "--plat-name only supported on Windows (try "
+                    "using './configure --help' on your platform)")
 
         plat_specifier = ".%s-%s" % (self.plat_name, sys.version[0:3])
 
@@ -128,20 +131,20 @@ class build(Command):
 
     # -- Predicates for the sub-command list ---------------------------
 
-    def has_pure_modules (self):
+    def has_pure_modules(self):
         return self.distribution.has_pure_modules()
 
-    def has_c_libraries (self):
+    def has_c_libraries(self):
         return self.distribution.has_c_libraries()
 
-    def has_ext_modules (self):
+    def has_ext_modules(self):
         return self.distribution.has_ext_modules()
 
-    def has_scripts (self):
+    def has_scripts(self):
         return self.distribution.has_scripts()
 
-    sub_commands = [('build_py',      has_pure_modules),
-                    ('build_clib',    has_c_libraries),
-                    ('build_ext',     has_ext_modules),
+    sub_commands = [('build_py', has_pure_modules),
+                    ('build_clib', has_c_libraries),
+                    ('build_ext', has_ext_modules),
                     ('build_scripts', has_scripts),
-                   ]
+                    ]

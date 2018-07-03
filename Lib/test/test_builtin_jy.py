@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
-import test.test_support, unittest
+import test.test_support
+import unittest
 from test.test_support import TESTFN, unlink
 
-import sys, UserDict
+import sys
+import UserDict
 
 from codecs import BOM_UTF8
+
 
 class BuiltinTest(unittest.TestCase):
 
     def test_in_sys_modules(self):
         self.assert_("__builtin__" in sys.modules,
-            "__builtin__ not found in sys.modules")
+                     "__builtin__ not found in sys.modules")
 
     def test_hasattr_swallows_exceptions(self):
         class Foo(object):
@@ -24,7 +27,7 @@ class BuiltinTest(unittest.TestCase):
                 raise AttributeError('baz')
         try:
             getattr(Foo(), 'bar')
-        except AttributeError, ae:
+        except AttributeError as ae:
             self.assertEqual(str(ae), 'baz')
         else:
             self.assertTrue(False)
@@ -38,7 +41,7 @@ class BuiltinTest(unittest.TestCase):
 
     def test_numeric_cmp(self):
         # http://bugs.jython.org/issue1449
-        for numeric in 1, 2L, 3.0, 4j:
+        for numeric in 1, 2, 3.0, 4j:
             self.assertTrue(numeric < Ellipsis)
             self.assertTrue(Ellipsis > numeric)
 
@@ -46,20 +49,22 @@ class BuiltinTest(unittest.TestCase):
         'fix for http://bugs.jython.org/issue2130'
         try:
             max([])
-        except ValueError, e:
+        except ValueError as e:
             self.assertEqual(str(e), 'max of empty sequence')
         else:
             self.fail('max with empty sequence should raise a proper ValueError')
 
+
 class LoopTest(unittest.TestCase):
 
     def test_break(self):
-        while 1:
+        while True:
             i = 0
-            while i<10:
-                i = i+1
+            while i < 10:
+                i = i + 1
             else:
                 break
+
 
 class DebugTest(unittest.TestCase):
 
@@ -67,16 +72,19 @@ class DebugTest(unittest.TestCase):
         "__debug__ exists"
         try:
             foo = __debug__
-        except NameError, e:
+        except NameError as e:
             self.assert_(False)
+
 
 class GetSliceTest(unittest.TestCase):
 
     def test_getslice(self):
         class F:
-            def __getitem__(self,*args): return '__getitem__ '+repr(args)
-            def __getslice__(self,*args): return '__getslice__ '+repr(args)
+            def __getitem__(self, *args): return '__getitem__ ' + repr(args)
+
+            def __getslice__(self, *args): return '__getslice__ ' + repr(args)
         self.failUnless("__getslice__ (1, 1)" in F()[1:1])
+
 
 class ChrTest(unittest.TestCase):
 
@@ -85,9 +93,10 @@ class ChrTest(unittest.TestCase):
         foo = False
         try:
             chr(None)
-        except TypeError, e:
+        except TypeError as e:
             foo = True
         self.assert_(foo)
+
 
 class ReturnTest(unittest.TestCase):
 
@@ -101,6 +110,7 @@ class ReturnTest(unittest.TestCase):
                 t1 = time.clock()
                 return t1 - t0
 
+
 class ReprTest(unittest.TestCase):
     def test_unbound(self):
         "Unbound methods indicated properly in repr"
@@ -109,6 +119,7 @@ class ReprTest(unittest.TestCase):
                 pass
         self.failUnless(repr(Foo.bar).startswith('<unbound method'))
 
+
 class CallableTest(unittest.TestCase):
 
     def test_callable_oldstyle(self):
@@ -116,10 +127,12 @@ class CallableTest(unittest.TestCase):
             pass
         self.assert_(callable(Foo))
         self.assert_(not callable(Foo()))
+
         class Bar:
             def __call__(self):
                 return None
         self.assert_(callable(Bar()))
+
         class Baz:
             def __getattr__(self, name):
                 return None
@@ -130,20 +143,24 @@ class CallableTest(unittest.TestCase):
             pass
         self.assert_(callable(Foo))
         self.assert_(not callable(Foo()))
+
         class Bar(object):
             def __call__(self):
                 return None
         self.assert_(callable(Bar()))
+
         class Baz(object):
             def __getattr__(self, name):
                 return None
         self.assert_(not callable(Baz()))
+
 
 class ConversionTest(unittest.TestCase):
 
     class Foo(object):
         def __int__(self):
             return 3
+
         def __float__(self):
             return 3.14
     foo = Foo()
@@ -158,6 +175,7 @@ class ConversionTest(unittest.TestCase):
         self.assertEqual(round(self.Foo(), 1), 3.1)
         # 2.5/2.5.1 regression
         self.assertRaises(TypeError, round, '1.5')
+
 
 class ExecEvalTest(unittest.TestCase):
 
@@ -174,7 +192,7 @@ class ExecEvalTest(unittest.TestCase):
             ("# coding: utf-8\n'%s'" % foo, foo),
             ("%s'%s'" % (BOM_UTF8, foo), foo),
             ("'\rfoo\r'", '\rfoo\r')
-            ):
+        ):
             mod = compile(code, 'test.py', 'eval')
             result = eval(mod)
             self.assertEqual(result, expected)
@@ -188,7 +206,7 @@ class ExecEvalTest(unittest.TestCase):
             ("# coding: utf-8\nbar = '%s'" % foo, foo),
             ("%sbar = '%s'" % (BOM_UTF8, foo), foo),
             ("bar = '\rfoo\r'", '\rfoo\r')
-            ):
+        ):
             ns = {}
             exec code in ns
             self.assertEqual(ns['bar'], expected)
@@ -198,10 +216,12 @@ class ExecEvalTest(unittest.TestCase):
 
         class M:
             "Test mapping interface versus possible calls from eval()."
+
             def __getitem__(self, key):
                 if key == 'a':
                     return 12
                 raise KeyError
+
             def keys(self):
                 return list('xyz')
 
@@ -211,13 +231,14 @@ class ExecEvalTest(unittest.TestCase):
         self.assertRaises(NameError, eval, 'b', g, m)
         self.assertEqual(eval('dir()', g, m), list('xyz'))
 
-        #FIXME: assertEquals may be more strict about dict compares in 2.7.
+        # FIXME: assertEquals may be more strict about dict compares in 2.7.
         #self.assertEqual(eval('globals()', g, m), g)
 
         self.assertEqual(eval('locals()', g, m), m)
-        #XXX: the following assert holds in CPython because globals must be a
+        # XXX: the following assert holds in CPython because globals must be a
         #     real dict.  Should Jython be as strict?
         #self.assertRaises(TypeError, eval, 'a', m)
+
         class A:
             "Non-mapping"
             pass
@@ -230,6 +251,7 @@ class ExecEvalTest(unittest.TestCase):
                 if key == 'a':
                     return 12
                 return dict.__getitem__(self, key)
+
             def keys(self):
                 return list('xyz')
 
@@ -238,7 +260,7 @@ class ExecEvalTest(unittest.TestCase):
         self.assertRaises(NameError, eval, 'b', g, d)
         self.assertEqual(eval('dir()', g, d), list('xyz'))
 
-        #FIXME: assertEquals may be more strict about dict compares in 2.7.
+        # FIXME: assertEquals may be more strict about dict compares in 2.7.
         ####self.assertEqual(eval('globals()', g, d), g)
 
         self.assertEqual(eval('locals()', g, d), d)
@@ -250,8 +272,10 @@ class ExecEvalTest(unittest.TestCase):
         class SpreadSheet:
             "Sample application showing nested, calculated lookups."
             _cells = {}
+
             def __setitem__(self, key, formula):
                 self._cells[key] = formula
+
             def __getitem__(self, key):
                 return eval(self._cells[key], globals(), self)
 
@@ -266,6 +290,7 @@ class ExecEvalTest(unittest.TestCase):
         class C:
             def __getitem__(self, item):
                 raise KeyError(item)
+
             def keys(self):
                 return 'a'
         self.assertRaises(TypeError, eval, 'dir()', globals(), C())
@@ -284,12 +309,15 @@ class ExecEvalTest(unittest.TestCase):
 
         class M:
             "Test mapping interface versus possible calls from execfile()."
+
             def __init__(self):
                 self.z = 10
+
             def __getitem__(self, key):
                 if key == 'z':
                     return self.z
                 raise KeyError
+
             def __setitem__(self, key, value):
                 if key == 'z':
                     self.z = value
@@ -305,16 +333,20 @@ class ExecEvalTest(unittest.TestCase):
         self.assertRaises(TypeError, execfile, TESTFN, {}, ())
         unlink(TESTFN)
 
+
 class ModuleNameTest(unittest.TestCase):
     """Tests that the module when imported has the same __name__"""
 
     def test_names(self):
         for name in sys.builtin_module_names:
-            if name not in ('time', '_random', 'array', '_collections', '_ast'):
+            if name not in (
+                'time',
+                '_random',
+                'array',
+                '_collections',
+                    '_ast'):
                 module = __import__(name)
                 self.assertEqual(name, module.__name__)
-
-
 
 
 def test_main():
@@ -330,6 +362,7 @@ def test_main():
                                    ExecEvalTest,
                                    ModuleNameTest,
                                    )
+
 
 if __name__ == "__main__":
     test_main()

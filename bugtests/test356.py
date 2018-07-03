@@ -4,7 +4,6 @@
 
 import support
 
-import struct 
+import struct
 a = 'abcd' * 8
-struct.pack('>32s', a) 
-
+struct.pack('>32s', a)

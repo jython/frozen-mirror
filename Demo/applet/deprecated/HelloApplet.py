@@ -1,6 +1,6 @@
 """\
 This is a very simple example of creating a Java applet from JPython
-This applet should display in any JDK 1.1 compliant browser 
+This applet should display in any JDK 1.1 compliant browser
 At the moment that means it will only work in SUN's "appletviewer"
 
 To use this applet, you must perform the following steps:
@@ -19,10 +19,11 @@ release to the web.
 
 from java import awt, applet
 
+
 class HelloApplet(applet.Applet):
     def paint(self, g):
-	g.setColor(awt.Color.black)
-	g.fill3DRect(5,5,590,100,0)
-	g.setFont(awt.Font('Arial', 0, 80))
-	g.setColor(awt.Color.blue)
-	g.drawString('Hello World', 90, 80)
+        g.setColor(awt.Color.black)
+        g.fill3DRect(5, 5, 590, 100, 0)
+        g.setFont(awt.Font('Arial', 0, 80))
+        g.setColor(awt.Color.blue)
+        g.drawString('Hello World', 90, 80)

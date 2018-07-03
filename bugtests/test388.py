@@ -10,5 +10,3 @@ import test388m
 
 if not hasattr(test388m, 'x'):
     raise support.TestError, 'Python modules should be imported before directories for Java'
-
-

@@ -3,6 +3,7 @@ import gc
 import time
 import weakref
 
+
 class ReferentDummy:
     def __init__(self, name):
         self.name = name
@@ -10,13 +11,16 @@ class ReferentDummy:
     def __str__(self):
         return self.name
 
+
 class ResurrectionDummy:
     def __del__(self):
         ResurrectionDummy.resurrected = self.toResurrect
 
+
 class SelfResurrectionDummy:
     def __del__(self):
         SelfResurrectionDummy.resurrected = self
+
 
 class GCDetector():
     gcIndex = 0
@@ -24,7 +28,9 @@ class GCDetector():
     def __del__(self):
         GCDetector.gcIndex += 1
 
+
 maxGCRun = 10
+
 
 def runGC():
     """
@@ -43,13 +49,14 @@ def runGC():
         gcCount += 1
         time.sleep(0.2)
 
+
 class GCTests(unittest.TestCase):
 
     def test_id_after_self_resurrection(self):
         rd = SelfResurrectionDummy()
         savedId = id(rd)
         rd = None
-        runGC() #needed for Jython etc, even though no cyclic trash appears
+        runGC()  # needed for Jython etc, even though no cyclic trash appears
         self.assertEqual(id(SelfResurrectionDummy.resurrected), savedId)
         del SelfResurrectionDummy.resurrected
 
@@ -60,11 +67,11 @@ class GCTests(unittest.TestCase):
         savedId = id(l)
         l = None
         rd = None
-        runGC() #needed for Jython etc, even though no cyclic trash appears
+        runGC()  # needed for Jython etc, even though no cyclic trash appears
         self.assertEqual(id(ResurrectionDummy.resurrected), savedId)
         del ResurrectionDummy.resurrected
 
-#todo: Check these test regarding to CPython behavior 
+# todo: Check these test regarding to CPython behavior
 #     def test_weakref_consistency_after_self_resurrection(self):
 #         #fails in CPython
 #         rd = SelfResurrectionDummy()
@@ -76,7 +83,7 @@ class GCTests(unittest.TestCase):
 #         for wref2 in weakref.getweakrefs(SelfResurrectionDummy.resurrected):
 #             self.assertIs(wref2(), SelfResurrectionDummy.resurrected)
 #         del SelfResurrectionDummy.resurrected
-# 
+#
 #     def test_weakref_consistency_after_resurrection(self):
 #         l = ReferentDummy("ab")
 #         rd = ResurrectionDummy()
@@ -90,7 +97,6 @@ class GCTests(unittest.TestCase):
 #         for wref2 in weakref.getweakrefs(ResurrectionDummy.resurrected):
 #             self.assertIs(wref2(), ResurrectionDummy.resurrected)
 #         del ResurrectionDummy.resurrected
-
 
 
 if __name__ == '__main__':

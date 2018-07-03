@@ -2,11 +2,13 @@ from test import test_support
 import types
 import unittest
 
+
 class FuncAttrsTest(unittest.TestCase):
     def setUp(self):
         class F:
             def a(self):
                 pass
+
         def b():
             return 3
         self.f = F
@@ -37,15 +39,15 @@ class FunctionPropertiesTest(FuncAttrsTest):
     def test_dir_includes_correct_attrs(self):
         self.b.known_attr = 7
         self.assertIn('known_attr', dir(self.b),
-                        "set attributes not in dir listing of method")
+                      "set attributes not in dir listing of method")
         # Test on underlying function object of method
         self.f.a.im_func.known_attr = 7
         self.assertIn('known_attr', dir(self.f.a),
-                        "set attribute on unbound method implementation in "
-                        "class not in dir")
+                      "set attribute on unbound method implementation in "
+                      "class not in dir")
         self.assertIn('known_attr', dir(self.fi.a),
-                        "set attribute on unbound method implementations, "
-                        "should show up in next dir")
+                      "set attribute on unbound method implementations, "
+                      "should show up in next dir")
 
     def test_duplicate_function_equality(self):
         # Body of `duplicate' is the exact same as self.b
@@ -58,7 +60,7 @@ class FunctionPropertiesTest(FuncAttrsTest):
         def test(): pass
         self.assertEqual(test(), None)
         test.func_code = self.b.func_code
-        self.assertEqual(test(), 3) # self.b always returns 3, arbitrarily
+        self.assertEqual(test(), 3)  # self.b always returns 3, arbitrarily
 
     def test_func_globals(self):
         self.assertIs(self.b.func_globals, globals())
@@ -66,6 +68,7 @@ class FunctionPropertiesTest(FuncAttrsTest):
 
     def test_func_closure(self):
         a = 12
+
         def f(): print a
         c = f.func_closure
         self.assertIsInstance(c, tuple)
@@ -108,10 +111,15 @@ class FunctionPropertiesTest(FuncAttrsTest):
 
     def test_func_code(self):
         num_one, num_two = 7, 8
+
         def a(): pass
+
         def b(): return 12
+
         def c(): return num_one
+
         def d(): return num_two
+
         def e(): return num_one, num_two
         for func in [a, b, c, d, e]:
             self.assertEqual(type(func.func_code), types.CodeType)
@@ -143,9 +151,10 @@ class FunctionPropertiesTest(FuncAttrsTest):
 
     def test_func_default_args(self):
         def first_func(a, b):
-            return a+b
+            return a + b
+
         def second_func(a=1, b=2):
-            return a+b
+            return a + b
         self.assertEqual(first_func.func_defaults, None)
         self.assertEqual(second_func.func_defaults, (1, 2))
         first_func.func_defaults = (1, 2)
@@ -354,6 +363,7 @@ def test_main():
                               ArbitraryFunctionAttrTest, FunctionDictsTest,
                               FunctionDocstringTest,
                               StaticMethodAttrsTest)
+
 
 if __name__ == "__main__":
     test_main()

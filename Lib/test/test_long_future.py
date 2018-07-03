@@ -21,9 +21,11 @@ DBL_MANT_DIG = sys.float_info.mant_dig
 DBL_MIN_OVERFLOW = 2**DBL_MAX_EXP - 2**(DBL_MAX_EXP - DBL_MANT_DIG - 1)
 
 # pure Python version of correctly-rounded true division
+
+
 def truediv(a, b):
     """Correctly-rounded true division for integers."""
-    negative = a^b < 0
+    negative = a ^ b < 0
     a, b = abs(a), abs(b)
 
     # exceptions:  division by zero, overflow
@@ -44,24 +46,25 @@ def truediv(a, b):
 
     # round-half-to-even: fractional part is r/b, which is > 0.5 iff
     # 2*r > b, and == 0.5 iff 2*r == b.
-    if 2*r > b or 2*r == b and q % 2 == 1:
+    if 2 * r > b or 2 * r == b and q % 2 == 1:
         q += 1
 
     result = math.ldexp(float(q), exp)
     return -result if negative else result
 
+
 class TrueDivisionTests(unittest.TestCase):
     def test(self):
-        huge = 1L << 40000
+        huge = 1 << 40000
         mhuge = -huge
         self.assertEqual(huge / huge, 1.0)
         self.assertEqual(mhuge / mhuge, 1.0)
         self.assertEqual(huge / mhuge, -1.0)
         self.assertEqual(mhuge / huge, -1.0)
         self.assertEqual(1 / huge, 0.0)
-        self.assertEqual(1L / huge, 0.0)
+        self.assertEqual(1 / huge, 0.0)
         self.assertEqual(1 / mhuge, 0.0)
-        self.assertEqual(1L / mhuge, 0.0)
+        self.assertEqual(1 / mhuge, 0.0)
         self.assertEqual((666 * huge + (huge >> 1)) / huge, 666.5)
         self.assertEqual((666 * mhuge + (mhuge >> 1)) / mhuge, 666.5)
         self.assertEqual((666 * huge + (huge >> 1)) / mhuge, -666.5)
@@ -80,7 +83,7 @@ class TrueDivisionTests(unittest.TestCase):
                 eval(overflow, namespace)
 
         for underflow in ["1 / huge", "2L / huge", "-1 / huge", "-2L / huge",
-                         "100 / mhuge", "100L / mhuge"]:
+                          "100 / mhuge", "100L / mhuge"]:
             result = eval(underflow, namespace)
             self.assertEqual(result, 0.0, 'expected underflow to 0 '
                              'from {!r}'.format(underflow))
@@ -139,23 +142,25 @@ class TrueDivisionTests(unittest.TestCase):
         self.check_truediv(671 * 12345 * 2**DBL_MAX_EXP, 12345)
         self.check_truediv(12345, 345678 * 2**(DBL_MANT_DIG - DBL_MIN_EXP))
         # ... a much larger or smaller than b
-        self.check_truediv(12345*2**100, 98765)
-        self.check_truediv(12345*2**30, 98765*7**81)
+        self.check_truediv(12345 * 2**100, 98765)
+        self.check_truediv(12345 * 2**30, 98765 * 7**81)
         # ... a / b near a boundary: one of 1, 2**DBL_MANT_DIG, 2**DBL_MIN_EXP,
         #                 2**DBL_MAX_EXP, 2**(DBL_MIN_EXP-DBL_MANT_DIG)
         bases = (0, DBL_MANT_DIG, DBL_MIN_EXP,
                  DBL_MAX_EXP, DBL_MIN_EXP - DBL_MANT_DIG)
         for base in bases:
             for exp in range(base - 15, base + 15):
-                self.check_truediv(75312*2**max(exp, 0), 69187*2**max(-exp, 0))
-                self.check_truediv(69187*2**max(exp, 0), 75312*2**max(-exp, 0))
+                self.check_truediv(75312 * 2**max(exp, 0),
+                                   69187 * 2**max(-exp, 0))
+                self.check_truediv(69187 * 2**max(exp, 0),
+                                   75312 * 2**max(-exp, 0))
 
         # overflow corner case
         for m in [1, 2, 7, 17, 12345, 7**100,
                   -1, -2, -5, -23, -67891, -41**50]:
             for n in range(-10, 10):
-                self.check_truediv(m*DBL_MIN_OVERFLOW + n, m)
-                self.check_truediv(m*DBL_MIN_OVERFLOW + n, -m)
+                self.check_truediv(m * DBL_MIN_OVERFLOW + n, m)
+                self.check_truediv(m * DBL_MIN_OVERFLOW + n, -m)
 
         # check detection of inexactness in shifting stage
         for n in range(250):
@@ -164,8 +169,8 @@ class TrueDivisionTests(unittest.TestCase):
             # rounded down under round-half-to-even.  The tiniest of
             # additions to the numerator should cause it to be rounded
             # up instead.
-            self.check_truediv((2**DBL_MANT_DIG + 1)*12345*2**200 + 2**n,
-                           2**DBL_MANT_DIG*12345)
+            self.check_truediv((2**DBL_MANT_DIG + 1) * 12345 * 2**200 + 2**n,
+                               2**DBL_MANT_DIG * 12345)
 
         # 1/2731 is one of the smallest division cases that's subject
         # to double rounding on IEEE 754 machines working internally with
@@ -177,14 +182,14 @@ class TrueDivisionTests(unittest.TestCase):
         # error of close to 3.5 ulps.
         self.check_truediv(295147931372582273023, 295147932265116303360)
         for i in range(1000):
-            self.check_truediv(10**(i+1), 10**i)
-            self.check_truediv(10**i, 10**(i+1))
+            self.check_truediv(10**(i + 1), 10**i)
+            self.check_truediv(10**i, 10**(i + 1))
 
         # test round-half-to-even behaviour, normal result
         for m in [1, 2, 4, 7, 8, 16, 17, 32, 12345, 7**100,
                   -1, -2, -5, -23, -67891, -41**50]:
             for n in range(-10, 10):
-                self.check_truediv(2**DBL_MANT_DIG*m + n, m)
+                self.check_truediv(2**DBL_MANT_DIG * m + n, m)
 
         # test round-half-to-even, subnormal result
         for n in range(-20, 20):
@@ -197,7 +202,7 @@ class TrueDivisionTests(unittest.TestCase):
         for M in [10**10, 10**100, 10**1000]:
             for i in range(1000):
                 a = random.randrange(1, M)
-                b = random.randrange(a, 2*a+1)
+                b = random.randrange(a, 2 * a + 1)
                 self.check_truediv(a, b)
                 self.check_truediv(-a, b)
                 self.check_truediv(a, -b)
@@ -217,6 +222,7 @@ class TrueDivisionTests(unittest.TestCase):
 
 def test_main():
     run_unittest(TrueDivisionTests)
+
 
 if __name__ == "__main__":
     test_main()

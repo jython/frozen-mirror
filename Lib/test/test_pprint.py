@@ -10,26 +10,34 @@ except NameError:
         return x
 
 # list, tuple and dict subclasses that do or don't overwrite __repr__
+
+
 class list2(list):
     pass
+
 
 class list3(list):
     def __repr__(self):
         return list.__repr__(self)
 
+
 class tuple2(tuple):
     pass
+
 
 class tuple3(tuple):
     def __repr__(self):
         return tuple.__repr__(self)
 
+
 class dict2(dict):
     pass
+
 
 class dict3(dict):
     def __repr__(self):
         return dict.__repr__(self)
+
 
 class QueryTestCase(unittest.TestCase):
 
@@ -41,7 +49,7 @@ class QueryTestCase(unittest.TestCase):
     def test_basic(self):
         # Verify .isrecursive() and .isreadable() w/o recursion
         pp = pprint.PrettyPrinter()
-        for safe in (2, 2.0, 2j, "abc", [3], (2,2), {3: 3}, uni("yaddayadda"),
+        for safe in (2, 2.0, 2j, "abc", [3], (2, 2), {3: 3}, uni("yaddayadda"),
                      self.a, self.b):
             # module-level convenience functions
             self.assertFalse(pprint.isrecursive(safe),
@@ -66,7 +74,9 @@ class QueryTestCase(unittest.TestCase):
 
         for icky in self.a, self.b, self.d, (self.d, self.d):
             self.assertTrue(pprint.isrecursive(icky), "expected isrecursive")
-            self.assertFalse(pprint.isreadable(icky), "expected not isreadable")
+            self.assertFalse(
+                pprint.isreadable(icky),
+                "expected not isreadable")
             self.assertTrue(pp.isrecursive(icky), "expected isrecursive")
             self.assertFalse(pp.isreadable(icky), "expected not isreadable")
 
@@ -111,18 +121,18 @@ class QueryTestCase(unittest.TestCase):
         # it sorted a dict display if and only if the display required
         # multiple lines.  For that reason, dicts with more than one element
         # aren't tested here.
-        for simple in (0, 0L, 0+0j, 0.0, "", uni(""),
+        for simple in (0, 0, 0 + 0j, 0.0, "", uni(""),
                        (), tuple2(), tuple3(),
                        [], list2(), list3(),
                        {}, dict2(), dict3(),
                        self.assertTrue, pprint,
-                       -6, -6L, -6-6j, -1.5, "x", uni("x"), (3,), [3], {3: 6},
-                       (1,2), [3,4], {5: 6},
-                       tuple2((1,2)), tuple3((1,2)), tuple3(range(100)),
-                       [3,4], list2([3,4]), list3([3,4]), list3(range(100)),
+                       -6, -6, -6 - 6j, -1.5, "x", uni("x"), (3,), [3], {3: 6},
+                       (1, 2), [3, 4], {5: 6},
+                       tuple2((1, 2)), tuple3((1, 2)), tuple3(range(100)),
+                       [3, 4], list2([3, 4]), list3([3, 4]), list3(range(100)),
                        dict2({5: 6}), dict3({5: 6}),
                        range(10, -11, -1)
-                      ):
+                       ):
             native = repr(simple)
             for function in "pformat", "saferepr":
                 f = getattr(pprint, function)
@@ -185,8 +195,8 @@ class QueryTestCase(unittest.TestCase):
         # 'a', 'c', 'b' here, so this test failed.
         d = {'a': 1, 'b': 1, 'c': 1}
         self.assertEqual(pprint.pformat(d), "{'a': 1, 'b': 1, 'c': 1}")
-        self.assertEqual(pprint.pformat([d, d]),
-            "[{'a': 1, 'b': 1, 'c': 1}, {'a': 1, 'b': 1, 'c': 1}]")
+        self.assertEqual(pprint.pformat(
+            [d, d]), "[{'a': 1, 'b': 1, 'c': 1}, {'a': 1, 'b': 1, 'c': 1}]")
 
         # The next one is kind of goofy.  The sorted order depends on the
         # alphabetic order of type names:  "int" < "str" < "tuple".  Before
@@ -194,7 +204,7 @@ class QueryTestCase(unittest.TestCase):
         # keeping around for now because it's one of few tests of pprint
         # against a crazy mix of types.
         self.assertEqual(pprint.pformat({"xy\tab\n": (3,), 5: [[]], (): {}}),
-            r"{5: [[]], 'xy\tab\n': (3,), (): {}}")
+                         r"{5: [[]], 'xy\tab\n': (3,), (): {}}")
 
     def test_subclassing(self):
         o = {'names with spaces': 'should be presented using repr()',
@@ -210,7 +220,11 @@ class QueryTestCase(unittest.TestCase):
         self.assertEqual(pprint.pformat(set()), 'set()')
         self.assertEqual(pprint.pformat(set(range(3))), 'set([0, 1, 2])')
         self.assertEqual(pprint.pformat(frozenset()), 'frozenset()')
-        self.assertEqual(pprint.pformat(frozenset(range(3))), 'frozenset([0, 1, 2])')
+        self.assertEqual(
+            pprint.pformat(
+                frozenset(
+                    range(3))),
+            'frozenset([0, 1, 2])')
         cube_repr_tgt = """\
 {frozenset([]): frozenset([frozenset([2]), frozenset([0]), frozenset([1])]),
  frozenset([0]): frozenset([frozenset(),

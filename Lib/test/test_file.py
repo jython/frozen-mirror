@@ -8,6 +8,7 @@ from weakref import proxy
 from test.test_support import TESTFN, findfile, is_jython, run_unittest
 from UserList import UserList
 
+
 class AutoFileTests(unittest.TestCase):
     # file tests for which a test file is automatically set up
 
@@ -44,13 +45,14 @@ class AutoFileTests(unittest.TestCase):
 
         # verify the others aren't
         for attr in 'name', 'mode', 'closed':
-            self.assertRaises((AttributeError, TypeError), setattr, f, attr, 'oops')
+            self.assertRaises((AttributeError, TypeError),
+                              setattr, f, attr, 'oops')
 
     def testReadinto(self):
         # verify readinto
         self.f.write('12')
         self.f.close()
-        a = array('c', 'x'*10)
+        a = array('c', 'x' * 10)
         self.f = open(TESTFN, 'rb')
         n = self.f.readinto(a)
         self.assertEquals('12', a.tostring()[:n])
@@ -70,7 +72,7 @@ class AutoFileTests(unittest.TestCase):
 
     def testWritelinesIntegersUserList(self):
         # verify writelines with integers in UserList
-        l = UserList([1,2,3])
+        l = UserList([1, 2, 3])
         self.assertRaises(TypeError, self.f.writelines, l)
 
     def testWritelinesNonString(self):
@@ -98,7 +100,7 @@ class AutoFileTests(unittest.TestCase):
     def testMethods(self):
         # XXX: Jython file methods require valid arguments: closed file
         # checks are done before parsing the arguments in CPython
-        #methods = ['next', 'read', 'readinto',
+        # methods = ['next', 'read', 'readinto',
         #           'readline', 'readlines', 'seek', 'tell', 'truncate',
         #           'write', 'xreadlines', '__iter__']
         noarg = object()
@@ -126,8 +128,8 @@ class AutoFileTests(unittest.TestCase):
         self.assertEquals(self.f.__exit__(None, None, None), None)
         # it must also return None if an exception was given
         try:
-            1/0
-        except:
+            1 / 0
+        except BaseException:
             self.assertEquals(self.f.__exit__(*sys.exc_info()), None)
 
 
@@ -166,7 +168,7 @@ class OtherFileTests(unittest.TestCase):
         bad_mode = "qwerty"
         try:
             f = open(TESTFN, bad_mode)
-        except ValueError, msg:
+        except ValueError as msg:
             if msg[0] != 0:
                 s = str(msg)
                 if s.find(TESTFN) != -1 or s.find(bad_mode) == -1:
@@ -190,7 +192,7 @@ class OtherFileTests(unittest.TestCase):
                 d = int(f.read())
                 f.close()
                 f.close()
-            except IOError, msg:
+            except IOError as msg:
                 self.fail('error setting buffer size %d: %s' % (s, str(msg)))
             self.assertEquals(d, s)
 
@@ -204,7 +206,7 @@ class OtherFileTests(unittest.TestCase):
             f.write('12345678901')   # 11 bytes
             f.close()
 
-            f = open(TESTFN,'rb+')
+            f = open(TESTFN, 'rb+')
             data = f.read(5)
             if data != '12345':
                 self.fail("Read on file opened for update failed %r" % data)
@@ -248,7 +250,7 @@ class OtherFileTests(unittest.TestCase):
             "wonderful spaaaaaam.\n"
         ]
         methods = [("readline", ()), ("read", ()), ("readlines", ()),
-                   ("readinto", (array("c", " "*100),))]
+                   ("readinto", (array("c", " " * 100),))]
 
         try:
             # Prepare the testfile
@@ -268,7 +270,7 @@ class OtherFileTests(unittest.TestCase):
                     pass
                 else:
                     self.fail("%s%r after next() didn't raise ValueError" %
-                                     (methodname, args))
+                              (methodname, args))
                 f.close()
 
             # Test to see if harmless (by accident) mixing of read* and
@@ -352,6 +354,7 @@ def test_main():
     finally:
         if os.path.exists(TESTFN):
             os.unlink(TESTFN)
+
 
 if __name__ == '__main__':
     test_main()

@@ -3,6 +3,7 @@ import unittest
 from test import test_support
 from weakref import proxy
 
+
 @staticmethod
 def PythonPartial(func, *args, **keywords):
     'Pure Python approximation of partial()'
@@ -15,9 +16,11 @@ def PythonPartial(func, *args, **keywords):
     newfunc.keywords = keywords
     return newfunc
 
+
 def capture(*args, **kw):
     """capture all positional and keyword arguments"""
     return args, kw
+
 
 class TestPartial(unittest.TestCase):
 
@@ -27,8 +30,8 @@ class TestPartial(unittest.TestCase):
         p = self.thetype(capture, 1, 2, a=10, b=20)
         self.assertEqual(p(3, 4, b=30, c=40),
                          ((1, 2, 3, 4), dict(a=10, b=30, c=40)))
-        p = self.thetype(map, lambda x: x*10)
-        self.assertEqual(p([1,2,3,4]), [10, 20, 30, 40])
+        p = self.thetype(map, lambda x: x * 10)
+        self.assertEqual(p([1, 2, 3, 4]), [10, 20, 30, 40])
 
     def test_attributes(self):
         p = self.thetype(capture, 1, 2, a=10, b=20)
@@ -44,7 +47,8 @@ class TestPartial(unittest.TestCase):
         self.assertRaises(TypeError, setattr, p, 'keywords', dict(a=1, b=2))
 
     def test_argument_checking(self):
-        self.assertRaises(TypeError, self.thetype)     # need at least a func arg
+        # need at least a func arg
+        self.assertRaises(TypeError, self.thetype)
         try:
             self.thetype(2)()
         except TypeError:
@@ -56,38 +60,38 @@ class TestPartial(unittest.TestCase):
         # a caller's dictionary should not be altered by partial
         def func(a=10, b=20):
             return a
-        d = {'a':3}
+        d = {'a': 3}
         p = self.thetype(func, a=5)
         self.assertEqual(p(**d), 3)
-        self.assertEqual(d, {'a':3})
+        self.assertEqual(d, {'a': 3})
         p(b=7)
-        self.assertEqual(d, {'a':3})
+        self.assertEqual(d, {'a': 3})
 
     def test_arg_combinations(self):
         # exercise special code paths for zero args in either partial
         # object or the caller
         p = self.thetype(capture)
         self.assertEqual(p(), ((), {}))
-        self.assertEqual(p(1,2), ((1,2), {}))
+        self.assertEqual(p(1, 2), ((1, 2), {}))
         p = self.thetype(capture, 1, 2)
-        self.assertEqual(p(), ((1,2), {}))
-        self.assertEqual(p(3,4), ((1,2,3,4), {}))
+        self.assertEqual(p(), ((1, 2), {}))
+        self.assertEqual(p(3, 4), ((1, 2, 3, 4), {}))
 
     def test_kw_combinations(self):
         # exercise special code paths for no keyword args in
         # either the partial object or the caller
         p = self.thetype(capture)
         self.assertEqual(p(), ((), {}))
-        self.assertEqual(p(a=1), ((), {'a':1}))
+        self.assertEqual(p(a=1), ((), {'a': 1}))
         p = self.thetype(capture, a=1)
-        self.assertEqual(p(), ((), {'a':1}))
-        self.assertEqual(p(b=2), ((), {'a':1, 'b':2}))
+        self.assertEqual(p(), ((), {'a': 1}))
+        self.assertEqual(p(b=2), ((), {'a': 1, 'b': 2}))
         # keyword args in the call override those in the partial object
-        self.assertEqual(p(a=3, b=2), ((), {'a':3, 'b':2}))
+        self.assertEqual(p(a=3, b=2), ((), {'a': 3, 'b': 2}))
 
     def test_positional(self):
         # make sure positional arguments are captured correctly
-        for args in [(), (0,), (0,1), (0,1,2), (0,1,2,3)]:
+        for args in [(), (0,), (0, 1), (0, 1, 2), (0, 1, 2, 3)]:
             p = self.thetype(capture, *args)
             expected = args + ('x',)
             got, empty = p('x')
@@ -97,7 +101,7 @@ class TestPartial(unittest.TestCase):
         # make sure keyword arguments are captured correctly
         for a in ['a', 0, None, 3.5]:
             p = self.thetype(capture, a=a)
-            expected = {'a':a,'x':None}
+            expected = {'a': a, 'x': None}
             empty, got = p(x=None)
             self.failUnless(expected == got and empty == ())
 
@@ -105,9 +109,9 @@ class TestPartial(unittest.TestCase):
         # make sure there are no side effects that affect subsequent calls
         p = self.thetype(capture, 0, a=1)
         args1, kw1 = p(1, b=2)
-        self.failUnless(args1 == (0,1) and kw1 == {'a':1,'b':2})
+        self.failUnless(args1 == (0, 1) and kw1 == {'a': 1, 'b': 2})
         args2, kw2 = p()
-        self.failUnless(args2 == (0,) and kw2 == {'a':1})
+        self.failUnless(args2 == (0,) and kw2 == {'a': 1})
 
     def test_error_propagation(self):
         def f(x, y):
@@ -124,7 +128,7 @@ class TestPartial(unittest.TestCase):
         except TypeError:
             pass
         except AttributeError:
-            #In some cases Jython raises AttributeError here.
+            # In some cases Jython raises AttributeError here.
             pass
         else:
             self.fail('partial object allowed __dict__ to be deleted')
@@ -146,8 +150,10 @@ class TestPartial(unittest.TestCase):
         join = self.thetype(''.join)
         self.assertEqual(join(data), '0123456789')
 
+
 class PartialSubclass(functools.partial):
     pass
+
 
 class TestPartialSubclass(TestPartial):
 
@@ -157,6 +163,7 @@ class TestPartialSubclass(TestPartial):
 class TestPythonPartial(TestPartial):
 
     thetype = PythonPartial
+
 
 class TestUpdateWrapper(unittest.TestCase):
 
@@ -178,6 +185,7 @@ class TestUpdateWrapper(unittest.TestCase):
             """This is a test"""
             pass
         f.attr = 'This is also a test'
+
         def wrapper():
             pass
         functools.update_wrapper(wrapper, f)
@@ -191,6 +199,7 @@ class TestUpdateWrapper(unittest.TestCase):
             """This is a test"""
             pass
         f.attr = 'This is also a test'
+
         def wrapper():
             pass
         functools.update_wrapper(wrapper, f, (), ())
@@ -204,6 +213,7 @@ class TestUpdateWrapper(unittest.TestCase):
             pass
         f.attr = 'This is a different test'
         f.dict_attr = dict(a=1, b=2, c=3)
+
         def wrapper():
             pass
         wrapper.dict_attr = {}
@@ -224,6 +234,7 @@ class TestWraps(TestUpdateWrapper):
             """This is a test"""
             pass
         f.attr = 'This is also a test'
+
         @functools.wraps(f)
         def wrapper():
             pass
@@ -237,6 +248,7 @@ class TestWraps(TestUpdateWrapper):
             """This is a test"""
             pass
         f.attr = 'This is also a test'
+
         @functools.wraps(f, (), ())
         def wrapper():
             pass
@@ -250,11 +262,13 @@ class TestWraps(TestUpdateWrapper):
             pass
         f.attr = 'This is a different test'
         f.dict_attr = dict(a=1, b=2, c=3)
+
         def add_dict_attr(f):
             f.dict_attr = {}
             return f
         assign = ('attr',)
         update = ('dict_attr',)
+
         @functools.wraps(f, assign, update)
         @add_dict_attr
         def wrapper():
@@ -264,7 +278,6 @@ class TestWraps(TestUpdateWrapper):
         self.assertEqual(wrapper.__doc__, None)
         self.assertEqual(wrapper.attr, 'This is a different test')
         self.assertEqual(wrapper.dict_attr, f.dict_attr)
-
 
 
 def test_main(verbose=None):
@@ -287,6 +300,7 @@ def test_main(verbose=None):
             gc.collect()
             counts[i] = sys.gettotalrefcount()
         print counts
+
 
 if __name__ == '__main__':
     test_main(verbose=True)

@@ -15,5 +15,5 @@ from _socket import (
 cpython_compatible_select = select
 
 __all__ = [
-    "POLLIN", "POLLOUT", "POLLPRI", "POLLERR", "POLLHUP", "POLLNVAL", 
+    "POLLIN", "POLLOUT", "POLLPRI", "POLLERR", "POLLHUP", "POLLNVAL",
     "error", "poll", "select", "cpython_compatible_select"]

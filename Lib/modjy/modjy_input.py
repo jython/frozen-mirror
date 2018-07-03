@@ -24,6 +24,7 @@
 
 import jarray
 
+
 class modjy_input_object(object):
 
     def __init__(self, servlet_inputstream, bufsize=8192):
@@ -34,7 +35,7 @@ class modjy_input_object(object):
     def istream_read(self, n):
         data = jarray.zeros(n, 'b')
         m = self.istream.read(data)
-        if m == -1: # indicates EOF has been reached, so we just return the empty string
+        if m == -1:  # indicates EOF has been reached, so we just return the empty string
             return ""
         elif m <= 0:
             return ""

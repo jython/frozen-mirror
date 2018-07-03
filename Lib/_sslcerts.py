@@ -71,14 +71,23 @@ def _get_ca_certs_trust_manager(ca_certs=None):
             for cert in cf.generateCertificates(BufferedInputStream(f)):
                 trust_store.setCertificateEntry(str(uuid.uuid4()), cert)
                 num_certs_installed += 1
-    tmf = SimpleTrustManagerFactory.getInstance(SimpleTrustManagerFactory.getDefaultAlgorithm())
+    tmf = SimpleTrustManagerFactory.getInstance(
+        SimpleTrustManagerFactory.getDefaultAlgorithm())
     tmf.init(trust_store)
-    log.debug("Installed %s certificates", num_certs_installed, extra={"sock": "*"})
+    log.debug(
+        "Installed %s certificates",
+        num_certs_installed,
+        extra={
+            "sock": "*"})
     return tmf
 
 
 def _stringio_as_reader(s):
-    return BufferedReader(InputStreamReader(ByteArrayInputStream(bytearray(s.getvalue()))))
+    return BufferedReader(
+        InputStreamReader(
+            ByteArrayInputStream(
+                bytearray(
+                    s.getvalue()))))
 
 
 def _extract_readers(f):
@@ -99,12 +108,18 @@ def _extract_readers(f):
 
     if not key_cert_start_line_found:
         from _socket import SSLError, SSL_ERROR_SSL
-        raise SSLError(SSL_ERROR_SSL, "PEM lib (no start line or not enough data)")
+        raise SSLError(
+            SSL_ERROR_SSL,
+            "PEM lib (no start line or not enough data)")
 
     return [_stringio_as_reader(sio) for sio in string_ios]
 
 
-def _get_openssl_key_manager(cert_file=None, key_file=None, password=None, _key_store=None):
+def _get_openssl_key_manager(
+        cert_file=None,
+        key_file=None,
+        password=None,
+        _key_store=None):
     certs, private_key = [], None
 
     if _key_store is None:
@@ -129,7 +144,11 @@ def _get_openssl_key_manager(cert_file=None, key_file=None, password=None, _key_
         keys_match, validateable_keys_found = False, False
         for cert in certs:
             # TODO works for RSA only for now
-            if isinstance(cert.publicKey, RSAPublicKey) and isinstance(private_key, RSAPrivateCrtKey):
+            if isinstance(
+                    cert.publicKey,
+                    RSAPublicKey) and isinstance(
+                    private_key,
+                    RSAPrivateCrtKey):
                 validateable_keys_found = True
 
             if validateable_keys_found:
@@ -142,9 +161,16 @@ def _get_openssl_key_manager(cert_file=None, key_file=None, password=None, _key_
             from _socket import SSLError, SSL_ERROR_SSL
             raise SSLError(SSL_ERROR_SSL, "key values mismatch")
 
-        _key_store.setKeyEntry(_str_hash_key_entry(private_key, *certs), private_key, [], certs)
+        _key_store.setKeyEntry(
+            _str_hash_key_entry(
+                private_key,
+                *certs),
+            private_key,
+            [],
+            certs)
 
-    kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+    kmf = KeyManagerFactory.getInstance(
+        KeyManagerFactory.getDefaultAlgorithm())
     kmf.init(_key_store, [])
     return kmf
 
@@ -161,7 +187,12 @@ def _str_hash_key_entry(*args):
 
 def _parse_password(password):
     is_password_func = False
-    if isinstance(password, (types.FunctionType, types.MethodType)) or hasattr(password, '__call__'):
+    if isinstance(
+            password,
+            (types.FunctionType,
+             types.MethodType)) or hasattr(
+            password,
+            '__call__'):
         password = password()
         is_password_func = True
     if password is None:
@@ -169,7 +200,8 @@ def _parse_password(password):
     elif isinstance(password, (str, bytearray)):
         password = str(password)
         if len(password) >= 102400:  # simulate openssl PEM_BUFSIZE limit error
-            raise ValueError("PEM lib (password cannot be longer than 102400 -1)")
+            raise ValueError(
+                "PEM lib (password cannot be longer than 102400 -1)")
     else:
         if is_password_func:
             raise TypeError("PEM lib (must return a string")
@@ -199,7 +231,8 @@ def _extract_certs_from_keystore_file(f, password):
 
 
 def _extract_certs_for_paths(paths, password=None):
-    # Go from Bouncy Castle API to Java's; a bit heavyweight for the Python dev ;)
+    # Go from Bouncy Castle API to Java's; a bit heavyweight for the Python
+    # dev ;)
     key_converter = JcaPEMKeyConverter().setProvider("BC")
     cert_converter = JcaX509CertificateConverter().setProvider("BC")
     certs = []
@@ -215,13 +248,18 @@ def _extract_certs_for_paths(paths, password=None):
                 pass  # reported as 'Invalid keystore format'
         if err is not None:  # try loading pem version instead
             with open(path) as f:
-                _certs, _private_key = _extract_cert_from_data(f, password, key_converter, cert_converter)
+                _certs, _private_key = _extract_cert_from_data(
+                    f, password, key_converter, cert_converter)
                 private_key = _private_key if _private_key else private_key
                 certs.extend(_certs)
     return certs, private_key
 
 
-def _extract_cert_from_data(f, password=None, key_converter=None, cert_converter=None):
+def _extract_cert_from_data(
+        f,
+        password=None,
+        key_converter=None,
+        cert_converter=None):
     certs = []
     private_key = None
 
@@ -231,10 +269,12 @@ def _extract_cert_from_data(f, password=None, key_converter=None, cert_converter
         f = StringIO(f)
 
     if not hasattr(f, 'seek'):
-        raise TypeError("PEM lib (data must be a file like object, string or bytes")
+        raise TypeError(
+            "PEM lib (data must be a file like object, string or bytes")
 
     if _is_cert_pem(f):
-        certs, private_key = _read_pem_cert_from_data(f, password, key_converter, cert_converter)
+        certs, private_key = _read_pem_cert_from_data(
+            f, password, key_converter, cert_converter)
     else:
         cf = CertificateFactory.getInstance("X.509")
         certs = list(cf.generateCertificates(ByteArrayInputStream(f.read())))
@@ -270,14 +310,16 @@ def _read_pem_cert_from_data(f, password, key_converter, cert_converter):
             elif isinstance(obj, PEMEncryptedKeyPair):
                 provider = JcePEMDecryptorProviderBuilder().build(_parse_password(password))
                 try:
-                    key_pair = key_converter.getKeyPair(obj.decryptKeyPair(provider))
+                    key_pair = key_converter.getKeyPair(
+                        obj.decryptKeyPair(provider))
                 except EncryptionException as err:
                     from _socket import SSLError, SSL_ERROR_SSL
                     raise SSLError(SSL_ERROR_SSL, "PEM lib ({})".format(err))
 
                 private_key = key_pair.getPrivate()
             else:
-                raise NotImplementedError("Jython does not implement PEM object {!r}".format(obj))
+                raise NotImplementedError(
+                    "Jython does not implement PEM object {!r}".format(obj))
     return certs, private_key
 
 
@@ -302,8 +344,13 @@ def _get_ecdh_parameter_spec(curve_name):
     if spec_param is None:
         raise ValueError("unknown elliptic curve name {}".format(curve_name))
 
-    return ECNamedCurveSpec(spec_param.getName(), spec_param.getCurve(), spec_param.getG(), spec_param.getN(),
-                            spec_param.getH(), spec_param.getSeed())
+    return ECNamedCurveSpec(
+        spec_param.getName(),
+        spec_param.getCurve(),
+        spec_param.getG(),
+        spec_param.getN(),
+        spec_param.getH(),
+        spec_param.getSeed())
 
 
 # CompositeX509KeyManager and CompositeX509TrustManager allow for mixing together Java built-in managers
@@ -313,10 +360,11 @@ def _get_ecdh_parameter_spec(curve_name):
 # for a good description of this composite approach.
 #
 # Ported to Python from http://codyaray.com/2013/04/java-ssl-with-multiple-keystores
-# which was inspired by http://stackoverflow.com/questions/1793979/registering-multiple-keystores-in-jvm
+# which was inspired by
+# http://stackoverflow.com/questions/1793979/registering-multiple-keystores-in-jvm
 
 class CompositeX509KeyManager(X509KeyManager):
-                                                   
+
     def __init__(self, key_managers):
         self.key_managers = key_managers
 
@@ -324,16 +372,16 @@ class CompositeX509KeyManager(X509KeyManager):
         for key_manager in self.key_managers:
             alias = key_manager.chooseClientAlias(key_type, issuers, socket)
             if alias:
-                return alias;
+                return alias
         return None
 
     def chooseServerAlias(self, key_type, issuers, socket):
         for key_manager in self.key_managers:
             alias = key_manager.chooseServerAlias(key_type, issuers, socket)
             if alias:
-                return alias;
+                return alias
         return None
-    
+
     def getPrivateKey(self, alias):
         for key_manager in self.key_managers:
             private_key = key_manager.getPrivateKey(alias)
@@ -381,7 +429,9 @@ class CompositeX509TrustManager(X509TrustManager):
                 continue
             except RuntimeException as err:
                 # special-case to raise proper CertificateException ;)
-                if isinstance(err.getCause(), InvalidAlgorithmParameterException):
+                if isinstance(
+                        err.getCause(),
+                        InvalidAlgorithmParameterException):
                     if err.getCause().getMessage() == u'the trustAnchors parameter must be non-empty':
                         continue
                 raise
@@ -397,7 +447,9 @@ class CompositeX509TrustManager(X509TrustManager):
                 continue
             except RuntimeException as err:
                 # special-case to raise proper CertificateException ;)
-                if isinstance(err.getCause(), InvalidAlgorithmParameterException):
+                if isinstance(
+                        err.getCause(),
+                        InvalidAlgorithmParameterException):
                     if err.getCause().getMessage() == u'the trustAnchors parameter must be non-empty':
                         continue
                 raise

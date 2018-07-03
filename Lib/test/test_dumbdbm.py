@@ -10,12 +10,14 @@ from test import test_support
 
 _fname = test_support.TESTFN
 
+
 def _delete_files():
     for ext in [".dir", ".dat", ".bak"]:
         try:
             os.unlink(_fname + ext)
         except OSError:
             pass
+
 
 class DumbDBMTestCase(unittest.TestCase):
     _dict = {'0': '',
@@ -44,13 +46,13 @@ class DumbDBMTestCase(unittest.TestCase):
             return
 
         try:
-            old_umask = os.umask(0002)
-            f = dumbdbm.open(_fname, 'c', 0637)
+            old_umask = os.umask(0o002)
+            f = dumbdbm.open(_fname, 'c', 0o637)
             f.close()
         finally:
             os.umask(old_umask)
 
-        expected_mode = 0635
+        expected_mode = 0o635
         is_posix = True
         if os.name == 'java':
             if os._name != 'posix':
@@ -60,7 +62,7 @@ class DumbDBMTestCase(unittest.TestCase):
         if not is_posix:
             # Windows only supports setting the read-only attribute.
             # This shouldn't fail, but doesn't work like Unix either.
-            expected_mode = 0666
+            expected_mode = 0o666
 
         import stat
         st = os.stat(_fname + '.dat')
@@ -126,7 +128,6 @@ class DumbDBMTestCase(unittest.TestCase):
         self.assertEqual(f['2'], 'hello2')
         f.close()
 
-
     def read_helper(self, f):
         keys = self.keys_helper(f)
         for key in self._dict:
@@ -139,10 +140,8 @@ class DumbDBMTestCase(unittest.TestCase):
         f.close()
 
     def keys_helper(self, f):
-        keys = f.keys()
-        keys.sort()
-        dkeys = self._dict.keys()
-        dkeys.sort()
+        keys = sorted(f.keys())
+        dkeys = sorted(self._dict.keys())
         self.assertEqual(keys, dkeys)
         return keys
 
@@ -167,10 +166,8 @@ class DumbDBMTestCase(unittest.TestCase):
             f.close()
 
             f = dumbdbm.open(_fname)
-            expected = d.items()
-            expected.sort()
-            got = f.items()
-            got.sort()
+            expected = sorted(d.items())
+            got = sorted(f.items())
             self.assertEqual(expected, got)
             f.close()
 
@@ -180,11 +177,13 @@ class DumbDBMTestCase(unittest.TestCase):
     def setUp(self):
         _delete_files()
 
+
 def test_main():
     try:
         test_support.run_unittest(DumbDBMTestCase)
     finally:
         _delete_files()
+
 
 if __name__ == "__main__":
     test_main()

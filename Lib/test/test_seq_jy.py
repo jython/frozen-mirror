@@ -6,12 +6,14 @@ import unittest
 from collections import deque
 from test import test_support
 
+
 class SeqTestCase(unittest.TestCase):
 
     types2test = list, tuple, deque
 
     def test_seq_item_equality(self):
         eq_called = []
+
         class Foo(object):
             def __eq__(self, other):
                 eq_called.append(other)

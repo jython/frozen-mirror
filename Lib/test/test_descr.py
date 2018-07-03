@@ -11,15 +11,18 @@ else:
         pass
 
 warnings.filterwarnings("ignore",
-         r'complex divmod\(\), // and % are deprecated$',
-         DeprecationWarning, r'(<string>|%s)$' % __name__)
+                        r'complex divmod\(\), // and % are deprecated$',
+                        DeprecationWarning, r'(<string>|%s)$' % __name__)
+
 
 def veris(a, b):
     if a is not b:
-        raise TestFailed, "%r is %r" % (a, b)
+        raise TestFailed("%r is %r" % (a, b))
+
 
 def testunop(a, res, expr="len(a)", meth="__len__"):
-    if verbose: print "checking", expr
+    if verbose:
+        print "checking", expr
     dict = {'a': a}
     vereq(eval(expr, dict), res)
     t = type(a)
@@ -31,12 +34,14 @@ def testunop(a, res, expr="len(a)", meth="__len__"):
     bm = getattr(a, meth)
     vereq(bm(), res)
 
+
 def testbinop(a, b, res, expr="a+b", meth="__add__"):
-    if verbose: print "checking", expr
+    if verbose:
+        print "checking", expr
     dict = {'a': a, 'b': b}
 
     # XXX Hack so this passes before 2.3 when -Qnew is specified.
-    if meth == "__div__" and 1/2 == 0.5:
+    if meth == "__div__" and 1 / 2 == 0.5:
         meth = "__truediv__"
 
     vereq(eval(expr, dict), res)
@@ -49,8 +54,10 @@ def testbinop(a, b, res, expr="a+b", meth="__add__"):
     bm = getattr(a, meth)
     vereq(bm(b), res)
 
+
 def testternop(a, b, c, res, expr="a[b:c]", meth="__getslice__"):
-    if verbose: print "checking", expr
+    if verbose:
+        print "checking", expr
     dict = {'a': a, 'b': b, 'c': c}
     vereq(eval(expr, dict), res)
     t = type(a)
@@ -62,8 +69,10 @@ def testternop(a, b, c, res, expr="a[b:c]", meth="__getslice__"):
     bm = getattr(a, meth)
     vereq(bm(b, c), res)
 
+
 def testsetop(a, b, res, stmt="a+=b", meth="__iadd__"):
-    if verbose: print "checking", stmt
+    if verbose:
+        print "checking", stmt
     dict = {'a': deepcopy(a), 'b': b}
     exec stmt in dict
     vereq(dict['a'], res)
@@ -80,8 +89,10 @@ def testsetop(a, b, res, stmt="a+=b", meth="__iadd__"):
     bm(b)
     vereq(dict['a'], res)
 
+
 def testset2op(a, b, c, res, stmt="a[b]=c", meth="__setitem__"):
-    if verbose: print "checking", stmt
+    if verbose:
+        print "checking", stmt
     dict = {'a': deepcopy(a), 'b': b, 'c': c}
     exec stmt in dict
     vereq(dict['a'], res)
@@ -98,8 +109,10 @@ def testset2op(a, b, c, res, stmt="a[b]=c", meth="__setitem__"):
     bm(b, c)
     vereq(dict['a'], res)
 
+
 def testset3op(a, b, c, d, res, stmt="a[b:c]=d", meth="__setslice__"):
-    if verbose: print "checking", stmt
+    if verbose:
+        print "checking", stmt
     dict = {'a': deepcopy(a), 'b': b, 'c': c, 'd': d}
     exec stmt in dict
     vereq(dict['a'], res)
@@ -115,6 +128,7 @@ def testset3op(a, b, c, d, res, stmt="a[b:c]=d", meth="__setslice__"):
     bm = getattr(dict['a'], meth)
     bm(b, c, d)
     vereq(dict['a'], res)
+
 
 def class_docstrings():
     class Classic:
@@ -144,44 +158,54 @@ def class_docstrings():
         pass
     verify(NewDynamic2.__doc__ is None)
 
+
 def lists():
-    if verbose: print "Testing list operations..."
-    testbinop([1], [2], [1,2], "a+b", "__add__")
-    testbinop([1,2,3], 2, 1, "b in a", "__contains__")
-    testbinop([1,2,3], 4, 0, "b in a", "__contains__")
-    testbinop([1,2,3], 1, 2, "a[b]", "__getitem__")
-    testternop([1,2,3], 0, 2, [1,2], "a[b:c]", "__getslice__")
-    testsetop([1], [2], [1,2], "a+=b", "__iadd__")
-    testsetop([1,2], 3, [1,2,1,2,1,2], "a*=b", "__imul__")
-    testunop([1,2,3], 3, "len(a)", "__len__")
-    testbinop([1,2], 3, [1,2,1,2,1,2], "a*b", "__mul__")
-    testbinop([1,2], 3, [1,2,1,2,1,2], "b*a", "__rmul__")
-    testset2op([1,2], 1, 3, [1,3], "a[b]=c", "__setitem__")
-    testset3op([1,2,3,4], 1, 3, [5,6], [1,5,6,4], "a[b:c]=d", "__setslice__")
+    if verbose:
+        print "Testing list operations..."
+    testbinop([1], [2], [1, 2], "a+b", "__add__")
+    testbinop([1, 2, 3], 2, 1, "b in a", "__contains__")
+    testbinop([1, 2, 3], 4, 0, "b in a", "__contains__")
+    testbinop([1, 2, 3], 1, 2, "a[b]", "__getitem__")
+    testternop([1, 2, 3], 0, 2, [1, 2], "a[b:c]", "__getslice__")
+    testsetop([1], [2], [1, 2], "a+=b", "__iadd__")
+    testsetop([1, 2], 3, [1, 2, 1, 2, 1, 2], "a*=b", "__imul__")
+    testunop([1, 2, 3], 3, "len(a)", "__len__")
+    testbinop([1, 2], 3, [1, 2, 1, 2, 1, 2], "a*b", "__mul__")
+    testbinop([1, 2], 3, [1, 2, 1, 2, 1, 2], "b*a", "__rmul__")
+    testset2op([1, 2], 1, 3, [1, 3], "a[b]=c", "__setitem__")
+    testset3op([1, 2, 3, 4], 1, 3, [5, 6], [
+               1, 5, 6, 4], "a[b:c]=d", "__setslice__")
+
 
 def dicts():
-    if verbose: print "Testing dict operations..."
-    testbinop({1:2}, {2:1}, -1, "cmp(a,b)", "__cmp__")
-    testbinop({1:2,3:4}, 1, 1, "b in a", "__contains__")
-    testbinop({1:2,3:4}, 2, 0, "b in a", "__contains__")
-    testbinop({1:2,3:4}, 1, 2, "a[b]", "__getitem__")
-    d = {1:2,3:4}
+    if verbose:
+        print "Testing dict operations..."
+    testbinop({1: 2}, {2: 1}, -1, "cmp(a,b)", "__cmp__")
+    testbinop({1: 2, 3: 4}, 1, 1, "b in a", "__contains__")
+    testbinop({1: 2, 3: 4}, 2, 0, "b in a", "__contains__")
+    testbinop({1: 2, 3: 4}, 1, 2, "a[b]", "__getitem__")
+    d = {1: 2, 3: 4}
     l1 = []
-    for i in d.keys(): l1.append(i)
+    for i in d.keys():
+        l1.append(i)
     l = []
-    for i in iter(d): l.append(i)
+    for i in iter(d):
+        l.append(i)
     vereq(l, l1)
     l = []
-    for i in d.__iter__(): l.append(i)
+    for i in d.__iter__():
+        l.append(i)
     vereq(l, l1)
     l = []
-    for i in dict.__iter__(d): l.append(i)
+    for i in dict.__iter__(d):
+        l.append(i)
     vereq(l, l1)
-    d = {1:2, 3:4}
+    d = {1: 2, 3: 4}
     testunop(d, 2, "len(a)", "__len__")
     vereq(eval(repr(d), {}), d)
     vereq(eval(d.__repr__(), {}), d)
-    testset2op({1:2,3:4}, 2, 3, {1:2,2:3,3:4}, "a[b]=c", "__setitem__")
+    testset2op({1: 2, 3: 4}, 2, 3, {1: 2, 2: 3, 3: 4}, "a[b]=c", "__setitem__")
+
 
 def dict_constructor():
     if verbose:
@@ -194,14 +218,14 @@ def dict_constructor():
     vereq(d, {1: 2, 'a': 'b'})
     vereq(d, dict(d.items()))
     vereq(d, dict(d.iteritems()))
-    d = dict({'one':1, 'two':2})
+    d = dict({'one': 1, 'two': 2})
     vereq(d, dict(one=1, two=2))
     vereq(d, dict(**d))
     vereq(d, dict({"one": 1}, two=2))
     vereq(d, dict([("two", 2)], one=1))
     vereq(d, dict([("one", 100), ("two", 200)], **d))
     verify(d is not dict(**d))
-    for badarg in 0, 0L, 0j, "0", [0], (0,):
+    for badarg in 0, 0, 0j, "0", [0], (0,):
         try:
             dict(badarg)
         except TypeError:
@@ -226,7 +250,7 @@ def dict_constructor():
 
     class Mapping:
         # Lacks a .keys() method; will be added later.
-        dict = {1:2, 3:4, 'a':1j}
+        dict = {1: 2, 3: 4, 'a': 1j}
 
     try:
         dict(Mapping())
@@ -245,6 +269,7 @@ def dict_constructor():
         def __init__(self, first, last):
             self.first = first
             self.last = last
+
         def __iter__(self):
             return iter([self.first, self.last])
 
@@ -255,7 +280,7 @@ def dict_constructor():
     vereq(d, {'Barry': 'Warsaw', 'Tim': 'Peters'})
 
     d = dict(zip(range(4), range(1, 5)))
-    vereq(d, dict([(i, i+1) for i in range(4)]))
+    vereq(d, dict([(i, i + 1) for i in range(4)]))
 
     # Bad sequence lengths.
     for bad in [('tooshort',)], [('too', 'long', 'by 1')]:
@@ -266,6 +291,7 @@ def dict_constructor():
         else:
             raise TestFailed("no ValueError from dict(%r)" % bad)
 
+
 def test_dir():
     if verbose:
         print "Testing dir() ..."
@@ -274,12 +300,13 @@ def test_dir():
     del junk
 
     # Just make sure these don't blow up!
-    for arg in 2, 2L, 2j, 2e0, [2], "2", u"2", (2,), {2:2}, type, test_dir:
+    for arg in 2, 2, 2j, 2e0, [2], "2", u"2", (2,), {2: 2}, type, test_dir:
         dir(arg)
 
     # Try classic classes.
     class C:
         Cdata = 1
+
         def Cmethod(self): pass
 
     cstuff = ['Cdata', 'Cmethod', '__doc__', '__module__']
@@ -296,6 +323,7 @@ def test_dir():
 
     class A(C):
         Adata = 1
+
         def Amethod(self): pass
 
     astuff = ['Adata', 'Amethod'] + cstuff
@@ -315,6 +343,7 @@ def test_dir():
 
     class C(object):
         Cdata = 1
+
         def Cmethod(self): pass
 
     cstuff = ['Cdata', 'Cmethod']
@@ -331,6 +360,7 @@ def test_dir():
 
     class A(C):
         Adata = 1
+
         def Amethod(self): pass
 
     astuff = ['Adata', 'Amethod'] + cstuff
@@ -345,6 +375,7 @@ def test_dir():
 
     # Try a module subclass.
     from types import ModuleType
+
     class M(ModuleType):
         pass
     minstance = M("m")
@@ -375,12 +406,16 @@ def test_dir():
     class Wrapper(object):
         def __init__(self, obj):
             self.__obj = obj
+
         def __repr__(self):
             return "Wrapper(%s)" % repr(self.__obj)
+
         def __getitem__(self, key):
             return Wrapper(self.__obj[key])
+
         def __len__(self):
             return len(self.__obj)
+
         def __getattr__(self, name):
             return Wrapper(getattr(self.__obj, name))
 
@@ -389,7 +424,8 @@ def test_dir():
             return Wrapper(type(self))
         __class__ = property(__getclass)
 
-    dir(C()) # This used to segfault
+    dir(C())  # This used to segfault
+
 
 binops = {
     'add': '+',
@@ -411,7 +447,7 @@ binops = {
     'ne': '!=',
     'gt': '>',
     'ge': '>=',
-    }
+}
 
 for name, expr in binops.items():
     if expr.islower():
@@ -430,7 +466,7 @@ unops = {
     'float': 'float',
     'oct': 'oct',
     'hex': 'hex',
-    }
+}
 
 for name, expr in unops.items():
     if expr.islower():
@@ -438,6 +474,7 @@ for name, expr in unops.items():
     else:
         expr = '%s a' % expr
     unops[name] = expr
+
 
 def numops(a, b, skip=[]):
     dict = {'a': a, 'b': b}
@@ -454,48 +491,60 @@ def numops(a, b, skip=[]):
                 res = eval(expr, dict)
                 testunop(a, res, expr, name)
 
+
 def ints():
-    if verbose: print "Testing int operations..."
+    if verbose:
+        print "Testing int operations..."
     numops(100, 3)
     # The following crashes in Python 2.2
     vereq((1).__nonzero__(), 1)
     vereq((0).__nonzero__(), 0)
     # This returns 'NotImplemented' in Python 2.2
+
     class C(int):
         def __add__(self, other):
             return NotImplemented
-    vereq(C(5L), 5)
+    vereq(C(5), 5)
     try:
         C() + ""
     except TypeError:
         pass
     else:
-        raise TestFailed, "NotImplemented should have caused TypeError"
+        raise TestFailed("NotImplemented should have caused TypeError")
     import sys
     try:
-        C(sys.maxint+1)
+        C(sys.maxsize + 1)
     except OverflowError:
         pass
     else:
-        raise TestFailed, "should have raised OverflowError"
+        raise TestFailed("should have raised OverflowError")
+
 
 def longs():
-    if verbose: print "Testing long operations..."
-    numops(100L, 3L)
+    if verbose:
+        print "Testing long operations..."
+    numops(100, 3)
+
 
 def floats():
-    if verbose: print "Testing float operations..."
+    if verbose:
+        print "Testing float operations..."
     numops(100.0, 3.0)
 
+
 def complexes():
-    if verbose: print "Testing complex operations..."
+    if verbose:
+        print "Testing complex operations..."
     numops(100.0j, 3.0j, skip=['lt', 'le', 'gt', 'ge', 'int', 'long', 'float'])
+
     class Number(complex):
         __slots__ = ['prec']
+
         def __new__(cls, *args, **kwds):
             result = complex.__new__(cls, *args)
             result.prec = kwds.get('prec', 12)
             return result
+
         def __repr__(self):
             prec = self.prec
             if self.imag == 0.0:
@@ -517,31 +566,40 @@ def complexes():
     vereq(repr(a), "234.5")
     vereq(a.prec, 12)
 
+
 def spamlists():
-    if verbose: print "Testing spamlist operations..."
-    import copy, xxsubtype as spam
+    if verbose:
+        print "Testing spamlist operations..."
+    import copy
+    import xxsubtype as spam
+
     def spamlist(l, memo=None):
         import xxsubtype as spam
         return spam.spamlist(l)
     # This is an ugly hack:
     copy._deepcopy_dispatch[spam.spamlist] = spamlist
 
-    testbinop(spamlist([1]), spamlist([2]), spamlist([1,2]), "a+b", "__add__")
-    testbinop(spamlist([1,2,3]), 2, 1, "b in a", "__contains__")
-    testbinop(spamlist([1,2,3]), 4, 0, "b in a", "__contains__")
-    testbinop(spamlist([1,2,3]), 1, 2, "a[b]", "__getitem__")
-    testternop(spamlist([1,2,3]), 0, 2, spamlist([1,2]),
+    testbinop(spamlist([1]), spamlist([2]), spamlist([1, 2]), "a+b", "__add__")
+    testbinop(spamlist([1, 2, 3]), 2, 1, "b in a", "__contains__")
+    testbinop(spamlist([1, 2, 3]), 4, 0, "b in a", "__contains__")
+    testbinop(spamlist([1, 2, 3]), 1, 2, "a[b]", "__getitem__")
+    testternop(spamlist([1, 2, 3]), 0, 2, spamlist([1, 2]),
                "a[b:c]", "__getslice__")
-    testsetop(spamlist([1]), spamlist([2]), spamlist([1,2]),
+    testsetop(spamlist([1]), spamlist([2]), spamlist([1, 2]),
               "a+=b", "__iadd__")
-    testsetop(spamlist([1,2]), 3, spamlist([1,2,1,2,1,2]), "a*=b", "__imul__")
-    testunop(spamlist([1,2,3]), 3, "len(a)", "__len__")
-    testbinop(spamlist([1,2]), 3, spamlist([1,2,1,2,1,2]), "a*b", "__mul__")
-    testbinop(spamlist([1,2]), 3, spamlist([1,2,1,2,1,2]), "b*a", "__rmul__")
-    testset2op(spamlist([1,2]), 1, 3, spamlist([1,3]), "a[b]=c", "__setitem__")
-    testset3op(spamlist([1,2,3,4]), 1, 3, spamlist([5,6]),
-               spamlist([1,5,6,4]), "a[b:c]=d", "__setslice__")
+    testsetop(spamlist([1, 2]), 3, spamlist(
+        [1, 2, 1, 2, 1, 2]), "a*=b", "__imul__")
+    testunop(spamlist([1, 2, 3]), 3, "len(a)", "__len__")
+    testbinop(spamlist([1, 2]), 3, spamlist(
+        [1, 2, 1, 2, 1, 2]), "a*b", "__mul__")
+    testbinop(spamlist([1, 2]), 3, spamlist(
+        [1, 2, 1, 2, 1, 2]), "b*a", "__rmul__")
+    testset2op(spamlist([1, 2]), 1, 3, spamlist(
+        [1, 3]), "a[b]=c", "__setitem__")
+    testset3op(spamlist([1, 2, 3, 4]), 1, 3, spamlist([5, 6]),
+               spamlist([1, 5, 6, 4]), "a[b:c]=d", "__setslice__")
     # Test subclassing
+
     class C(spam.spamlist):
         def foo(self): return 1
     a = C()
@@ -553,40 +611,50 @@ def spamlists():
     a.setstate(42)
     vereq(a.getstate(), 42)
 
+
 def spamdicts():
-    if verbose: print "Testing spamdict operations..."
-    import copy, xxsubtype as spam
+    if verbose:
+        print "Testing spamdict operations..."
+    import copy
+    import xxsubtype as spam
+
     def spamdict(d, memo=None):
         import xxsubtype as spam
         sd = spam.spamdict()
-        for k, v in d.items(): sd[k] = v
+        for k, v in d.items():
+            sd[k] = v
         return sd
     # This is an ugly hack:
     copy._deepcopy_dispatch[spam.spamdict] = spamdict
 
-    testbinop(spamdict({1:2}), spamdict({2:1}), -1, "cmp(a,b)", "__cmp__")
-    testbinop(spamdict({1:2,3:4}), 1, 1, "b in a", "__contains__")
-    testbinop(spamdict({1:2,3:4}), 2, 0, "b in a", "__contains__")
-    testbinop(spamdict({1:2,3:4}), 1, 2, "a[b]", "__getitem__")
-    d = spamdict({1:2,3:4})
+    testbinop(spamdict({1: 2}), spamdict({2: 1}), -1, "cmp(a,b)", "__cmp__")
+    testbinop(spamdict({1: 2, 3: 4}), 1, 1, "b in a", "__contains__")
+    testbinop(spamdict({1: 2, 3: 4}), 2, 0, "b in a", "__contains__")
+    testbinop(spamdict({1: 2, 3: 4}), 1, 2, "a[b]", "__getitem__")
+    d = spamdict({1: 2, 3: 4})
     l1 = []
-    for i in d.keys(): l1.append(i)
+    for i in d.keys():
+        l1.append(i)
     l = []
-    for i in iter(d): l.append(i)
+    for i in iter(d):
+        l.append(i)
     vereq(l, l1)
     l = []
-    for i in d.__iter__(): l.append(i)
+    for i in d.__iter__():
+        l.append(i)
     vereq(l, l1)
     l = []
-    for i in type(spamdict({})).__iter__(d): l.append(i)
+    for i in type(spamdict({})).__iter__(d):
+        l.append(i)
     vereq(l, l1)
-    straightd = {1:2, 3:4}
+    straightd = {1: 2, 3: 4}
     spamd = spamdict(straightd)
     testunop(spamd, 2, "len(a)", "__len__")
     testunop(spamd, repr(straightd), "repr(a)", "__repr__")
-    testset2op(spamdict({1:2,3:4}), 2, 3, spamdict({1:2,2:3,3:4}),
+    testset2op(spamdict({1: 2, 3: 4}), 2, 3, spamdict({1: 2, 2: 3, 3: 4}),
                "a[b]=c", "__setitem__")
     # Test subclassing
+
     class C(spam.spamdict):
         def foo(self): return 1
     a = C()
@@ -598,29 +666,38 @@ def spamdicts():
     a.setstate(100)
     vereq(a.getstate(), 100)
 
+
 def pydicts():
-    if verbose: print "Testing Python subclass of dict..."
+    if verbose:
+        print "Testing Python subclass of dict..."
     verify(issubclass(dict, dict))
     verify(isinstance({}, dict))
     d = dict()
     vereq(d, {})
     verify(d.__class__ is dict)
     verify(isinstance(d, dict))
+
     class C(dict):
         state = -1
+
         def __init__(self, *a, **kw):
             if a:
                 vereq(len(a), 1)
                 self.state = a[0]
             if kw:
-                for k, v in kw.items(): self[v] = k
+                for k, v in kw.items():
+                    self[v] = k
+
         def __getitem__(self, key):
             return self.get(key, 0)
+
         def __setitem__(self, key, value):
             verify(isinstance(key, type(0)))
             dict.__setitem__(self, key, value)
+
         def setstate(self, state):
             self.state = state
+
         def getstate(self):
             return self.state
     verify(issubclass(C, dict))
@@ -640,54 +717,68 @@ def pydicts():
     vereq(a[42], 0)
     a[42] = 24
     vereq(a[42], 24)
-    if verbose: print "pydict stress test ..."
+    if verbose:
+        print "pydict stress test ..."
     N = 50
     for i in range(N):
         a[i] = C()
         for j in range(N):
-            a[i][j] = i*j
+            a[i][j] = i * j
     for i in range(N):
         for j in range(N):
-            vereq(a[i][j], i*j)
+            vereq(a[i][j], i * j)
+
 
 def pylists():
-    if verbose: print "Testing Python subclass of list..."
+    if verbose:
+        print "Testing Python subclass of list..."
+
     class C(list):
         def __getitem__(self, i):
             return list.__getitem__(self, i) + 100
+
         def __getslice__(self, i, j):
             return (i, j)
     a = C()
-    a.extend([0,1,2])
+    a.extend([0, 1, 2])
     vereq(a[0], 100)
     vereq(a[1], 101)
     vereq(a[2], 102)
-    vereq(a[100:200], (100,200))
+    vereq(a[100:200], (100, 200))
+
 
 def metaclass():
-    if verbose: print "Testing __metaclass__..."
+    if verbose:
+        print "Testing __metaclass__..."
+
     class C:
         __metaclass__ = type
+
         def __init__(self):
             self.__state = 0
+
         def getstate(self):
             return self.__state
+
         def setstate(self, state):
             self.__state = state
     a = C()
     vereq(a.getstate(), 0)
     a.setstate(10)
     vereq(a.getstate(), 10)
+
     class D:
         class __metaclass__(type):
             def myself(cls): return cls
     vereq(D.myself(), D)
     d = D()
     verify(d.__class__ is D)
+
     class M1(type):
         def __new__(cls, name, bases, dict):
             dict['__spam__'] = 1
             return type.__new__(cls, name, bases, dict)
+
     class C:
         __metaclass__ = M1
     vereq(C.__spam__, 1)
@@ -696,6 +787,7 @@ def metaclass():
 
     class _instance(object):
         pass
+
     class M2(object):
         @staticmethod
         def __new__(cls, name, bases, dict):
@@ -704,6 +796,7 @@ def metaclass():
             self.bases = bases
             self.dict = dict
             return self
+
         def __call__(self):
             it = _instance()
             # Early binding of methods
@@ -712,8 +805,10 @@ def metaclass():
                     continue
                 setattr(it, key, self.dict[key].__get__(it, self))
             return it
+
     class C:
         __metaclass__ = M2
+
         def spam(self):
             return 42
     vereq(C.name, 'C')
@@ -739,20 +834,26 @@ def metaclass():
                 name = "__super"
             setattr(cls, name, super(cls))
             return cls
+
     class A:
         __metaclass__ = autosuper
+
         def meth(self):
             return "A"
+
     class B(A):
         def meth(self):
             return "B" + self.__super.meth()
+
     class C(A):
         def meth(self):
             return "C" + self.__super.meth()
+
     class D(C, B):
         def meth(self):
             return "D" + self.__super.meth()
     vereq(D().meth(), "DCBA")
+
     class E(B, C):
         def meth(self):
             return "E" + self.__super.meth()
@@ -777,11 +878,14 @@ def metaclass():
             for key, (get, set) in hits.iteritems():
                 dict[key] = property(get, set)
             return super(autoproperty, metaclass).__new__(metaclass,
-                                                        name, bases, dict)
+                                                          name, bases, dict)
+
     class A:
         __metaclass__ = autoproperty
+
         def _get_x(self):
             return -self.__x
+
         def _set_x(self, x):
             self.__x = -x
     a = A()
@@ -793,16 +897,21 @@ def metaclass():
     class multimetaclass(autoproperty, autosuper):
         # Merge of multiple cooperating metaclasses
         pass
+
     class A:
         __metaclass__ = multimetaclass
+
         def _get_x(self):
             return "A"
+
     class B(A):
         def _get_x(self):
             return "B" + self.__super._get_x()
+
     class C(A):
         def _get_x(self):
             return "C" + self.__super._get_x()
+
     class D(C, B):
         def _get_x(self):
             return "D" + self.__super._get_x()
@@ -811,8 +920,10 @@ def metaclass():
     # Make sure type(x) doesn't call x.__class__.__init__
     class T(type):
         counter = 0
+
         def __init__(self, *args):
             T.counter += 1
+
     class C:
         __metaclass__ = T
     vereq(T.counter, 1)
@@ -820,25 +931,36 @@ def metaclass():
     vereq(type(a), C)
     vereq(T.counter, 1)
 
-    class C(object): pass
+    class C(object):
+        pass
     c = C()
-    try: c()
-    except TypeError: pass
-    else: raise TestFailed, "calling object w/o call method should raise TypeError"
+    try:
+        c()
+    except TypeError:
+        pass
+    else:
+        raise TestFailed(
+            "calling object w/o call method should raise TypeError")
+
 
 def pymods():
-    if verbose: print "Testing Python subclass of module..."
+    if verbose:
+        print "Testing Python subclass of module..."
     log = []
     from types import ModuleType as MT
+
     class MM(MT):
         def __init__(self, name):
             MT.__init__(self, name)
+
         def __getattribute__(self, name):
             log.append(("getattr", name))
             return MT.__getattribute__(self, name)
+
         def __setattr__(self, name, value):
             log.append(("setattr", name, value))
             MT.__setattr__(self, name, value)
+
         def __delattr__(self, name):
             log.append(("delattr", name))
             MT.__delattr__(self, name)
@@ -858,21 +980,27 @@ def pymods():
         pass
     else:
         raise TestFailed("inheriting from ModuleType and str at the "
-                          "same time should fail")
+                         "same time should fail")
+
 
 def multi():
-    if verbose: print "Testing multiple inheritance..."
+    if verbose:
+        print "Testing multiple inheritance..."
+
     class C(object):
         def __init__(self):
             self.__state = 0
+
         def getstate(self):
             return self.__state
+
         def setstate(self, state):
             self.__state = state
     a = C()
     vereq(a.getstate(), 0)
     a.setstate(10)
     vereq(a.getstate(), 10)
+
     class D(dict, C):
         def __init__(self):
             type({}).__init__(self)
@@ -891,8 +1019,10 @@ def multi():
     class Node(object):
         def __int__(self):
             return int(self.foo())
+
         def foo(self):
             return "23"
+
     class Frag(Node, list):
         def foo(self):
             return "42"
@@ -933,12 +1063,14 @@ def multi():
     class C:
         def cmethod(self):
             return "C a"
+
         def all_method(self):
             return "C b"
 
     class M1(C, object):
         def m1method(self):
             return "M1 a"
+
         def all_method(self):
             return "M1 b"
 
@@ -951,12 +1083,14 @@ def multi():
     class D(C):
         def dmethod(self):
             return "D a"
+
         def all_method(self):
             return "D b"
 
     class M2(D, object):
         def m2method(self):
             return "M2 a"
+
         def all_method(self):
             return "M2 b"
 
@@ -970,6 +1104,7 @@ def multi():
     class M3(M1, M2, object):
         def m3method(self):
             return "M3 a"
+
         def all_method(self):
             return "M3 b"
     vereq(M3.__mro__, (M3, M1, M2, D, C, object))
@@ -989,68 +1124,112 @@ def multi():
     except TypeError:
         pass
     else:
-        raise TestFailed, "new class with only classic bases - shouldn't be"
+        raise TestFailed("new class with only classic bases - shouldn't be")
+
 
 def diamond():
-    if verbose: print "Testing multiple inheritance special cases..."
+    if verbose:
+        print "Testing multiple inheritance special cases..."
+
     class A(object):
         def spam(self): return "A"
     vereq(A().spam(), "A")
+
     class B(A):
         def boo(self): return "B"
+
         def spam(self): return "B"
     vereq(B().spam(), "B")
     vereq(B().boo(), "B")
+
     class C(A):
         def boo(self): return "C"
     vereq(C().spam(), "A")
     vereq(C().boo(), "C")
-    class D(B, C): pass
+
+    class D(B, C):
+        pass
     vereq(D().spam(), "B")
     vereq(D().boo(), "B")
     vereq(D.__mro__, (D, B, C, A, object))
-    class E(C, B): pass
+
+    class E(C, B):
+        pass
     vereq(E().spam(), "B")
     vereq(E().boo(), "C")
     vereq(E.__mro__, (E, C, B, A, object))
     # MRO order disagreement
     try:
-        class F(D, E): pass
+        class F(D, E):
+            pass
     except TypeError:
         pass
     else:
-        raise TestFailed, "expected MRO order disagreement (F)"
+        raise TestFailed("expected MRO order disagreement (F)")
     try:
-        class G(E, D): pass
+        class G(E, D):
+            pass
     except TypeError:
         pass
     else:
-        raise TestFailed, "expected MRO order disagreement (G)"
+        raise TestFailed("expected MRO order disagreement (G)")
 
 
 # see thread python-dev/2002-October/029035.html
 def ex5():
-    if verbose: print "Testing ex5 from C3 switch discussion..."
-    class A(object): pass
-    class B(object): pass
-    class C(object): pass
-    class X(A): pass
-    class Y(A): pass
-    class Z(X,B,Y,C): pass
+    if verbose:
+        print "Testing ex5 from C3 switch discussion..."
+
+    class A(object):
+        pass
+
+    class B(object):
+        pass
+
+    class C(object):
+        pass
+
+    class X(A):
+        pass
+
+    class Y(A):
+        pass
+
+    class Z(X, B, Y, C):
+        pass
     vereq(Z.__mro__, (Z, X, B, Y, A, C, object))
 
 # see "A Monotonic Superclass Linearization for Dylan",
 # by Kim Barrett et al. (OOPSLA 1996)
+
+
 def monotonicity():
-    if verbose: print "Testing MRO monotonicity..."
-    class Boat(object): pass
-    class DayBoat(Boat): pass
-    class WheelBoat(Boat): pass
-    class EngineLess(DayBoat): pass
-    class SmallMultihull(DayBoat): pass
-    class PedalWheelBoat(EngineLess,WheelBoat): pass
-    class SmallCatamaran(SmallMultihull): pass
-    class Pedalo(PedalWheelBoat,SmallCatamaran): pass
+    if verbose:
+        print "Testing MRO monotonicity..."
+
+    class Boat(object):
+        pass
+
+    class DayBoat(Boat):
+        pass
+
+    class WheelBoat(Boat):
+        pass
+
+    class EngineLess(DayBoat):
+        pass
+
+    class SmallMultihull(DayBoat):
+        pass
+
+    class PedalWheelBoat(EngineLess, WheelBoat):
+        pass
+
+    class SmallCatamaran(SmallMultihull):
+        pass
+
+    class Pedalo(PedalWheelBoat, SmallCatamaran):
+        pass
 
     vereq(PedalWheelBoat.__mro__,
           (PedalWheelBoat, EngineLess, DayBoat, WheelBoat, Boat,
@@ -1064,36 +1243,61 @@ def monotonicity():
 
 # see "A Monotonic Superclass Linearization for Dylan",
 # by Kim Barrett et al. (OOPSLA 1996)
+
+
 def consistency_with_epg():
-    if verbose: print "Testing consistentcy with EPG..."
-    class Pane(object): pass
-    class ScrollingMixin(object): pass
-    class EditingMixin(object): pass
-    class ScrollablePane(Pane,ScrollingMixin): pass
-    class EditablePane(Pane,EditingMixin): pass
-    class EditableScrollablePane(ScrollablePane,EditablePane): pass
+    if verbose:
+        print "Testing consistentcy with EPG..."
+
+    class Pane(object):
+        pass
+
+    class ScrollingMixin(object):
+        pass
+
+    class EditingMixin(object):
+        pass
+
+    class ScrollablePane(Pane, ScrollingMixin):
+        pass
+
+    class EditablePane(Pane, EditingMixin):
+        pass
+
+    class EditableScrollablePane(ScrollablePane, EditablePane):
+        pass
 
     vereq(EditableScrollablePane.__mro__,
           (EditableScrollablePane, ScrollablePane, EditablePane,
            Pane, ScrollingMixin, EditingMixin, object))
 
+
 mro_err_msg = """Cannot create a consistent method resolution
 order (MRO) for bases """
 
+
 def mro_disagreement():
-    if verbose: print "Testing error messages for MRO disagreement..."
+    if verbose:
+        print "Testing error messages for MRO disagreement..."
+
     def raises(exc, expected, callable, *args):
         try:
             callable(*args)
-        except exc, msg:
+        except exc as msg:
             if not str(msg).startswith(expected):
-                raise TestFailed, "Message %r, expected %r" % (str(msg),
-                                                               expected)
+                raise TestFailed("Message %r, expected %r" % (str(msg),
+                                                              expected))
         else:
-            raise TestFailed, "Expected %s" % exc
-    class A(object): pass
-    class B(A): pass
-    class C(object): pass
+            raise TestFailed("Expected %s" % exc)
+
+    class A(object):
+        pass
+
+    class B(A):
+        pass
+
+    class C(object):
+        pass
     # Test some very simple errors
     raises(TypeError, "duplicate base class A",
            type, "X", (A, A), {})
@@ -1102,16 +1306,28 @@ def mro_disagreement():
     raises(TypeError, mro_err_msg,
            type, "X", (A, C, B), {})
     # Test a slightly more complex error
-    class GridLayout(object): pass
-    class HorizontalGrid(GridLayout): pass
-    class VerticalGrid(GridLayout): pass
-    class HVGrid(HorizontalGrid, VerticalGrid): pass
-    class VHGrid(VerticalGrid, HorizontalGrid): pass
+
+    class GridLayout(object):
+        pass
+
+    class HorizontalGrid(GridLayout):
+        pass
+
+    class VerticalGrid(GridLayout):
+        pass
+
+    class HVGrid(HorizontalGrid, VerticalGrid):
+        pass
+
+    class VHGrid(VerticalGrid, HorizontalGrid):
+        pass
     raises(TypeError, mro_err_msg,
            type, "ConfusedGrid", (HVGrid, VHGrid), {})
 
+
 def objects():
-    if verbose: print "Testing object class..."
+    if verbose:
+        print "Testing object class..."
     a = object()
     vereq(a.__class__, object)
     vereq(type(a), object)
@@ -1134,8 +1350,11 @@ def objects():
     vereq(x.foo, 1)
     vereq(x.__dict__, {'foo': 1})
 
+
 def slots():
-    if verbose: print "Testing __slots__..."
+    if verbose:
+        print "Testing __slots__..."
+
     class C0(object):
         __slots__ = []
     x = C0()
@@ -1171,8 +1390,10 @@ def slots():
     class C4(object):
         """Validate name mangling"""
         __slots__ = ['__a']
+
         def __init__(self, value):
             self.__a = value
+
         def get(self):
             return self.__a
     x = C4(5)
@@ -1184,7 +1405,7 @@ def slots():
     except AttributeError:
         pass
     else:
-        raise TestFailed, "Double underscored names not mangled"
+        raise TestFailed("Double underscored names not mangled")
 
     # Make sure slot names are proper identifiers
     try:
@@ -1193,35 +1414,36 @@ def slots():
     except TypeError:
         pass
     else:
-        raise TestFailed, "[None] slots not caught"
+        raise TestFailed("[None] slots not caught")
     try:
         class C(object):
             __slots__ = ["foo bar"]
     except TypeError:
         pass
     else:
-        raise TestFailed, "['foo bar'] slots not caught"
+        raise TestFailed("['foo bar'] slots not caught")
     try:
         class C(object):
             __slots__ = ["foo\0bar"]
     except TypeError:
         pass
     else:
-        raise TestFailed, "['foo\\0bar'] slots not caught"
+        raise TestFailed("['foo\\0bar'] slots not caught")
     try:
         class C(object):
             __slots__ = ["1"]
     except TypeError:
         pass
     else:
-        raise TestFailed, "['1'] slots not caught"
+        raise TestFailed("['1'] slots not caught")
     try:
         class C(object):
             __slots__ = [""]
     except TypeError:
         pass
     else:
-        raise TestFailed, "[''] slots not caught"
+        raise TestFailed("[''] slots not caught")
+
     class C(object):
         __slots__ = ["a", "a_b", "_a", "A0123456789Z"]
 
@@ -1233,6 +1455,7 @@ def slots():
     else:
         # _unicode_to_string used to modify slots in certain circumstances
         slots = (unicode("foo"), unicode("bar"))
+
         class C(object):
             __slots__ = slots
         x = C()
@@ -1246,18 +1469,21 @@ def slots():
         except (TypeError, UnicodeEncodeError):
             pass
         else:
-            raise TestFailed, "[unichr(128)] slots not caught"
+            raise TestFailed("[unichr(128)] slots not caught")
 
     # Test leaks
     # XXX: Jython new style classes don't support __del__
     # http://bugs.jython.org/issue1057
     class Counted:
-    #class Counted(object):
+        # class Counted(object):
         counter = 0    # counts the number of instances alive
+
         def __init__(self):
             Counted.counter += 1
+
         def __del__(self):
             Counted.counter -= 1
+
     class C(object):
         __slots__ = ['a', 'b', 'c']
     x = C()
@@ -1268,6 +1494,7 @@ def slots():
     del x
     extra_collect()
     vereq(Counted.counter, 0)
+
     class D(C):
         pass
     x = D()
@@ -1277,6 +1504,7 @@ def slots():
     del x
     extra_collect()
     vereq(Counted.counter, 0)
+
     class E(D):
         __slots__ = ['e']
     x = E()
@@ -1319,9 +1547,11 @@ def slots():
     """
     class H(object):
         __slots__ = ['a', 'b']
+
         def __init__(self):
             self.a = 1
             self.b = 2
+
         def __del__(self):
             assert self.a == 1
             assert self.b == 2
@@ -1335,8 +1565,10 @@ def slots():
     finally:
         sys.stderr = save_stderr
 
+
 def slotspecials():
-    if verbose: print "Testing __dict__ and __weakref__ in __slots__..."
+    if verbose:
+        print "Testing __dict__ and __weakref__ in __slots__..."
 
     class D(object):
         __slots__ = ["__dict__"]
@@ -1356,7 +1588,7 @@ def slotspecials():
     except AttributeError:
         pass
     else:
-        raise TestFailed, "shouldn't be allowed to set a.foo"
+        raise TestFailed("shouldn't be allowed to set a.foo")
 
     class C1(W, D):
         __slots__ = []
@@ -1382,12 +1614,17 @@ def slotspecials():
 #    class C4(C2, C1):
 #        __slots__ = []
 
+
 def dynamics():
-    if verbose: print "Testing class attribute propagation..."
+    if verbose:
+        print "Testing class attribute propagation..."
+
     class D(object):
         pass
+
     class E(D):
         pass
+
     class F(D):
         pass
     D.foo = 1
@@ -1396,6 +1633,7 @@ def dynamics():
     vereq(E.foo, 1)
     vereq(F.foo, 1)
     # Test dynamic instances
+
     class C(object):
         pass
     a = C()
@@ -1410,6 +1648,7 @@ def dynamics():
     vereq(int(a), 100)
     vereq(a.foobar, 2)
     verify(not hasattr(a, "spam"))
+
     def mygetattr(self, name):
         if name == "spam":
             return "spam"
@@ -1418,6 +1657,7 @@ def dynamics():
     vereq(a.spam, "spam")
     a.new = 12
     vereq(a.new, 12)
+
     def mysetattr(self, name, value):
         if name == "spam":
             raise AttributeError
@@ -1430,6 +1670,7 @@ def dynamics():
     else:
         verify(0, "expected AttributeError")
     vereq(a.spam, "spam")
+
     class D(C):
         pass
     d = D()
@@ -1439,30 +1680,33 @@ def dynamics():
     # Test handling of int*seq and seq*int
     class I(int):
         pass
-    vereq("a"*I(2), "aa")
-    vereq(I(2)*"a", "aa")
-    vereq(2*I(3), 6)
-    vereq(I(3)*2, 6)
-    vereq(I(3)*I(2), 6)
+    vereq("a" * I(2), "aa")
+    vereq(I(2) * "a", "aa")
+    vereq(2 * I(3), 6)
+    vereq(I(3) * 2, 6)
+    vereq(I(3) * I(2), 6)
 
     # Test handling of long*seq and seq*long
     class L(long):
         pass
-    vereq("a"*L(2L), "aa")
-    vereq(L(2L)*"a", "aa")
-    vereq(2*L(3), 6)
-    vereq(L(3)*2, 6)
-    vereq(L(3)*L(2), 6)
+    vereq("a" * L(2), "aa")
+    vereq(L(2) * "a", "aa")
+    vereq(2 * L(3), 6)
+    vereq(L(3) * 2, 6)
+    vereq(L(3) * L(2), 6)
 
     # Test comparison of classes with dynamic metaclasses
     class dynamicmetaclass(type):
         pass
+
     class someclass:
         __metaclass__ = dynamicmetaclass
     verify(someclass != object)
 
+
 def errors():
-    if verbose: print "Testing errors..."
+    if verbose:
+        print "Testing errors..."
 
     try:
         class C(list, dict):
@@ -1479,6 +1723,7 @@ def errors():
         pass
     else:
         verify(0, "inheritance from non-type should be illegal")
+
     class Classic:
         pass
 
@@ -1506,8 +1751,11 @@ def errors():
     else:
         verify(0, "__slots__ = [1] should be illegal")
 
+
 def classmethods():
-    if verbose: print "Testing class methods..."
+    if verbose:
+        print "Testing class methods..."
+
     class C(object):
         def foo(*a): return a
         goo = classmethod(foo)
@@ -1515,6 +1763,7 @@ def classmethods():
     vereq(C.goo(1), (C, 1))
     vereq(c.goo(1), (C, 1))
     vereq(c.foo(1), (c, 1))
+
     class D(C):
         pass
     d = D()
@@ -1523,6 +1772,7 @@ def classmethods():
     vereq(d.foo(1), (d, 1))
     vereq(D.foo(d, 1), (d, 1))
     # Test for a specific crash (SF bug 528132)
+
     def f(cls, arg): return (cls, arg)
     ff = classmethod(f)
     vereq(ff.__get__(0, int)(42), (int, 42))
@@ -1531,10 +1781,10 @@ def classmethods():
     # Test super() with classmethods (SF bug 535444)
     veris(C.goo.im_self, C)
     veris(D.goo.im_self, D)
-    veris(super(D,D).goo.im_self, D)
-    veris(super(D,d).goo.im_self, D)
-    vereq(super(D,D).goo(), (D,))
-    vereq(super(D,d).goo(), (D,))
+    veris(super(D, D).goo.im_self, D)
+    veris(super(D, d).goo.im_self, D)
+    vereq(super(D, D).goo(), (D,))
+    vereq(super(D, d).goo(), (D,))
 
     # Verify that argument is checked for callability (SF bug 753451)
     try:
@@ -1542,7 +1792,7 @@ def classmethods():
     except TypeError:
         pass
     else:
-        raise TestFailed, "classmethod should check for callability"
+        raise TestFailed("classmethod should check for callability")
 
     # Verify that classmethod() doesn't allow keyword args
     try:
@@ -1550,10 +1800,12 @@ def classmethods():
     except TypeError:
         pass
     else:
-        raise TestFailed, "classmethod shouldn't accept keyword args"
+        raise TestFailed("classmethod shouldn't accept keyword args")
+
 
 def classmethods_in_c():
-    if verbose: print "Testing C-based class methods..."
+    if verbose:
+        print "Testing C-based class methods..."
     import xxsubtype as spam
     a = (1, 2, 3)
     d = {'abc': 123}
@@ -1566,8 +1818,11 @@ def classmethods_in_c():
     vereq(a, a1)
     vereq(d, d1)
 
+
 def staticmethods():
-    if verbose: print "Testing static methods..."
+    if verbose:
+        print "Testing static methods..."
+
     class C(object):
         def foo(*a): return a
         goo = staticmethod(foo)
@@ -1575,6 +1830,7 @@ def staticmethods():
     vereq(C.goo(1), (1,))
     vereq(c.goo(1), (1,))
     vereq(c.foo(1), (c, 1,))
+
     class D(C):
         pass
     d = D()
@@ -1583,8 +1839,10 @@ def staticmethods():
     vereq(d.foo(1), (d, 1))
     vereq(D.foo(d, 1), (d, 1))
 
+
 def staticmethods_in_c():
-    if verbose: print "Testing C-based static methods..."
+    if verbose:
+        print "Testing C-based static methods..."
     import xxsubtype as spam
     a = (1, 2, 3)
     d = {"abc": 123}
@@ -1597,8 +1855,11 @@ def staticmethods_in_c():
     vereq(a, a1)
     vereq(d, d1)
 
+
 def classic():
-    if verbose: print "Testing classic classes..."
+    if verbose:
+        print "Testing classic classes..."
+
     class C:
         def foo(*a): return a
         goo = classmethod(foo)
@@ -1606,6 +1867,7 @@ def classic():
     vereq(C.goo(1), (C, 1))
     vereq(c.goo(1), (C, 1))
     vereq(c.foo(1), (c, 1))
+
     class D(C):
         pass
     d = D()
@@ -1613,33 +1875,44 @@ def classic():
     vereq(d.goo(1), (D, 1))
     vereq(d.foo(1), (d, 1))
     vereq(D.foo(d, 1), (d, 1))
-    class E: # *not* subclassing from C
+
+    class E:  # *not* subclassing from C
         foo = C.foo
-    vereq(E().foo, C.foo) # i.e., unbound
+    vereq(E().foo, C.foo)  # i.e., unbound
     verify(repr(C.foo.__get__(C())).startswith("<bound method "))
 
+
 def compattr():
-    if verbose: print "Testing computed attributes..."
+    if verbose:
+        print "Testing computed attributes..."
+
     class C(object):
         class computed_attribute(object):
             def __init__(self, get, set=None, delete=None):
                 self.__get = get
                 self.__set = set
                 self.__delete = delete
+
             def __get__(self, obj, type=None):
                 return self.__get(obj)
+
             def __set__(self, obj, value):
                 return self.__set(obj, value)
+
             def __delete__(self, obj):
                 return self.__delete(obj)
+
         def __init__(self):
             self.__x = 0
+
         def __get_x(self):
             x = self.__x
-            self.__x = x+1
+            self.__x = x + 1
             return x
+
         def __set_x(self, x):
             self.__x = x
+
         def __delete_x(self):
             del self.__x
         x = computed_attribute(__get_x, __set_x, __delete_x)
@@ -1652,32 +1925,43 @@ def compattr():
     del a.x
     vereq(hasattr(a, 'x'), 0)
 
+
 def newslot():
-    if verbose: print "Testing __new__ slot override..."
+    if verbose:
+        print "Testing __new__ slot override..."
+
     class C(list):
         def __new__(cls):
             self = list.__new__(cls)
             self.foo = 1
             return self
+
         def __init__(self):
             self.foo = self.foo + 2
     a = C()
     vereq(a.foo, 3)
     verify(a.__class__ is C)
+
     class D(C):
         pass
     b = D()
     vereq(b.foo, 3)
     verify(b.__class__ is D)
 
+
 def altmro():
-    if verbose: print "Testing mro() and overriding it..."
+    if verbose:
+        print "Testing mro() and overriding it..."
+
     class A(object):
         def f(self): return "A"
+
     class B(A):
         pass
+
     class C(A):
         def f(self): return "C"
+
     class D(B, C):
         pass
     vereq(D.mro(), [D, B, C, A, object])
@@ -1689,7 +1973,8 @@ def altmro():
             L = type.mro(cls)
             L.reverse()
             return L
-    class X(D,B,C,A):
+
+    class X(D, B, C, A):
         __metaclass__ = PerverseMetaType
     vereq(X.__mro__, (object, A, C, B, D, X))
     vereq(X().f(), "A")
@@ -1702,7 +1987,7 @@ def altmro():
     except TypeError:
         pass
     else:
-        raise TestFailed, "devious mro() return not caught"
+        raise TestFailed("devious mro() return not caught")
 
     try:
         class X(object):
@@ -1712,7 +1997,7 @@ def altmro():
     except TypeError:
         pass
     else:
-        raise TestFailed, "non-class mro() return not caught"
+        raise TestFailed("non-class mro() return not caught")
 
     try:
         class X(object):
@@ -1722,11 +2007,12 @@ def altmro():
     except TypeError:
         pass
     else:
-        raise TestFailed, "non-sequence mro() return not caught"
+        raise TestFailed("non-sequence mro() return not caught")
 
 
 def overloading():
-    if verbose: print "Testing operator overloading..."
+    if verbose:
+        print "Testing operator overloading..."
 
     class B(object):
         "Intermediate class because object doesn't have a __setattr__"
@@ -1738,11 +2024,13 @@ def overloading():
                 return ("getattr", name)
             else:
                 raise AttributeError
+
         def __setattr__(self, name, value):
             if name == "foo":
                 self.setattr = (name, value)
             else:
                 return B.__setattr__(self, name, value)
+
         def __delattr__(self, name):
             if name == "foo":
                 self.delattr = name
@@ -1751,15 +2039,19 @@ def overloading():
 
         def __getitem__(self, key):
             return ("getitem", key)
+
         def __setitem__(self, key, value):
             self.setitem = (key, value)
+
         def __delitem__(self, key):
             self.delitem = key
 
         def __getslice__(self, i, j):
             return ("getslice", i, j)
+
         def __setslice__(self, i, j, value):
             self.setslice = (i, j, value)
+
         def __delslice__(self, i, j):
             self.delslice = (i, j)
 
@@ -1782,15 +2074,20 @@ def overloading():
     del a[0:10]
     vereq(a.delslice, (0, 10))
 
+
 def methods():
-    if verbose: print "Testing methods..."
+    if verbose:
+        print "Testing methods..."
+
     class C(object):
         def __init__(self, x):
             self.x = x
+
         def foo(self):
             return self.x
     c1 = C(1)
     vereq(c1.foo(), 1)
+
     class D(C):
         boo = C.foo
         goo = c1.foo
@@ -1798,18 +2095,23 @@ def methods():
     vereq(d2.foo(), 2)
     vereq(d2.boo(), 2)
     vereq(d2.goo(), 1)
+
     class E(object):
         foo = C.foo
-    vereq(E().foo, C.foo) # i.e., unbound
+    vereq(E().foo, C.foo)  # i.e., unbound
     verify(repr(C.foo.__get__(C(1))).startswith("<bound method "))
+
 
 def specials():
     # Test operators like __hash__ for which a built-in default exists
-    if verbose: print "Testing special operators..."
+    if verbose:
+        print "Testing special operators..."
     # Test the default behavior for static classes
+
     class C(object):
         def __getitem__(self, i):
-            if 0 <= i < 10: return i
+            if 0 <= i < 10:
+                return i
             raise IndexError
     c1 = C()
     c2 = C()
@@ -1831,9 +2133,11 @@ def specials():
         verify(i in c1)
     verify(10 not in c1)
     # Test the default behavior for dynamic classes
+
     class D(object):
         def __getitem__(self, i):
-            if 0 <= i < 10: return i
+            if 0 <= i < 10:
+                return i
             raise IndexError
     d1 = D()
     d2 = D()
@@ -1855,23 +2159,32 @@ def specials():
         verify(i in d1)
     verify(10 not in d1)
     # Test overridden behavior for static classes
+
     class Proxy(object):
         def __init__(self, x):
             self.x = x
+
         def __nonzero__(self):
             return not not self.x
+
         def __hash__(self):
             return hash(self.x)
+
         def __eq__(self, other):
             return self.x == other
+
         def __ne__(self, other):
             return self.x != other
+
         def __cmp__(self, other):
             return cmp(self.x, other.x)
+
         def __str__(self):
             return "Proxy:%s" % self.x
+
         def __repr__(self):
             return "Proxy(%r)" % self.x
+
         def __contains__(self, value):
             return value in self.x
     p0 = Proxy(0)
@@ -1895,23 +2208,32 @@ def specials():
         verify(i in p10)
     verify(10 not in p10)
     # Test overridden behavior for dynamic classes
+
     class DProxy(object):
         def __init__(self, x):
             self.x = x
+
         def __nonzero__(self):
             return not not self.x
+
         def __hash__(self):
             return hash(self.x)
+
         def __eq__(self, other):
             return self.x == other
+
         def __ne__(self, other):
             return self.x != other
+
         def __cmp__(self, other):
             return cmp(self.x, other.x)
+
         def __str__(self):
             return "DProxy:%s" % self.x
+
         def __repr__(self):
             return "DProxy(%r)" % self.x
+
         def __contains__(self, value):
             return value in self.x
     p0 = DProxy(0)
@@ -1935,26 +2257,28 @@ def specials():
         verify(i in p10)
     verify(10 not in p10)
     # Safety test for __cmp__
+
     def unsafecmp(a, b):
         try:
             a.__class__.__cmp__(a, b)
         except TypeError:
             pass
         else:
-            raise TestFailed, "shouldn't allow %s.__cmp__(%r, %r)" % (
-                a.__class__, a, b)
+            raise TestFailed("shouldn't allow %s.__cmp__(%r, %r)" % (
+                a.__class__, a, b))
     unsafecmp(u"123", "123")
     unsafecmp("123", u"123")
     unsafecmp(1, 1.0)
     unsafecmp(1.0, 1)
-    unsafecmp(1, 1L)
-    unsafecmp(1L, 1)
+    unsafecmp(1, 1)
+    unsafecmp(1, 1)
 
     class Letter(str):
         def __new__(cls, letter):
             if letter == 'EPS':
                 return str.__new__(cls)
             return str.__new__(cls, letter)
+
         def __str__(self):
             if not self:
                 return 'EPS'
@@ -1970,12 +2294,15 @@ def specials():
     except RuntimeError:
         pass
     else:
-        raise TestFailed, "expected a RuntimeError for print recursion"
+        raise TestFailed("expected a RuntimeError for print recursion")
     sys.stdout = test_stdout
 
+
 def weakrefs():
-    if verbose: print "Testing weak references..."
+    if verbose:
+        print "Testing weak references..."
     import weakref
+
     class C(object):
         pass
     c = C()
@@ -1985,17 +2312,19 @@ def weakrefs():
     extra_collect()
     verify(r() is None)
     del r
+
     class NoWeak(object):
         __slots__ = ['foo']
     no = NoWeak()
     try:
         weakref.ref(no)
-    except TypeError, msg:
+    except TypeError as msg:
         verify(str(msg).find("weak reference") >= 0)
     else:
         # XXX: Jython allows a weakref here
         if not is_jython:
             verify(0, "weakref.ref(no) should be illegal")
+
     class Weak(object):
         __slots__ = ['foo', '__weakref__']
     yes = Weak()
@@ -2006,13 +2335,18 @@ def weakrefs():
     verify(r() is None)
     del r
 
+
 def properties():
-    if verbose: print "Testing property..."
+    if verbose:
+        print "Testing property..."
+
     class C(object):
         def getx(self):
             return self.__x
+
         def setx(self, value):
             self.__x = value
+
         def delx(self):
             del self.__x
         x = property(getx, setx, delx, doc="I'm the x property.")
@@ -2046,7 +2380,7 @@ def properties():
     for attr in "__doc__", "fget", "fset", "fdel":
         try:
             setattr(raw, attr, 42)
-        except TypeError, msg:
+        except TypeError as msg:
             if str(msg).find('readonly') < 0:
                 raise TestFailed("when setting readonly attr %r on a "
                                  "property, got unexpected TypeError "
@@ -2056,7 +2390,7 @@ def properties():
                              "readonly %r attr on a property" % attr)
 
     class D(object):
-        __getitem__ = property(lambda s: 1/0)
+        __getitem__ = property(lambda s: 1 / 0)
 
     d = D()
     try:
@@ -2065,12 +2399,13 @@ def properties():
     except ZeroDivisionError:
         pass
     else:
-        raise TestFailed, "expected ZeroDivisionError from bad property"
+        raise TestFailed("expected ZeroDivisionError from bad property")
 
     class E(object):
         def getter(self):
             "getter method"
             return 0
+
         def setter(self, value):
             "setter method"
             pass
@@ -2090,7 +2425,8 @@ def properties():
 
 
 def supers():
-    if verbose: print "Testing super..."
+    if verbose:
+        print "Testing super..."
 
     class A(object):
         def meth(self, a):
@@ -2101,6 +2437,7 @@ def supers():
     class B(A):
         def __init__(self):
             self.__super = super(B, self)
+
         def meth(self, a):
             return "B(%r)" % a + self.__super.meth(a)
 
@@ -2133,7 +2470,7 @@ def supers():
 
     class F(E):
         def meth(self, a):
-            s = self.__super # == mysuper(F, self)
+            s = self.__super  # == mysuper(F, self)
             return "F(%r)[%s]" % (a, s.__class__.__name__) + s.meth(a)
     F._F__super = mysuper(F)
 
@@ -2146,28 +2483,28 @@ def supers():
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't allow super(D, 42)"
+        raise TestFailed("shouldn't allow super(D, 42)")
 
     try:
         super(D, C())
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't allow super(D, C())"
+        raise TestFailed("shouldn't allow super(D, C())")
 
     try:
         super(D).__get__(12)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't allow super(D).__get__(12)"
+        raise TestFailed("shouldn't allow super(D).__get__(12)")
 
     try:
         super(D).__get__(C())
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't allow super(D).__get__(C())"
+        raise TestFailed("shouldn't allow super(D).__get__(C())")
 
     # Make sure data descriptors can be overridden and accessed via super
     # (new feature in Python 2.3)
@@ -2193,7 +2530,7 @@ def supers():
     class Sub(Base):
         @classmethod
         def test(klass):
-            return super(Sub,klass).aProp
+            return super(Sub, klass).aProp
 
     veris(Sub.test(), Base.aProp)
 
@@ -2203,14 +2540,17 @@ def supers():
     except TypeError:
         pass
     else:
-        raise TestFailed, "super shouldn't accept keyword args"
+        raise TestFailed("super shouldn't accept keyword args")
+
 
 def inherits():
-    if verbose: print "Testing inheritance from basic types..."
+    if verbose:
+        print "Testing inheritance from basic types..."
 
     class hexint(int):
         def __repr__(self):
             return hex(self)
+
         def __add__(self, other):
             return hexint(int.__add__(self, other))
         # (Note that overriding __radd__ doesn't work,
@@ -2230,11 +2570,13 @@ def inherits():
 
     class octlong(long):
         __slots__ = []
+
         def __str__(self):
             s = oct(self)
             if s[-1] == 'L':
                 s = s[:-1]
             return s
+
         def __add__(self, other):
             return self.__class__(super(octlong, self).__add__(other))
         __radd__ = __add__
@@ -2243,9 +2585,9 @@ def inherits():
     # because the example uses a short int left argument.)
     vereq(str(5 + octlong(3000)), "05675")
     a = octlong(12345)
-    vereq(a, 12345L)
-    vereq(long(a), 12345L)
-    vereq(hash(a), hash(12345L))
+    vereq(a, 12345)
+    vereq(long(a), 12345)
+    vereq(hash(a), hash(12345))
     verify(long(a).__class__ is long)
     verify((+a).__class__ is long)
     verify((-a).__class__ is long)
@@ -2259,7 +2601,7 @@ def inherits():
     verify((1 * a).__class__ is long)
     verify((a | 0).__class__ is long)
     verify((a ^ 0).__class__ is long)
-    verify((a & -1L).__class__ is long)
+    verify((a & -1).__class__ is long)
     verify((octlong(0) << 12).__class__ is long)
     verify((octlong(0) >> 12).__class__ is long)
     verify(abs(octlong(0)).__class__ is long)
@@ -2279,9 +2621,11 @@ def inherits():
 
     class precfloat(float):
         __slots__ = ['prec']
+
         def __init__(self, value=0.0, prec=12):
             self.prec = int(prec)
             float.__init__(value)
+
         def __repr__(self):
             return "%.*g" % (self.prec, self)
     vereq(repr(precfloat(1.1)), "1.1")
@@ -2320,6 +2664,7 @@ def inherits():
 
     class madtuple(tuple):
         _rev = None
+
         def rev(self):
             if self._rev is not None:
                 return self._rev
@@ -2327,19 +2672,19 @@ def inherits():
             L.reverse()
             self._rev = self.__class__(L)
             return self._rev
-    a = madtuple((1,2,3,4,5,6,7,8,9,0))
-    vereq(a, (1,2,3,4,5,6,7,8,9,0))
-    vereq(a.rev(), madtuple((0,9,8,7,6,5,4,3,2,1)))
-    vereq(a.rev().rev(), madtuple((1,2,3,4,5,6,7,8,9,0)))
+    a = madtuple((1, 2, 3, 4, 5, 6, 7, 8, 9, 0))
+    vereq(a, (1, 2, 3, 4, 5, 6, 7, 8, 9, 0))
+    vereq(a.rev(), madtuple((0, 9, 8, 7, 6, 5, 4, 3, 2, 1)))
+    vereq(a.rev().rev(), madtuple((1, 2, 3, 4, 5, 6, 7, 8, 9, 0)))
     for i in range(512):
         t = madtuple(range(i))
         u = t.rev()
         v = u.rev()
         vereq(v, t)
-    a = madtuple((1,2,3,4,5))
-    vereq(tuple(a), (1,2,3,4,5))
+    a = madtuple((1, 2, 3, 4, 5))
+    vereq(tuple(a), (1, 2, 3, 4, 5))
     verify(tuple(a).__class__ is tuple)
-    vereq(hash(a), hash((1,2,3,4,5)))
+    vereq(hash(a), hash((1, 2, 3, 4, 5)))
     verify(a[:].__class__ is tuple)
     verify((a * 1).__class__ is tuple)
     verify((a * 0).__class__ is tuple)
@@ -2355,6 +2700,7 @@ def inherits():
 
     class madstring(str):
         _rev = None
+
         def rev(self):
             if self._rev is not None:
                 return self._rev
@@ -2422,6 +2768,7 @@ def inherits():
 
     class madunicode(unicode):
         _rev = None
+
         def rev(self):
             if self._rev is not None:
                 return self._rev
@@ -2514,6 +2861,7 @@ def inherits():
 
         lineno = 0
         ateof = 0
+
         def readline(self):
             if self.ateof:
                 return ""
@@ -2540,20 +2888,21 @@ def inherits():
     finally:
         try:
             f.close()
-        except:
+        except BaseException:
             pass
         try:
             import os
             os.unlink(TESTFN)
-        except:
+        except BaseException:
             pass
+
 
 def keywords():
     if verbose:
         print "Testing keyword args to basic type constructors ..."
     vereq(int(x=1), 1)
     vereq(float(x=2), 2.0)
-    vereq(long(x=3), 3L)
+    vereq(long(x=3), 3)
     vereq(complex(imag=42, real=666), complex(666, 42))
     vereq(str(object=500), '500')
     vereq(unicode(string='abc', errors='strict'), u'abc')
@@ -2570,6 +2919,7 @@ def keywords():
         else:
             raise TestFailed("expected TypeError from bogus keyword "
                              "argument to %r" % constructor)
+
 
 def restricted():
     # XXX This test is disabled because rexec is not deemed safe
@@ -2596,7 +2946,7 @@ f = t(%r, 'w')  # rexec can't catch this by itself
         for code in code1, code2, code3:
             try:
                 sandbox.r_exec(code)
-            except IOError, msg:
+            except IOError as msg:
                 if str(msg).find("restricted") >= 0:
                     outcome = "OK"
                 else:
@@ -2611,8 +2961,9 @@ f = t(%r, 'w')  # rexec can't catch this by itself
         try:
             import os
             os.unlink(TESTFN)
-        except:
+        except BaseException:
             pass
+
 
 def str_subclass_as_dict_key():
     if verbose:
@@ -2647,15 +2998,21 @@ def str_subclass_as_dict_key():
     verify(cistr('ONe') in d)
     vereq(d.get(cistr('thrEE')), 3)
 
+
 def classic_comparisons():
-    if verbose: print "Testing classic comparisons..."
+    if verbose:
+        print "Testing classic comparisons..."
+
     class classic:
         pass
     for base in (classic, int, object):
-        if verbose: print "        (base = %s)" % base
+        if verbose:
+            print "        (base = %s)" % base
+
         class C(base):
             def __init__(self, value):
                 self.value = int(value)
+
             def __cmp__(self, other):
                 if isinstance(other, C):
                     return cmp(self.value, other.value)
@@ -2676,63 +3033,75 @@ def classic_comparisons():
                 verify(cmp(c[x], y) == cmp(x, y), "x=%d, y=%d" % (x, y))
                 verify(cmp(x, c[y]) == cmp(x, y), "x=%d, y=%d" % (x, y))
 
+
 def rich_comparisons():
     if verbose:
         print "Testing rich comparisons..."
+
     class Z(complex):
         pass
     z = Z(1)
-    vereq(z, 1+0j)
-    vereq(1+0j, z)
+    vereq(z, 1 + 0j)
+    vereq(1 + 0j, z)
+
     class ZZ(complex):
         def __eq__(self, other):
             try:
                 return abs(self - other) <= 1e-6
-            except:
+            except BaseException:
                 return NotImplemented
     zz = ZZ(1.0000003)
-    vereq(zz, 1+0j)
-    vereq(1+0j, zz)
+    vereq(zz, 1 + 0j)
+    vereq(1 + 0j, zz)
 
     class classic:
         pass
     for base in (classic, int, object, list):
-        if verbose: print "        (base = %s)" % base
+        if verbose:
+            print "        (base = %s)" % base
+
         class C(base):
             def __init__(self, value):
                 self.value = int(value)
+
             def __cmp__(self, other):
-                raise TestFailed, "shouldn't call __cmp__"
+                raise TestFailed("shouldn't call __cmp__")
+
             def __eq__(self, other):
                 if isinstance(other, C):
                     return self.value == other.value
                 if isinstance(other, int) or isinstance(other, long):
                     return self.value == other
                 return NotImplemented
+
             def __ne__(self, other):
                 if isinstance(other, C):
                     return self.value != other.value
                 if isinstance(other, int) or isinstance(other, long):
                     return self.value != other
                 return NotImplemented
+
             def __lt__(self, other):
                 if isinstance(other, C):
                     return self.value < other.value
                 if isinstance(other, int) or isinstance(other, long):
                     return self.value < other
                 return NotImplemented
+
             def __le__(self, other):
                 if isinstance(other, C):
                     return self.value <= other.value
                 if isinstance(other, int) or isinstance(other, long):
                     return self.value <= other
                 return NotImplemented
+
             def __gt__(self, other):
                 if isinstance(other, C):
                     return self.value > other.value
                 if isinstance(other, int) or isinstance(other, long):
                     return self.value > other
                 return NotImplemented
+
             def __ge__(self, other):
                 if isinstance(other, C):
                     return self.value >= other.value
@@ -2754,46 +3123,69 @@ def rich_comparisons():
                     verify(eval("x %s c[y]" % op) == eval("x %s y" % op),
                            "x=%d, y=%d" % (x, y))
 
+
 def coercions():
-    if verbose: print "Testing coercions..."
-    class I(int): pass
+    if verbose:
+        print "Testing coercions..."
+
+    class I(int):
+        pass
     coerce(I(0), 0)
     coerce(0, I(0))
-    class L(long): pass
+
+    class L(long):
+        pass
     coerce(L(0), 0)
-    coerce(L(0), 0L)
+    coerce(L(0), 0)
     coerce(0, L(0))
-    coerce(0L, L(0))
-    class F(float): pass
+    coerce(0, L(0))
+
+    class F(float):
+        pass
     coerce(F(0), 0)
-    coerce(F(0), 0L)
+    coerce(F(0), 0)
     coerce(F(0), 0.)
     coerce(0, F(0))
-    coerce(0L, F(0))
+    coerce(0, F(0))
     coerce(0., F(0))
-    class C(complex): pass
+
+    class C(complex):
+        pass
     coerce(C(0), 0)
-    coerce(C(0), 0L)
+    coerce(C(0), 0)
     coerce(C(0), 0.)
     coerce(C(0), 0j)
     coerce(0, C(0))
-    coerce(0L, C(0))
+    coerce(0, C(0))
     coerce(0., C(0))
     coerce(0j, C(0))
 
+
 def descrdoc():
-    if verbose: print "Testing descriptor doc strings..."
+    if verbose:
+        print "Testing descriptor doc strings..."
+
     def check(descr, what):
         vereq(descr.__doc__, what)
-    check(file.closed, "True if the file is closed") # getset descriptor
-    check(file.name, "file name") # member descriptor
+    check(file.closed, "True if the file is closed")  # getset descriptor
+    check(file.name, "file name")  # member descriptor
+
 
 def setclass():
-    if verbose: print "Testing __class__ assignment..."
-    class C(object): pass
-    class D(object): pass
-    class E(object): pass
-    class F(D, E): pass
+    if verbose:
+        print "Testing __class__ assignment..."
+
+    class C(object):
+        pass
+
+    class D(object):
+        pass
+
+    class E(object):
+        pass
+
+    class F(D, E):
+        pass
     for cls in C, D, E, F:
         for cls2 in C, D, E, F:
             x = cls()
@@ -2801,26 +3193,29 @@ def setclass():
             verify(x.__class__ is cls2)
             x.__class__ = cls
             verify(x.__class__ is cls)
+
     def cant(x, C):
         try:
             x.__class__ = C
         except TypeError:
             pass
         else:
-            raise TestFailed, "shouldn't allow %r.__class__ = %r" % (x, C)
+            raise TestFailed("shouldn't allow %r.__class__ = %r" % (x, C))
         try:
             delattr(x, "__class__")
         except TypeError:
             pass
         else:
-            raise TestFailed, "shouldn't allow del %r.__class__" % x
+            raise TestFailed("shouldn't allow del %r.__class__" % x)
     cant(C(), list)
     cant(list(), C)
     cant(C(), 1)
     cant(C(), object)
     cant(object(), list)
     cant(list(), object)
-    class Int(int): __slots__ = []
+
+    class Int(int):
+        __slots__ = []
     cant(2, Int)
     cant(Int(), int)
     cant(True, int)
@@ -2830,26 +3225,32 @@ def setclass():
     cant(o, type(None))
     del o
 
+
 def setdict():
-    if verbose: print "Testing __dict__ assignment..."
-    class C(object): pass
+    if verbose:
+        print "Testing __dict__ assignment..."
+
+    class C(object):
+        pass
     a = C()
     a.__dict__ = {'b': 1}
     vereq(a.b, 1)
+
     def cant(x, dict):
         try:
             x.__dict__ = dict
         except (AttributeError, TypeError):
             pass
         else:
-            raise TestFailed, "shouldn't allow %r.__dict__ = %r" % (x, dict)
+            raise TestFailed("shouldn't allow %r.__dict__ = %r" % (x, dict))
     cant(a, None)
     cant(a, [])
     cant(a, 1)
-    del a.__dict__ # Deleting __dict__ is allowed
+    del a.__dict__  # Deleting __dict__ is allowed
 
     class Base(object):
         pass
+
     def verify_dict_readonly(x):
         """
         x has to be an instance of a class inheriting from Base.
@@ -2860,22 +3261,25 @@ def setdict():
         except (AttributeError, TypeError):
             pass
         else:
-            raise TestFailed, "shouldn't allow del %r.__dict__" % x
+            raise TestFailed("shouldn't allow del %r.__dict__" % x)
         dict_descr = Base.__dict__["__dict__"]
         try:
             dict_descr.__set__(x, {})
         except (AttributeError, TypeError):
             pass
         else:
-            raise TestFailed, "dict_descr allowed access to %r's dict" % x
+            raise TestFailed("dict_descr allowed access to %r's dict" % x)
 
     # Classes don't allow __dict__ assignment and have readonly dicts
     class Meta1(type, Base):
         pass
+
     class Meta2(Base, type):
         pass
+
     class D(object):
         __metaclass__ = Meta1
+
     class E(object):
         __metaclass__ = Meta2
     for cls in C, D, E:
@@ -2886,11 +3290,12 @@ def setdict():
         except TypeError:
             pass
         else:
-            raise TestFailed, "%r's __dict__ can be modified" % cls
+            raise TestFailed("%r's __dict__ can be modified" % cls)
 
     # Modules also disallow __dict__ assignment
     class Module1(types.ModuleType, Base):
         pass
+
     class Module2(Base, types.ModuleType):
         pass
     for ModuleType in Module1, Module2:
@@ -2901,6 +3306,7 @@ def setdict():
     # Exception's __dict__ can be replaced, but not deleted
     class Exception1(Exception, Base):
         pass
+
     class Exception2(Base, Exception):
         pass
     for ExceptionType in Exception, Exception1, Exception2:
@@ -2912,65 +3318,80 @@ def setdict():
         except (TypeError, AttributeError):
             pass
         else:
-            raise TestFaied, "%r's __dict__ can be deleted" % e
+            raise TestFaied("%r's __dict__ can be deleted" % e)
 
 
 def pickles():
     if verbose:
         print "Testing pickling and copying new-style classes and objects..."
-    import pickle, cPickle
+    import pickle
+    import cPickle
 
     def sorteditems(d):
-        L = d.items()
-        L.sort()
+        L = sorted(d.items())
         return L
 
     global C
+
     class C(object):
         def __init__(self, a, b):
             super(C, self).__init__()
             self.a = a
             self.b = b
+
         def __repr__(self):
             return "C(%r, %r)" % (self.a, self.b)
 
     global C1
+
     class C1(list):
         def __new__(cls, a, b):
             return super(C1, cls).__new__(cls)
+
         def __getnewargs__(self):
             return (self.a, self.b)
+
         def __init__(self, a, b):
             self.a = a
             self.b = b
+
         def __repr__(self):
             return "C1(%r, %r)<%r>" % (self.a, self.b, list(self))
 
     global C2
+
     class C2(int):
         def __new__(cls, a, b, val=0):
             return super(C2, cls).__new__(cls, val)
+
         def __getnewargs__(self):
             return (self.a, self.b, int(self))
+
         def __init__(self, a, b, val=0):
             self.a = a
             self.b = b
+
         def __repr__(self):
             return "C2(%r, %r)<%r>" % (self.a, self.b, int(self))
 
     global C3
+
     class C3(object):
         def __init__(self, foo):
             self.foo = foo
+
         def __getstate__(self):
             return self.foo
+
         def __setstate__(self, foo):
             self.foo = foo
 
     global C4classic, C4
-    class C4classic: # classic
+
+    class C4classic:  # classic
         pass
-    class C4(C4classic, object): # mixed inheritance
+
+    class C4(C4classic, object):  # mixed inheritance
         pass
 
     for p in pickle, cPickle:
@@ -2983,7 +3404,9 @@ def pickles():
                 cls2 = p.loads(s)
                 verify(cls2 is cls)
 
-            a = C1(1, 2); a.append(42); a.append(24)
+            a = C1(1, 2)
+            a.append(42)
+            a.append(24)
             b = C2("hello", "world", 42)
             s = p.dumps((a, b), bin)
             x, y = p.loads(s)
@@ -3018,7 +3441,9 @@ def pickles():
         cls2 = copy.deepcopy(cls)
         verify(cls2 is cls)
 
-    a = C1(1, 2); a.append(42); a.append(24)
+    a = C1(1, 2)
+    a.append(42)
+    a.append(24)
     b = C2("hello", "world", 42)
     x, y = copy.deepcopy((a, b))
     vereq(x.__class__, a.__class__)
@@ -3031,16 +3456,21 @@ def pickles():
         print "a = x =", a
         print "b = y =", b
 
+
 def pickleslots():
-    if verbose: print "Testing pickling of classes with __slots__ ..."
-    import pickle, cPickle
+    if verbose:
+        print "Testing pickling of classes with __slots__ ..."
+    import pickle
+    import cPickle
     # Pickling of classes with __slots__ but without __getstate__ should fail
     global B, C, D, E
+
     class B(object):
         pass
     for base in [object, B]:
         class C(base):
             __slots__ = ['a']
+
         class D(C):
             pass
         try:
@@ -3048,28 +3478,30 @@ def pickleslots():
         except TypeError:
             pass
         else:
-            raise TestFailed, "should fail: pickle C instance - %s" % base
+            raise TestFailed("should fail: pickle C instance - %s" % base)
         try:
             cPickle.dumps(C())
         except TypeError:
             pass
         else:
-            raise TestFailed, "should fail: cPickle C instance - %s" % base
+            raise TestFailed("should fail: cPickle C instance - %s" % base)
         try:
             pickle.dumps(C())
         except TypeError:
             pass
         else:
-            raise TestFailed, "should fail: pickle D instance - %s" % base
+            raise TestFailed("should fail: pickle D instance - %s" % base)
         try:
             cPickle.dumps(D())
         except TypeError:
             pass
         else:
-            raise TestFailed, "should fail: cPickle D instance - %s" % base
+            raise TestFailed("should fail: cPickle D instance - %s" % base)
         # Give C a nice generic __getstate__ and __setstate__
+
         class C(base):
             __slots__ = ['a']
+
             def __getstate__(self):
                 try:
                     d = self.__dict__.copy()
@@ -3082,9 +3514,11 @@ def pickleslots():
                         except AttributeError:
                             pass
                 return d
+
             def __setstate__(self, d):
                 for k, v in d.items():
                     setattr(self, k, v)
+
         class D(C):
             pass
         # Now it should work
@@ -3106,6 +3540,7 @@ def pickleslots():
         y = cPickle.loads(cPickle.dumps(x))
         vereq(y.a + y.b, 142)
         # A subclass that adds a slot should also work
+
         class E(C):
             __slots__ = ['b']
         x = E()
@@ -3118,9 +3553,12 @@ def pickleslots():
         vereq(y.a, x.a)
         vereq(y.b, x.b)
 
+
 def copies():
-    if verbose: print "Testing copy.copy() and copy.deepcopy()..."
+    if verbose:
+        print "Testing copy.copy() and copy.deepcopy()..."
     import copy
+
     class C(object):
         pass
 
@@ -3129,7 +3567,7 @@ def copies():
     b = copy.copy(a)
     vereq(b.__dict__, a.__dict__)
 
-    a.bar = [1,2,3]
+    a.bar = [1, 2, 3]
     c = copy.copy(a)
     vereq(c.bar, a.bar)
     verify(c.bar is a.bar)
@@ -3137,21 +3575,27 @@ def copies():
     d = copy.deepcopy(a)
     vereq(d.__dict__, a.__dict__)
     a.bar.append(4)
-    vereq(d.bar, [1,2,3])
+    vereq(d.bar, [1, 2, 3])
+
 
 def binopoverride():
-    if verbose: print "Testing overrides of binary operations..."
+    if verbose:
+        print "Testing overrides of binary operations..."
+
     class I(int):
         def __repr__(self):
             return "I(%r)" % int(self)
+
         def __add__(self, other):
             return I(int(self) + int(other))
         __radd__ = __add__
+
         def __pow__(self, other, mod=None):
             if mod is None:
                 return I(pow(int(self), int(other)))
             else:
                 return I(pow(int(self), int(other), int(mod)))
+
         def __rpow__(self, other, mod=None):
             if mod is None:
                 return I(pow(int(other), int(self), mod))
@@ -3165,22 +3609,29 @@ def binopoverride():
     vereq(repr(2 ** I(3)), "I(8)")
     vereq(repr(I(2) ** 3), "I(8)")
     vereq(repr(pow(I(2), I(3), I(5))), "I(3)")
+
     class S(str):
         def __eq__(self, other):
             return self.lower() == other.lower()
 
+
 def subclasspropagation():
-    if verbose: print "Testing propagation of slot functions to subclasses..."
+    if verbose:
+        print "Testing propagation of slot functions to subclasses..."
+
     class A(object):
         pass
+
     class B(A):
         pass
+
     class C(A):
         pass
+
     class D(B, C):
         pass
     d = D()
-    orig_hash = hash(d) # related to id(d) in platform-dependent ways
+    orig_hash = hash(d)  # related to id(d) in platform-dependent ways
     A.__hash__ = lambda self: 42
     vereq(hash(d), 42)
     C.__hash__ = lambda self: 314
@@ -3201,6 +3652,7 @@ def subclasspropagation():
     d.bar = 42
     vereq(d.foo, 42)
     vereq(d.bar, 42)
+
     def __getattribute__(self, name):
         if name == "foo":
             return 24
@@ -3208,10 +3660,11 @@ def subclasspropagation():
     A.__getattribute__ = __getattribute__
     vereq(d.foo, 24)
     vereq(d.bar, 42)
+
     def __getattr__(self, name):
         if name in ("spam", "foo", "bar"):
             return "hello"
-        raise AttributeError, name
+        raise AttributeError(name)
     B.__getattr__ = __getattr__
     vereq(d.spam, "hello")
     vereq(d.foo, 24)
@@ -3227,17 +3680,20 @@ def subclasspropagation():
     except AttributeError:
         pass
     else:
-        raise TestFailed, "d.foo should be undefined now"
+        raise TestFailed("d.foo should be undefined now")
 
     # Test a nasty bug in recurse_down_subclasses()
     import gc
+
     class A(object):
         pass
+
     class B(A):
         pass
     del B
     gc.collect()
-    A.__setitem__ = lambda *a: None # crash
+    A.__setitem__ = lambda *a: None  # crash
+
 
 def buffer_inherit():
     import binascii
@@ -3270,6 +3726,7 @@ def buffer_inherit():
     except TypeError:
         pass
 
+
 def str_of_str_subclass():
     import binascii
     import cStringIO
@@ -3280,6 +3737,7 @@ def str_of_str_subclass():
     class octetstring(str):
         def __str__(self):
             return binascii.b2a_hex(self)
+
         def __repr__(self):
             return self + " repr"
 
@@ -3300,17 +3758,23 @@ def str_of_str_subclass():
     vereq(capture.getvalue(), '41\n41\n')
     capture.close()
 
+
 def kwdargs():
-    if verbose: print "Testing keyword arguments to __init__, __call__..."
+    if verbose:
+        print "Testing keyword arguments to __init__, __call__..."
+
     def f(a): return a
     vereq(f.__call__(a=42), 42)
     a = []
     list.__init__(a, sequence=[0, 1, 2])
     vereq(a, [0, 1, 2])
 
+
 def recursive__call__():
-    if verbose: print ("Testing recursive __call__() by setting to instance of "
-                        "class ...")
+    if verbose:
+        print("Testing recursive __call__() by setting to instance of "
+              "class ...")
+
     class A(object):
         pass
 
@@ -3323,9 +3787,12 @@ def recursive__call__():
         raise TestFailed("Recursion limit should have been reached for "
                          "__call__()")
 
+
 def delhook():
-    if verbose: print "Testing __del__ hook..."
+    if verbose:
+        print "Testing __del__ hook..."
     log = []
+
     class C(object):
         def __del__(self):
             log.append(1)
@@ -3335,14 +3802,20 @@ def delhook():
     extra_collect()
     vereq(log, [1])
 
-    class D(object): pass
+    class D(object):
+        pass
     d = D()
-    try: del d[0]
-    except TypeError: pass
-    else: raise TestFailed, "invalid del() didn't raise TypeError"
+    try:
+        del d[0]
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("invalid del() didn't raise TypeError")
+
 
 def hashinherit():
-    if verbose: print "Testing hash of mutable subclasses..."
+    if verbose:
+        print "Testing hash of mutable subclasses..."
 
     class mydict(dict):
         pass
@@ -3352,7 +3825,7 @@ def hashinherit():
     except TypeError:
         pass
     else:
-        raise TestFailed, "hash() of dict subclass should fail"
+        raise TestFailed("hash() of dict subclass should fail")
 
     class mylist(list):
         pass
@@ -3362,66 +3835,102 @@ def hashinherit():
     except TypeError:
         pass
     else:
-        raise TestFailed, "hash() of list subclass should fail"
+        raise TestFailed("hash() of list subclass should fail")
+
 
 def strops():
-    try: 'a' + 5
-    except TypeError: pass
-    else: raise TestFailed, "'' + 5 doesn't raise TypeError"
+    try:
+        'a' + 5
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("'' + 5 doesn't raise TypeError")
 
-    try: ''.split('')
-    except ValueError: pass
-    else: raise TestFailed, "''.split('') doesn't raise ValueError"
+    try:
+        ''.split('')
+    except ValueError:
+        pass
+    else:
+        raise TestFailed("''.split('') doesn't raise ValueError")
 
-    try: ''.join([0])
-    except TypeError: pass
-    else: raise TestFailed, "''.join([0]) doesn't raise TypeError"
+    try:
+        ''.join([0])
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("''.join([0]) doesn't raise TypeError")
 
-    try: ''.rindex('5')
-    except ValueError: pass
-    else: raise TestFailed, "''.rindex('5') doesn't raise ValueError"
+    try:
+        ''.rindex('5')
+    except ValueError:
+        pass
+    else:
+        raise TestFailed("''.rindex('5') doesn't raise ValueError")
 
-    try: '%(n)s' % None
-    except TypeError: pass
-    else: raise TestFailed, "'%(n)s' % None doesn't raise TypeError"
+    try:
+        '%(n)s' % None
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("'%(n)s' % None doesn't raise TypeError")
 
-    try: '%(n' % {}
-    except ValueError: pass
-    else: raise TestFailed, "'%(n' % {} '' doesn't raise ValueError"
+    try:
+        '%(n' % {}
+    except ValueError:
+        pass
+    else:
+        raise TestFailed("'%(n' % {} '' doesn't raise ValueError")
 
-    try: '%*s' % ('abc')
-    except TypeError: pass
-    else: raise TestFailed, "'%*s' % ('abc') doesn't raise TypeError"
+    try:
+        '%*s' % ('abc')
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("'%*s' % ('abc') doesn't raise TypeError")
 
-    try: '%*.*s' % ('abc', 5)
-    except TypeError: pass
-    else: raise TestFailed, "'%*.*s' % ('abc', 5) doesn't raise TypeError"
+    try:
+        '%*.*s' % ('abc', 5)
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("'%*.*s' % ('abc', 5) doesn't raise TypeError")
 
-    try: '%s' % (1, 2)
-    except TypeError: pass
-    else: raise TestFailed, "'%s' % (1, 2) doesn't raise TypeError"
+    try:
+        '%s' % (1, 2)
+    except TypeError:
+        pass
+    else:
+        raise TestFailed("'%s' % (1, 2) doesn't raise TypeError")
 
-    try: '%' % None
-    except ValueError: pass
-    else: raise TestFailed, "'%' % None doesn't raise ValueError"
+    try:
+        '%' % None
+    except ValueError:
+        pass
+    else:
+        raise TestFailed("'%' % None doesn't raise ValueError")
 
     vereq('534253'.isdigit(), 1)
     vereq('534253x'.isdigit(), 0)
     vereq('%c' % 5, '\x05')
     vereq('%c' % '5', '5')
 
+
 def deepcopyrecursive():
-    if verbose: print "Testing deepcopy of recursive objects..."
+    if verbose:
+        print "Testing deepcopy of recursive objects..."
+
     class Node:
         pass
     a = Node()
     b = Node()
     a.b = b
     b.a = a
-    z = deepcopy(a) # This blew up before
+    z = deepcopy(a)  # This blew up before
+
 
 def modules():
-    if verbose: print "Testing uninitialized module objects..."
+    if verbose:
+        print "Testing uninitialized module objects..."
     from types import ModuleType as M
     m = M.__new__(M)
     str(m)
@@ -3432,39 +3941,50 @@ def modules():
     m.foo = 1
     vereq(m.__dict__, {"foo": 1})
 
+
 def dictproxyiterkeys():
     class C(object):
         def meth(self):
             pass
-    if verbose: print "Testing dict-proxy iterkeys..."
-    keys = [ key for key in C.__dict__.iterkeys() ]
-    keys.sort()
+    if verbose:
+        print "Testing dict-proxy iterkeys..."
+    keys = sorted([key for key in C.__dict__.iterkeys()])
     vereq(keys, ['__dict__', '__doc__', '__module__', '__weakref__', 'meth'])
+
 
 def dictproxyitervalues():
     class C(object):
         def meth(self):
             pass
-    if verbose: print "Testing dict-proxy itervalues..."
-    values = [ values for values in C.__dict__.itervalues() ]
+    if verbose:
+        print "Testing dict-proxy itervalues..."
+    values = [values for values in C.__dict__.itervalues()]
     vereq(len(values), 5)
+
 
 def dictproxyiteritems():
     class C(object):
         def meth(self):
             pass
-    if verbose: print "Testing dict-proxy iteritems..."
-    keys = [ key for (key, value) in C.__dict__.iteritems() ]
-    keys.sort()
+    if verbose:
+        print "Testing dict-proxy iteritems..."
+    keys = sorted([key for (key, value) in C.__dict__.iteritems()])
     vereq(keys, ['__dict__', '__doc__', '__module__', '__weakref__', 'meth'])
 
+
 def funnynew():
-    if verbose: print "Testing __new__ returning something unexpected..."
+    if verbose:
+        print "Testing __new__ returning something unexpected..."
+
     class C(object):
         def __new__(cls, arg):
-            if isinstance(arg, str): return [1, 2, 3]
-            elif isinstance(arg, int): return object.__new__(D)
-            else: return object.__new__(cls)
+            if isinstance(arg, str):
+                return [1, 2, 3]
+            elif isinstance(arg, int):
+                return object.__new__(D)
+            else:
+                return object.__new__(cls)
+
     class D(C):
         def __init__(self, arg):
             self.foo = arg
@@ -3479,9 +3999,12 @@ def funnynew():
     vereq(isinstance(d, D), True)
     vereq(d.foo, 1)
 
+
 def imulbug():
     # SF bug 544647
-    if verbose: print "Testing for __imul__ problems..."
+    if verbose:
+        print "Testing for __imul__ problems..."
+
     class C(object):
         def __imul__(self, other):
             return (self, other)
@@ -3493,11 +4016,11 @@ def imulbug():
     y *= 2
     vereq(y, (x, 2))
     y = x
-    y *= 3L
-    vereq(y, (x, 3L))
+    y *= 3
+    vereq(y, (x, 3))
     y = x
-    y *= 1L<<100
-    vereq(y, (x, 1L<<100))
+    y *= 1 << 100
+    vereq(y, (x, 1 << 100))
     y = x
     y *= None
     vereq(y, (x, None))
@@ -3505,9 +4028,12 @@ def imulbug():
     y *= "foo"
     vereq(y, (x, "foo"))
 
+
 def docdescriptor():
     # SF bug 542984
-    if verbose: print "Testing __doc__ descriptor..."
+    if verbose:
+        print "Testing __doc__ descriptor..."
+
     class DocDescr(object):
         def __get__(self, object, otype):
             if object:
@@ -3515,8 +4041,10 @@ def docdescriptor():
             if otype:
                 otype = otype.__name__
             return 'object=%s; type=%s' % (object, otype)
+
     class OldClass:
         __doc__ = DocDescr()
+
     class NewClass(object):
         __doc__ = DocDescr()
     vereq(OldClass.__doc__, 'object=None; type=OldClass')
@@ -3524,20 +4052,26 @@ def docdescriptor():
     vereq(NewClass.__doc__, 'object=None; type=NewClass')
     vereq(NewClass().__doc__, 'object=NewClass instance; type=NewClass')
 
+
 def copy_setstate():
     if verbose:
         print "Testing that copy.*copy() correctly uses __setstate__..."
     import copy
+
     class C(object):
         def __init__(self, foo=None):
             self.foo = foo
             self.__foo = foo
+
         def setfoo(self, foo=None):
             self.foo = foo
+
         def getfoo(self):
             return self.__foo
+
         def __getstate__(self):
             return [self.foo]
+
         def __setstate__(self, lst):
             assert len(lst) == 1
             self.__foo = self.foo = lst[0]
@@ -3552,6 +4086,7 @@ def copy_setstate():
     vereq(b.foo, 24)
     vereq(b.getfoo(), 24)
 
+
 def slices():
     if verbose:
         print "Testing cases with slices and overridden __getitem__ ..."
@@ -3559,6 +4094,7 @@ def slices():
     vereq("hello"[:4], "hell")
     vereq("hello"[slice(4)], "hell")
     vereq(str.__getitem__("hello", slice(4)), "hell")
+
     class S(str):
         def __getitem__(self, x):
             return str.__getitem__(self, x)
@@ -3566,35 +4102,38 @@ def slices():
     vereq(S("hello")[slice(4)], "hell")
     vereq(S("hello").__getitem__(slice(4)), "hell")
     # Tuples
-    vereq((1,2,3)[:2], (1,2))
-    vereq((1,2,3)[slice(2)], (1,2))
-    vereq(tuple.__getitem__((1,2,3), slice(2)), (1,2))
+    vereq((1, 2, 3)[:2], (1, 2))
+    vereq((1, 2, 3)[slice(2)], (1, 2))
+    vereq(tuple.__getitem__((1, 2, 3), slice(2)), (1, 2))
+
     class T(tuple):
         def __getitem__(self, x):
             return tuple.__getitem__(self, x)
-    vereq(T((1,2,3))[:2], (1,2))
-    vereq(T((1,2,3))[slice(2)], (1,2))
-    vereq(T((1,2,3)).__getitem__(slice(2)), (1,2))
+    vereq(T((1, 2, 3))[:2], (1, 2))
+    vereq(T((1, 2, 3))[slice(2)], (1, 2))
+    vereq(T((1, 2, 3)).__getitem__(slice(2)), (1, 2))
     # Lists
-    vereq([1,2,3][:2], [1,2])
-    vereq([1,2,3][slice(2)], [1,2])
-    vereq(list.__getitem__([1,2,3], slice(2)), [1,2])
+    vereq([1, 2, 3][:2], [1, 2])
+    vereq([1, 2, 3][slice(2)], [1, 2])
+    vereq(list.__getitem__([1, 2, 3], slice(2)), [1, 2])
+
     class L(list):
         def __getitem__(self, x):
             return list.__getitem__(self, x)
-    vereq(L([1,2,3])[:2], [1,2])
-    vereq(L([1,2,3])[slice(2)], [1,2])
-    vereq(L([1,2,3]).__getitem__(slice(2)), [1,2])
+    vereq(L([1, 2, 3])[:2], [1, 2])
+    vereq(L([1, 2, 3])[slice(2)], [1, 2])
+    vereq(L([1, 2, 3]).__getitem__(slice(2)), [1, 2])
     # Now do lists and __setitem__
-    a = L([1,2,3])
-    a[slice(1, 3)] = [3,2]
-    vereq(a, [1,3,2])
-    a[slice(0, 2, 1)] = [3,1]
-    vereq(a, [3,1,2])
-    a.__setitem__(slice(1, 3), [2,1])
-    vereq(a, [3,2,1])
-    a.__setitem__(slice(0, 2, 1), [2,3])
-    vereq(a, [2,3,1])
+    a = L([1, 2, 3])
+    a[slice(1, 3)] = [3, 2]
+    vereq(a, [1, 3, 2])
+    a[slice(0, 2, 1)] = [3, 1]
+    vereq(a, [3, 1, 2])
+    a.__setitem__(slice(1, 3), [2, 1])
+    vereq(a, [3, 2, 1])
+    a.__setitem__(slice(0, 2, 1), [2, 3])
+    vereq(a, [2, 3, 1])
+
 
 def subtype_resurrection():
     if verbose:
@@ -3625,12 +4164,15 @@ def subtype_resurrection():
     # it as a leak.
     del C.__del__
 
+
 def slottrash():
     # Deallocating deeply nested slotted trash caused stack overflows
     if verbose:
         print "Testing slot trash..."
+
     class trash(object):
         __slots__ = ['x']
+
         def __init__(self, x):
             self.x = x
     o = None
@@ -3638,43 +4180,52 @@ def slottrash():
         o = trash(o)
     del o
 
+
 def slotmultipleinheritance():
     # SF bug 575229, multiple inheritance w/ slots dumps core
     class A(object):
-        __slots__=()
+        __slots__ = ()
+
     class B(object):
         pass
-    class C(A,B) :
-        __slots__=()
+
+    class C(A, B):
+        __slots__ = ()
     vereq(C.__basicsize__, B.__basicsize__)
     verify(hasattr(C, '__dict__'))
     verify(hasattr(C, '__weakref__'))
     C().x = 2
 
+
 def testrmul():
     # SF patch 592646
     if verbose:
         print "Testing correct invocation of __rmul__..."
+
     class C(object):
         def __mul__(self, other):
             return "mul"
+
         def __rmul__(self, other):
             return "rmul"
     a = C()
-    vereq(a*2, "mul")
-    vereq(a*2.2, "mul")
-    vereq(2*a, "rmul")
-    vereq(2.2*a, "rmul")
+    vereq(a * 2, "mul")
+    vereq(a * 2.2, "mul")
+    vereq(2 * a, "rmul")
+    vereq(2.2 * a, "rmul")
+
 
 def testipow():
     # [SF bug 620179]
     if verbose:
         print "Testing correct invocation of __ipow__..."
+
     class C(object):
         def __ipow__(self, other):
             pass
     a = C()
     a **= 2
+
 
 def do_this_first():
     if verbose:
@@ -3683,12 +4234,13 @@ def do_this_first():
     # but only when test_descr.py is run separately.
     # (That can't be helped -- as soon as PyType_Ready()
     # is called for PyLong_Type, the bug is gone.)
+
     class UserLong(object):
         def __pow__(self, *args):
             pass
     try:
-        pow(0L, UserLong(), 0L)
-    except:
+        pow(0, UserLong(), 0)
+    except BaseException:
         pass
 
     if verbose:
@@ -3697,22 +4249,28 @@ def do_this_first():
     # (before PyType_Ready(tuple) is called)
     type.mro(tuple)
 
+
 def test_mutable_bases():
     if verbose:
         print "Testing mutable bases..."
     # stuff that should work:
+
     class C(object):
         pass
+
     class C2(object):
         def __getattribute__(self, attr):
             if attr == 'a':
                 return 2
             else:
                 return super(C2, self).__getattribute__(attr)
+
         def meth(self):
             return 1
+
     class D(C):
         pass
+
     class E(D):
         pass
     d = D()
@@ -3734,29 +4292,29 @@ def test_mutable_bases():
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't turn list subclass into dict subclass"
+        raise TestFailed("shouldn't turn list subclass into dict subclass")
 
     try:
         list.__bases__ = (dict,)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't be able to assign to list.__bases__"
+        raise TestFailed("shouldn't be able to assign to list.__bases__")
 
     try:
         del D.__bases__
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't be able to delete .__bases__"
+        raise TestFailed("shouldn't be able to delete .__bases__")
 
     try:
         D.__bases__ = ()
-    except TypeError, msg:
+    except TypeError as msg:
         if str(msg) == "a new-style class can't have only classic bases":
-            raise TestFailed, "wrong error message for .__bases__ = ()"
+            raise TestFailed("wrong error message for .__bases__ = ()")
     else:
-        raise TestFailed, "shouldn't be able to set .__bases__ to ()"
+        raise TestFailed("shouldn't be able to set .__bases__ to ()")
 
     try:
         D.__bases__ = (D,)
@@ -3764,21 +4322,21 @@ def test_mutable_bases():
         pass
     else:
         # actually, we'll have crashed by here...
-        raise TestFailed, "shouldn't be able to create inheritance cycles"
+        raise TestFailed("shouldn't be able to create inheritance cycles")
 
     try:
         D.__bases__ = (C, C)
     except TypeError:
         pass
     else:
-        raise TestFailed, "didn't detect repeated base classes"
+        raise TestFailed("didn't detect repeated base classes")
 
     try:
         D.__bases__ = (E,)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't be able to create inheritance cycles"
+        raise TestFailed("shouldn't be able to create inheritance cycles")
 
     # let's throw a classic class into the mix:
     class Classic:
@@ -3794,25 +4352,28 @@ def test_mutable_bases():
     except AttributeError:
         pass
     else:
-        raise TestFailed, "attribute should have vanished"
+        raise TestFailed("attribute should have vanished")
 
     try:
         D.__bases__ = (Classic,)
     except TypeError:
         pass
     else:
-        raise TestFailed, "new-style class must have a new-style base"
+        raise TestFailed("new-style class must have a new-style base")
+
 
 def test_mutable_bases_with_failing_mro():
     if verbose:
         print "Testing mutable bases with failing mro..."
+
     class WorkOnce(type):
         def __new__(self, name, bases, ns):
             self.flag = 0
             return super(WorkOnce, self).__new__(WorkOnce, name, bases, ns)
+
         def mro(self):
             if self.flag > 0:
-                raise RuntimeError, "bozo"
+                raise RuntimeError("bozo")
             else:
                 self.flag += 1
                 return type.mro(self)
@@ -3856,11 +4417,13 @@ def test_mutable_bases_with_failing_mro():
         vereq(E.__mro__, E_mro_before)
         vereq(D.__mro__, D_mro_before)
     else:
-        raise TestFailed, "exception not propagated"
+        raise TestFailed("exception not propagated")
+
 
 def test_mutable_bases_catch_mro_conflict():
     if verbose:
         print "Testing mutable bases catch mro conflict..."
+
     class A(object):
         pass
 
@@ -3881,11 +4444,13 @@ def test_mutable_bases_catch_mro_conflict():
     except TypeError:
         pass
     else:
-        raise TestFailed, "didn't catch MRO conflict"
+        raise TestFailed("didn't catch MRO conflict")
+
 
 def mutable_names():
     if verbose:
         print "Testing mutable names..."
+
     class C(object):
         pass
 
@@ -3897,6 +4462,7 @@ def mutable_names():
 
     C.__name__ = 'D.E'
     vereq((C.__module__, C.__name__), (mod, 'D.E'))
+
 
 def subclass_right_op():
     if verbose:
@@ -3910,6 +4476,7 @@ def subclass_right_op():
     class B(int):
         def __floordiv__(self, other):
             return "B.__floordiv__"
+
         def __rfloordiv__(self, other):
             return "B.__rfloordiv__"
 
@@ -3921,6 +4488,7 @@ def subclass_right_op():
     class C(object):
         def __floordiv__(self, other):
             return "C.__floordiv__"
+
         def __rfloordiv__(self, other):
             return "C.__rfloordiv__"
 
@@ -3932,6 +4500,7 @@ def subclass_right_op():
     class D(C):
         def __floordiv__(self, other):
             return "D.__floordiv__"
+
         def __rfloordiv__(self, other):
             return "D.__rfloordiv__"
 
@@ -3948,7 +4517,8 @@ def subclass_right_op():
     vereq(E() // 1, "C.__floordiv__")
     vereq(1 // E(), "C.__rfloordiv__")
     vereq(E() // C(), "C.__floordiv__")
-    vereq(C() // E(), "C.__floordiv__") # This one would fail
+    vereq(C() // E(), "C.__floordiv__")  # This one would fail
+
 
 def dict_type_with_metaclass():
     if verbose:
@@ -3956,12 +4526,15 @@ def dict_type_with_metaclass():
 
     class B(object):
         pass
+
     class M(type):
         pass
+
     class C:
         # In 2.3a1, C.__dict__ was a real dict rather than a dict proxy
         __metaclass__ = M
     veris(type(C.__dict__), type(B.__dict__))
+
 
 def meth_class_get():
     # Full coverage of descrobject.c::classmethod_get()
@@ -3983,72 +4556,82 @@ def meth_class_get():
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't have allowed descr.__get__(None, None)"
+        raise TestFailed("shouldn't have allowed descr.__get__(None, None)")
     try:
         descr.__get__(42)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't have allowed descr.__get__(42)"
+        raise TestFailed("shouldn't have allowed descr.__get__(42)")
     try:
         descr.__get__(None, 42)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't have allowed descr.__get__(None, 42)"
+        raise TestFailed("shouldn't have allowed descr.__get__(None, 42)")
     try:
         descr.__get__(None, int)
     except TypeError:
         pass
     else:
-        raise TestFailed, "shouldn't have allowed descr.__get__(None, int)"
+        raise TestFailed("shouldn't have allowed descr.__get__(None, int)")
+
 
 def isinst_isclass():
     if verbose:
         print "Testing proxy isinstance() and isclass()..."
+
     class Proxy(object):
         def __init__(self, obj):
             self.__obj = obj
+
         def __getattribute__(self, name):
             if name.startswith("_Proxy__"):
                 return object.__getattribute__(self, name)
             else:
                 return getattr(self.__obj, name)
     # Test with a classic class
+
     class C:
         pass
     a = C()
     pa = Proxy(a)
     verify(isinstance(a, C))  # Baseline
-    verify(isinstance(pa, C)) # Test
+    verify(isinstance(pa, C))  # Test
     # Test with a classic subclass
+
     class D(C):
         pass
     a = D()
     pa = Proxy(a)
     verify(isinstance(a, C))  # Baseline
-    verify(isinstance(pa, C)) # Test
+    verify(isinstance(pa, C))  # Test
     # Test with a new-style class
+
     class C(object):
         pass
     a = C()
     pa = Proxy(a)
     verify(isinstance(a, C))  # Baseline
-    verify(isinstance(pa, C)) # Test
+    verify(isinstance(pa, C))  # Test
     # Test with a new-style subclass
+
     class D(C):
         pass
     a = D()
     pa = Proxy(a)
     verify(isinstance(a, C))  # Baseline
-    verify(isinstance(pa, C)) # Test
+    verify(isinstance(pa, C))  # Test
+
 
 def proxysuper():
     if verbose:
         print "Testing super() for a proxy object..."
+
     class Proxy(object):
         def __init__(self, obj):
             self.__obj = obj
+
         def __getattribute__(self, name):
             if name.startswith("_Proxy__"):
                 return object.__getattribute__(self, name)
@@ -4067,6 +4650,7 @@ def proxysuper():
     p = Proxy(obj)
     vereq(C.__dict__["f"](p), "B.f->C.f")
 
+
 def carloverre():
     if verbose:
         print "Testing prohibition of Carlo Verre's hack..."
@@ -4075,13 +4659,14 @@ def carloverre():
     except TypeError:
         pass
     else:
-        raise TestFailed, "Carlo Verre __setattr__ suceeded!"
+        raise TestFailed("Carlo Verre __setattr__ suceeded!")
     try:
         object.__delattr__(str, "lower")
     except TypeError:
         pass
     else:
-        raise TestFailed, "Carlo Verre __delattr__ succeeded!"
+        raise TestFailed("Carlo Verre __delattr__ succeeded!")
+
 
 def weakref_segfault():
     # SF 742911
@@ -4104,18 +4689,22 @@ def weakref_segfault():
     o.whatever = Provoker(o)
     del o
 
+
 def wrapper_segfault():
     # SF 927248: deeply nested wrappers could cause stack overflow
-    f = lambda:None
+    def f(): return None
     for i in xrange(1000000):
         f = f.__call__
     f = None
 
 # Fix SF #762455, segfault when sys.stdout is changed in getattr
+
+
 def filefault():
     if verbose:
         print "Testing sys.stdout is changed in getattr..."
     import sys
+
     class StdoutGuard:
         def __getattr__(self, attr):
             sys.stdout = sys.__stdout__
@@ -4125,6 +4714,7 @@ def filefault():
         print "Oops!"
     except RuntimeError:
         pass
+
 
 def vicious_descriptor_nonsense():
     # A potential segfault spotted by Thomas Wouters in mail to
@@ -4136,6 +4726,7 @@ def vicious_descriptor_nonsense():
     class Evil(object):
         def __hash__(self):
             return hash('attr')
+
         def __eq__(self, other):
             del C.attr
             return 0
@@ -4157,8 +4748,10 @@ def vicious_descriptor_nonsense():
 
     vereq(c.attr, 1)
     # this makes a crash more likely:
-    import gc; gc.collect()
+    import gc
+    gc.collect()
     vereq(hasattr(c, 'attr'), False)
+
 
 def test_init():
     # SF 1155938
@@ -4170,7 +4763,8 @@ def test_init():
     except TypeError:
         pass
     else:
-        raise TestFailed, "did not test __init__() for None return"
+        raise TestFailed("did not test __init__() for None return")
+
 
 def methodwrapper():
     # <type 'method-wrapper'> did not support any reflection before 2.5
@@ -4201,6 +4795,7 @@ def methodwrapper():
     vereq(t.__add__, (7,).__add__)
     vereq(hash(t.__add__), hash((7,).__add__))
 
+
 def notimplemented():
     # all binary methods should be able to return a NotImplemented
     if verbose:
@@ -4221,26 +4816,26 @@ def notimplemented():
         else:
             raise TestFailed("no TypeError from %r" % (expr,))
 
-    N1 = sys.maxint + 1L    # might trigger OverflowErrors instead of TypeErrors
-    N2 = sys.maxint         # if sizeof(int) < sizeof(long), might trigger
-                            #   ValueErrors instead of TypeErrors
+    N1 = sys.maxsize + 1    # might trigger OverflowErrors instead of TypeErrors
+    N2 = sys.maxsize         # if sizeof(int) < sizeof(long), might trigger
+    #   ValueErrors instead of TypeErrors
     for metaclass in [type, types.ClassType]:
         for name, expr, iexpr in [
-                ('__add__',      'x + y',                   'x += y'),
-                ('__sub__',      'x - y',                   'x -= y'),
-                ('__mul__',      'x * y',                   'x *= y'),
-                ('__truediv__',  'operator.truediv(x, y)',  None),
+                ('__add__', 'x + y', 'x += y'),
+                ('__sub__', 'x - y', 'x -= y'),
+                ('__mul__', 'x * y', 'x *= y'),
+                ('__truediv__', 'operator.truediv(x, y)', None),
                 ('__floordiv__', 'operator.floordiv(x, y)', None),
-                ('__div__',      'x / y',                   'x /= y'),
-                ('__mod__',      'x % y',                   'x %= y'),
-                ('__divmod__',   'divmod(x, y)',            None),
-                ('__pow__',      'x ** y',                  'x **= y'),
-                ('__lshift__',   'x << y',                  'x <<= y'),
-                ('__rshift__',   'x >> y',                  'x >>= y'),
-                ('__and__',      'x & y',                   'x &= y'),
-                ('__or__',       'x | y',                   'x |= y'),
-                ('__xor__',      'x ^ y',                   'x ^= y'),
-                ('__coerce__',   'coerce(x, y)',            None)]:
+                ('__div__', 'x / y', 'x /= y'),
+                ('__mod__', 'x % y', 'x %= y'),
+                ('__divmod__', 'divmod(x, y)', None),
+                ('__pow__', 'x ** y', 'x **= y'),
+                ('__lshift__', 'x << y', 'x <<= y'),
+                ('__rshift__', 'x >> y', 'x >>= y'),
+                ('__and__', 'x & y', 'x &= y'),
+                ('__or__', 'x | y', 'x |= y'),
+                ('__xor__', 'x ^ y', 'x ^= y'),
+                ('__coerce__', 'coerce(x, y)', None)]:
             if name == '__coerce__':
                 rname = name
             else:
@@ -4272,6 +4867,7 @@ def notimplemented():
                 check(iexpr, c, N1)
                 check(iexpr, c, N2)
 
+
 def test_assign_slice():
     # ceval.c's assign_slice used to check for
     # tp->tp_as_sequence->sq_slice instead of
@@ -4285,104 +4881,105 @@ def test_assign_slice():
     c[1:2] = 3
     vereq(c.value, 3)
 
+
 def test_main():
     testfuncs = [
-    weakref_segfault, # Must be first, somehow
-    wrapper_segfault,
-    do_this_first,
-    class_docstrings,
-    lists,
-    dicts,
-    dict_constructor,
-    test_dir,
-    ints,
-    longs,
-    floats,
-    complexes,
-    spamlists,
-    spamdicts,
-    pydicts,
-    pylists,
-    metaclass,
-    pymods,
-    multi,
-    mro_disagreement,
-    diamond,
-    ex5,
-    monotonicity,
-    consistency_with_epg,
-    objects,
-    slots,
-    slotspecials,
-    dynamics,
-    errors,
-    classmethods,
-    classmethods_in_c,
-    staticmethods,
-    staticmethods_in_c,
-    classic,
-    compattr,
-    newslot,
-    altmro,
-    overloading,
-    methods,
-    specials,
-    weakrefs,
-    properties,
-    supers,
-    inherits,
-    keywords,
-    restricted,
-    str_subclass_as_dict_key,
-    classic_comparisons,
-    rich_comparisons,
-    coercions,
-    descrdoc,
-    setclass,
-    setdict,
-    pickles,
-    copies,
-    binopoverride,
-    subclasspropagation,
-    buffer_inherit,
-    str_of_str_subclass,
-    kwdargs,
-    recursive__call__,
-    delhook,
-    hashinherit,
-    strops,
-    deepcopyrecursive,
-    modules,
-    dictproxyiterkeys,
-    dictproxyitervalues,
-    dictproxyiteritems,
-    pickleslots,
-    funnynew,
-    imulbug,
-    docdescriptor,
-    copy_setstate,
-    slices,
-    subtype_resurrection,
-    slottrash,
-    slotmultipleinheritance,
-    testrmul,
-    testipow,
-    test_mutable_bases,
-    test_mutable_bases_with_failing_mro,
-    test_mutable_bases_catch_mro_conflict,
-    mutable_names,
-    subclass_right_op,
-    dict_type_with_metaclass,
-    meth_class_get,
-    isinst_isclass,
-    proxysuper,
-    carloverre,
-    filefault,
-    vicious_descriptor_nonsense,
-    test_init,
-    methodwrapper,
-    notimplemented,
-    test_assign_slice,
+        weakref_segfault,  # Must be first, somehow
+        wrapper_segfault,
+        do_this_first,
+        class_docstrings,
+        lists,
+        dicts,
+        dict_constructor,
+        test_dir,
+        ints,
+        longs,
+        floats,
+        complexes,
+        spamlists,
+        spamdicts,
+        pydicts,
+        pylists,
+        metaclass,
+        pymods,
+        multi,
+        mro_disagreement,
+        diamond,
+        ex5,
+        monotonicity,
+        consistency_with_epg,
+        objects,
+        slots,
+        slotspecials,
+        dynamics,
+        errors,
+        classmethods,
+        classmethods_in_c,
+        staticmethods,
+        staticmethods_in_c,
+        classic,
+        compattr,
+        newslot,
+        altmro,
+        overloading,
+        methods,
+        specials,
+        weakrefs,
+        properties,
+        supers,
+        inherits,
+        keywords,
+        restricted,
+        str_subclass_as_dict_key,
+        classic_comparisons,
+        rich_comparisons,
+        coercions,
+        descrdoc,
+        setclass,
+        setdict,
+        pickles,
+        copies,
+        binopoverride,
+        subclasspropagation,
+        buffer_inherit,
+        str_of_str_subclass,
+        kwdargs,
+        recursive__call__,
+        delhook,
+        hashinherit,
+        strops,
+        deepcopyrecursive,
+        modules,
+        dictproxyiterkeys,
+        dictproxyitervalues,
+        dictproxyiteritems,
+        pickleslots,
+        funnynew,
+        imulbug,
+        docdescriptor,
+        copy_setstate,
+        slices,
+        subtype_resurrection,
+        slottrash,
+        slotmultipleinheritance,
+        testrmul,
+        testipow,
+        test_mutable_bases,
+        test_mutable_bases_with_failing_mro,
+        test_mutable_bases_catch_mro_conflict,
+        mutable_names,
+        subclass_right_op,
+        dict_type_with_metaclass,
+        meth_class_get,
+        isinst_isclass,
+        proxysuper,
+        carloverre,
+        filefault,
+        vicious_descriptor_nonsense,
+        test_init,
+        methodwrapper,
+        notimplemented,
+        test_assign_slice,
     ]
     if is_jython:
         for testfunc in [
@@ -4407,7 +5004,7 @@ def test_main():
             # derived classes don't support coerce:
             # http://bugs.jython.org/issue1060
             notimplemented
-            ]:
+        ]:
             testfuncs.remove(testfunc)
     if __name__ == '__main__':
         import sys
@@ -4420,9 +5017,9 @@ def test_main():
     for testfunc in testfuncs:
         try:
             if verbose:
-                print "*"*40
+                print "*" * 40
             testfunc()
-        except Exception, e:
+        except Exception as e:
             if isinstance(e, KeyboardInterrupt) or n == 1:
                 raise
             print "-->", testfunc.__name__, "FAILURE(%d/%d)" % (success, n), str(e)
@@ -4432,9 +5029,11 @@ def test_main():
                 print "-->", testfunc.__name__, "OK(%d/%d)" % (success, n)
 
     if n != success:
-        raise TestFailed, "%d/%d" % (success, n)
+        raise TestFailed("%d/%d" % (success, n))
     else:
-        if verbose: print "All OK"
+        if verbose:
+            print "All OK"
+
 
 if __name__ == "__main__":
     test_main()

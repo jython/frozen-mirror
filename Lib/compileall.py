@@ -16,7 +16,8 @@ import py_compile
 import struct
 import imp
 
-__all__ = ["compile_dir","compile_file","compile_path"]
+__all__ = ["compile_dir", "compile_file", "compile_path"]
+
 
 def compile_dir(dir, maxlevels=10, ddir=None,
                 force=0, rx=None, quiet=0):
@@ -50,13 +51,14 @@ def compile_dir(dir, maxlevels=10, ddir=None,
             if not compile_file(fullname, ddir, force, rx, quiet):
                 success = 0
         elif maxlevels > 0 and \
-             name != os.curdir and name != os.pardir and \
-             os.path.isdir(fullname) and \
-             not os.path.islink(fullname):
+                name != os.curdir and name != os.pardir and \
+                os.path.isdir(fullname) and \
+                not os.path.islink(fullname):
             if not compile_dir(fullname, maxlevels - 1, dfile, force, rx,
                                quiet):
                 success = 0
     return success
+
 
 def compile_file(fullname, ddir=None, force=0, rx=None, quiet=0):
     """Byte-compile one file.
@@ -97,18 +99,19 @@ def compile_file(fullname, ddir=None, force=0, rx=None, quiet=0):
                 print 'Compiling', fullname, '...'
             try:
                 ok = py_compile.compile(fullname, None, dfile, True)
-            except py_compile.PyCompileError,err:
+            except py_compile.PyCompileError as err:
                 if quiet:
                     print 'Compiling', fullname, '...'
                 print err.msg
                 success = 0
-            except IOError, e:
+            except IOError as e:
                 print "Sorry", e
                 success = 0
             else:
                 if ok == 0:
                     success = 0
     return success
+
 
 def compile_path(skip_curdir=1, maxlevels=0, force=0, quiet=0):
     """Byte-compile all module on sys.path.
@@ -129,6 +132,7 @@ def compile_path(skip_curdir=1, maxlevels=0, force=0, quiet=0):
                                               force, quiet=quiet)
     return success
 
+
 def expand_args(args, flist):
     """read names in flist and append to args"""
     expanded = args[:]
@@ -138,7 +142,7 @@ def expand_args(args, flist):
                 fd = sys.stdin
             else:
                 fd = open(flist)
-            while 1:
+            while True:
                 line = fd.readline()
                 if not line:
                     break
@@ -148,12 +152,13 @@ def expand_args(args, flist):
             raise
     return expanded
 
+
 def main():
     """Script main program."""
     import getopt
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'lfqd:x:i:')
-    except getopt.error, msg:
+    except getopt.error as msg:
         print msg
         print "usage: python compileall.py [-l] [-f] [-q] [-d destdir] " \
               "[-x regexp] [-i list] [directory|file ...]"
@@ -186,14 +191,19 @@ def main():
     rx = None
     flist = None
     for o, a in opts:
-        if o == '-l': maxlevels = 0
-        if o == '-d': ddir = a
-        if o == '-f': force = 1
-        if o == '-q': quiet = 1
+        if o == '-l':
+            maxlevels = 0
+        if o == '-d':
+            ddir = a
+        if o == '-f':
+            force = 1
+        if o == '-q':
+            quiet = 1
         if o == '-x':
             import re
             rx = re.compile(a)
-        if o == '-i': flist = a
+        if o == '-i':
+            flist = a
     if ddir:
         if len(args) != 1 and not os.path.isdir(args[0]):
             print "-d destdir require exactly one directory argument"
@@ -221,6 +231,7 @@ def main():
         print "\n[interrupted]"
         success = 0
     return success
+
 
 if __name__ == '__main__':
     exit_status = int(not main())

@@ -10,5 +10,3 @@ s.update("foo")
 r = s.digest()
 
 support.compare(len(r), "20")
-
-

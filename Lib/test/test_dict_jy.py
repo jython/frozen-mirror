@@ -4,6 +4,7 @@ import unittest
 from collections import defaultdict
 import test_dict
 
+
 class DictInitTest(unittest.TestCase):
     def testInternalSetitemInInit(self):
         """Test for http://jython.org/bugs/1816134
@@ -14,7 +15,7 @@ class DictInitTest(unittest.TestCase):
         """
         class Subdict(dict):
             def __init__(self):
-                super(Subdict, self).__init__([('a',1)])
+                super(Subdict, self).__init__([('a', 1)])
                 self.createdInInit = 1
 
             def __setitem__(self, key, value):
@@ -28,39 +29,44 @@ class DictInitTest(unittest.TestCase):
 
     def testUnhashableKeys(self):
         try:
-            a = {[1]:2}
+            a = {[1]: 2}
         except TypeError:
             pass
         else:
             self.fail("list as dict key should raise TypeError")
 
         try:
-            a = {{1:2}:3}
+            a = {{1: 2}: 3}
         except TypeError:
             pass
         else:
             self.fail("dict as dict key should raise TypeError")
 
+
 class DictCmpTest(unittest.TestCase):
     "Test for http://bugs.jython.org/issue1031"
+
     def testDictCmp(self):
         # 'Implicit' comparision of dicts against other types instances
         # shouldn't raise exception:
         self.assertNotEqual({}, '')
         # The same, but explicitly calling __cmp__ should raise TypeError:
         self.assertRaises(TypeError, {}.__cmp__, '')
+
     def testDictDerivedCmp(self):
         # With derived classes that doesn't override __cmp__, the behaviour
         # should be the same that with dicts:
-        class derived_dict(dict): pass
+        class derived_dict(dict):
+            pass
         self.assertEqual(derived_dict(), {})
         self.assertNotEqual(derived_dict(), '')
         self.assertRaises(TypeError, derived_dict().__cmp__, '')
         # But, if they *override* __cmp__ and raise TypeError from there, we
         # have exception raised when checking for equality...
+
         class non_comparable_dict(dict):
             def __cmp__(self, other):
-                raise TypeError, "I always raise TypeError"
+                raise TypeError("I always raise TypeError")
         self.assertRaises(TypeError, lambda: non_comparable_dict() == '')
         self.assertRaises(TypeError, non_comparable_dict().__cmp__, '')
         # ...unless you compare it with other dicts:
@@ -79,12 +85,16 @@ class DictCmpTest(unittest.TestCase):
         # Finally, the Python implementation shouldn't be tricked by not
         # implementing __cmp__ on the actual type of the dict-derived instance,
         # but implementing it on a superclass.
+
         class derived_dict_with_custom_cmp(dict):
             def __cmp__(self, other):
                 return 0
-        class yet_another_dict(derived_dict_with_custom_cmp): pass
+
+        class yet_another_dict(derived_dict_with_custom_cmp):
+            pass
         self.assertEqual(derived_dict_with_custom_cmp(), '')
         self.assertEqual(yet_another_dict(), '')
+
 
 class DictMiscTest(unittest.TestCase):
     def test_pop_key_error(self):
@@ -96,54 +106,61 @@ class DictMiscTest(unittest.TestCase):
         with self.assertRaisesRegexp(KeyError, r"^frozenset\(\[\]\)$"):
             {}.pop(frozenset())
 
+
 class DerivedDictTest(unittest.TestCase):
     "Tests for derived dict behaviour"
+
     def test_raising_custom_key_error(self):
         class CustomKeyError(KeyError):
             pass
+
         class DerivedDict(dict):
             def __getitem__(self, key):
                 raise CustomKeyError("custom message")
         self.assertRaises(CustomKeyError, lambda: DerivedDict()['foo'])
-    
+
     def test_issue1676(self):
-        #See http://bugs.jython.org/issue1676
-        x=defaultdict()
-        #This formerly caused an NPE.
-        self.assertEqual(None, x.pop(None,None))
+        # See http://bugs.jython.org/issue1676
+        x = defaultdict()
+        # This formerly caused an NPE.
+        self.assertEqual(None, x.pop(None, None))
 
     def test_big_dict(self):
         """Verify that fairly large collection literals of primitives can be constructed."""
         # use \n to separate to avoid parser problems
 
-        d = eval("{" + ",\n".join(("'key{}': {}".format(x, x) for x in xrange(16000))) +"}")
+        d = eval("{" + ",\n".join(("'key{}': {}".format(x, x)
+                                   for x in xrange(16000))) + "}")
         self.assertEqual(len(d), 16000)
         self.assertEqual(sum(d.itervalues()), 127992000)
 
 
 class JavaIntegrationTest(unittest.TestCase):
     "Tests for instantiating dicts from Java maps and hashtables"
+
     def test_hashmap(self):
         x = HashMap()
         x.put('a', 1)
         x.put('b', 2)
         x.put('c', 3)
-        x.put((1,2), "xyz")
+        x.put((1, 2), "xyz")
         y = dict(x)
-        self.assertEqual(set(y.items()), set([('a', 1), ('b', 2), ('c', 3), ((1,2), "xyz")]))
+        self.assertEqual(set(y.items()), set(
+            [('a', 1), ('b', 2), ('c', 3), ((1, 2), "xyz")]))
 
     def test_hashmap_builtin_pymethods(self):
         x = HashMap()
         x['a'] = 1
         x[(1, 2)] = 'xyz'
-        self.assertEqual({tup for tup in x.iteritems()}, {('a', 1), ((1, 2), 'xyz')})
+        self.assertEqual({tup for tup in x.iteritems()},
+                         {('a', 1), ((1, 2), 'xyz')})
         self.assertEqual({tup for tup in x.itervalues()}, {1, 'xyz'})
         self.assertEqual({tup for tup in x.iterkeys()}, {'a', (1, 2)})
         self.assertEqual(str(x), repr(x))
         self.assertEqual(type(str(x)), type(repr(x)))
 
     def test_hashtable_equal(self):
-        for d in ({}, {1:2}):
+        for d in ({}, {1: 2}):
             x = Hashtable(d)
             self.assertEqual(x, d)
             self.assertEqual(d, x)
@@ -159,9 +176,10 @@ class JavaIntegrationTest(unittest.TestCase):
         x.put('a', 1)
         x.put('b', 2)
         x.put('c', 3)
-        x.put((1,2), "xyz")
+        x.put((1, 2), "xyz")
         y = dict(x)
-        self.assertEqual(set(y.items()), set([('a', 1), ('b', 2), ('c', 3), ((1,2), "xyz")]))
+        self.assertEqual(set(y.items()), set(
+            [('a', 1), ('b', 2), ('c', 3), ((1, 2), "xyz")]))
 
 
 class JavaDictTest(test_dict.DictTest):
@@ -175,19 +193,21 @@ class JavaDictTest(test_dict.DictTest):
 
     def test_fromkeys(self):
         super(JavaDictTest, self).test_fromkeys()
-        self.assertEqual(self._class.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
+        self.assertEqual(
+            self._class.fromkeys('abc'), {
+                'a': None, 'b': None, 'c': None})
 
     def test_repr_value_None(self):
-        x = self._class({1:None})
+        x = self._class({1: None})
         self.assertEqual(repr(x), '{1: None}')
 
     def test_set_return_None(self):
-        x = self._class({1:2})
+        x = self._class({1: 2})
         self.assertEqual(x.__setitem__(1, 3), None)
         self.assertEqual(x.__getitem__(1), 3)
 
     def test_del_return_None(self):
-        x = self._class({1:2})
+        x = self._class({1: 2})
         self.assertEqual(x.__delitem__(1), None)
         self.assertEqual(len(x), 0)
 
@@ -215,32 +235,32 @@ class JavaDictTest(test_dict.DictTest):
         self.assert_property(self.assertLessEqual, {1: 2}, {1: 2})
         self.assert_not_property(self.assertLessEqual, {1: 2, 3: 4}, {1: 2})
         self.assert_property(self.assertLessEqual, {}, {1: 2})
-        self.assertLessEqual(self._make_dict({1: 2}), {1L: 2L, 3L: 4L})
-        self.assertLessEqual({1L: 2L}, self._make_dict({1: 2, 3L: 4L}))
+        self.assertLessEqual(self._make_dict({1: 2}), {1: 2, 3: 4})
+        self.assertLessEqual({1: 2}, self._make_dict({1: 2, 3: 4}))
 
     def test_lt(self):
         self.assert_not_property(self.assertLess, {}, {})
         self.assert_not_property(self.assertLess, {1: 2}, {1: 2})
         self.assert_not_property(self.assertLessEqual, {1: 2, 3: 4}, {1: 2})
         self.assert_property(self.assertLessEqual, {}, {1: 2})
-        self.assertLess(self._make_dict({1: 2}), {1L: 2L, 3L: 4L})
-        self.assertLess({1L: 2L}, self._make_dict({1: 2, 3L: 4L}))
+        self.assertLess(self._make_dict({1: 2}), {1: 2, 3: 4})
+        self.assertLess({1: 2}, self._make_dict({1: 2, 3: 4}))
 
     def test_ge(self):
         self.assert_property(self.assertGreaterEqual, {}, {})
         self.assert_property(self.assertGreaterEqual, {1: 2}, {1: 2})
         self.assert_not_property(self.assertLessEqual, {1: 2, 3: 4}, {1: 2})
         self.assert_property(self.assertLessEqual, {}, {1: 2})
-        self.assertGreaterEqual(self._make_dict({1: 2, 3: 4}), {1L: 2L})
-        self.assertGreaterEqual({1L: 2L, 3L: 4L}, self._make_dict({1: 2}))
+        self.assertGreaterEqual(self._make_dict({1: 2, 3: 4}), {1: 2})
+        self.assertGreaterEqual({1: 2, 3: 4}, self._make_dict({1: 2}))
 
     def test_gt(self):
         self.assert_not_property(self.assertGreater, {}, {})
         self.assert_not_property(self.assertGreater, {1: 2}, {1: 2})
         self.assert_not_property(self.assertLessEqual, {1: 2, 3: 4}, {1: 2})
         self.assert_property(self.assertLessEqual, {}, {1: 2})
-        self.assertGreater(self._make_dict({1: 2, 3: 4}), {1L: 2L})
-        self.assertGreater({1L: 2L, 3L: 4L}, self._make_dict({1: 2}))
+        self.assertGreater(self._make_dict({1: 2, 3: 4}), {1: 2})
+        self.assertGreater({1: 2, 3: 4}, self._make_dict({1: 2}))
 
 
 class PyStringMapTest(test_dict.DictTest):
@@ -268,6 +288,7 @@ def test_main():
         JavaIntegrationTest,
         JavaDictTest,
         PyStringMapTest)
+
 
 if __name__ == '__main__':
     test_main()

@@ -5,7 +5,5 @@
 import support
 
 a = 1
-    # indented comment 
+# indented comment
 a = 2
-
-

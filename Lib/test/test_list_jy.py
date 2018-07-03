@@ -9,10 +9,11 @@ if test_support.is_jython:
     from java.util import ArrayList
     from java.lang import Integer, String
 
+
 class ListTestCase(unittest.TestCase):
 
     def test_recursive_list_slices(self):
-        x = [1,2,3,4,5]
+        x = [1, 2, 3, 4, 5]
         x[1:] = x
         self.assertEquals(x, [1, 1, 2, 3, 4, 5],
                           "Recursive assignment to list slices failed")
@@ -51,14 +52,16 @@ class ListTestCase(unittest.TestCase):
         self.assertEquals(glmt.silly, "eggs")
 
     def test_tuple_equality(self):
-        self.assertEqual([(1,), [1]].count([1]), 1) # http://bugs.jython.org/issue1317
+        # http://bugs.jython.org/issue1317
+        self.assertEqual([(1,), [1]].count([1]), 1)
 
     def test_big_list(self):
         """Verify that fairly large collection literals of primitives can be constructed."""
         # use \n to separate to avoid parser problems
-        lst = eval("[" + ",\n".join((str(x) for x in xrange(64000))) +"]")
+        lst = eval("[" + ",\n".join((str(x) for x in xrange(64000))) + "]")
         self.assertEqual(len(lst), 64000)
         self.assertEqual(sum(lst), 2047968000)
+
 
 class ThreadSafetyTestCase(unittest.TestCase):
 
@@ -68,7 +71,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
             t = threading.Thread(target=f)
             t.start()
             threads.append(t)
-        timeout = 10. # be especially generous
+        timeout = 10.  # be especially generous
         for t in threads:
             t.join(timeout)
             timeout = 0.
@@ -78,6 +81,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
     def test_append_remove(self):
         # derived from Itamar Shtull-Trauring's test for issue 521701
         lst = []
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -89,6 +93,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
 
     def test_sort(self):
         lst = []
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -100,7 +105,8 @@ class ThreadSafetyTestCase(unittest.TestCase):
         self.assertEqual(lst, [])
 
     def test_count_reverse(self):
-        lst = [0,1,2,3,4,5,6,7,8,9,10,0]
+        lst = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0]
+
         def tester():
             ct = threading.currentThread()
             for i in range(1000):
@@ -109,8 +115,9 @@ class ThreadSafetyTestCase(unittest.TestCase):
                     time.sleep(0.0001)
                 lst.reverse()
                 self.assertEqual(lst.count(0), 2)
-                self.assert_(lst[1] in (1,10))
+                self.assert_(lst[1] in (1, 10))
         self.run_threads(tester)
+
 
 class ExtendedSliceTestCase(unittest.TestCase):
     '''Really thrash extended slice operations on list.'''
@@ -123,10 +130,10 @@ class ExtendedSliceTestCase(unittest.TestCase):
         # This contributed to the release of http://bugs.jython.org/issue1873 .
         # This is a supplementary test focused on correct stopping.
 
-        initial =                  [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13]
-        expected1 = self.type2test([ 0, 1, 2, 3, 4, 5,            10,11,12,13])
-        expected2 = self.type2test([ 0, 1, 2,    4,    6,    8,   10,   12,13])
-        expected4 = self.type2test([ 0, 1,    3, 4, 5,    7, 8, 9,   11,12,13])
+        initial = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        expected1 = self.type2test([0, 1, 2, 3, 4, 5, 10, 11, 12, 13])
+        expected2 = self.type2test([0, 1, 2, 4, 6, 8, 10, 12, 13])
+        expected4 = self.type2test([0, 1, 3, 4, 5, 7, 8, 9, 11, 12, 13])
 
         # Positive step
         a = self.type2test(initial)
@@ -168,11 +175,14 @@ class ExtendedSliceTestCase(unittest.TestCase):
         # This is a supplementary test focused on correct stopping.
 
         aa, bb, cc = 91, 92, 93
-        src = self.type2test([aa,bb,cc])
-        initial =                  [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13]
-        expected1 = self.type2test([ 0, 1, 2, 3, 4, 5,aa,bb,cc, 9,10,11,12,13])
-        expected2 = self.type2test([ 0, 1, 2,aa, 4,bb, 6,cc, 8, 9,10,11,12,13])
-        expected4 = self.type2test([ 0, 1,aa, 3, 4, 5,bb, 7, 8, 9,cc,11,12,13])
+        src = self.type2test([aa, bb, cc])
+        initial = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        expected1 = self.type2test(
+            [0, 1, 2, 3, 4, 5, aa, bb, cc, 9, 10, 11, 12, 13])
+        expected2 = self.type2test(
+            [0, 1, 2, aa, 4, bb, 6, cc, 8, 9, 10, 11, 12, 13])
+        expected4 = self.type2test(
+            [0, 1, aa, 3, 4, 5, bb, 7, 8, 9, cc, 11, 12, 13])
 
         # Positive step
         a = self.type2test(initial)
@@ -229,22 +239,25 @@ class JavaListTestCase(test_list.ListTest):
 
     def test_extend_java_ArrayList(self):
         jl = ArrayList([])
-        jl.extend([1,2])
-        self.assertEqual(jl, ArrayList([1,2]))
-        jl.extend(ArrayList([3,4]))
-        self.assertEqual(jl, [1,2,3,4])
-    
+        jl.extend([1, 2])
+        self.assertEqual(jl, ArrayList([1, 2]))
+        jl.extend(ArrayList([3, 4]))
+        self.assertEqual(jl, [1, 2, 3, 4])
+
     def test_remove(self):
         # Verifies that overloaded java.util.List#remove(int) method can still be used, but with Python index semantics
         # http://bugs.jython.org/issue2456
         jl = ArrayList(xrange(10, -1, -1))      # 10 .. 0, inclusive
-        jl.remove(0)  # removes jl[-1] (=0) 
+        jl.remove(0)  # removes jl[-1] (=0)
         self.assertEqual(jl, range(10, 0, -1))  # 10 .. 1
-        self.assertRaises(ValueError, jl.remove, Integer(0))  # j.l.Integer does not support __index__ - maybe it should!
+        # j.l.Integer does not support __index__ - maybe it should!
+        self.assertRaises(ValueError, jl.remove, Integer(0))
         jl.remove(0)  # removes jl[0] (=10)
-        self.assertEqual(jl, range(9, 0, -1))   #  9 .. 1
-        jl.remove(-1) # removes jl[-1] (=1) - support same index calculations as Python (= del jl[-1])
-        self.assertEqual(jl, range(9, 1, -1))   #  9 .. 2
+        self.assertEqual(jl, range(9, 0, -1))  # 9 .. 1
+        # removes jl[-1] (=1) - support same index calculations as Python (=
+        # del jl[-1])
+        jl.remove(-1)
+        self.assertEqual(jl, range(9, 1, -1))  # 9 .. 2
         jl.remove(3)
         jl.remove(5)
         self.assertEqual(jl, [9, 8, 7, 6, 4, 2])
@@ -257,11 +270,11 @@ class JavaListTestCase(test_list.ListTest):
         self.assertEqual(jl, b_to_z_by_2)
 
     def test_concat(self):
-    	# See http://bugs.jython.org/issue2688
+        # See http://bugs.jython.org/issue2688
         lst = ArrayList([1, 2, 3])
         lst2 = [4, 5, 6]
-        self.assertEquals(lst+lst2, [1, 2, 3, 4, 5, 6])
-        self.assertEquals(lst2+lst, [4, 5, 6, 1, 2, 3])
+        self.assertEquals(lst + lst2, [1, 2, 3, 4, 5, 6])
+        self.assertEquals(lst2 + lst, [4, 5, 6, 1, 2, 3])
 
 
 class ListSubclassTestCase(unittest.TestCase):
@@ -310,6 +323,7 @@ def test_main():
                               ThreadSafetyTestCase,
                               ExtendedSliceTestCase,
                               JavaListTestCase)
-    
+
+
 if __name__ == "__main__":
     test_main()

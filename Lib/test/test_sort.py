@@ -10,6 +10,7 @@ except ImportError:
 verbose = test_support.verbose
 nerrors = 0
 
+
 def check(tag, expected, raw, compare=None):
     global nerrors
 
@@ -42,13 +43,15 @@ def check(tag, expected, raw, compare=None):
             nerrors += 1
             return
 
+
 class TestBase(unittest.TestCase):
     def testStressfully(self):
-        # Try a variety of sizes at and around powers of 2, and at powers of 10.
+        # Try a variety of sizes at and around powers of 2, and at powers of
+        # 10.
         sizes = [0]
         for power in range(1, 10):
             n = 2 ** power
-            sizes.extend(range(n-1, n+2))
+            sizes.extend(range(n - 1, n + 2))
         sizes.extend([10, 100, 1000])
 
         class Complains(object):
@@ -74,7 +77,7 @@ class TestBase(unittest.TestCase):
 
             def __cmp__(self, other):
                 return cmp(self.key, other.key)
-            __hash__ = None # Silence Py3k warning
+            __hash__ = None  # Silence Py3k warning
 
             def __repr__(self):
                 return "Stable(%d, %d)" % (self.key, self.index)
@@ -107,11 +110,11 @@ class TestBase(unittest.TestCase):
 
             if test_support.is_jython:
                 try:
-                    s.sort(lambda a, b:  int(random.random() * 3) - 1)
+                    s.sort(lambda a, b: int(random.random() * 3) - 1)
                 except java.lang.IllegalArgumentException:
                     pass
             else:
-                s.sort(lambda a, b:  int(random.random() * 3) - 1)
+                s.sort(lambda a, b: int(random.random() * 3) - 1)
                 check("an insane function left some permutation", x, s)
 
             x = [Complains(i) for i in x]
@@ -128,12 +131,12 @@ class TestBase(unittest.TestCase):
                 check("exception during sort left some permutation", x, s)
 
             s = [Stable(random.randrange(10), i) for i in xrange(n)]
-            augmented = [(e, e.index) for e in s]
-            augmented.sort()    # forced stable because ties broken by index
-            x = [e for e, i in augmented] # a stable sort of s
+            augmented = sorted([(e, e.index) for e in s])
+            x = [e for e, i in augmented]  # a stable sort of s
             check("stability", x, s)
 
-#==============================================================================
+# ==============================================================================
+
 
 class TestBugs(unittest.TestCase):
 
@@ -169,8 +172,9 @@ class TestBugs(unittest.TestCase):
                 L.append(3)
                 L.pop()
                 return cmp(x, y)
-            L = [1,2]
+            L = [1, 2]
             self.assertRaises(ValueError, L.sort, mutating_cmp)
+
             def mutating_cmp(x, y):
                 L.append(3)
                 del L[:]
@@ -178,7 +182,8 @@ class TestBugs(unittest.TestCase):
             self.assertRaises(ValueError, L.sort, mutating_cmp)
             memorywaster = [memorywaster]
 
-#==============================================================================
+# ==============================================================================
+
 
 class TestDecorateSortUndecorate(unittest.TestCase):
 
@@ -187,11 +192,11 @@ class TestDecorateSortUndecorate(unittest.TestCase):
         copy = data[:]
         random.shuffle(data)
         data.sort(key=str.lower)
-        copy.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        copy.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
 
     def test_baddecorator(self):
         data = 'The quick Brown fox Jumped over The lazy Dog'.split()
-        self.assertRaises(TypeError, data.sort, None, lambda x,y: 0)
+        self.assertRaises(TypeError, data.sort, None, lambda x, y: 0)
 
     def test_stability(self):
         data = [(random.randrange(100), i) for i in xrange(200)]
@@ -216,33 +221,36 @@ class TestDecorateSortUndecorate(unittest.TestCase):
 
     def test_key_with_exception(self):
         # Verify that the wrapper has been removed
-        data = range(-2,2)
+        data = range(-2, 2)
         dup = data[:]
         self.assertRaises(ZeroDivisionError, data.sort, None, lambda x: 1 // x)
         self.assertEqual(data, dup)
- 
+
     # for jython, we have a different storage mechanism for this in our
     # implementation of MergeState; given that this is likely to go away,
     # this doesn't seem so important
     @unittest.skipIf(test_support.is_jython,
-            "Jython has a different implementation of MergeSort")
+                     "Jython has a different implementation of MergeSort")
     def test_key_with_mutation(self):
         data = range(10)
+
         def k(x):
             del data[:]
             data[:] = range(20)
             return x
         self.assertRaises(ValueError, data.sort, key=k)
- 
+
     # The function passed to the "key" argument changes the data upon which
     # sort is invoked.  It can not be checked if that function changes data as
     # long as it is invoked(e.g. __del__ in SortKiller). so skipping for now.
     @unittest.skipIf(test_support.is_jython, "Doesn't work for Jython")
     def test_key_with_mutating_del(self):
         data = range(10)
+
         class SortKiller(object):
             def __init__(self, x):
                 pass
+
             def __del__(self):
                 del data[:]
                 data[:] = range(20)
@@ -255,41 +263,44 @@ class TestDecorateSortUndecorate(unittest.TestCase):
     def test_key_with_mutating_del_and_exception(self):
         data = range(10)
         ## dup = data[:]
+
         class SortKiller(object):
             def __init__(self, x):
                 if x > 2:
                     raise RuntimeError
+
             def __del__(self):
                 del data[:]
                 data[:] = range(20)
         self.assertRaises(RuntimeError, data.sort, key=SortKiller)
-        ## major honking subtlety: we *can't* do:
+        # major honking subtlety: we *can't* do:
         ##
         ## self.assertEqual(data, dup)
         ##
-        ## because there is a reference to a SortKiller in the
-        ## traceback and by the time it dies we're outside the call to
-        ## .sort() and so the list protection gimmicks are out of
-        ## date (this cost some brain cells to figure out...).
+        # because there is a reference to a SortKiller in the
+        # traceback and by the time it dies we're outside the call to
+        # .sort() and so the list protection gimmicks are out of
+        # date (this cost some brain cells to figure out...).
 
     def test_reverse(self):
         data = range(100)
         random.shuffle(data)
         data.sort(reverse=True)
-        self.assertEqual(data, range(99,-1,-1))
+        self.assertEqual(data, range(99, -1, -1))
         self.assertRaises(TypeError, data.sort, "wrong type")
 
     def test_reverse_stability(self):
         data = [(random.randrange(100), i) for i in xrange(200)]
         copy1 = data[:]
         copy2 = data[:]
-        data.sort(cmp=lambda x,y: cmp(x[0],y[0]), reverse=True)
-        copy1.sort(cmp=lambda x,y: cmp(y[0],x[0]))
+        data.sort(cmp=lambda x, y: cmp(x[0], y[0]), reverse=True)
+        copy1.sort(cmp=lambda x, y: cmp(y[0], x[0]))
         self.assertEqual(data, copy1)
         copy2.sort(key=lambda x: x[0], reverse=True)
         self.assertEqual(data, copy2)
 
-#==============================================================================
+# ==============================================================================
+
 
 def test_main(verbose=None):
     test_classes = (
@@ -311,6 +322,7 @@ def test_main(verbose=None):
                 gc.collect()
                 counts[i] = sys.gettotalrefcount()
             print counts
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

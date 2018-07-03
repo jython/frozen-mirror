@@ -10,7 +10,13 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 
 class RobotTestCase(unittest.TestCase):
-    def __init__(self, index=None, parser=None, url=None, good=None, agent=None):
+    def __init__(
+            self,
+            index=None,
+            parser=None,
+            url=None,
+            good=None,
+            agent=None):
         # workaround to make unittest discovery work (see #17066)
         if not isinstance(index, int):
             return
@@ -38,7 +44,9 @@ class RobotTestCase(unittest.TestCase):
     def __str__(self):
         return self.str
 
+
 tests = unittest.TestSuite()
+
 
 def RobotTest(index, robots_txt, good_urls, bad_urls,
               agent="test_robotparser"):
@@ -53,6 +61,7 @@ def RobotTest(index, robots_txt, good_urls, bad_urls,
 
 # Examples from http://www.robotstxt.org/wc/norobots.html (fetched 2002)
 
+
 # 1.
 doc = """
 User-agent: *
@@ -61,8 +70,8 @@ Disallow: /tmp/ # these will soon disappear
 Disallow: /foo.html
 """
 
-good = ['/','/test.html']
-bad = ['/cyberworld/map/index.html','/tmp/xxx','/foo.html']
+good = ['/', '/test.html']
+bad = ['/cyberworld/map/index.html', '/tmp/xxx', '/foo.html']
 
 RobotTest(1, doc, good, bad)
 
@@ -79,7 +88,7 @@ Disallow:
 
 """
 
-good = ['/','/test.html',('cybermapper','/cyberworld/map/index.html')]
+good = ['/', '/test.html', ('cybermapper', '/cyberworld/map/index.html')]
 bad = ['/cyberworld/map/index.html']
 
 RobotTest(2, doc, good, bad)
@@ -92,7 +101,7 @@ Disallow: /
 """
 
 good = []
-bad = ['/cyberworld/map/index.html','/','/tmp/']
+bad = ['/cyberworld/map/index.html', '/', '/tmp/']
 
 RobotTest(3, doc, good, bad)
 
@@ -107,9 +116,9 @@ Disallow: /a%2fb.html
 Disallow: /%7ejoe/index.html
 """
 
-good = [] # XFAIL '/a/b.html'
-bad = ['/tmp','/tmp.html','/tmp/a.html',
-       '/a%3cd.html','/a%3Cd.html','/a%2fb.html',
+good = []  # XFAIL '/a/b.html'
+bad = ['/tmp', '/tmp.html', '/tmp/a.html',
+       '/a%3cd.html', '/a%3Cd.html', '/a%2fb.html',
        '/~joe/index.html'
        ]
 
@@ -125,9 +134,9 @@ Disallow: /a/b.html
 Disallow: /%7ejoe/index.html
 """
 
-good = ['/tmp',] # XFAIL: '/a%2fb.html'
-bad = ['/tmp/','/tmp/a.html',
-       '/a%3cd.html','/a%3Cd.html',"/a/b.html",
+good = ['/tmp', ]  # XFAIL: '/a%2fb.html'
+bad = ['/tmp/', '/tmp/a.html',
+       '/a%3cd.html', '/a%3Cd.html', "/a/b.html",
        '/%7Ejoe/index.html']
 
 RobotTest(6, doc, good, bad)
@@ -141,11 +150,12 @@ Disallow: /.
 """
 
 good = ['/foo.html']
-bad = [] # Bug report says "/" should be denied, but that is not in the RFC
+bad = []  # Bug report says "/" should be denied, but that is not in the RFC
 
 RobotTest(7, doc, good, bad)
 
-# From Google: http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=40364
+# From Google:
+# http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=40364
 
 # 8.
 doc = """
@@ -271,7 +281,7 @@ class PasswordProtectedSiteTestCase(unittest.TestCase):
             # Short poll interval to make the test finish quickly.
             # Time between requests is short enough that we won't wake
             # up spuriously too many times.
-            kwargs={'poll_interval':0.01})
+            kwargs={'poll_interval': 0.01})
         self.t.daemon = True  # In case this function raises.
         self.t.start()
 
@@ -295,6 +305,7 @@ class PasswordProtectedSiteTestCase(unittest.TestCase):
     def __str__(self):
         return '%s' % self.__class__.__name__
 
+
 class NetworkTestCase(unittest.TestCase):
 
     @unittest.skip('does not handle the gzip encoding delivered by pydotorg')
@@ -307,11 +318,13 @@ class NetworkTestCase(unittest.TestCase):
             self.assertTrue(
                 parser.can_fetch("*", "http://www.python.org/robots.txt"))
 
+
 def load_tests(loader, suite, pattern):
     suite = unittest.makeSuite(NetworkTestCase)
     suite.addTest(tests)
     suite.addTest(PasswordProtectedSiteTestCase())
     return suite
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     unittest.main()

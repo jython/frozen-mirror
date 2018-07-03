@@ -11,7 +11,7 @@ try:
 except ImportError:
     threading = None
 
-### Support code
+# Support code
 ###############################################################################
 
 # Bug 1055820 has several tests of longstanding bugs involving weakrefs and
@@ -19,10 +19,13 @@ except ImportError:
 
 # An instance of C1055820 has a self-loop, so becomes cyclic trash when
 # unreachable.
+
+
 class C1055820(object):
     def __init__(self, i):
         self.i = i
         self.loop = self
+
 
 class GC_Detector(object):
     # Create an instance I.  Then gc hasn't happened again so long as
@@ -39,28 +42,28 @@ class GC_Detector(object):
         self.wr = weakref.ref(C1055820(666), it_happened)
 
 
-### Tests
+# Tests
 ###############################################################################
 
 class GCTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        #Jython-specific block:
+        # Jython-specific block:
         try:
             cls.savedJythonGCFlags = gc.getJythonGCFlags()
             gc.setMonitorGlobal(True)
-            #since gc module already exists, it would not be caught by monitorGlobal.
-            #so we have to monitor it manually:
+            # since gc module already exists, it would not be caught by monitorGlobal.
+            # so we have to monitor it manually:
             gc.monitorObject(gc)
-            #the finalizer-related tests need this flag to pass in Jython:
+            # the finalizer-related tests need this flag to pass in Jython:
             gc.addJythonGCFlags(gc.DONT_FINALIZE_CYCLIC_GARBAGE)
         except Exception:
             pass
 
     @classmethod
     def tearDownClass(cls):
-        #Jython-specific block:
+        # Jython-specific block:
         try:
             gc.setJythonGCFlags(cls.savedJythonGCFlags)
             gc.stopMonitoring()
@@ -122,8 +125,10 @@ class GCTests(unittest.TestCase):
         gc.collect()
         del a
         self.assertNotEqual(gc.collect(), 0)
+
         class B(list):
             pass
+
         class C(B, A):
             pass
         a = C()
@@ -152,6 +157,7 @@ class GCTests(unittest.TestCase):
         # in gc.garbage.
         class A:
             def __del__(self): pass
+
         class B:
             pass
         a = A()
@@ -176,6 +182,7 @@ class GCTests(unittest.TestCase):
         # in gc.garbage.
         class A(object):
             def __del__(self): pass
+
         class B(object):
             pass
         a = A()
@@ -236,7 +243,7 @@ class GCTests(unittest.TestCase):
         self.assertEqual(id(obj), id_L)
 
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         Jython neither supports disabling/enabling the gc, nor
         setting the gc threshold.
         ''')
@@ -256,7 +263,7 @@ class GCTests(unittest.TestCase):
         gc.set_threshold(*thresholds)
 
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         Jython neither supports disabling/enabling the gc, nor
         setting the gc threshold.
         ''')
@@ -282,7 +289,7 @@ class GCTests(unittest.TestCase):
     # - disposed tuples are not freed, but reused
     # - the call to assertEqual somehow avoids building its args tuple
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         Jython does not support to interrogate gc-internal
         generation-wise counters.
         ''')
@@ -297,7 +304,7 @@ class GCTests(unittest.TestCase):
         assertEqual(gc.get_count(), (2, 0, 0))
 
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         Jython does not support to interrogate gc-internal
         generation-wise counters.
         ''')
@@ -314,7 +321,7 @@ class GCTests(unittest.TestCase):
         assertEqual(gc.get_count(), (0, 0, 0))
 
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         While this test passes in Jython, it leads to internal
         allocation failures because of the massive referencing
         in this test. To keep the JVM-process healthy and to
@@ -324,18 +331,19 @@ class GCTests(unittest.TestCase):
     def test_trashcan(self):
         class Ouch:
             n = 0
+
             def __del__(self):
                 Ouch.n = Ouch.n + 1
                 if Ouch.n % 17 == 0:
                     gc.collect()
-     
+
         # "trashcan" is a hack to prevent stack overflow when deallocating
         # very deeply nested tuples etc.  It works in part by abusing the
         # type pointer and refcount fields, and that can yield horrible
         # problems when gc tries to traverse the structures.
         # If this test fails (as it does in 2.0, 2.1 and 2.2), it will
         # most likely die via segfault.
-     
+
         # Note:  In 2.3 the possibility for compiling without cyclic gc was
         # removed, and that in turn allows the trashcan mechanism to work
         # via much simpler means (e.g., it never abuses the type pointer or
@@ -357,37 +365,42 @@ class GCTests(unittest.TestCase):
         try:
             gc.disable()
         except NotImplementedError:
-            #i.e. Jython is running (or other non-CPython interpreter without gc-disabling)
+            # i.e. Jython is running (or other non-CPython interpreter without
+            # gc-disabling)
             pass
 
     @unittest.skipIf(test_support.is_jython,
-        '''
+                     '''
         Jython does not have a trashcan mechanism.
         This test should still not fail but currently does.
         This is because the massive referencing in this test brings
         sync gc emulation to its limit. Making this more robust is
         of no priority for now.
         ''')
-    @unittest.skipUnless(threading, "test meaningless on builds without threads")
+    @unittest.skipUnless(
+        threading,
+        "test meaningless on builds without threads")
     def test_trashcan_threads(self):
         # Issue #13992: trashcan mechanism should be thread-safe
         NESTING = 60
         N_THREADS = 2
-     
+
         def sleeper_gen():
             """A generator that releases the GIL when closed or dealloc'ed."""
             try:
                 yield
             finally:
                 time.sleep(0.000001)
-     
+
         class C(list):
             # Appending to a list is atomic, which avoids the use of a lock.
             inits = []
             dels = []
+
             def __init__(self, alist):
                 self[:] = alist
                 C.inits.append(None)
+
             def __del__(self):
                 # This __del__ is called by subtype_dealloc().
                 C.dels.append(None)
@@ -398,7 +411,7 @@ class GCTests(unittest.TestCase):
                 next(g)
                 # Now that __del__ is finished, subtype_dealloc will proceed
                 # to call list_dealloc, which also uses the trashcan mechanism.
-     
+
         def make_nested():
             """Create a sufficiently nested container object so that the
             trashcan mechanism is invoked when deallocating it."""
@@ -406,12 +419,12 @@ class GCTests(unittest.TestCase):
             for i in range(NESTING):
                 x = [C([x])]
             del x
-     
+
         def run_thread():
             """Exercise make_nested() in a loop."""
             while not exit:
                 make_nested()
-     
+
         old_checkinterval = sys.getcheckinterval()
         sys.setcheckinterval(3)
         try:
@@ -526,19 +539,16 @@ class GCTests(unittest.TestCase):
 
     def test_get_referents(self):
         alist = [1, 3, 5]
-        got = gc.get_referents(alist)
-        got.sort()
+        got = sorted(gc.get_referents(alist))
         self.assertEqual(got, alist)
 
         atuple = tuple(alist)
-        got = gc.get_referents(atuple)
-        got.sort()
+        got = sorted(gc.get_referents(atuple))
         self.assertEqual(got, alist)
 
         adict = {1: 3, 5: 7}
         expected = [1, 3, 5, 7]
-        got = gc.get_referents(adict)
-        got.sort()
+        got = sorted(gc.get_referents(adict))
         self.assertEqual(got, expected)
 
         got = gc.get_referents([1, 2], {3: 4}, (0, 0, 0))
@@ -568,6 +578,7 @@ class GCTests(unittest.TestCase):
 
         class OldStyle:
             pass
+
         class NewStyle(object):
             pass
         self.assertTrue(gc.is_tracked(gc))
@@ -581,6 +592,7 @@ class GCTests(unittest.TestCase):
     def test_bug1055820b(self):
         # Corresponds to temp2b.py in the bug report.
         ouch = []
+
         def callback(ignored):
             ouch[:] = [wr() for wr in WRs]
 
@@ -601,8 +613,9 @@ class GCTests(unittest.TestCase):
             # would be damaged, with an empty __dict__.
             self.assertEqual(x, None)
 
+
 @unittest.skipIf(test_support.is_jython,
-    '''
+                 '''
     GCTogglingTests are neither relevant nor applicable for Jython.
     ''')
 class GCTogglingTests(unittest.TestCase):
@@ -622,12 +635,13 @@ class GCTogglingTests(unittest.TestCase):
 
         c1 = C1055820(1)
         c1.keep_c0_alive = c0
-        del c0.loop # now only c1 keeps c0 alive
+        del c0.loop  # now only c1 keeps c0 alive
 
         c2 = C1055820(2)
-        c2wr = weakref.ref(c2) # no callback!
+        c2wr = weakref.ref(c2)  # no callback!
 
         ouch = []
+
         def callback(ignored):
             ouch[:] = [c2wr()]
 
@@ -647,7 +661,7 @@ class GCTogglingTests(unittest.TestCase):
         #               ^
         #               |
         #               |     Generation 2 above dots
-        #. . . . . . . .|. . . . . . . . . . . . . . . . . . . . . . . .
+        # . . . . . . . .|. . . . . . . . . . . . . . . . . . . . . . . .
         #               |     Generation 0 below dots
         #               |
         #               |
@@ -688,6 +702,7 @@ class GCTogglingTests(unittest.TestCase):
         # callback to sneak in a resurrection of cyclic trash.
 
         ouch = []
+
         class D(C1055820):
             def __del__(self):
                 ouch[:] = [c2wr()]
@@ -698,10 +713,10 @@ class GCTogglingTests(unittest.TestCase):
 
         c1 = C1055820(1)
         c1.keep_d0_alive = d0
-        del d0.loop # now only c1 keeps d0 alive
+        del d0.loop  # now only c1 keeps d0 alive
 
         c2 = C1055820(2)
-        c2wr = weakref.ref(c2) # no callback!
+        c2wr = weakref.ref(c2)  # no callback!
 
         d0 = c1 = c2 = None
 
@@ -715,7 +730,7 @@ class GCTogglingTests(unittest.TestCase):
         #               ^
         #               |
         #               |     Generation 2 above dots
-        #. . . . . . . .|. . . . . . . . . . . . . . . . . . . . . . . .
+        # . . . . . . . .|. . . . . . . . . . . . . . . . . . . . . . . .
         #               |     Generation 0 below dots
         #               |
         #               |
@@ -749,18 +764,19 @@ class GCTogglingTests(unittest.TestCase):
             # empty __dict__.
             self.assertEqual(x, None)
 
+
 def test_main():
     enabled = gc.isenabled()
     try:
         gc.disable()
         assert not gc.isenabled()
-    except  NotImplementedError:
+    except NotImplementedError:
         pass
     debug = gc.get_debug()
-    gc.set_debug(debug & ~gc.DEBUG_LEAK) # this test is supposed to leak
+    gc.set_debug(debug & ~gc.DEBUG_LEAK)  # this test is supposed to leak
 
     try:
-        gc.collect() # Delete 2nd generation garbage
+        gc.collect()  # Delete 2nd generation garbage
         run_unittest(GCTests, GCTogglingTests)
     finally:
         gc.set_debug(debug)
@@ -772,6 +788,7 @@ def test_main():
         assert gc.isenabled()
         if not enabled:
             gc.disable()
+
 
 if __name__ == "__main__":
     unittest.main()

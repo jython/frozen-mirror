@@ -1,7 +1,10 @@
 
 import sys
+import atexit
+
 
 def myfunc():
     print "myfunc"
 
-sys.exitfunc = myfunc
+
+atexit.register(myfunc)

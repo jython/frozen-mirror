@@ -3,15 +3,19 @@
 """
 
 import support
-class C : pass 
 
-o = C() 
+
+class C:
+    pass
+
+
+o = C()
 try:
-    o.foo 
+    o.foo
 except AttributeError:
     pass
 
 try:
-    del o.foo 
+    del o.foo
 except AttributeError:
     pass

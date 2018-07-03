@@ -46,14 +46,14 @@ class bdist(Command):
                     ('group=', 'g',
                      "Group name used when creating a tar file"
                      " [default: current group]"),
-                   ]
+                    ]
 
     boolean_options = ['skip-build']
 
     help_options = [
         ('help-formats', None,
          "lists available distribution formats", show_formats),
-        ]
+    ]
 
     # The following commands do not take a format option from bdist
     no_format_option = ('bdist_rpm',)
@@ -70,17 +70,16 @@ class bdist(Command):
                        'wininst', 'zip', 'msi']
 
     # And the real information.
-    format_command = {'rpm':   ('bdist_rpm',  "RPM distribution"),
+    format_command = {'rpm': ('bdist_rpm', "RPM distribution"),
                       'gztar': ('bdist_dumb', "gzip'ed tar file"),
                       'bztar': ('bdist_dumb', "bzip2'ed tar file"),
-                      'ztar':  ('bdist_dumb', "compressed tar file"),
-                      'tar':   ('bdist_dumb', "tar file"),
+                      'ztar': ('bdist_dumb', "compressed tar file"),
+                      'tar': ('bdist_dumb', "tar file"),
                       'wininst': ('bdist_wininst',
                                   "Windows executable installer"),
-                      'zip':   ('bdist_dumb', "ZIP file"),
-                      'msi':   ('bdist_msi',  "Microsoft Installer")
+                      'zip': ('bdist_dumb', "ZIP file"),
+                      'msi': ('bdist_msi', "Microsoft Installer")
                       }
-
 
     def initialize_options(self):
         self.bdist_base = None
@@ -112,9 +111,10 @@ class bdist(Command):
             try:
                 self.formats = [self.default_format[os.name]]
             except KeyError:
-                raise DistutilsPlatformError, \
-                      "don't know how to create built distributions " + \
-                      "on platform %s" % os.name
+                raise DistutilsPlatformError(
+                    "don't know how to create built distributions " +
+                    "on platform %s" %
+                    os.name)
 
         if self.dist_dir is None:
             self.dist_dir = "dist"
@@ -126,7 +126,7 @@ class bdist(Command):
             try:
                 commands.append(self.format_command[format][0])
             except KeyError:
-                raise DistutilsOptionError, "invalid format '%s'" % format
+                raise DistutilsOptionError("invalid format '%s'" % format)
 
         # Reinitialize and run each command.
         for i in range(len(self.formats)):
@@ -142,6 +142,6 @@ class bdist(Command):
 
             # If we're going to need to run this command again, tell it to
             # keep its temporary files around so subsequent runs go faster.
-            if cmd_name in commands[i+1:]:
+            if cmd_name in commands[i + 1:]:
                 sub_cmd.keep_temp = 1
             self.run_command(cmd_name)

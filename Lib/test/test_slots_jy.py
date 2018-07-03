@@ -10,6 +10,7 @@ import unittest
 # They're questionable
 strict = True
 
+
 class SlottedTestCase(unittest.TestCase):
 
     def test_slotted(self):
@@ -39,6 +40,7 @@ class SlottedWithDictTestCase(unittest.TestCase):
     def test_subclass(self):
         class Base(object):
             pass
+
         class Foo(Base):
             __slots__ = 'bar'
         self.assert_('__dict__' not in Foo.__dict__)
@@ -52,8 +54,10 @@ class SlottedWithDictTestCase(unittest.TestCase):
     def test_subclass_mro(self):
         class Base(object):
             pass
+
         class Slotted(object):
             __slots__ = 'baz'
+
         class Foo(Slotted, Base):
             __slots__ = 'bar'
         if strict:
@@ -80,11 +84,14 @@ class SlottedWithDictTestCase(unittest.TestCase):
         bar.foo = 'hello foo'
         self.assertEqual(bar.bar, 'hello bar')
         self.assertEqual(bar.baz, 'hello baz')
-        self.assertEqual(bar.__dict__, {'foo': 'hello foo', 'bar': 'hello bar'})
+        self.assertEqual(
+            bar.__dict__, {
+                'foo': 'hello foo', 'bar': 'hello bar'})
 
     def test_subclass_oldstyle(self):
         class OldBase:
             pass
+
         class Foo(OldBase, object):
             __slots__ = 'bar'
         if strict:
@@ -106,13 +113,17 @@ class SlottedWithDictTestCase(unittest.TestCase):
         bar.bar = 'hello bar'
         bar.foo = 'hello foo'
         self.assertEqual(bar.bar, 'hello bar')
-        self.assertEqual(bar.__dict__, {'foo': 'hello foo', 'bar': 'hello bar'})
+        self.assertEqual(
+            bar.__dict__, {
+                'foo': 'hello foo', 'bar': 'hello bar'})
 
     def test_mixin_oldstyle(self):
         class OldBase:
             pass
+
         class NewBase(object):
             pass
+
         class Baz(NewBase, OldBase):
             __slots__ = 'baz'
         self.assert_('__dict__' not in Baz.__dict__)
@@ -130,16 +141,17 @@ class SlottedWithWeakrefTestCase(unittest.TestCase):
     def test_subclass_oldstyle(self):
         class OldBase:
             pass
+
         class Foo(OldBase, object):
             __slots__ = '__dict__'
         self.assert_(hasattr(Foo, '__weakref__'))
 
 
 class SpecialSlotsBaseTestCase(unittest.TestCase):
-    
+
     # Tests for http://bugs.jython.org/issue2272, including support for
     # werkzeug.local.LocalProxy
-    
+
     def make_class(self, base, slot):
         class C(base):
             __slots__ = (slot)
@@ -147,12 +159,14 @@ class SpecialSlotsBaseTestCase(unittest.TestCase):
                 @property
                 def __dict__(self):
                     return {"x": 42, "y": 47}
+
                 def __getattr__(self, name):
                     try:
                         return self.__dict__[name]
                     except KeyError:
-                        raise AttributeError("%r object has no attribute %r" % (
-                            self.__class__.__name__, name))
+                        raise AttributeError(
+                            "%r object has no attribute %r" %
+                            (self.__class__.__name__, name))
         return C
 
     def test_dict_slot(self):
@@ -183,7 +197,8 @@ class SpecialSlotsBaseTestCase(unittest.TestCase):
             c.z
 
     def test_dict_slot_subclass(self):
-        # Unlike CPython, Jython does not arbitrarily limit adding __dict__ slot to subtypes
+        # Unlike CPython, Jython does not arbitrarily limit adding __dict__
+        # slot to subtypes
         class B(object):
             @property
             def w(self):
@@ -218,15 +233,25 @@ class SpecialSlotsBaseTestCase(unittest.TestCase):
 
     def test_weakref_slot(self):
         self.assertNotIn("__weakref__", dir(object()))
-        self.assertIn("__weakref__", dir(self.make_class(object, "__weakref__")()))
+        self.assertIn(
+            "__weakref__", dir(
+                self.make_class(
+                    object, "__weakref__")()))
+
         class B(object):
             pass
         self.assertIn("__weakref__", dir(B()))
         self.assertIn("__weakref__", dir(self.make_class(B, "__weakref__")()))
         self.assertNotIn("__weakref__", dir("abc"))
-        self.assertIn("__weakref__", dir(self.make_class(str, "__weakref__")()))
+        self.assertIn(
+            "__weakref__", dir(
+                self.make_class(
+                    str, "__weakref__")()))
         self.assertNotIn("__weakref__", dir(HashMap()))
-        self.assertIn("__weakref__", dir(self.make_class(HashMap, "__weakref__")()))
+        self.assertIn(
+            "__weakref__", dir(
+                self.make_class(
+                    HashMap, "__weakref__")()))
 
 
 class MultiInheritanceSlotsTestCase(unittest.TestCase):
@@ -242,6 +267,7 @@ class MultiInheritanceSlotsTestCase(unittest.TestCase):
 
         class B(A):
             __slots__ = ('b')
+
             def method(self):
                 result.append('B.method begin')
                 super(B, self).method()
@@ -263,11 +289,17 @@ class MultiInheritanceSlotsTestCase(unittest.TestCase):
 
         D1().method()
         self.assertEqual(result,
-                ['B.method begin', 'C.method begin', 'C.method end', 'B.method end'])
+                         ['B.method begin',
+                          'C.method begin',
+                          'C.method end',
+                          'B.method end'])
         result = []
         D2().method()
         self.assertEqual(result,
-                ['C.method begin', 'B.method begin', 'B.method end', 'C.method end'])
+                         ['C.method begin',
+                          'B.method begin',
+                          'B.method end',
+                          'C.method end'])
 
 
 def test_main():

@@ -15,11 +15,11 @@ class Dog(Callable, Serializable):
     # the arg list of __init__; or get some additional metadata from
     # the initialization of PackageProxy.
     __proxymaker__ = PackageProxy("org.python.test")
-                
+
     def __init__(self):
         self.name = "Rover"
         self.number = 42
-        
+
     def whoami(self):
         return self.name
 

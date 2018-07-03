@@ -7,7 +7,7 @@ from _socket import (
 
     getdefaulttimeout,
     setdefaulttimeout,
-    
+
     getfqdn,
     gethostbyaddr,
     gethostbyname,
@@ -32,7 +32,7 @@ from _socket import (
     EAI_NONAME,
     EAI_SERVICE,
     EAI_ADDRFAMILY,
-    
+
     NI_NUMERICHOST,
     NI_NUMERICSERV,
     NI_NOFQDN,
@@ -53,7 +53,7 @@ from _socket import (
     SOCK_RAW,
     SOCK_RDM,
     SOCK_SEQPACKET,
-    
+
     SOL_SOCKET,
     SOL_TCP,
     # not supported, but here for apparent completeness
@@ -67,7 +67,7 @@ from _socket import (
     IPPROTO_ICMPV6,
     IPPROTO_IDP,
     IPPROTO_IGMP,
-    IPPROTO_IP, # supported
+    IPPROTO_IP,  # supported
     # not supported
     IPPROTO_IPV4,
     IPPROTO_IPV6,
@@ -77,8 +77,8 @@ from _socket import (
     IPPROTO_PUP,
     IPPROTO_RAW,
     IPPROTO_ROUTING,
-    IPPROTO_TCP, # supported
-    IPPROTO_UDP, # supported
+    IPPROTO_TCP,  # supported
+    IPPROTO_UDP,  # supported
 
     # supported
     SO_BROADCAST,
@@ -105,7 +105,7 @@ from _socket import (
     SO_SNDLOWAT,
     SO_SNDTIMEO,
     SO_USELOOPBACK,
-    
+
     INADDR_ANY,
     INADDR_BROADCAST,
     IN6ADDR_ANY_INIT,
@@ -133,10 +133,7 @@ def supports(feature):
     # FIXME this seems to be Jython internals specific, and for
     # testing only; consider removing since it really no longer
     # matters
- 
+
     if feature == "idna":
         return True
     raise KeyError("Unknown feature", feature)
-
-
-

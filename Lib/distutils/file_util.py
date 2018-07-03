@@ -15,7 +15,7 @@ _copy_action = {None: 'copying',
                 'sym': 'symbolically linking'}
 
 
-def _copy_file_contents(src, dst, buffer_size=16*1024):
+def _copy_file_contents(src, dst, buffer_size=16 * 1024):
     """Copy the file 'src' to 'dst'.
 
     Both must be filenames. Any error opening either file, reading from
@@ -30,43 +30,49 @@ def _copy_file_contents(src, dst, buffer_size=16*1024):
     try:
         try:
             fsrc = open(src, 'rb')
-        except os.error, (errno, errstr):
+        except os.error as xxx_todo_changeme3:
+            (errno, errstr) = xxx_todo_changeme3.args
             raise DistutilsFileError("could not open '%s': %s" % (src, errstr))
 
         if os.path.exists(dst):
             try:
                 os.unlink(dst)
-            except os.error, (errno, errstr):
+            except os.error as xxx_todo_changeme:
+                (errno, errstr) = xxx_todo_changeme.args
                 raise DistutilsFileError(
-                      "could not delete '%s': %s" % (dst, errstr))
+                    "could not delete '%s': %s" % (dst, errstr))
 
         try:
             fdst = open(dst, 'wb')
-        except os.error, (errno, errstr):
+        except os.error as xxx_todo_changeme4:
+            (errno, errstr) = xxx_todo_changeme4.args
             raise DistutilsFileError(
-                  "could not create '%s': %s" % (dst, errstr))
+                "could not create '%s': %s" % (dst, errstr))
 
-        while 1:
+        while True:
             try:
                 buf = fsrc.read(buffer_size)
-            except os.error, (errno, errstr):
+            except os.error as xxx_todo_changeme1:
+                (errno, errstr) = xxx_todo_changeme1.args
                 raise DistutilsFileError(
-                      "could not read from '%s': %s" % (src, errstr))
+                    "could not read from '%s': %s" % (src, errstr))
 
             if not buf:
                 break
 
             try:
                 fdst.write(buf)
-            except os.error, (errno, errstr):
+            except os.error as xxx_todo_changeme2:
+                (errno, errstr) = xxx_todo_changeme2.args
                 raise DistutilsFileError(
-                      "could not write to '%s': %s" % (dst, errstr))
+                    "could not write to '%s': %s" % (dst, errstr))
 
     finally:
         if fdst:
             fdst.close()
         if fsrc:
             fsrc.close()
+
 
 def copy_file(src, dst, preserve_mode=1, preserve_times=1, update=0,
               link=None, verbose=1, dry_run=0):
@@ -107,7 +113,7 @@ def copy_file(src, dst, preserve_mode=1, preserve_times=1, update=0,
 
     if not os.path.isfile(src):
         raise DistutilsFileError(
-              "can't copy '%s': doesn't exist or not a regular file" % src)
+            "can't copy '%s': doesn't exist or not a regular file" % src)
 
     if os.path.isdir(dst):
         dir = dst
@@ -167,7 +173,9 @@ def copy_file(src, dst, preserve_mode=1, preserve_times=1, update=0,
     return (dst, 1)
 
 # XXX I suspect this is Unix-specific -- need porting help!
-def move_file (src, dst, verbose=1, dry_run=0):
+
+
+def move_file(src, dst, verbose=1, dry_run=0):
     """Move a file 'src' to 'dst'.
 
     If 'dst' is a directory, the file will be moved into it with the same
@@ -193,41 +201,43 @@ def move_file (src, dst, verbose=1, dry_run=0):
         dst = os.path.join(dst, basename(src))
     elif exists(dst):
         raise DistutilsFileError(
-              "can't move '%s': destination '%s' already exists" %
-              (src, dst))
+            "can't move '%s': destination '%s' already exists" %
+            (src, dst))
 
     if not isdir(dirname(dst)):
         raise DistutilsFileError(
-              "can't move '%s': destination '%s' not a valid path" % \
-              (src, dst))
+            "can't move '%s': destination '%s' not a valid path" %
+            (src, dst))
 
     copy_it = 0
     try:
         os.rename(src, dst)
-    except os.error, (num, msg):
+    except os.error as xxx_todo_changeme6:
+        (num, msg) = xxx_todo_changeme6.args
         if num == errno.EXDEV:
             copy_it = 1
         else:
             raise DistutilsFileError(
-                  "couldn't move '%s' to '%s': %s" % (src, dst, msg))
+                "couldn't move '%s' to '%s': %s" % (src, dst, msg))
 
     if copy_it:
         copy_file(src, dst, verbose=verbose)
         try:
             os.unlink(src)
-        except os.error, (num, msg):
+        except os.error as xxx_todo_changeme5:
+            (num, msg) = xxx_todo_changeme5.args
             try:
                 os.unlink(dst)
             except os.error:
                 pass
             raise DistutilsFileError(
-                  ("couldn't move '%s' to '%s' by copy/delete: " +
-                   "delete '%s' failed: %s") %
-                  (src, dst, src, msg))
+                ("couldn't move '%s' to '%s' by copy/delete: " +
+                 "delete '%s' failed: %s") %
+                (src, dst, src, msg))
     return dst
 
 
-def write_file (filename, contents):
+def write_file(filename, contents):
     """Create a file with the specified name and write 'contents' (a
     sequence of strings without line terminators) to it.
     """

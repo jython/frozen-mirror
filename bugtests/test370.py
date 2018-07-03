@@ -6,7 +6,7 @@ import support
 
 import os.path
 try:
-    print os.path.getmtime('nonfile') 
+    print os.path.getmtime('nonfile')
 except OSError:
     pass
 else:

@@ -40,17 +40,27 @@ TupleType = tuple
 ListType = list
 DictType = DictionaryType = dict
 
-def _f(): pass
+
+def _f():
+    pass
+
+
 FunctionType = type(_f)
 LambdaType = type(lambda: None)         # Same as FunctionType
 CodeType = type(_f.func_code)
 
+
 def _g():
     yield 1
+
+
 GeneratorType = type(_g())
+
 
 class _C:
     def _m(self): pass
+
+
 ClassType = type(_C)
 UnboundMethodType = type(_C._m)         # Same as MethodType
 _x = _C()

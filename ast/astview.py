@@ -23,23 +23,28 @@ if sys.platform.startswith('java'):
         return result
 
 else:
-    get_class_name = lambda node: node.__class__.__name__
+    def get_class_name(node): return node.__class__.__name__
 
 get_lines_and_cols = True
+
 
 def lispify_ast(node):
     return tuple(lispify_ast2(node))
 
+
 def lispify_ast2(node):
     result = get_class_name(node)
-    if get_lines_and_cols and hasattr(node, 'lineno') and hasattr(node, 'col_offset'):
+    if get_lines_and_cols and hasattr(
+            node, 'lineno') and hasattr(
+            node, 'col_offset'):
         result = "%s (%s,%s)" % (result, node.lineno, node.col_offset)
     yield result
     try:
         for field in node._fields:
             yield tuple(lispify_field(field, getattr(node, field)))
-    except:
+    except BaseException:
         pass
+
 
 def lispify_field(field, child):
     yield field
@@ -53,8 +58,8 @@ def lispify_field(field, child):
             yield lispify_ast(node)
         else:
             if isinstance(node, float):
-                #XXX: stringify floats so they match Java's float representation better
-                #This may mask problems for very small numbers.
+                # XXX: stringify floats so they match Java's float representation better
+                # This may mask problems for very small numbers.
                 if .0001 < node < 10000:
                     yield "%5.5f" % node
                 else:
@@ -62,12 +67,14 @@ def lispify_field(field, child):
             else:
                 yield node
 
+
 def tree(pyfile):
     try:
         node = compile(open(pyfile).read(), pyfile, "exec", _ast.PyCF_ONLY_AST)
     except SyntaxError:
         return "SyntaxError",
     return lispify_ast(node)
+
 
 if __name__ == '__main__':
     import pprint

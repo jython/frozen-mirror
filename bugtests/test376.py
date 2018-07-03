@@ -4,5 +4,4 @@
 
 import support
 
-assert "0"*-1 == ""
-
+assert "0" * -1 == ""

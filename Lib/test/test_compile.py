@@ -4,6 +4,7 @@ import _ast
 from test import test_support
 import textwrap
 
+
 class TestSpecifics(unittest.TestCase):
 
     def test_debug_assignment(self):
@@ -39,7 +40,12 @@ class TestSpecifics(unittest.TestCase):
         self.assertRaises(SyntaxError, compile, "1+*3", "filename", "exec")
 
     def test_none_keyword_arg(self):
-        self.assertRaises(SyntaxError, compile, "f(None=1)", "<string>", "exec")
+        self.assertRaises(
+            SyntaxError,
+            compile,
+            "f(None=1)",
+            "<string>",
+            "exec")
 
     def test_duplicate_global_local(self):
         try:
@@ -52,12 +58,15 @@ class TestSpecifics(unittest.TestCase):
 
         class M:
             "Test mapping interface versus possible calls from eval()."
+
             def __getitem__(self, key):
                 if key == 'a':
                     return 12
                 raise KeyError
+
             def __setitem__(self, key, value):
                 self.results = (key, value)
+
             def keys(self):
                 return list('xyz')
 
@@ -81,7 +90,7 @@ class TestSpecifics(unittest.TestCase):
             exec 'z = b' in m
         except TypeError:
             pass
-        #XXX: Jython calls this a NameError
+        # XXX: Jython calls this a NameError
         except NameError:
             pass
         else:
@@ -95,7 +104,7 @@ class TestSpecifics(unittest.TestCase):
             exec 'z = a' in g, m
         except TypeError:
             pass
-        #XXX: Jython calls this an AttributeError
+        # XXX: Jython calls this an AttributeError
         except AttributeError:
             pass
         else:
@@ -130,8 +139,8 @@ def f(x):
         x -= 1
         # EXTENDED_ARG/JUMP_ABSOLUTE here
     return x
-''' % ((longexpr,)*10)
-        #Exceeds 65535 byte limit on methods in the JVM.
+''' % ((longexpr,) * 10)
+        # Exceeds 65535 byte limit on methods in the JVM.
         if not test_support.is_jython:
             exec code
             self.assertEqual(f(5), 0)
@@ -194,11 +203,11 @@ if 1:
             self.assertEqual(co.co_lnotab, '')
 
     def test_literals_with_leading_zeroes(self):
-        for arg in ["077787", "0xj", "0x.", "0e",  "090000000000000",
+        for arg in ["077787", "0xj", "0x.", "0e", "090000000000000",
                     "080000000000000", "000000000000009", "000000000000008",
                     "0b42", "0BADCAFE", "0o123456789", "0b1.1", "0o4.2",
                     "0b101j2", "0o153j2", "0b100e1", "0o777e1", "0o8", "0o78"]:
-            #FIXME: wrong error raised.
+            # FIXME: wrong error raised.
             pass
             #self.assertRaises(SyntaxError, eval, arg)
 
@@ -210,7 +219,8 @@ if 1:
         self.assertEqual(eval("0XfF"), 255)
         self.assertEqual(eval("0777."), 777)
         self.assertEqual(eval("0777.0"), 777)
-        self.assertEqual(eval("000000000000000000000000000000000000000000000000000777e0"), 777)
+        self.assertEqual(
+            eval("000000000000000000000000000000000000000000000000000777e0"), 777)
         self.assertEqual(eval("0777e1"), 7770)
         self.assertEqual(eval("0e0"), 0)
         self.assertEqual(eval("0000E-012"), 0)
@@ -220,7 +230,9 @@ if 1:
         self.assertEqual(eval("00.0"), 0)
         self.assertEqual(eval("0e3"), 0)
         self.assertEqual(eval("090000000000000."), 90000000000000.)
-        self.assertEqual(eval("090000000000000.0000000000000000000000"), 90000000000000.)
+        self.assertEqual(
+            eval("090000000000000.0000000000000000000000"),
+            90000000000000.)
         self.assertEqual(eval("090000000000000e0"), 90000000000000.)
         self.assertEqual(eval("090000000000000e-0"), 90000000000000.)
         self.assertEqual(eval("090000000000000j"), 90000000000000j)
@@ -238,16 +250,16 @@ if 1:
 
     def test_unary_minus(self):
         # Verify treatment of unary minus on negative numbers SF bug #660455
-        if sys.maxint == 2147483647:
+        if sys.maxsize == 2147483647:
             # 32-bit machine
             all_one_bits = '0xffffffff'
-            self.assertEqual(eval(all_one_bits), 4294967295L)
-            self.assertEqual(eval("-" + all_one_bits), -4294967295L)
-        elif sys.maxint == 9223372036854775807:
+            self.assertEqual(eval(all_one_bits), 4294967295)
+            self.assertEqual(eval("-" + all_one_bits), -4294967295)
+        elif sys.maxsize == 9223372036854775807:
             # 64-bit machine
             all_one_bits = '0xffffffffffffffff'
-            self.assertEqual(eval(all_one_bits), 18446744073709551615L)
-            self.assertEqual(eval("-" + all_one_bits), -18446744073709551615L)
+            self.assertEqual(eval(all_one_bits), 18446744073709551615)
+            self.assertEqual(eval("-" + all_one_bits), -18446744073709551615)
         else:
             self.fail("How many bits *does* this machine have???")
         # Verify treatment of contant folding on -(sys.maxint+1)
@@ -256,10 +268,10 @@ if 1:
         # fairly easy and moderately worthwhile to implement.  Still it is low
         # on the list, so leaving it out of jython for now.
         if not test_support.is_jython:
-            self.assertTrue(isinstance(eval("%s" % (-sys.maxint - 1)), int))
-            self.assertTrue(isinstance(eval("%s" % (-sys.maxint - 2)), long))
+            self.assertTrue(isinstance(eval("%s" % (-sys.maxsize - 1)), int))
+            self.assertTrue(isinstance(eval("%s" % (-sys.maxsize - 2)), long))
 
-    if sys.maxint == 9223372036854775807:
+    if sys.maxsize == 9223372036854775807:
         def test_32_63_bit_values(self):
             a = +4294967296  # 1 << 32
             b = -4294967296  # 1 << 32
@@ -276,7 +288,7 @@ if 1:
 
     def test_sequence_unpacking_error(self):
         # Verify sequence packing/unpacking with "or".  SF bug #757818
-        i,j = (1, -1) or (-1, 1)
+        i, j = (1, -1) or (-1, 1)
         self.assertEqual(i, 1)
         self.assertEqual(j, -1)
 
@@ -284,7 +296,7 @@ if 1:
         stmts = [
             'None = 0',
             'None += 0',
-            #XXX: None is specifically allowed as a dotted name for Java
+            # XXX: None is specifically allowed as a dotted name for Java
             #     integration purposes in Jython.
             #'__builtins__.None = 0',
             'def None(): pass',
@@ -315,7 +327,7 @@ if 1:
             'from sys import stdin as si, stdout as so, stderr as se',
             'from sys import (stdin as si, stdout as so, stderr as se)',
             'from sys import (stdin as si, stdout as so, stderr as se,)',
-            ]
+        ]
         fail = [
             'import (os, sys)',
             'import (os), (sys)',
@@ -339,7 +351,7 @@ if 1:
             'from sys import (*)',
             'from sys import (stdin,, stdout, stderr)',
             'from sys import (stdin, stdout),',
-            ]
+        ]
         for stmt in succeed:
             compile(stmt, 'tmp', 'exec')
         for stmt in fail:
@@ -364,12 +376,16 @@ if 1:
         class str_map(object):
             def __init__(self):
                 self.data = {}
+
             def __getitem__(self, key):
                 return self.data[str(key)]
+
             def __setitem__(self, key, value):
                 self.data[str(key)] = value
+
             def __delitem__(self, key):
                 del self.data[str(key)]
+
             def __contains__(self, key):
                 return str(key) in self.data
         d = str_map()
@@ -438,7 +454,7 @@ if 1:
                 import __mangled_mod
                 import __package__.module
 
-        #FIXME: not working in Jython, should it?:
+        # FIXME: not working in Jython, should it?:
         #self.assert_("_A__mangled" in A.f.func_code.co_varnames)
         #self.assert_("__not_mangled__" in A.f.func_code.co_varnames)
         #self.assert_("_A__mangled_mod" in A.f.func_code.co_varnames)
@@ -459,14 +475,14 @@ if 1:
             ['<ifblock>', """if True:\n    pass\n"""],
             ['<forblock>', """for n in [1, 2, 3]:\n    print n\n"""],
             ['<deffunc>', """def foo():\n    pass\nfoo()\n"""],
-            #FIXME: Next one not working in Jython:
+            # FIXME: Next one not working in Jython:
             #[fname, fcontents],
         ]
 
         for fname, code in sample_code:
             co1 = compile(code, '%s1' % fname, 'exec')
             ast = compile(code, '%s2' % fname, 'exec', _ast.PyCF_ONLY_AST)
-            self.assert_(type(ast) == _ast.Module)
+            self.assert_(isinstance(ast, _ast.Module))
             co2 = compile(ast, '%s3' % fname, 'exec')
             if not test_support.is_jython:
                 self.assertEqual(co1, co2)
@@ -475,7 +491,7 @@ if 1:
 
         # raise exception when node type doesn't match with compile mode
         co1 = compile('print 1', '<string>', 'exec', _ast.PyCF_ONLY_AST)
-        #FIXME: raises wrong error in Jython.
+        # FIXME: raises wrong error in Jython.
         #self.assertRaises(TypeError, compile, co1, '<ast>', 'eval')
 
         # raise exception when node type is no start node
@@ -484,12 +500,13 @@ if 1:
         # raise exception when node has invalid children
         ast = _ast.Module()
         ast.body = [_ast.BoolOp()]
-        #FIXME: raises NPE in Jython.
+        # FIXME: raises NPE in Jython.
         #self.assertRaises(TypeError, compile, ast, '<ast>', 'exec')
 
 
 def test_main():
     test_support.run_unittest(TestSpecifics)
+
 
 if __name__ == "__main__":
     test_main()

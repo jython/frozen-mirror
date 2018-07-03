@@ -5,7 +5,7 @@ Objects of most types can now be created by calling the type object.
 """
 from warnings import warnpy3k
 warnpy3k("The 'new' module has been removed in Python 3.0; use the 'types' "
-            "module instead.", stacklevel=2)
+         "module instead.", stacklevel=2)
 del warnpy3k
 
 from types import ClassType as classobj

@@ -1,7 +1,12 @@
-import netrc, os, unittest, sys, textwrap
+import netrc
+import os
+import unittest
+import sys
+import textwrap
 from test import test_support
 
 temp_filename = test_support.TESTFN
+
 
 class NetrcTestCase(unittest.TestCase):
 
@@ -110,6 +115,7 @@ class NetrcTestCase(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(NetrcTestCase)
+
 
 if __name__ == "__main__":
     test_main()

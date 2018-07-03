@@ -2,6 +2,7 @@ from test import test_support
 import unittest
 import os
 
+
 class CodingTest(unittest.TestCase):
     def test_bad_coding(self):
         module_name = 'bad_coding'
@@ -25,8 +26,8 @@ class CodingTest(unittest.TestCase):
         input = u"# coding: ascii\n\N{SNOWMAN}".encode('utf-8')
         with self.assertRaises(SyntaxError) as c:
             compile(input, "<string>", "exec")
-        
-        #XXX: really exceptions should not be testing the message content.
+
+        # XXX: really exceptions should not be testing the message content.
         if not test_support.is_jython:
             expected = "'ascii' codec can't decode byte 0xe2 in position 16: " \
                        "ordinal not in range(128)"
@@ -35,6 +36,7 @@ class CodingTest(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(CodingTest)
+
 
 if __name__ == "__main__":
     test_main()

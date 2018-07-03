@@ -1,4 +1,5 @@
-# From http://svn.python.org/projects/python/branches/release25-maint/Lib/test_genexps.py@51333
+# From
+# http://svn.python.org/projects/python/branches/release25-maint/Lib/test_genexps.py@51333
 
 # Ignoring details of SyntaxError for now -- justified I think for "invalid
 # syntax" since that #message has very little info, where Antlr provides more
@@ -265,7 +266,8 @@ Verify that genexps are weakly referencable
 """
 
 
-__test__ = {'doctests' : doctests}
+__test__ = {'doctests': doctests}
+
 
 def test_main(verbose=None):
     import sys
@@ -282,6 +284,7 @@ def test_main(verbose=None):
             gc.collect()
             counts[i] = sys.gettotalrefcount()
         print counts
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

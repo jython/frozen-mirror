@@ -28,47 +28,51 @@ from java.io import File
 TESTDIR = "test394jar"
 JYTHON_DEV_JAR = "jython-dev.jar"
 RUN_JAR = "run.jar"
-TEST_PY_NAME = TESTDIR +"/test394called.py"
+TEST_PY_NAME = TESTDIR + "/test394called.py"
 CLAZZ = "Runner"
 MANIFEST = "MANIFEST.MF"
 
+
 def checkTestDir():
-  if not os.path.exists(TESTDIR):
-    raise AssertionError, TESTDIR + " does not exist"
-  if not os.path.exists(TEST_PY_NAME):
-    raise AssertionError, TEST_PY_NAME + " does not exist"
-  javaFileName = TESTDIR + "/" + CLAZZ + ".java"
-  if not os.path.exists(javaFileName):
-    raise AssertionError, javaFileName + " does not exist"
-  manifestFileName = TESTDIR + "/" + MANIFEST
-  if not os.path.exists(manifestFileName):
-    raise AssertionError, manifestFileName + " does not exist"
-                        
-  
+    if not os.path.exists(TESTDIR):
+        raise AssertionError(TESTDIR + " does not exist")
+    if not os.path.exists(TEST_PY_NAME):
+        raise AssertionError(TEST_PY_NAME + " does not exist")
+    javaFileName = TESTDIR + "/" + CLAZZ + ".java"
+    if not os.path.exists(javaFileName):
+        raise AssertionError(javaFileName + " does not exist")
+    manifestFileName = TESTDIR + "/" + MANIFEST
+    if not os.path.exists(manifestFileName):
+        raise AssertionError(manifestFileName + " does not exist")
+
+
 # create a jython standalone jar file:
 # add the contents of jython-dev.jar and /Lib files to a new jython-dev.jar
 def mkJythonJar():
-  jarFile = File(TESTDIR, JYTHON_DEV_JAR)
-  jarPacker = support.JarPacker(jarFile)
-  jarPacker.addJarFile(File(cfg.jython_home + "/%s" % JYTHON_DEV_JAR))
-  jarPacker.addDirectory(File(cfg.jython_home + "/Lib"))
-  jarPacker.close()
-  return jarFile
-  
+    jarFile = File(TESTDIR, JYTHON_DEV_JAR)
+    jarPacker = support.JarPacker(jarFile)
+    jarPacker.addJarFile(File(cfg.jython_home + "/%s" % JYTHON_DEV_JAR))
+    jarPacker.addDirectory(File(cfg.jython_home + "/Lib"))
+    jarPacker.close()
+    return jarFile
+
 # make a java class calling jython main
+
+
 def mkJavaClass():
-  support.compileJava("%s/%s.java" % (TESTDIR, CLAZZ))
+    support.compileJava("%s/%s.java" % (TESTDIR, CLAZZ))
 
 # create a runnable jar file with a manifest referring to jython-dev.jar
+
+
 def mkRunJar():
-  jarFile = File(TESTDIR, RUN_JAR)
-  manifestFile = File(TESTDIR, MANIFEST)
-  jarPacker = support.JarPacker(jarFile)
-  jarPacker.addManifestFile(manifestFile)
-  jarPacker.addFile(File(TESTDIR, CLAZZ+".class"), TESTDIR)
-  jarPacker.close()
-                       
-                    
+    jarFile = File(TESTDIR, RUN_JAR)
+    manifestFile = File(TESTDIR, MANIFEST)
+    jarPacker = support.JarPacker(jarFile)
+    jarPacker.addManifestFile(manifestFile)
+    jarPacker.addFile(File(TESTDIR, CLAZZ + ".class"), TESTDIR)
+    jarPacker.close()
+
 
 checkTestDir()
 mkJythonJar()

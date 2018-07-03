@@ -16,7 +16,6 @@ class AbstractMemoryTests:
     source_bytes = b"abcdef"
     has_refcount = hasattr(sys, "getrefcount")
 
-
     @property
     def _source(self):
         return self.source_bytes
@@ -72,6 +71,7 @@ class AbstractMemoryTests:
         if self.has_refcount:
             oldrefcount = sys.getrefcount(b)
         m = self._view(b)
+
         def setitem(value):
             m[0] = value
         self.assertRaises(TypeError, setitem, b"a")
@@ -119,8 +119,8 @@ class AbstractMemoryTests:
         # Trying to resize the memory object
         self.assertRaises(ValueError, setitem, 0, b"")
         self.assertRaises(ValueError, setitem, 0, b"ab")
-        self.assertRaises(ValueError, setitem, slice(1,1), b"a")
-        self.assertRaises(ValueError, setitem, slice(0,2), b"a")
+        self.assertRaises(ValueError, setitem, slice(1, 1), b"a")
+        self.assertRaises(ValueError, setitem, slice(0, 2), b"a")
 
         m = None
         if self.has_refcount:
@@ -203,18 +203,18 @@ class AbstractMemoryTests:
 
     # Disabled: unicode uses the old buffer API in 2.x
 
-    #def test_getbuffer(self):
-        ## Test PyObject_GetBuffer() on a memoryview object.
-        #for tp in self._types:
-            #b = tp(self._source)
-            #oldrefcount = sys.getrefcount(b)
-            #m = self._view(b)
-            #oldviewrefcount = sys.getrefcount(m)
-            #s = unicode(m, "utf-8")
-            #self._check_contents(tp, b, s.encode("utf-8"))
-            #self.assertEqual(sys.getrefcount(m), oldviewrefcount)
-            #m = None
-            #self.assertEqual(sys.getrefcount(b), oldrefcount)
+    # def test_getbuffer(self):
+        # Test PyObject_GetBuffer() on a memoryview object.
+        # for tp in self._types:
+        #b = tp(self._source)
+        #oldrefcount = sys.getrefcount(b)
+        #m = self._view(b)
+        #oldviewrefcount = sys.getrefcount(m)
+        #s = unicode(m, "utf-8")
+        #self._check_contents(tp, b, s.encode("utf-8"))
+        #self.assertEqual(sys.getrefcount(m), oldviewrefcount)
+        #m = None
+        #self.assertEqual(sys.getrefcount(b), oldrefcount)
 
     def test_gc(self):
         for tp in self._types:
@@ -224,6 +224,7 @@ class AbstractMemoryTests:
 
             class MySource(tp):
                 pass
+
             class MyObject:
                 pass
 
@@ -242,17 +243,28 @@ class AbstractMemoryTests:
     def _check_released(self, m, tp):   # Jython borrowed from CPython 3.3
         check = self.assertRaises(ValueError)
         # with check: bytes(m)     # Jython follows v2.7 behaviour
-        with check: m.tobytes()
-        with check: m.tolist()
-        with check: m[0]
-        with check: m[0] = b'x'
-        with check: len(m)
-        with check: m.format
-        with check: m.itemsize
-        with check: m.ndim
-        with check: m.readonly
-        with check: m.shape
-        with check: m.strides
+        with check:
+            m.tobytes()
+        with check:
+            m.tolist()
+        with check:
+            m[0]
+        with check:
+            m[0] = b'x'
+        with check:
+            len(m)
+        with check:
+            m.format
+        with check:
+            m.itemsize
+        with check:
+            m.ndim
+        with check:
+            m.readonly
+        with check:
+            m.shape
+        with check:
+            m.strides
         with check:
             with m:
                 pass
@@ -308,7 +320,8 @@ class AbstractMemoryTests:
         b = tp(self._source)
         m = self._view(b)
         self.assertEqual(hash(m), hash(b"abcdef"))
-        # Releasing the memoryview keeps the stored hash value (as with weakrefs)
+        # Releasing the memoryview keeps the stored hash value (as with
+        # weakrefs)
         m.release()
         self.assertEqual(hash(m), hash(b"abcdef"))
 
@@ -334,6 +347,7 @@ class AbstractMemoryTests:
             b = tp(self._source)
             m = self._view(b)
             L = []
+
             def callback(wr, b=b):
                 L.append(b)
             wr = weakref.ref(m, callback)
@@ -347,6 +361,7 @@ class AbstractMemoryTests:
 # with itemsize > 1.
 # NOTE: support for multi-dimensional objects is unimplemented.
 
+
 class BaseBytesMemoryTests(AbstractMemoryTests):
     ro_type = bytes
     rw_type = bytearray
@@ -356,20 +371,20 @@ class BaseBytesMemoryTests(AbstractMemoryTests):
 
 # Disabled: array.array() does not support the new buffer API in 2.x
 
-#class BaseArrayMemoryTests(AbstractMemoryTests):
+# class BaseArrayMemoryTests(AbstractMemoryTests):
     #ro_type = None
     #rw_type = lambda self, b: array.array('i', map(ord, b))
     #getitem_type = lambda self, b: array.array('i', map(ord, b)).tostring()
     #itemsize = array.array('i').itemsize
     #format = 'i'
 
-    #def test_getbuffer(self):
-        ## XXX Test should be adapted for non-byte buffers
-        #pass
+    # def test_getbuffer(self):
+    # XXX Test should be adapted for non-byte buffers
+    # pass
 
-    #def test_tolist(self):
-        ## XXX NotImplementedError: tolist() only supports byte views
-        #pass
+    # def test_tolist(self):
+    # XXX NotImplementedError: tolist() only supports byte views
+    # pass
 
 
 # Variations on indirection levels: memoryview, slice of memoryview,
@@ -382,6 +397,7 @@ class BaseMemoryviewTests:
 
     def _check_contents(self, tp, obj, contents):
         self.assertEqual(obj, tp(contents))
+
 
 class BaseMemorySliceTests:
     source_bytes = b"XabcdefY"
@@ -401,6 +417,7 @@ class BaseMemorySliceTests:
                 m[1:2]
                 self.assertEqual(sys.getrefcount(m), oldrefcount)
 
+
 class BaseMemorySliceSliceTests:
     source_bytes = b"XabcdefY"
 
@@ -415,7 +432,7 @@ class BaseMemorySliceSliceTests:
 # Concrete test classes
 
 class BytesMemoryviewTest(unittest.TestCase,
-    BaseMemoryviewTests, BaseBytesMemoryTests):
+                          BaseMemoryviewTests, BaseBytesMemoryTests):
 
     def test_constructor(self):
         for tp in self._types:
@@ -427,11 +444,11 @@ class BytesMemoryviewTest(unittest.TestCase,
             self.assertRaises(TypeError, memoryview, argument=ob)
             self.assertRaises(TypeError, memoryview, ob, argument=True)
 
-#class ArrayMemoryviewTest(unittest.TestCase,
-    #BaseMemoryviewTests, BaseArrayMemoryTests):
+# class ArrayMemoryviewTest(unittest.TestCase,
+    # BaseMemoryviewTests, BaseArrayMemoryTests):
 
-    #def test_array_assign(self):
-        ## Issue #4569: segfault when mutating a memoryview with itemsize != 1
+    # def test_array_assign(self):
+        # Issue #4569: segfault when mutating a memoryview with itemsize != 1
         #a = array.array('i', range(10))
         #m = memoryview(a)
         #new_a = array.array('i', range(9, -1, -1))
@@ -440,24 +457,28 @@ class BytesMemoryviewTest(unittest.TestCase,
 
 
 class BytesMemorySliceTest(unittest.TestCase,
-    BaseMemorySliceTests, BaseBytesMemoryTests):
+                           BaseMemorySliceTests, BaseBytesMemoryTests):
     pass
 
-#class ArrayMemorySliceTest(unittest.TestCase,
-    #BaseMemorySliceTests, BaseArrayMemoryTests):
-    #pass
+# class ArrayMemorySliceTest(unittest.TestCase,
+    # BaseMemorySliceTests, BaseArrayMemoryTests):
+    # pass
 
-class BytesMemorySliceSliceTest(unittest.TestCase,
-    BaseMemorySliceSliceTests, BaseBytesMemoryTests):
+
+class BytesMemorySliceSliceTest(
+        unittest.TestCase,
+        BaseMemorySliceSliceTests,
+        BaseBytesMemoryTests):
     pass
 
-#class ArrayMemorySliceSliceTest(unittest.TestCase,
-    #BaseMemorySliceSliceTests, BaseArrayMemoryTests):
-    #pass
+# class ArrayMemorySliceSliceTest(unittest.TestCase,
+    # BaseMemorySliceSliceTests, BaseArrayMemoryTests):
+    # pass
 
 
 def test_main():
     test_support.run_unittest(__name__)
+
 
 if __name__ == "__main__":
     test_main()

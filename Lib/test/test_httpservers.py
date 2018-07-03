@@ -31,6 +31,7 @@ class NoLogRequestHandler:
         # don't write log messages to stderr
         pass
 
+
 class SocketlessRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self):
         self.get_called = False
@@ -86,6 +87,7 @@ class BaseTestCase(unittest.TestCase):
         self.connection.request(method, uri, body, headers)
         return self.connection.getresponse()
 
+
 class BaseHTTPRequestHandlerTestCase(unittest.TestCase):
     """Test the functionality of the BaseHTTPServer focussing on
     BaseHTTPRequestHandler.
@@ -93,7 +95,7 @@ class BaseHTTPRequestHandlerTestCase(unittest.TestCase):
 
     HTTPResponseMatch = re.compile('HTTP/1.[0-9]+ 200 OK')
 
-    def setUp (self):
+    def setUp(self):
         self.handler = SocketlessRequestHandler()
 
     def send_typical_request(self, message):
@@ -137,7 +139,8 @@ class BaseHTTPRequestHandlerTestCase(unittest.TestCase):
         self.verify_get_called()
 
     def test_with_continue_1_0(self):
-        result = self.send_typical_request('GET / HTTP/1.0\r\nExpect: 100-continue\r\n\r\n')
+        result = self.send_typical_request(
+            'GET / HTTP/1.0\r\nExpect: 100-continue\r\n\r\n')
         self.verify_http_server_response(result[0])
         self.verify_expected_headers(result[1:-1])
         self.verify_get_called()
@@ -313,7 +316,7 @@ class SimpleHTTPServerTestCase(BaseTestCase):
             self.assertEqual(data, body)
 
     def test_get(self):
-        #constructs the path relative to the root directory of the HTTPServer
+        # constructs the path relative to the root directory of the HTTPServer
         response = self.request(self.tempdir_name + '/test')
         self.check_status_and_reason(response, 200, data=self.data)
         response = self.request(self.tempdir_name + '/')
@@ -334,7 +337,7 @@ class SimpleHTTPServerTestCase(BaseTestCase):
             os.chmod(self.tempdir, 0)
             response = self.request(self.tempdir_name + '/')
             self.check_status_and_reason(response, 404)
-            os.chmod(self.tempdir, 0755)
+            os.chmod(self.tempdir, 0o755)
 
     def test_head(self):
         response = self.request(
@@ -377,10 +380,14 @@ print "%%s, %%s, %%s" %% (form.getfirst("spam"), form.getfirst("eggs"),
 
 
 @unittest.skipIf(hasattr(os, 'geteuid') and os.geteuid() == 0,
-        "This test can't be run reliably as root (issue #13308).")
-@unittest.skipIf((not hasattr(os, 'symlink')) and
-        sys.executable.encode('ascii', 'replace') != sys.executable,
-        "Executable path is not pure ASCII.") # these fail for CPython too
+                 "This test can't be run reliably as root (issue #13308).")
+@unittest.skipIf(
+    (not hasattr(
+        os,
+        'symlink')) and sys.executable.encode(
+            'ascii',
+            'replace') != sys.executable,
+    "Executable path is not pure ASCII.")  # these fail for CPython too
 class CGIHTTPServerTestCase(BaseTestCase):
     class request_handler(NoLogRequestHandler, CGIHTTPRequestHandler):
         pass
@@ -402,12 +409,12 @@ class CGIHTTPServerTestCase(BaseTestCase):
         self.file1_path = os.path.join(self.cgi_dir, 'file1.py')
         with open(self.file1_path, 'w') as file1:
             file1.write(cgi_file1 % self.pythonexe)
-        os.chmod(self.file1_path, 0777)
+        os.chmod(self.file1_path, 0o777)
 
         self.file2_path = os.path.join(self.cgi_dir, 'file2.py')
         with open(self.file2_path, 'w') as file2:
             file2.write(cgi_file2 % self.pythonexe)
-        os.chmod(self.file2_path, 0777)
+        os.chmod(self.file2_path, 0o777)
 
         self.cwd = os.getcwd()
         os.chdir(self.parent_dir)
@@ -469,11 +476,12 @@ class CGIHTTPServerTestCase(BaseTestCase):
     def test_headers_and_content(self):
         res = self.request('/cgi-bin/file1.py')
         self.assertEqual(('Hello World\n', 'text/html', 200),
-            (res.read(), res.getheader('Content-type'), res.status))
+                         (res.read(), res.getheader('Content-type'), res.status))
 
     def test_post(self):
-        params = urllib.urlencode({'spam' : 1, 'eggs' : 'python', 'bacon' : 123456})
-        headers = {'Content-type' : 'application/x-www-form-urlencoded'}
+        params = urllib.urlencode(
+            {'spam': 1, 'eggs': 'python', 'bacon': 123456})
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
         res = self.request('/cgi-bin/file2.py', 'POST', params, headers)
 
         self.assertEqual(res.read(), '1, python, 123456\n')
@@ -484,29 +492,30 @@ class CGIHTTPServerTestCase(BaseTestCase):
         self.assertEqual(res.status, 404)
 
     def test_authorization(self):
-        headers = {'Authorization' : 'Basic %s' %
+        headers = {'Authorization': 'Basic %s' %
                    base64.b64encode('username:pass')}
         res = self.request('/cgi-bin/file1.py', 'GET', headers=headers)
         self.assertEqual(('Hello World\n', 'text/html', 200),
-                (res.read(), res.getheader('Content-type'), res.status))
+                         (res.read(), res.getheader('Content-type'), res.status))
 
     def test_no_leading_slash(self):
         # http://bugs.python.org/issue2254
         res = self.request('cgi-bin/file1.py')
         self.assertEqual(('Hello World\n', 'text/html', 200),
-             (res.read(), res.getheader('Content-type'), res.status))
+                         (res.read(), res.getheader('Content-type'), res.status))
 
     def test_os_environ_is_not_altered(self):
         signature = "Test CGI Server"
         os.environ['SERVER_SOFTWARE'] = signature
         res = self.request('/cgi-bin/file1.py')
         self.assertEqual((b'Hello World\n', 'text/html', 200),
-                (res.read(), res.getheader('Content-type'), res.status))
+                         (res.read(), res.getheader('Content-type'), res.status))
         self.assertEqual(os.environ['SERVER_SOFTWARE'], signature)
 
 
 class SimpleHTTPRequestHandlerTestCase(unittest.TestCase):
     """ Test url parsing """
+
     def setUp(self):
         self.translated = os.getcwd()
         self.translated = os.path.join(self.translated, 'filename')
@@ -535,9 +544,10 @@ def test_main(verbose=None):
                                   BaseHTTPServerTestCase,
                                   SimpleHTTPServerTestCase,
                                   CGIHTTPServerTestCase
-                                 )
+                                  )
     finally:
         os.chdir(cwd)
+
 
 if __name__ == '__main__':
     test_main()

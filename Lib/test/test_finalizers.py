@@ -7,16 +7,19 @@ import types
 import time
 try:
     from java.lang import System
-except:
+except BaseException:
     pass
+
 
 class GCDetector():
     gcIndex = 0
-    
+
     def __del__(self):
         GCDetector.gcIndex += 1
 
+
 maxGCRun = 10
+
 
 def runGCIfJython():
     try:
@@ -28,8 +31,9 @@ def runGCIfJython():
             System.gc()
             gcCount += 1
             time.sleep(0.1)
-    except:
+    except BaseException:
         pass
+
 
 finalizeMsgList = []
 verbose = False
@@ -39,6 +43,7 @@ resurrectedObject_K = None
 resurrectedObject_L = None
 resurrectedObject_M = None
 resurrectedObject_N = None
+
 
 class ResurrectableDummyClass():
 
@@ -62,51 +67,57 @@ class ResurrectableDummyClassNew(object):
 
 def __del__I(self):
     global resurrectedObject_I
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_I = self
 
+
 def __del__J(self):
     global resurrectedObject_J
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_J = self
 
+
 def __del__K(self):
     global resurrectedObject_K
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_K = self
 
+
 def __del__L(self):
     global resurrectedObject_L
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_L = self
 
+
 def __del__M(self):
     global resurrectedObject_M
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_M = self
 
+
 def __del__N(self):
     global resurrectedObject_N
-    finalizeMsgList.append(str(self)+" finalized (ResurrectableDummyClass)")
+    finalizeMsgList.append(str(self) + " finalized (ResurrectableDummyClass)")
     if verbose:
-        print str(self)+" finalized (ResurrectableDummyClass)"
+        print str(self) + " finalized (ResurrectableDummyClass)"
     if self.doResurrection:
         resurrectedObject_N = self
+
 
 delI = __del__I
 delJ = __del__J
@@ -117,81 +128,87 @@ delN = __del__N
 
 
 class DummyClass():
-    
+
     def __init__(self, name):
         self.name = name
-    
+
     def __str__(self):
         return self.name
 
 
 class DummyClassDel():
-    
+
     def __init__(self, name):
         self.name = name
-    
+
     def __str__(self):
         return self.name
-    
+
     def __del__(self):
-        finalizeMsgList.append(str(self)+" finalized (DummyClassDel)")
+        finalizeMsgList.append(str(self) + " finalized (DummyClassDel)")
         if verbose:
-            print str(self)+" finalized (DummyClassDel)"
+            print str(self) + " finalized (DummyClassDel)"
 
 
 class DummyClassNew(object):
-    
+
     def __init__(self, name):
         self.name = name
-    
+
     def __str__(self):
         return self.name
+
 
 class DummyClassDelNew(object):
-    
+
     def __init__(self, name):
         self.name = name
-    
+
     def __str__(self):
         return self.name
-    
+
     def __del__(self):
-        finalizeMsgList.append(str(self)+" finalized (DummyClassDelNew)")
+        finalizeMsgList.append(str(self) + " finalized (DummyClassDelNew)")
         if verbose:
-            print str(self)+" finalized (DummyClassDelNew)"
+            print str(self) + " finalized (DummyClassDelNew)"
+
 
 class DummyFileClassNew(file):
-    
+
     def __init__(self, name):
         self.name0 = name
-    
+
     def __str__(self):
         return self.name0
 
     def __del__(self):
-        finalizeMsgList.append(str(self)+" finalized (DummyFileClassNew)")
+        finalizeMsgList.append(str(self) + " finalized (DummyFileClassNew)")
         if verbose:
-            print str(self)+" finalized (DummyFileClassNew)"
+            print str(self) + " finalized (DummyFileClassNew)"
 
 
 def __del__class(self):
-    finalizeMsgList.append(str(self)+" finalized (acquired by class)")
+    finalizeMsgList.append(str(self) + " finalized (acquired by class)")
     if verbose:
-        print str(self)+" finalized (acquired by class)"
+        print str(self) + " finalized (acquired by class)"
+
 
 def __del__object(self):
-    finalizeMsgList.append(str(self)+" finalized (acquired by object)")
+    finalizeMsgList.append(str(self) + " finalized (acquired by object)")
     if verbose:
-        print str(self)+" finalized (acquired by object)"
+        print str(self) + " finalized (acquired by object)"
+
 
 def __del__object0():
     finalizeMsgList.append("_ finalized (acquired by object)")
     if verbose:
         print "_ finalized (acquired by object)"
 
+
 delClass = __del__class
 delObject = __del__object
 delObject0 = __del__object0
+
 
 class TestFinalizers(unittest.TestCase):
     def test_finalizer_builtin_oldStyleClass(self):
@@ -209,12 +226,12 @@ class TestFinalizers(unittest.TestCase):
         del DummyClass.__del__
 
     def test_classAcquiresFinalizer_afterInstanciation_oldStyleClass(self):
-        #okay to fail in Jython without the manual __ensure_finalizer__ call
+        # okay to fail in Jython without the manual __ensure_finalizer__ call
         C = DummyClass("C")
         DummyClass.__del__ = delClass
         try:
             C.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         C = None
         runGCIfJython()
@@ -245,12 +262,12 @@ class TestFinalizers(unittest.TestCase):
         del DummyClassNew.__del__
 
     def test_classAcquiresFinalizer_afterInstanciation_newStyleClass(self):
-        #okay to fail in Jython without the manual __ensure_finalizer__ call
+        # okay to fail in Jython without the manual __ensure_finalizer__ call
         G = DummyClassNew("G")
         DummyClassNew.__del__ = delClass
         try:
             G.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         G = None
         runGCIfJython()
@@ -291,11 +308,11 @@ class TestFinalizers(unittest.TestCase):
         self.assertEqual(str(resurrectedObject_I), "I")
 
     def test_objectDoubleResurrection_oldStyleClass(self):
-        #okay to fail in Jython without the manual ensureFinalizer calls
+        # okay to fail in Jython without the manual ensureFinalizer calls
         ResurrectableDummyClass.__del__ = delJ
         J = ResurrectableDummyClass("J")
         J = None
-        
+
         runGCIfJython()
         self.assertIn("J finalized (ResurrectableDummyClass)", finalizeMsgList)
         global resurrectedObject_J
@@ -304,11 +321,11 @@ class TestFinalizers(unittest.TestCase):
         resurrectedObject_J = None
         self.assertIsNone(resurrectedObject_J)
         try:
-            #For Jython one can restore the finalizer manually.
-            #This is offered as an easy fix if the CPython behavior
-            #in this test should be needed for some reason.
+            # For Jython one can restore the finalizer manually.
+            # This is offered as an easy fix if the CPython behavior
+            # in this test should be needed for some reason.
             J.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         J = None
 
@@ -316,18 +333,17 @@ class TestFinalizers(unittest.TestCase):
         self.assertEqual(str(resurrectedObject_J), "J")
         resurrectedObject_J.doResurrection = False
         try:
-            #again...
+            # again...
             resurrectedObject_J.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         resurrectedObject_J = None
-        
+
         runGCIfJython()
         self.assertIsNone(resurrectedObject_J)
-        
 
     def test_objectDoubleResurrectionAndFinalize_oldStyleClass(self):
-        #okay to fail in Jython without the manual __ensure_finalizer__ calls
+        # okay to fail in Jython without the manual __ensure_finalizer__ calls
         ResurrectableDummyClass.__del__ = delK
         K = ResurrectableDummyClass("K")
         K = None
@@ -335,7 +351,9 @@ class TestFinalizers(unittest.TestCase):
         runGCIfJython()
         self.assertIn("K finalized (ResurrectableDummyClass)", finalizeMsgList)
         finalizeMsgList.remove("K finalized (ResurrectableDummyClass)")
-        self.assertNotIn("K finalized (ResurrectableDummyClass)", finalizeMsgList)
+        self.assertNotIn(
+            "K finalized (ResurrectableDummyClass)",
+            finalizeMsgList)
         global resurrectedObject_K
         self.assertEqual(str(resurrectedObject_K), "K")
         K = resurrectedObject_K
@@ -343,7 +361,7 @@ class TestFinalizers(unittest.TestCase):
         self.assertIsNone(resurrectedObject_K)
         try:
             K.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         K = None
 
@@ -360,7 +378,7 @@ class TestFinalizers(unittest.TestCase):
         self.assertEqual(str(resurrectedObject_L), "L")
 
     def test_objectDoubleResurrection_newStyleClass(self):
-        #okay to fail in Jython without the manual __ensure_finalizer__ calls
+        # okay to fail in Jython without the manual __ensure_finalizer__ calls
         ResurrectableDummyClassNew.__del__ = delM
         M = ResurrectableDummyClassNew("M")
         M = None
@@ -374,7 +392,7 @@ class TestFinalizers(unittest.TestCase):
         self.assertIsNone(resurrectedObject_M, None)
         try:
             M.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         M = None
 
@@ -382,7 +400,7 @@ class TestFinalizers(unittest.TestCase):
         self.assertEqual(str(resurrectedObject_M), "M")
 
     def test_objectDoubleResurrectionAndFinalize_newStyleClass(self):
-        #okay to fail in Jython without the manual __ensure_finalizer__ calls
+        # okay to fail in Jython without the manual __ensure_finalizer__ calls
         ResurrectableDummyClassNew.__del__ = delN
         N = ResurrectableDummyClassNew("N")
         N = None
@@ -390,7 +408,9 @@ class TestFinalizers(unittest.TestCase):
         runGCIfJython()
         self.assertIn("N finalized (ResurrectableDummyClass)", finalizeMsgList)
         finalizeMsgList.remove("N finalized (ResurrectableDummyClass)")
-        self.assertNotIn("N finalized (ResurrectableDummyClass)", finalizeMsgList)
+        self.assertNotIn(
+            "N finalized (ResurrectableDummyClass)",
+            finalizeMsgList)
         global resurrectedObject_N
         self.assertEqual(str(resurrectedObject_N), "N")
         N = resurrectedObject_N
@@ -398,7 +418,7 @@ class TestFinalizers(unittest.TestCase):
         self.assertIsNone(resurrectedObject_N)
         try:
             N.__ensure_finalizer__()
-        except:
+        except BaseException:
             pass
         N = None
 
@@ -413,6 +433,6 @@ class TestFinalizers(unittest.TestCase):
         runGCIfJython()
         self.assertIn("O finalized (DummyFileClassNew)", finalizeMsgList)
 
+
 if __name__ == '__main__':
     unittest.main()
-

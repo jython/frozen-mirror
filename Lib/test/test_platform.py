@@ -7,16 +7,19 @@ import subprocess
 from test import test_support
 from test.test_support import is_jython
 
+
 class PlatformTest(unittest.TestCase):
     def test_architecture(self):
         res = platform.architecture()
 
     if hasattr(os, "symlink"):
-        @unittest.skipIf(is_jython, "Cannot just symlink Jython startup script")
-        def test_architecture_via_symlink(self): # issue3762
+        @unittest.skipIf(
+            is_jython,
+            "Cannot just symlink Jython startup script")
+        def test_architecture_via_symlink(self):  # issue3762
             def get(python):
                 cmd = [python, '-c',
-                    'import platform; print platform.architecture()']
+                       'import platform; print platform.architecture()']
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
                 return p.communicate()
             real = os.path.realpath(sys.executable)
@@ -75,11 +78,11 @@ class PlatformTest(unittest.TestCase):
              ('IronPython', '1.0.60816', '', '', '', '', '.NET 2.0.50727.42')),
             ('IronPython 1.0 (1.0.61005.1977) on .NET 2.0.50727.42',
              ('IronPython', '1.0.0', '', '', '', '', '.NET 2.0.50727.42')),
-            ):
+        ):
             # branch and revision are not "parsed", but fetched
             # from sys.subversion.  Ignore them
             (name, version, branch, revision, buildno, builddate, compiler) \
-                   = platform._sys_version(input)
+                = platform._sys_version(input)
             self.assertEqual(
                 (name, version, '', '', buildno, builddate, compiler), output)
 
@@ -87,26 +90,22 @@ class PlatformTest(unittest.TestCase):
         # python_revision(), python_build(), and python_compiler().
         sys_versions = {
             ("2.6.1 (r261:67515, Dec  6 2008, 15:26:00) \n[GCC 4.0.1 (Apple Computer, Inc. build 5370)]",
-             ('CPython', 'tags/r261', '67515'), self.save_platform)
-            :
-                ("CPython", "2.6.1", "tags/r261", "67515",
-                 ('r261:67515', 'Dec  6 2008 15:26:00'),
-                 'GCC 4.0.1 (Apple Computer, Inc. build 5370)'),
-            ("IronPython 2.0 (2.0.0.0) on .NET 2.0.50727.3053", None, "cli")
-            :
+             ('CPython', 'tags/r261', '67515'), self.save_platform):
+            ("CPython", "2.6.1", "tags/r261", "67515",
+             ('r261:67515', 'Dec  6 2008 15:26:00'),
+             'GCC 4.0.1 (Apple Computer, Inc. build 5370)'),
+            ("IronPython 2.0 (2.0.0.0) on .NET 2.0.50727.3053", None, "cli"):
                 ("IronPython", "2.0.0", "", "", ("", ""),
                  ".NET 2.0.50727.3053"),
             ("2.5 (trunk:6107, Mar 26 2009, 13:02:18) \n[Java HotSpot(TM) Client VM (\"Apple Computer, Inc.\")]",
-            ('Jython', 'trunk', '6107'), "java1.5.0_16")
-            :
+             ('Jython', 'trunk', '6107'), "java1.5.0_16"):
                 ("Jython", "2.5.0", "trunk", "6107",
                  ('trunk:6107', 'Mar 26 2009'), "java1.5.0_16"),
             ("2.5.2 (63378, Mar 26 2009, 18:03:29)\n[PyPy 1.0.0]",
-             ('PyPy', 'trunk', '63378'), self.save_platform)
-            :
+             ('PyPy', 'trunk', '63378'), self.save_platform):
                 ("PyPy", "2.5.2", "trunk", "63378", ('63378', 'Mar 26 2009'),
                  "")
-            }
+        }
         for (version_tag, subversion, sys_platform), info in \
                 sys_versions.iteritems():
             sys.version = version_tag
@@ -204,7 +203,6 @@ class PlatformTest(unittest.TestCase):
             else:
                 self.assertEqual(res[2], 'PowerPC')
 
-
     @unittest.skipUnless(sys.platform == 'darwin', "OSX only test")
     def test_mac_ver_with_fork(self):
         # Issue7895: platform.mac_ver() crashes when using fork without exec
@@ -231,7 +229,7 @@ class PlatformTest(unittest.TestCase):
             return
         import os
         if os.path.isdir(sys.executable) and \
-           os.path.exists(sys.executable+'.exe'):
+           os.path.exists(sys.executable + '.exe'):
             # Cygwin horror
             executable = sys.executable + '.exe'
         else:
@@ -246,13 +244,15 @@ class PlatformTest(unittest.TestCase):
             ('SUSE LINUX 10.1 (X86-64)', ('SUSE LINUX ', '10.1', 'X86-64')),
             ('SUSE LINUX 10.1 (i586)', ('SUSE LINUX ', '10.1', 'i586')),
             ('Fedora Core release 5 (Bordeaux)', ('Fedora Core', '5', 'Bordeaux')),
-            ('Red Hat Linux release 8.0 (Psyche)', ('Red Hat Linux', '8.0', 'Psyche')),
+            ('Red Hat Linux release 8.0 (Psyche)',
+             ('Red Hat Linux', '8.0', 'Psyche')),
             ('Red Hat Linux release 9 (Shrike)', ('Red Hat Linux', '9', 'Shrike')),
-            ('Red Hat Enterprise Linux release 4 (Nahant)', ('Red Hat Enterprise Linux', '4', 'Nahant')),
+            ('Red Hat Enterprise Linux release 4 (Nahant)',
+             ('Red Hat Enterprise Linux', '4', 'Nahant')),
             ('CentOS release 4', ('CentOS', '4', None)),
             ('Rocks release 4.2.1 (Cydonia)', ('Rocks', '4.2.1', 'Cydonia')),
-            ('', ('', '', '')), # If there's nothing there.
-            ):
+            ('', ('', '', '')),  # If there's nothing there.
+        ):
             self.assertEqual(platform._parse_release_file(input), output)
 
 
@@ -260,6 +260,7 @@ def test_main():
     test_support.run_unittest(
         PlatformTest
     )
+
 
 if __name__ == '__main__':
     test_main()

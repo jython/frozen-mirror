@@ -43,13 +43,17 @@ driver=org.postgresql.Driver
 datahandler=com.ziclix.python.sql.handler.PostgresqlDataHandler
 """
 
-import os, re
+import os
+import re
 from types import StringType
 
 __author__ = "brian zimmer (bzimmer@ziclix.com)"
 __OS__ = os.name
 
-choose = lambda bool, a, b: (bool and [a] or [b])[0]
+
+def choose(bool, a, b):
+    return (bool and [a] or [b])[0]
+
 
 def console(rows, headers=()):
     """Format the results into a list       of strings (one for each row):
@@ -73,8 +77,9 @@ def console(rows, headers=()):
 
     # Check row entry lengths
     output = []
-    headers = map(lambda header: header.upper(), list(map(lambda x: x or "", headers)))
-    collen = map(len,headers)
+    headers = map(lambda header: header.upper(),
+                  list(map(lambda x: x or "", headers)))
+    collen = map(len, headers)
     output.append(headers)
     if rows and len(rows) > 0:
         for row in rows:
@@ -96,20 +101,23 @@ def console(rows, headers=()):
         row = output[i]
         l = []
         for j in range(len(row)):
-            l.append('%-*s' % (collen[j],row[j]))
+            l.append('%-*s' % (collen[j], row[j]))
         output[i] = " | ".join(l)
 
     # Insert header separator
     totallen = len(output[0])
-    output[1:1] = ["-"*(totallen/len("-"))]
+    output[1:1] = ["-" * (totallen / len("-"))]
     output.append("\n" + affected)
     return output
+
 
 def html(rows, headers=()):
     output = []
     output.append('<table class="results">')
     output.append('<tr class="headers">')
-    headers = map(lambda x: '<td class="header">%s</td>' % (x.upper()), list(headers))
+    headers = map(
+        lambda x: '<td class="header">%s</td>' %
+        (x.upper()), list(headers))
     map(output.append, headers)
     output.append('</tr>')
     if rows and len(rows) > 0:
@@ -121,12 +129,17 @@ def html(rows, headers=()):
     output.append('</table>')
     return output
 
-comments = lambda x: re.compile("{.*?}", re.S).sub("", x, 0)
+
+def comments(x):
+    return re.compile("{.*?}", re.S).sub("", x, 0)
+
 
 class mxODBCProxy:
     """Wraps mxODBC to provide proxy support for zxJDBC's additional parameters."""
+
     def __init__(self, c):
         self.c = c
+
     def __getattr__(self, name):
         if name == "execute":
             return self.execute
@@ -134,24 +147,30 @@ class mxODBCProxy:
             return self.gettypeinfo
         else:
             return getattr(self.c, name)
+
     def execute(self, sql, params=None, bindings=None, maxrows=None):
         if params:
             self.c.execute(sql, params)
         else:
             self.c.execute(sql)
+
     def gettypeinfo(self, typeid=None):
         if typeid:
             self.c.gettypeinfo(typeid)
 
+
 class executor:
     """Handles the insertion of values given dynamic data."""
+
     def __init__(self, table, cols):
         self.cols = cols
         self.table = table
         if self.cols:
-            self.sql = "insert into %s (%s) values (%s)" % (table, ",".join(self.cols), ",".join(("?",) * len(self.cols)))
+            self.sql = "insert into %s (%s) values (%s)" % (
+                table, ",".join(self.cols), ",".join(("?",) * len(self.cols)))
         else:
             self.sql = "insert into %s values (%%s)" % (table)
+
     def execute(self, db, rows, bindings):
         assert rows and len(rows) > 0, "must have at least one row"
         if self.cols:
@@ -160,14 +179,24 @@ class executor:
             sql = self.sql % (",".join(("?",) * len(rows[0])))
         db.raw(sql, rows, bindings)
 
+
 def connect(dbname):
     return dbexts(dbname)
+
 
 def lookup(dbname):
     return dbexts(jndiname=dbname)
 
+
 class dbexts:
-    def __init__(self, dbname=None, cfg=None, formatter=console, autocommit=0, jndiname=None, out=None):
+    def __init__(
+            self,
+            dbname=None,
+            cfg=None,
+            formatter=console,
+            autocommit=0,
+            jndiname=None,
+            out=None):
         self.verbose = 1
         self.results = []
         self.headers = []
@@ -178,7 +207,7 @@ class dbexts:
         self.updatecount = None
 
         if not jndiname:
-            if cfg == None:
+            if cfg is None:
                 fn = os.path.join(os.path.split(__file__)[0], "dbexts.ini")
                 if not os.path.exists(fn):
                     fn = os.path.join(os.environ['HOME'], ".dbexts")
@@ -187,7 +216,8 @@ class dbexts:
                 self.dbs = cfg
             else:
                 self.dbs = IniParser(cfg)
-            if dbname == None: dbname = self.dbs[("default", "name")]
+            if dbname is None:
+                dbname = self.dbs[("default", "name")]
 
         if __OS__ == 'java':
 
@@ -196,17 +226,26 @@ class dbexts:
             if not jndiname:
                 t = self.dbs[("jdbc", dbname)]
                 self.dburl, dbuser, dbpwd, jdbcdriver = t['url'], t['user'], t['pwd'], t['driver']
-                if t.has_key('datahandler'):
+                if 'datahandler' in t:
                     self.datahandler = []
                     for dh in t['datahandler'].split(','):
                         classname = dh.split(".")[-1]
-                        datahandlerclass = __import__(dh, globals(), locals(), classname)
+                        datahandlerclass = __import__(
+                            dh, globals(), locals(), classname)
                         self.datahandler.append(datahandlerclass)
-                keys = [x for x in t.keys() if x not in ['url', 'user', 'pwd', 'driver', 'datahandler', 'name']]
+                keys = [
+                    x for x in t.keys() if x not in [
+                        'url',
+                        'user',
+                        'pwd',
+                        'driver',
+                        'datahandler',
+                        'name']]
                 props = {}
                 for a in keys:
                     props[a] = t[a]
-                self.db = apply(database.connect, (self.dburl, dbuser, dbpwd, jdbcdriver), props)
+                self.db = database.connect(
+                    *(self.dburl, dbuser, dbpwd, jdbcdriver), **props)
             else:
                 self.db = database.lookup(jndiname)
             self.db.autocommit = self.autocommit
@@ -215,16 +254,18 @@ class dbexts:
 
             for modname in ["mx.ODBC.Windows", "ODBC.Windows"]:
                 try:
-                    database = __import__(modname, globals(), locals(), "Windows")
+                    database = __import__(
+                        modname, globals(), locals(), "Windows")
                     break
-                except:
+                except BaseException:
                     continue
             else:
                 raise ImportError("unable to find appropriate mxODBC module")
 
             t = self.dbs[("odbc", dbname)]
             self.dburl, dbuser, dbpwd = t['url'], t['user'], t['pwd']
-            self.db = database.Connect(self.dburl, dbuser, dbpwd, clear_auto_commit=1)
+            self.db = database.Connect(
+                self.dburl, dbuser, dbpwd, clear_auto_commit=1)
 
         self.dbname = dbname
         for a in database.sqltype.keys():
@@ -234,7 +275,7 @@ class dbexts:
                 p = getattr(database, a)
                 if issubclass(p, Exception):
                     setattr(self, a, p)
-            except:
+            except BaseException:
                 continue
         del database
 
@@ -285,7 +326,8 @@ class dbexts:
         if not self.autocommit or cursor is None:
             if not self.db.autocommit:
                 self.db.commit()
-        if cursor and close: cursor.close()
+        if cursor and close:
+            cursor.close()
 
     def rollback(self):
         """ rollback the cursor """
@@ -305,7 +347,8 @@ class dbexts:
             res = self.results
             if res:
                 print >> self.out, ""
-                for a in self.formatter(res, map(lambda x: x[0], self.headers)):
+                for a in self.formatter(
+                        res, map(lambda x: x[0], self.headers)):
                     print >> self.out, a
                 print >> self.out, ""
 
@@ -327,15 +370,24 @@ class dbexts:
         self.raw(sql, params, bindings, maxrows=maxrows)
         self.display()
 
-    def raw(self, sql, params=None, bindings=None, delim=None, comments=comments, maxrows=None):
+    def raw(
+            self,
+            sql,
+            params=None,
+            bindings=None,
+            delim=None,
+            comments=comments,
+            maxrows=None):
         """ execute the sql and return a tuple of (headers, results) """
         if delim:
             headers = []
             results = []
-            if type(sql) == type(StringType):
-                if comments: sql = comments(sql)
-                statements = filter(lambda x: len(x) > 0,
-                        map(lambda statement: statement.strip(), sql.split(delim)))
+            if isinstance(sql, type(StringType)):
+                if comments:
+                    sql = comments(sql)
+                statements = filter(
+                    lambda x: len(x) > 0, map(
+                        lambda statement: statement.strip(), sql.split(delim)))
             else:
                 statements = [sql]
             for a in statements:
@@ -352,7 +404,11 @@ class dbexts:
         """ execute a stored procedure """
         cur = self.begin()
         try:
-            cur.callproc(procname, params=params, bindings=bindings, maxrows=maxrows)
+            cur.callproc(
+                procname,
+                params=params,
+                bindings=bindings,
+                maxrows=maxrows)
         finally:
             self.commit(cur)
         self.display()
@@ -364,11 +420,22 @@ class dbexts:
         self.commit(cur)
         self.display()
 
-    def fk(self, primary_table=None, foreign_table=None, owner=None, schema=None):
+    def fk(
+            self,
+            primary_table=None,
+            foreign_table=None,
+            owner=None,
+            schema=None):
         """ display the table's foreign keys """
         cur = self.begin()
         if primary_table and foreign_table:
-            cur.foreignkeys(schema, owner, primary_table, schema, owner, foreign_table)
+            cur.foreignkeys(
+                schema,
+                owner,
+                primary_table,
+                schema,
+                owner,
+                foreign_table)
         elif primary_table:
             cur.foreignkeys(schema, owner, primary_table, schema, owner, None)
         elif foreign_table:
@@ -425,16 +492,38 @@ class dbexts:
         sort all the items in the schema, else leave them in db dependent order."""
         print >> self.out, str(Schema(self, table, owner, full, sort))
 
-    def bulkcopy(self, dst, table, include=[], exclude=[], autobatch=0, executor=executor):
+    def bulkcopy(
+            self,
+            dst,
+            table,
+            include=[],
+            exclude=[],
+            autobatch=0,
+            executor=executor):
         """Returns a Bulkcopy object using the given table."""
-        if type(dst) == type(""):
+        if isinstance(dst, type("")):
             dst = dbexts(dst, cfg=self.dbs)
-        bcp = Bulkcopy(dst, table, include=include, exclude=exclude, autobatch=autobatch, executor=executor)
+        bcp = Bulkcopy(
+            dst,
+            table,
+            include=include,
+            exclude=exclude,
+            autobatch=autobatch,
+            executor=executor)
         return bcp
 
-    def bcp(self, src, table, where='(1=1)', params=[], include=[], exclude=[], autobatch=0, executor=executor):
+    def bcp(
+            self,
+            src,
+            table,
+            where='(1=1)',
+            params=[],
+            include=[],
+            exclude=[],
+            autobatch=0,
+            executor=executor):
         """Bulkcopy of rows from a src database to the current database for a given table and where clause."""
-        if type(src) == type(""):
+        if isinstance(src, type("")):
             src = dbexts(src, cfg=self.dbs)
         bcp = self.bulkcopy(self, table, include, exclude, autobatch, executor)
         num = bcp.transfer(src, where, params)
@@ -445,9 +534,18 @@ class dbexts:
         u = Unload(self, filename, delimiter, includeheaders)
         u.unload(sql)
 
+
 class Bulkcopy:
     """The idea for a bcp class came from http://object-craft.com.au/projects/sybase"""
-    def __init__(self, dst, table, include=[], exclude=[], autobatch=0, executor=executor):
+
+    def __init__(
+            self,
+            dst,
+            table,
+            include=[],
+            exclude=[],
+            autobatch=0,
+            executor=executor):
         self.dst = dst
         self.table = table
         self.total = 0
@@ -512,18 +610,22 @@ class Bulkcopy:
 
     def rowxfer(self, line):
         self.rows.append(line)
-        if self.autobatch: self.batch()
+        if self.autobatch:
+            self.batch()
 
     def transfer(self, src, where="(1=1)", params=[]):
-        sql = "select %s from %s where %s" % (", ".join(self.columns), self.table, where)
+        sql = "select %s from %s where %s" % (
+            ", ".join(self.columns), self.table, where)
         h, d = src.raw(sql, params)
         if d:
             map(self.rowxfer, d)
             return self.done()
         return 0
 
+
 class Unload:
     """Unloads a sql statement to a file with optional formatting of each value."""
+
     def __init__(self, db, filename, delimiter=",", includeheaders=1):
         self.db = db
         self.filename = filename
@@ -543,15 +645,18 @@ class Unload:
         headers, results = self.db.raw(sql)
         w = open(self.filename, mode)
         if self.includeheaders:
-            w.write("%s\n" % (self.delimiter.join(map(lambda x: x[0], headers))))
+            w.write("%s\n" %
+                    (self.delimiter.join(map(lambda x: x[0], headers))))
         if results:
             for a in results:
                 w.write("%s\n" % (self.delimiter.join(map(self.format, a))))
         w.flush()
         w.close()
 
+
 class Schema:
     """Produces a Schema object which represents the database schema for a table"""
+
     def __init__(self, db, table, owner=None, full=0, sort=1):
         self.db = db
         self.table = table
@@ -561,7 +666,8 @@ class Schema:
         _verbose = self.db.verbose
         self.db.verbose = 0
         try:
-            if table: self.computeschema()
+            if table:
+                self.computeschema()
         finally:
             self.db.verbose = _verbose
 
@@ -570,30 +676,59 @@ class Schema:
         self.columns = []
         # (column name, type_name, size, nullable)
         if self.db.results:
-            self.columns = map(lambda x: (x[3], x[5], x[6], x[10]), self.db.results)
-            if self.sort: self.columns.sort(lambda x, y: cmp(x[0], y[0]))
+            self.columns = map(
+                lambda x: (
+                    x[3],
+                    x[5],
+                    x[6],
+                    x[10]),
+                self.db.results)
+            if self.sort:
+                self.columns.sort(lambda x, y: cmp(x[0], y[0]))
 
         self.db.fk(None, self.table)
         # (pk table name, pk column name, fk column name, fk name, pk name)
         self.imported = []
         if self.db.results:
-            self.imported = map(lambda x: (x[2], x[3], x[7], x[11], x[12]), self.db.results)
-            if self.sort: self.imported.sort(lambda x, y: cmp(x[2], y[2]))
+            self.imported = map(
+                lambda x: (
+                    x[2],
+                    x[3],
+                    x[7],
+                    x[11],
+                    x[12]),
+                self.db.results)
+            if self.sort:
+                self.imported.sort(lambda x, y: cmp(x[2], y[2]))
 
         self.exported = []
         if self.full:
             self.db.fk(self.table, None)
             # (pk column name, fk table name, fk column name, fk name, pk name)
             if self.db.results:
-                self.exported = map(lambda x: (x[3], x[6], x[7], x[11], x[12]), self.db.results)
-                if self.sort: self.exported.sort(lambda x, y: cmp(x[1], y[1]))
+                self.exported = map(
+                    lambda x: (
+                        x[3],
+                        x[6],
+                        x[7],
+                        x[11],
+                        x[12]),
+                    self.db.results)
+                if self.sort:
+                    self.exported.sort(lambda x, y: cmp(x[1], y[1]))
 
         self.db.pk(self.table)
         self.primarykeys = []
         if self.db.results:
             # (column name, key_seq, pk name)
-            self.primarykeys = map(lambda x: (x[3], x[4], x[5]), self.db.results)
-            if self.sort: self.primarykeys.sort(lambda x, y: cmp(x[1], y[1]))
+            self.primarykeys = map(
+                lambda x: (
+                    x[3],
+                    x[4],
+                    x[5]),
+                self.db.results)
+            if self.sort:
+                self.primarykeys.sort(lambda x, y: cmp(x[1], y[1]))
 
         try:
             self.indices = None
@@ -603,20 +738,26 @@ class Schema:
             if self.db.results:
                 idxdict = {}
                 # mxODBC returns a row of None's, so filter it out
-                idx = map(lambda x: (x[3], x[5].strip(), x[6], x[7], x[8]), filter(lambda x: x[5], self.db.results))
+                idx = map(
+                    lambda x: (
+                        x[3], x[5].strip(), x[6], x[7], x[8]), filter(
+                        lambda x: x[5], self.db.results))
+
                 def cckmp(x, y):
                     c = cmp(x[1], y[1])
-                    if c == 0: c = cmp(x[3], y[3])
+                    if c == 0:
+                        c = cmp(x[3], y[3])
                     return c
                 # sort this regardless, this gets the indicies lined up
                 idx.sort(cckmp)
                 for a in idx:
-                    if not idxdict.has_key(a[1]):
+                    if a[1] not in idxdict:
                         idxdict[a[1]] = []
                     idxdict[a[1]].append(a)
                 self.indices = idxdict.values()
-                if self.sort: self.indices.sort(lambda x, y: cmp(x[0][1], y[0][1]))
-        except:
+                if self.sort:
+                    self.indices.sort(lambda x, y: cmp(x[0][1], y[0][1]))
+        except BaseException:
             pass
 
     def __str__(self):
@@ -647,6 +788,7 @@ class Schema:
                 d.append("  %s index {%s} on (%s)" % (unique, a[0][1], cname))
         return "\n".join(d)
 
+
 class IniParser:
     def __init__(self, cfg, key='name'):
         self.key = key
@@ -660,14 +802,17 @@ class IniParser:
         fp = open(self.cfg, "r")
         data = fp.readlines()
         fp.close()
-        lines = filter(lambda x: len(x) > 0 and x[0] not in ['#', ';'], map(lambda x: x.strip(), data))
+        lines = filter(
+            lambda x: len(x) > 0 and x[0] not in [
+                '#', ';'], map(
+                lambda x: x.strip(), data))
         current = None
         for i in range(len(lines)):
             line = lines[i]
             g = self.ctypeRE.match(line)
             if g:   # a section header
                 current = {}
-                if not self.records.has_key(g.group(1)):
+                if g.group(1) not in self.records:
                     self.records[g.group(1)] = []
                 self.records[g.group(1)].append(current)
             else:
@@ -675,12 +820,19 @@ class IniParser:
                 if g:
                     current[g.group(1)] = g.group(2)
 
-    def __getitem__(self, (ctype, skey)):
-        if skey == self.key: return self.records[ctype][0][skey]
-        t = filter(lambda x, p=self.key, s=skey: x[p] == s, self.records[ctype])
+    def __getitem__(self, xxx_todo_changeme):
+        (ctype, skey) = xxx_todo_changeme
+        if skey == self.key:
+            return self.records[ctype][0][skey]
+        t = filter(
+            lambda x,
+            p=self.key,
+            s=skey: x[p] == s,
+            self.records[ctype])
         if not t or len(t) > 1:
-            raise KeyError, "invalid key ('%s', '%s')" % (ctype, skey)
+            raise KeyError("invalid key ('%s', '%s')" % (ctype, skey))
         return t[0]
+
 
 def random_table_name(prefix, num_chars):
     import random
@@ -691,32 +843,45 @@ def random_table_name(prefix, num_chars):
         i += 1
     return "".join(d)
 
+
 class ResultSetRow:
     def __init__(self, rs, row):
         self.row = row
         self.rs = rs
+
     def __getitem__(self, i):
-        if type(i) == type(""):
+        if isinstance(i, type("")):
             i = self.rs.index(i)
         return self.row[i]
+
     def __getslice__(self, i, j):
-        if type(i) == type(""): i = self.rs.index(i)
-        if type(j) == type(""): j = self.rs.index(j)
+        if isinstance(i, type("")):
+            i = self.rs.index(i)
+        if isinstance(j, type("")):
+            j = self.rs.index(j)
         return self.row[i:j]
+
     def __len__(self):
         return len(self.row)
+
     def __repr__(self):
         return str(self.row)
+
 
 class ResultSet:
     def __init__(self, headers, results=[]):
         self.headers = map(lambda x: x.upper(), headers)
         self.results = results
+
     def index(self, i):
         return self.headers.index(i.upper())
+
     def __getitem__(self, i):
         return ResultSetRow(self, self.results[i])
+
     def __getslice__(self, i, j):
         return map(lambda x, rs=self: ResultSetRow(rs, x), self.results[i:j])
+
     def __repr__(self):
-        return "<%s instance {cols [%d], rows [%d]} at %s>" % (self.__class__, len(self.headers), len(self.results), id(self))
+        return "<%s instance {cols [%d], rows [%d]} at %s>" % (
+            self.__class__, len(self.headers), len(self.results), id(self))

@@ -22,8 +22,10 @@ ascii = repr
 _builtin_hex = hex
 _builtin_oct = oct
 
+
 def hex(arg):
     return _builtin_hex(arg).rstrip('L')
+
 
 def oct(arg):
     result = _builtin_oct(arg).rstrip('L')

@@ -5,6 +5,7 @@ from test import test_support
 
 import operator
 
+
 class Number:
 
     def __init__(self, x):
@@ -29,10 +30,11 @@ class Number:
         return self.x >= other
 
     def __cmp__(self, other):
-        raise test_support.TestFailed, "Number.__cmp__() should not be called"
+        raise test_support.TestFailed("Number.__cmp__() should not be called")
 
     def __repr__(self):
         return "Number(%r)" % (self.x, )
+
 
 class Vector:
 
@@ -49,13 +51,13 @@ class Vector:
         self.data[i] = v
 
     def __hash__(self):
-        raise TypeError, "Vectors cannot be hashed"
+        raise TypeError("Vectors cannot be hashed")
 
     def __nonzero__(self):
-        raise TypeError, "Vectors cannot be used in Boolean contexts"
+        raise TypeError("Vectors cannot be used in Boolean contexts")
 
     def __cmp__(self, other):
-        raise test_support.TestFailed, "Vector.__cmp__() should not be called"
+        raise test_support.TestFailed("Vector.__cmp__() should not be called")
 
     def __repr__(self):
         return "Vector(%r)" % (self.data, )
@@ -82,17 +84,19 @@ class Vector:
         if isinstance(other, Vector):
             other = other.data
         if len(self.data) != len(other):
-            raise ValueError, "Cannot compare vectors of different length"
+            raise ValueError("Cannot compare vectors of different length")
         return other
 
+
 opmap = {
-    "lt": (lambda a,b: a< b, operator.lt, operator.__lt__),
-    "le": (lambda a,b: a<=b, operator.le, operator.__le__),
-    "eq": (lambda a,b: a==b, operator.eq, operator.__eq__),
-    "ne": (lambda a,b: a!=b, operator.ne, operator.__ne__),
-    "gt": (lambda a,b: a> b, operator.gt, operator.__gt__),
-    "ge": (lambda a,b: a>=b, operator.ge, operator.__ge__)
+    "lt": (lambda a, b: a < b, operator.lt, operator.__lt__),
+    "le": (lambda a, b: a <= b, operator.le, operator.__le__),
+    "eq": (lambda a, b: a == b, operator.eq, operator.__eq__),
+    "ne": (lambda a, b: a != b, operator.ne, operator.__ne__),
+    "gt": (lambda a, b: a > b, operator.gt, operator.__gt__),
+    "ge": (lambda a, b: a >= b, operator.ge, operator.__ge__)
 }
+
 
 class VectorTest(unittest.TestCase):
 
@@ -121,20 +125,22 @@ class VectorTest(unittest.TestCase):
 
         a = range(5)
         b = 5 * [2]
-        # try mixed arguments (but not (a, b) as that won't return a bool vector)
+        # try mixed arguments (but not (a, b) as that won't return a bool
+        # vector)
         args = [(a, Vector(b)), (Vector(a), b), (Vector(a), Vector(b))]
         for (a, b) in args:
-            self.checkequal("lt", a, b, [True,  True,  False, False, False])
-            self.checkequal("le", a, b, [True,  True,  True,  False, False])
-            self.checkequal("eq", a, b, [False, False, True,  False, False])
-            self.checkequal("ne", a, b, [True,  True,  False, True,  True ])
-            self.checkequal("gt", a, b, [False, False, False, True,  True ])
-            self.checkequal("ge", a, b, [False, False, True,  True,  True ])
+            self.checkequal("lt", a, b, [True, True, False, False, False])
+            self.checkequal("le", a, b, [True, True, True, False, False])
+            self.checkequal("eq", a, b, [False, False, True, False, False])
+            self.checkequal("ne", a, b, [True, True, False, True, True])
+            self.checkequal("gt", a, b, [False, False, False, True, True])
+            self.checkequal("ge", a, b, [False, False, True, True, True])
 
             for ops in opmap.itervalues():
                 for op in ops:
                     # calls __nonzero__, which should fail
                     self.assertRaises(TypeError, bool, op(a, b))
+
 
 class NumberTest(unittest.TestCase):
 
@@ -146,8 +152,8 @@ class NumberTest(unittest.TestCase):
             for b in xrange(3):
                 for typea in (int, Number):
                     for typeb in (int, Number):
-                        if typea==typeb==int:
-                            continue # the combination int, int is useless
+                        if typea == typeb == int:
+                            continue  # the combination int, int is useless
                         ta = typea(a)
                         tb = typeb(b)
                         for ops in opmap.itervalues():
@@ -169,50 +175,59 @@ class NumberTest(unittest.TestCase):
     def test_values(self):
         # check all operators and all comparison results
         self.checkvalue("lt", 0, 0, False)
-        self.checkvalue("le", 0, 0, True )
-        self.checkvalue("eq", 0, 0, True )
+        self.checkvalue("le", 0, 0, True)
+        self.checkvalue("eq", 0, 0, True)
         self.checkvalue("ne", 0, 0, False)
         self.checkvalue("gt", 0, 0, False)
-        self.checkvalue("ge", 0, 0, True )
+        self.checkvalue("ge", 0, 0, True)
 
-        self.checkvalue("lt", 0, 1, True )
-        self.checkvalue("le", 0, 1, True )
+        self.checkvalue("lt", 0, 1, True)
+        self.checkvalue("le", 0, 1, True)
         self.checkvalue("eq", 0, 1, False)
-        self.checkvalue("ne", 0, 1, True )
+        self.checkvalue("ne", 0, 1, True)
         self.checkvalue("gt", 0, 1, False)
         self.checkvalue("ge", 0, 1, False)
 
         self.checkvalue("lt", 1, 0, False)
         self.checkvalue("le", 1, 0, False)
         self.checkvalue("eq", 1, 0, False)
-        self.checkvalue("ne", 1, 0, True )
-        self.checkvalue("gt", 1, 0, True )
-        self.checkvalue("ge", 1, 0, True )
+        self.checkvalue("ne", 1, 0, True)
+        self.checkvalue("gt", 1, 0, True)
+        self.checkvalue("ge", 1, 0, True)
+
 
 class MiscTest(unittest.TestCase):
 
     def test_misbehavin(self):
         class Misb:
             def __lt__(self, other): return 0
+
             def __gt__(self, other): return 0
+
             def __eq__(self, other): return 0
-            def __le__(self, other): raise TestFailed, "This shouldn't happen"
-            def __ge__(self, other): raise TestFailed, "This shouldn't happen"
-            def __ne__(self, other): raise TestFailed, "This shouldn't happen"
-            def __cmp__(self, other): raise RuntimeError, "expected"
+
+            def __le__(self, other): raise TestFailed("This shouldn't happen")
+
+            def __ge__(self, other): raise TestFailed("This shouldn't happen")
+
+            def __ne__(self, other): raise TestFailed("This shouldn't happen")
+
+            def __cmp__(self, other): raise RuntimeError("expected")
         a = Misb()
         b = Misb()
-        self.assertEqual(a<b, 0)
-        self.assertEqual(a==b, 0)
-        self.assertEqual(a>b, 0)
+        self.assertEqual(a < b, 0)
+        self.assertEqual(a == b, 0)
+        self.assertEqual(a > b, 0)
         self.assertRaises(RuntimeError, cmp, a, b)
 
     def test_not(self):
         # Check that exceptions in __nonzero__ are properly
         # propagated by the not operator
         import operator
+
         class Exc(Exception):
             pass
+
         class Bad:
             def __nonzero__(self):
                 raise Exc
@@ -255,6 +270,7 @@ class MiscTest(unittest.TestCase):
         self.assert_(a != b)
         self.assert_(a < b)
 
+
 class DictTest(unittest.TestCase):
 
     def test_dicts(self):
@@ -264,7 +280,7 @@ class DictTest(unittest.TestCase):
         import random
         imag1a = {}
         for i in range(50):
-            imag1a[random.randrange(100)*1j] = random.randrange(100)*1j
+            imag1a[random.randrange(100) * 1j] = random.randrange(100) * 1j
         items = imag1a.items()
         random.shuffle(items)
         imag1b = {}
@@ -280,6 +296,7 @@ class DictTest(unittest.TestCase):
             for op in opmap[opname]:
                 self.assertRaises(TypeError, op, imag1a, imag2)
 
+
 class ListTest(unittest.TestCase):
 
     def assertIs(self, a, b):
@@ -288,25 +305,26 @@ class ListTest(unittest.TestCase):
     def test_coverage(self):
         # exercise all comparisons for lists
         x = [42]
-        self.assertIs(x<x, False)
-        self.assertIs(x<=x, True)
-        self.assertIs(x==x, True)
-        self.assertIs(x!=x, False)
-        self.assertIs(x>x, False)
-        self.assertIs(x>=x, True)
+        self.assertIs(x < x, False)
+        self.assertIs(x <= x, True)
+        self.assertIs(x == x, True)
+        self.assertIs(x != x, False)
+        self.assertIs(x > x, False)
+        self.assertIs(x >= x, True)
         y = [42, 42]
-        self.assertIs(x<y, True)
-        self.assertIs(x<=y, True)
-        self.assertIs(x==y, False)
-        self.assertIs(x!=y, True)
-        self.assertIs(x>y, False)
-        self.assertIs(x>=y, False)
+        self.assertIs(x < y, True)
+        self.assertIs(x <= y, True)
+        self.assertIs(x == y, False)
+        self.assertIs(x != y, True)
+        self.assertIs(x > y, False)
+        self.assertIs(x >= y, False)
 
     def test_badentry(self):
         # make sure that exceptions for item comparison are properly
         # propagated in list comparisons
         class Exc(Exception):
             pass
+
         class Bad:
             def __eq__(self, other):
                 raise Exc
@@ -330,12 +348,19 @@ class ListTest(unittest.TestCase):
         for op in opmap["lt"]:
             self.assertIs(op(x, y), True)
 
+
 def test_main():
     if test_support.is_jython:
         # A circular implementation of __eq__ returns False instead of
         # True: http://jython.org/bugs/1758280
         del MiscTest.test_recursion
-    test_support.run_unittest(VectorTest, NumberTest, MiscTest, DictTest, ListTest)
+    test_support.run_unittest(
+        VectorTest,
+        NumberTest,
+        MiscTest,
+        DictTest,
+        ListTest)
+
 
 if __name__ == "__main__":
     test_main()

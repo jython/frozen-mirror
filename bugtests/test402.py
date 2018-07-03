@@ -18,7 +18,8 @@ jarmaker.mkjar()
 
 support.runJython('test402m.py')
 ret = support.runJython('test402m.py', error='test402.err',
-        javaargs='-Dpython.cachedir.skip=true', expectError=1)
+                        javaargs='-Dpython.cachedir.skip=true', expectError=1)
 if ret == 0:
-    raise support.TestError('Successfully imported a package from a jar on sys.path without caching!')
+    raise support.TestError(
+        'Successfully imported a package from a jar on sys.path without caching!')
 support.runJython('test402n.py', javaargs='-Dpython.cachedir.skip=true')

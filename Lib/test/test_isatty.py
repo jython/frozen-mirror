@@ -1,17 +1,27 @@
-import test.test_support, unittest
-import os, popen2, subprocess, sys
+import test.test_support
+import unittest
+import os
+import popen2
+import subprocess
+import sys
+
 
 def test_isatty(label, thingy):
     os_isatty = os.isatty(thingy.fileno())
     thingy_isatty = thingy.isatty()
-    if 'in' in label: expected = stdin_isatty
-    elif 'out' in label: expected = stdout_isatty
-    elif 'err' in label: expected = stderr_isatty
-    else: expected = False
+    if 'in' in label:
+        expected = stdin_isatty
+    elif 'out' in label:
+        expected = stdout_isatty
+    elif 'err' in label:
+        expected = stderr_isatty
+    else:
+        expected = False
     print '%11s: os.isatty=%.1s | .isatty=%.1s | expected=%.1s' % \
         (label, os_isatty, thingy_isatty, expected)
     assert expected == os_isatty == thingy_isatty, \
         'expected isatty would return %s on %s' % (expected, label)
+
 
 def test_int_isatty(fd, expected):
     os_isatty = os.isatty(fd)
@@ -19,24 +29,27 @@ def test_int_isatty(fd, expected):
         ('fd %d' % fd, os_isatty, expected)
     assert expected == os_isatty
 
+
 def test_file_isatty(name):
     if not os.path.exists(name):
         return
     try:
         test_isatty(name, file(name))
-    except IOError, e:
-        print e # XXX Jython prints 'no such file or directory' - probably
-                # 'permission denied' but Java doesn't understand?
+    except IOError as e:
+        print e  # XXX Jython prints 'no such file or directory' - probably
+        # 'permission denied' but Java doesn't understand?
+
 
 def args_list(*args):
     return [sys.executable, __file__] + map(str, args)
+
 
 class IsattyTest(unittest.TestCase):
     def check_call(self, *args, **kw):
         self.assertEqual(subprocess.check_call(args_list(*args), **kw), 0)
 
     def test_isatty(self):
-        if os.name == 'java': # Jython doesn't allocate ptys here
+        if os.name == 'java':  # Jython doesn't allocate ptys here
             self.check_call(False, False, False)
             # XXX not sure how to test anything else
         else:
@@ -44,6 +57,7 @@ class IsattyTest(unittest.TestCase):
             self.check_call(False, True, True, stdin=subprocess.PIPE)
             self.check_call(True, False, True, stdout=subprocess.PIPE)
             self.check_call(True, True, False, stderr=subprocess.PIPE)
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
@@ -53,7 +67,7 @@ if __name__ == '__main__':
     stdin_isatty, stdout_isatty, stderr_isatty = map(lambda x: x == 'True',
                                                      sys.argv[1:])
 
-    test_isatty('stdin',  sys.stdin)
+    test_isatty('stdin', sys.stdin)
     test_isatty('stdout', sys.stdout)
     test_isatty('stderr', sys.stderr)
 

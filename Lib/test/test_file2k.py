@@ -14,6 +14,7 @@ from test import test_support
 from test.test_support import TESTFN, run_unittest, is_jython, is_jython_nt
 from UserList import UserList
 
+
 class AutoFileTests(unittest.TestCase):
     # file tests for which a test file is automatically set up
 
@@ -32,7 +33,7 @@ class AutoFileTests(unittest.TestCase):
         self.assertEqual(self.f.tell(), p.tell())
         self.f.close()
         self.f = None
-        if test_support.is_jython: # GC is not immediate: borrow a trick
+        if test_support.is_jython:  # GC is not immediate: borrow a trick
             from test_weakref import extra_collect
             extra_collect()
         self.assertRaises(ReferenceError, getattr, p, 'tell')
@@ -52,13 +53,14 @@ class AutoFileTests(unittest.TestCase):
 
         # verify the others aren't
         for attr in 'name', 'mode', 'closed':
-            self.assertRaises((AttributeError, TypeError), setattr, f, attr, 'oops')
+            self.assertRaises((AttributeError, TypeError),
+                              setattr, f, attr, 'oops')
 
     def testReadinto(self):
         # verify readinto
         self.f.write('12')
         self.f.close()
-        a = array('c', 'x'*10)
+        a = array('c', 'x' * 10)
         self.f = open(TESTFN, 'rb')
         n = self.f.readinto(a)
         self.assertEqual('12', a.tostring()[:n])
@@ -78,7 +80,7 @@ class AutoFileTests(unittest.TestCase):
 
     def testWritelinesIntegersUserList(self):
         # verify writelines with integers in UserList
-        l = UserList([1,2,3])
+        l = UserList([1, 2, 3])
         self.assertRaises(TypeError, self.f.writelines, l)
 
     def testWritelinesNonString(self):
@@ -93,7 +95,8 @@ class AutoFileTests(unittest.TestCase):
         # verify repr works
         self.assertTrue(repr(self.f).startswith("<open file '" + TESTFN))
         # see issue #14161
-        if sys.platform == "win32" or (test_support.is_jython and os._name == "nt"):
+        if sys.platform == "win32" or (
+                test_support.is_jython and os._name == "nt"):
             # Windows doesn't like \r\n\t" in the file name, but ' is ok
             fname = "xx'xx"
         else:
@@ -101,7 +104,7 @@ class AutoFileTests(unittest.TestCase):
         with open(fname, 'w') as f:
             self.addCleanup(os.remove, fname)
             self.assertTrue(repr(f).startswith(
-                    "<open file %r, mode 'w' at" % fname))
+                "<open file %r, mode 'w' at" % fname))
 
     def testErrors(self):
         self.f.close()
@@ -142,7 +145,7 @@ class AutoFileTests(unittest.TestCase):
         # it must also return None if an exception was given
         try:
             1 // 0
-        except:
+        except BaseException:
             self.assertEqual(self.f.__exit__(*sys.exc_info()), None)
 
     def testReadWhenWriting(self):
@@ -192,6 +195,7 @@ class AutoFileTests(unittest.TestCase):
             self.f = open(TESTFN, mode)
             self.assertRaises(IOError, self.f.truncate)
             self.f.close()
+
 
 class OtherFileTests(unittest.TestCase):
 
@@ -266,7 +270,7 @@ class OtherFileTests(unittest.TestCase):
         bad_mode = "qwerty"
         try:
             self.f = f = open(TESTFN, bad_mode)
-        except ValueError, msg:
+        except ValueError as msg:
             if msg.args[0] != 0:
                 s = str(msg)
                 if TESTFN in s or bad_mode not in s:
@@ -290,7 +294,7 @@ class OtherFileTests(unittest.TestCase):
                 d = int(f.read())
                 f.close()
                 f.close()
-            except IOError, msg:
+            except IOError as msg:
                 self.fail('error setting buffer size %d: %s' % (s, str(msg)))
             self.assertEqual(d, s)
 
@@ -303,7 +307,7 @@ class OtherFileTests(unittest.TestCase):
             f.write('12345678901')   # 11 bytes
             f.close()
 
-            self.f = f = open(TESTFN,'rb+')
+            self.f = f = open(TESTFN, 'rb+')
             data = f.read(5)
             if data != '12345':
                 self.fail("Read on file opened for update failed %r" % data)
@@ -348,7 +352,7 @@ class OtherFileTests(unittest.TestCase):
             "wonderful spaaaaaam.\n"
         ]
         methods = [("readline", ()), ("read", ()), ("readlines", ()),
-                   ("readinto", (array("c", " "*100),))]
+                   ("readinto", (array("c", " " * 100),))]
 
         try:
             # Prepare the testfile
@@ -368,7 +372,7 @@ class OtherFileTests(unittest.TestCase):
                     pass
                 else:
                     self.fail("%s%r after next() didn't raise ValueError" %
-                                     (methodname, args))
+                              (methodname, args))
                 f.close()
 
             # Test to see if harmless (by accident) mixing of read* and
@@ -484,6 +488,7 @@ class FileSubclassTests(unittest.TestCase):
             def __init__(self, *args):
                 self.subclass_closed = False
                 file.__init__(self, *args)
+
             def close(self):
                 self.subclass_closed = True
                 file.close(self)
@@ -501,7 +506,8 @@ class FileThreadingTests(unittest.TestCase):
 
     # Modified for Jython so that each worker thread holds *and closes* its own
     # file object, since we cannot rely on immediate garbage collection closing
-    # files. (Open file objects prevent deletion of TESTFN on Windows at least.)
+    # files. (Open file objects prevent deletion of TESTFN on Windows at
+    # least.)
 
     def setUp(self):
         self._threads = test_support.threading_setup()
@@ -526,7 +532,7 @@ class FileThreadingTests(unittest.TestCase):
 
     def _create_file(self):
         if self.use_buffering:
-            return open(self.filename, "w+", buffering=1024*16)
+            return open(self.filename, "w+", buffering=1024 * 16)
         else:
             return open(self.filename, "w+")
 
@@ -554,9 +560,9 @@ class FileThreadingTests(unittest.TestCase):
                 t.start()
                 threads.append(t)
             for _ in xrange(100):
-                time.sleep(duration/100)
+                time.sleep(duration / 100)
                 with self._count_lock:
-                    if self.close_count-self.close_success_count > nb_workers+1:
+                    if self.close_count - self.close_success_count > nb_workers + 1:
                         if test_support.verbose:
                             print 'Q',
                         break
@@ -596,7 +602,7 @@ class FileThreadingTests(unittest.TestCase):
             # the percent of close calls that raised an error
             percent = 100.
             if self.close_count > 0:
-                percent -= 100.*self.close_success_count/self.close_count
+                percent -= 100. * self.close_success_count / self.close_count
             print self.close_count, ('%.4f ' % percent),
 
     # Each test function defines an operation on the worker's file object
@@ -628,6 +634,7 @@ class FileThreadingTests(unittest.TestCase):
 
     def test_close_open_print_buffered(self):
         self.use_buffering = True
+
         def io_func(f):
             print >> f, ''
         self._test_close_open_io(io_func)
@@ -711,12 +718,15 @@ class StdoutTests(unittest.TestCase):
         finally:
             sys.stdout = save_stdout
 
-    @unittest.skipIf(is_jython_nt, "FIXME: utf-16 decode error, see issue 2312")
+    @unittest.skipIf(
+        is_jython_nt,
+        "FIXME: utf-16 decode error, see issue 2312")
     def test_unicode(self):
         import subprocess
 
         def get_message(encoding, *code):
-            code = ';'.join(code)   # jython.bat cannot cope with '\n' in arguments
+            # jython.bat cannot cope with '\n' in arguments
+            code = ';'.join(code)
             env = os.environ.copy()
             env['PYTHONIOENCODING'] = encoding
             process = subprocess.Popen([sys.executable, "-c", code],
@@ -727,9 +737,9 @@ class StdoutTests(unittest.TestCase):
 
         def check_message(text, encoding, expected):
             stdout = get_message(encoding,
-                "import sys",
-                "sys.stdout.write(%r)" % text,
-                "sys.stdout.flush()")
+                                 "import sys",
+                                 "sys.stdout.write(%r)" % text,
+                                 "sys.stdout.flush()")
             self.assertEqual(stdout, expected)
 
         # test the encoding
@@ -745,20 +755,21 @@ class StdoutTests(unittest.TestCase):
         # test the buffer API
         for objtype in ('buffer', 'bytearray'):
             stdout = get_message('ascii',
-                'import sys',
-                r'sys.stdout.write(%s("\xe9"))' % objtype,
-                'sys.stdout.flush()')
+                                 'import sys',
+                                 r'sys.stdout.write(%s("\xe9"))' % objtype,
+                                 'sys.stdout.flush()')
             self.assertEqual(stdout, "\xe9")
 
 
 def test_main():
     run_unittest(
-             AutoFileTests,
-             OtherFileTests,
-             FileSubclassTests,
-             FileThreadingTests,
-             StdoutTests
-         )
+        AutoFileTests,
+        OtherFileTests,
+        FileSubclassTests,
+        FileThreadingTests,
+        StdoutTests
+    )
+
 
 if __name__ == '__main__':
     test_main()

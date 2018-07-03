@@ -18,7 +18,7 @@ nan = float('nan')
 try:
     import mpmath
     HAVE_MPMATH = True
-except:
+except BaseException:
     HAVE_MPMATH = False
 
 
@@ -57,24 +57,24 @@ class MathAccuracy(MathTests):
 
     def ftest(self, name, value, expected, ulps_err=1):
 
-        if expected != 0. :
+        if expected != 0.:
             # Tolerate small deviation in proportion to expected
             ulp_unit = Math.ulp(expected)
-        else :
+        else:
             # On zero, allow 2**-52. Maybe allow different slack based on name
             ulp_unit = Math.ulp(1.)
 
         # Complex expressions accumulate errors
-        if name in ('cosh(2)-2*cosh(1)**2', 'sinh(1)**2-cosh(1)**2') :
+        if name in ('cosh(2)-2*cosh(1)**2', 'sinh(1)**2-cosh(1)**2'):
             # ... quite steeply in these cases
             ulps_err *= 5
 
-        err = value-expected
+        err = value - expected
 
         if abs(err) > ulps_err * ulp_unit:
             # Use %r to display full precision.
             message = '%s returned %r, expected %r (%r ulps)' % \
-                (name, value, expected, round(err/ulp_unit, 1))
+                (name, value, expected, round(err / ulp_unit, 1))
             self.fail(message)
 
     def testConstants(self):
@@ -83,7 +83,8 @@ class MathAccuracy(MathTests):
         self.assertEqual(math.e, Math.E)
 
     def test_testfile(self, math_module=math, ulps_err=None):
-        # Rigorous variant of MathTests.test_testfile requiring accuracy in ulps.
+        # Rigorous variant of MathTests.test_testfile requiring accuracy in
+        # ulps.
         fail_fmt = "{}:{}({!r}): expected {!r}, got {!r}"
         failures = []
 
@@ -96,15 +97,15 @@ class MathAccuracy(MathTests):
                 # no real versions of rect, polar
                 continue
 
-            if ulps_err is not None :
+            if ulps_err is not None:
                 fn_ulps_err = ulps_err
-            else :
+            else:
                 # java.Math mostly promises 1 ulp, except for:
-                if fn in ['atan2'] :
+                if fn in ['atan2']:
                     fn_ulps_err = 2
-                elif fn in ['cosh', 'sinh', 'tanh'] :
+                elif fn in ['cosh', 'sinh', 'tanh']:
                     fn_ulps_err = 2.5
-                else :
+                else:
                     fn_ulps_err = 1
 
             func = getattr(math_module, fn)
@@ -146,16 +147,17 @@ class MathAccuracy(MathTests):
 
     @unittest.skipUnless(HAVE_MPMATH, "requires mpmath module")
     def test_testfile_mpmath(self):
-        # Run the mpmath module on the same material: consistency check during development.
-        with mpmath.workprec(100) :
+        # Run the mpmath module on the same material: consistency check during
+        # development.
+        with mpmath.workprec(100):
             self.test_testfile(mpmath, 1, 1)
 
 
 def test_main():
     test_support.run_unittest(
-            MathTestCase,
-            MathAccuracy,
-        )
+        MathTestCase,
+        MathAccuracy,
+    )
 
 
 if __name__ == '__main__':

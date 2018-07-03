@@ -56,6 +56,7 @@ _zlib_to_deflater = {
 
 _ADLER_BASE = 65521  # largest prime smaller than 65536
 
+
 def adler32(s, value=1):
     # Although Java has an implmentation in java.util.zip.Adler32,
     # this class does not allow for updating the value directly, as
@@ -66,19 +67,21 @@ def adler32(s, value=1):
     s2 = (value >> 16) & 0xffff
     for c in s:
         s1 = (s1 + ord(c)) % _ADLER_BASE
-        s2 = (s2 + s1)     % _ADLER_BASE
+        s2 = (s2 + s1) % _ADLER_BASE
     # Support two's complement, to comply with the range specified for 2.6+;
     # for 3.x, simply return (s2 << 16) + s1
     high_bit = -2147483648 if (s2 & 0x8000) else 0
     remaining_high_word = s2 & 0x7fff
     return high_bit + (remaining_high_word << 16) + s1
 
+
 def crc32(string, value=0):
     return binascii.crc32(string, value)
 
+
 def compress(string, level=6):
     if level < Z_BEST_SPEED or level > Z_BEST_COMPRESSION:
-        raise error, "Bad compression level"
+        raise error("Bad compression level")
     deflater = Deflater(level, 0)
     try:
         string = _to_input(string)
@@ -88,13 +91,15 @@ def compress(string, level=6):
     finally:
         deflater.end()
 
+
 def decompress(string, wbits=0, bufsize=16384):
     inflater = Inflater(wbits < 0)
     try:
         inflater.setInput(_to_input(string))
         data = _get_inflate_data(inflater)
         if not inflater.finished():
-            raise error, "Error -5 while decompressing data: incomplete or truncated stream"
+            raise error(
+                "Error -5 while decompressing data: incomplete or truncated stream")
         return data
     finally:
         inflater.end()
@@ -124,7 +129,7 @@ class compressobj(object):
     GZIP_TRAILER_FORMAT = struct.Struct("<Ii")  # crc32, size
 
     def __init__(self, level=6, method=DEFLATED, wbits=MAX_WBITS,
-                       memLevel=0, strategy=0):
+                 memLevel=0, strategy=0):
         if abs(wbits) & 16:
             if wbits > 0:
                 wbits -= 16
@@ -134,7 +139,7 @@ class compressobj(object):
         else:
             self._gzip = False
         if abs(wbits) > MAX_WBITS or abs(wbits) < 8:
-            raise ValueError, "Invalid initialization option: %s" % (wbits,)
+            raise ValueError("Invalid initialization option: %s" % (wbits,))
         self.deflater = Deflater(level, wbits < 0 or self._gzip)
         self.deflater.setStrategy(strategy)
         self._ended = False
@@ -158,14 +163,14 @@ class compressobj(object):
         if self._ended:
             raise error("compressobj may not be used after flush(Z_FINISH)")
         if mode not in _valid_flush_modes:
-            raise ValueError, "Invalid flush option"
+            raise ValueError("Invalid flush option")
         if mode == Z_FINISH:
             self.deflater.finish()
         last = _get_deflate_data(self.deflater, mode)
         if mode == Z_FINISH:
             if self._gzip:
                 last += self.GZIP_TRAILER_FORMAT.pack(
-                    self._crc32.getValue(), self._size % sys.maxint)
+                    self._crc32.getValue(), self._size % sys.maxsize)
             self.deflater.end()
             self._ended = True
         return last
@@ -180,8 +185,9 @@ class decompressobj(object):
         # param checking
 
         if abs(wbits) < 8:
-            raise ValueError, "Invalid initialization option"
-        if abs(wbits) > 16:  # NOTE apparently this also implies being negative in CPython/zlib
+            raise ValueError("Invalid initialization option")
+        if abs(
+                wbits) > 16:  # NOTE apparently this also implies being negative in CPython/zlib
             wbits = -1
 
         self.inflater = Inflater(wbits < 0)
@@ -202,7 +208,8 @@ class decompressobj(object):
         # Thus, at most one of {unused_data, unconsumed_tail} may be non-empty.
 
         self.unconsumed_tail = ""
-        if not self.inflater.finished() and not (self.gzip and not self.gzip_header_skipped):
+        if not self.inflater.finished() and not (
+                self.gzip and not self.gzip_header_skipped):
             self.unused_data = ""
 
         if max_length < 0:
@@ -245,27 +252,38 @@ class decompressobj(object):
         self.inflater.end()
         return last
 
+
 def _to_input(s):
     if isinstance(s, unicode):
         return s.encode('ascii')
     if isinstance(s, array.array):
         return s.tostring()
-    if isinstance(s, basestring) or isinstance(s, buffer) or isinstance(s, memoryview):
+    if isinstance(
+            s,
+            basestring) or isinstance(
+            s,
+            buffer) or isinstance(
+                s,
+            memoryview):
         return s
     else:
         raise TypeError('must be string or read-only buffer, not %s' % type(s))
+
 
 def _get_deflate_data(deflater, mode=Z_NO_FLUSH):
     buflen = 1024
     buf = jarray.zeros(buflen, 'b')
     s = StringIO()
     while not deflater.finished():
-        l = deflater.deflate(buf, 0, buflen, _zlib_to_deflater.get(mode, Deflater.NO_FLUSH))
+        l = deflater.deflate(
+            buf, 0, buflen, _zlib_to_deflater.get(
+                mode, Deflater.NO_FLUSH))
         if l == 0:
             break
         s.write(String(buf, 0, 0, l))
     s.seek(0)
     return s.read()
+
 
 def _get_inflate_data(inflater, max_length=0):
     buf = jarray.zeros(1024, 'b')
@@ -277,7 +295,7 @@ def _get_inflate_data(inflater, max_length=0):
                 l = inflater.inflate(buf, 0, min(1024, max_length - total))
             else:
                 l = inflater.inflate(buf)
-        except DataFormatException, e:
+        except DataFormatException as e:
             raise error(str(e))
 
         if l == 0:
@@ -291,16 +309,16 @@ def _get_inflate_data(inflater, max_length=0):
     return s.read()
 
 
-
 FTEXT = 1
 FHCRC = 2
 FEXTRA = 4
 FNAME = 8
 FCOMMENT = 16
 
+
 def _skip_gzip_header(string):
     # per format specified in https://tools.ietf.org/html/rfc1952
-    
+
     # could we use bytearray instead?
     s = array.array("B", string)
 
@@ -326,15 +344,12 @@ def _skip_gzip_header(string):
         s = s[2 + xlen:]
     if flg & FNAME:
         # skip filename
-        s = s[s.find("\x00")+1:]
+        s = s[s.find("\x00") + 1:]
     if flg & FCOMMENT:
         # skip comment
-        s = s[s.find("\x00")+1:]
+        s = s[s.find("\x00") + 1:]
     if flg & FHCRC:
         # skip CRC16 for the header - might be nice to check of course
         s = s[2:]
-    
+
     return s.tostring()
-
-
-

@@ -19,9 +19,10 @@ def method():
 import java.lang
 
 try:
-    c = compile(code,"<snippet>","exec")
-except java.lang.VerifyError,e:
-    raise support.TestWarning("try-for-try-finally still produces invalid bytecode")
+    c = compile(code, "<snippet>", "exec")
+except java.lang.VerifyError as e:
+    raise support.TestWarning(
+        "try-for-try-finally still produces invalid bytecode")
 
 d = {}
 

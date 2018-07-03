@@ -15,10 +15,12 @@ def _wait():
     # A crude wait/yield function not relying on synchronization primitives.
     time.sleep(0.01)
 
+
 class Bunch(object):
     """
     A bunch of threads.
     """
+
     def __init__(self, f, n, wait_before_exit=False):
         """
         Construct a bunch of `n` threads running the same function `f`.
@@ -30,6 +32,7 @@ class Bunch(object):
         self.started = []
         self.finished = []
         self._can_exit = not wait_before_exit
+
         def task():
             tid = get_ident()
             self.started.append(tid)
@@ -92,6 +95,7 @@ class BaseLockTests(BaseTestCase):
         lock = self.locktype()
         lock.acquire()
         result = []
+
         def f():
             result.append(lock.acquire(False))
         Bunch(f, 1).wait_for_finished()
@@ -102,6 +106,7 @@ class BaseLockTests(BaseTestCase):
         lock = self.locktype()
         lock.acquire()
         N = 5
+
         def f():
             lock.acquire()
             lock.release()
@@ -116,9 +121,11 @@ class BaseLockTests(BaseTestCase):
 
     def test_with(self):
         lock = self.locktype()
+
         def f():
             lock.acquire()
             lock.release()
+
         def _with(err=None):
             with lock:
                 if err is not None:
@@ -134,6 +141,7 @@ class BaseLockTests(BaseTestCase):
         # The lock shouldn't leak a Thread instance when used from a foreign
         # (non-threading) thread.
         lock = self.locktype()
+
         def f():
             lock.acquire()
             lock.release()
@@ -149,10 +157,12 @@ class LockTests(BaseLockTests):
     Tests for non-recursive, weak locks
     (which can be acquired and released from different threads).
     """
+
     def test_reacquire(self):
         # Lock needs to be released before re-acquiring.
         lock = self.locktype()
         phase = []
+
         def f():
             lock.acquire()
             phase.append(None)
@@ -172,6 +182,7 @@ class LockTests(BaseLockTests):
         # Lock can be released from a different thread.
         lock = self.locktype()
         lock.acquire()
+
         def f():
             lock.release()
         b = Bunch(f, 1)
@@ -184,6 +195,7 @@ class RLockTests(BaseLockTests):
     """
     Tests for recursive locks.
     """
+
     def test_reacquire(self):
         lock = self.locktype()
         lock.acquire()
@@ -208,6 +220,7 @@ class RLockTests(BaseLockTests):
     def test_different_thread(self):
         # Cannot release from a different thread
         lock = self.locktype()
+
         def f():
             lock.acquire()
         b = Bunch(f, 1, True)
@@ -224,6 +237,7 @@ class RLockTests(BaseLockTests):
         lock.acquire()
         self.assertTrue(lock._is_owned())
         result = []
+
         def f():
             result.append(lock._is_owned())
         Bunch(f, 1).wait_for_finished()
@@ -256,6 +270,7 @@ class EventTests(BaseTestCase):
         N = 5
         results1 = []
         results2 = []
+
         def f():
             results1.append(evt.wait())
             results2.append(evt.wait())
@@ -281,6 +296,7 @@ class EventTests(BaseTestCase):
         results1 = []
         results2 = []
         N = 5
+
         def f():
             results1.append(evt.wait(0.0))
             t1 = time.time()
@@ -345,6 +361,7 @@ class ConditionTests(BaseTestCase):
         results1 = []
         results2 = []
         phase_num = 0
+
         def f():
             cond.acquire()
             cond.wait()
@@ -400,6 +417,7 @@ class ConditionTests(BaseTestCase):
         cond = self.condtype()
         results = []
         N = 5
+
         def f():
             cond.acquire()
             t1 = time.time()
@@ -425,8 +443,8 @@ class BaseSemaphoreTests(BaseTestCase):
     """
 
     def test_constructor(self):
-        self.assertRaises(ValueError, self.semtype, value = -1)
-        self.assertRaises(ValueError, self.semtype, value = -sys.maxint)
+        self.assertRaises(ValueError, self.semtype, value=-1)
+        self.assertRaises(ValueError, self.semtype, value=-sys.maxsize)
 
     def test_acquire(self):
         sem = self.semtype(1)
@@ -450,6 +468,7 @@ class BaseSemaphoreTests(BaseTestCase):
         results1 = []
         results2 = []
         phase_num = 0
+
         def f():
             sem.acquire()
             results1.append(phase_num)
@@ -471,7 +490,16 @@ class BaseSemaphoreTests(BaseTestCase):
             sem.release()
         while len(results1) + len(results2) < 19:
             _wait()
-        self.assertEqual(sorted(results1 + results2), [0] * 6 + [1] * 7 + [2] * 6)
+        self.assertEqual(
+            sorted(
+                results1 +
+                results2),
+            [0] *
+            6 +
+            [1] *
+            7 +
+            [2] *
+            6)
         # The semaphore is still locked
         self.assertFalse(sem.acquire(False))
         # Final release, to let the last thread finish
@@ -490,6 +518,7 @@ class BaseSemaphoreTests(BaseTestCase):
         sem = self.semtype(4)
         sem.acquire()
         results = []
+
         def f():
             results.append(sem.acquire(False))
             results.append(sem.acquire(False))
@@ -497,12 +526,13 @@ class BaseSemaphoreTests(BaseTestCase):
         # There can be a thread switch between acquiring the semaphore and
         # appending the result, therefore results will not necessarily be
         # ordered.
-        self.assertEqual(sorted(results), [False] * 7 + [True] *  3 )
+        self.assertEqual(sorted(results), [False] * 7 + [True] * 3)
 
     def test_default_value(self):
         # The default initial value is 1.
         sem = self.semtype()
         sem.acquire()
+
         def f():
             sem.acquire()
             sem.release()
@@ -515,6 +545,7 @@ class BaseSemaphoreTests(BaseTestCase):
 
     def test_with(self):
         sem = self.semtype(2)
+
         def _with(err=None):
             with sem:
                 self.assertTrue(sem.acquire(False))
@@ -529,6 +560,7 @@ class BaseSemaphoreTests(BaseTestCase):
         self.assertRaises(TypeError, _with, TypeError)
         self.assertTrue(sem.acquire(False))
         sem.release()
+
 
 class SemaphoreTests(BaseSemaphoreTests):
     """

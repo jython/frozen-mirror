@@ -1,12 +1,17 @@
 # test asynchat -- requires threading
 
-import thread # If this fails, we can't test this module
-import asyncore, asynchat, socket, threading, time
+import thread  # If this fails, we can't test this module
+import asyncore
+import asynchat
+import socket
+import threading
+import time
 import unittest
 from test import test_support
 
 HOST = "127.0.0.1"
 PORT = 54322
+
 
 class echo_server(threading.Thread):
 
@@ -29,6 +34,7 @@ class echo_server(threading.Thread):
         conn.close()
         sock.close()
 
+
 class echo_client(asynchat.async_chat):
 
     def __init__(self, terminator):
@@ -41,29 +47,29 @@ class echo_client(asynchat.async_chat):
 
     def handle_connect(self):
         pass
-        ##print "Connected"
+        # print "Connected"
 
     def collect_incoming_data(self, data):
         self.buffer = self.buffer + data
 
     def found_terminator(self):
-        #print "Received:", repr(self.buffer)
+        # print "Received:", repr(self.buffer)
         self.contents = self.buffer
         self.buffer = ""
         self.close()
 
 
 class TestAsynchat(unittest.TestCase):
-    def setUp (self):
+    def setUp(self):
         pass
 
-    def tearDown (self):
+    def tearDown(self):
         pass
 
     def test_line_terminator(self):
         s = echo_server()
         s.start()
-        time.sleep(1) # Give server time to initialize
+        time.sleep(1)  # Give server time to initialize
         c = echo_client('\n')
         c.push("hello ")
         c.push("world\n")
@@ -76,8 +82,8 @@ class TestAsynchat(unittest.TestCase):
         # Try reading a fixed number of bytes
         s = echo_server()
         s.start()
-        time.sleep(1) # Give server time to initialize
-        c = echo_client(6L)
+        time.sleep(1)  # Give server time to initialize
+        c = echo_client(6)
         c.push("hello ")
         c.push("world\n")
         asyncore.loop()
@@ -88,6 +94,7 @@ class TestAsynchat(unittest.TestCase):
 
 def test_main(verbose=None):
     test_support.run_unittest(TestAsynchat)
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

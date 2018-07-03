@@ -139,14 +139,15 @@ try:
 except ImportError:
     import dummy_threading as threading
 
-__all__ = ["TCPServer","UDPServer","ForkingUDPServer","ForkingTCPServer",
-           "ThreadingUDPServer","ThreadingTCPServer","BaseRequestHandler",
-           "StreamRequestHandler","DatagramRequestHandler",
+__all__ = ["TCPServer", "UDPServer", "ForkingUDPServer", "ForkingTCPServer",
+           "ThreadingUDPServer", "ThreadingTCPServer", "BaseRequestHandler",
+           "StreamRequestHandler", "DatagramRequestHandler",
            "ThreadingMixIn", "ForkingMixIn"]
 if hasattr(socket, "AF_UNIX"):
-    __all__.extend(["UnixStreamServer","UnixDatagramServer",
+    __all__.extend(["UnixStreamServer", "UnixDatagramServer",
                     "ThreadingUnixStreamServer",
                     "ThreadingUnixDatagramServer"])
+
 
 def _eintr_retry(func, *args):
     """restart a system call interrupted by EINTR"""
@@ -156,6 +157,7 @@ def _eintr_retry(func, *args):
         except (OSError, select.error) as e:
             if e.args[0] != errno.EINTR:
                 raise
+
 
 class BaseServer:
 
@@ -293,7 +295,7 @@ class BaseServer:
         if self.verify_request(request, client_address):
             try:
                 self.process_request(request, client_address)
-            except:
+            except BaseException:
                 self.handle_error(request, client_address)
                 self.shutdown_request(request)
 
@@ -347,12 +349,12 @@ class BaseServer:
         The default is to print a traceback and continue.
 
         """
-        print '-'*40
+        print '-' * 40
         print 'Exception happened during processing of request from',
         print client_address
         import traceback
-        traceback.print_exc() # XXX But this goes to stderr!
-        print '-'*40
+        traceback.print_exc()  # XXX But this goes to stderr!
+        print '-' * 40
 
 
 class TCPServer(BaseServer):
@@ -410,7 +412,11 @@ class TCPServer(BaseServer):
 
     allow_reuse_address = False
 
-    def __init__(self, server_address, RequestHandlerClass, bind_and_activate=True):
+    def __init__(
+            self,
+            server_address,
+            RequestHandlerClass,
+            bind_and_activate=True):
         """Constructor.  May be extended, do not override."""
         BaseServer.__init__(self, server_address, RequestHandlerClass)
         self.socket = socket.socket(self.address_family,
@@ -445,7 +451,7 @@ class TCPServer(BaseServer):
         # Adding a second call to getsockname() because of this issue
         # http://wiki.python.org/jython/NewSocketModule#Deferredsocketcreationonjython
         self.server_address = self.socket.getsockname()
-        
+
     def server_close(self):
         """Called to clean-up the server.
 
@@ -473,11 +479,11 @@ class TCPServer(BaseServer):
     def shutdown_request(self, request):
         """Called to shutdown and close an individual request."""
         try:
-            #explicitly shutdown.  socket.close() merely releases
-            #the socket and waits for GC to perform the actual close.
+            # explicitly shutdown.  socket.close() merely releases
+            # the socket and waits for GC to perform the actual close.
             request.shutdown(socket.SHUT_WR)
         except socket.error:
-            pass #some platforms may raise ENOTCONN here
+            pass  # some platforms may raise ENOTCONN here
         self.close_request(request)
 
     def close_request(self, request):
@@ -511,6 +517,7 @@ class UDPServer(TCPServer):
         # No need to close anything.
         pass
 
+
 class ForkingMixIn:
 
     """Mix-in class to handle each request in a new process."""
@@ -521,7 +528,8 @@ class ForkingMixIn:
 
     def collect_children(self):
         """Internal routine to wait for children that have exited."""
-        if self.active_children is None: return
+        if self.active_children is None:
+            return
         while len(self.active_children) >= self.max_children:
             # XXX: This will wait for any child process, not just ones
             # spawned by this library. This could confuse other
@@ -531,7 +539,8 @@ class ForkingMixIn:
                 pid, status = os.waitpid(0, 0)
             except os.error:
                 pid = None
-            if pid not in self.active_children: continue
+            if pid not in self.active_children:
+                continue
             self.active_children.remove(pid)
 
         # XXX: This loop runs more system calls than it ought
@@ -544,12 +553,14 @@ class ForkingMixIn:
                 pid, status = os.waitpid(child, os.WNOHANG)
             except os.error:
                 pid = None
-            if not pid: continue
+            if not pid:
+                continue
             try:
                 self.active_children.remove(pid)
-            except ValueError, e:
-                raise ValueError('%s. x=%d and list=%r' % (e.message, pid,
-                                                           self.active_children))
+            except ValueError as e:
+                raise ValueError(
+                    '%s. x=%d and list=%r' %
+                    (e.message, pid, self.active_children))
 
     def handle_timeout(self):
         """Wait for zombies after self.timeout seconds of inactivity.
@@ -567,7 +578,7 @@ class ForkingMixIn:
             if self.active_children is None:
                 self.active_children = []
             self.active_children.append(pid)
-            self.close_request(request) #close handle in parent process
+            self.close_request(request)  # close handle in parent process
             return
         else:
             # Child process.
@@ -576,7 +587,7 @@ class ForkingMixIn:
                 self.finish_request(request, client_address)
                 self.shutdown_request(request)
                 os._exit(0)
-            except:
+            except BaseException:
                 try:
                     self.handle_error(request, client_address)
                     self.shutdown_request(request)
@@ -600,23 +611,33 @@ class ThreadingMixIn:
         try:
             self.finish_request(request, client_address)
             self.shutdown_request(request)
-        except:
+        except BaseException:
             self.handle_error(request, client_address)
             self.shutdown_request(request)
 
     def process_request(self, request, client_address):
         """Start a new thread to process the request."""
-        t = threading.Thread(target = self.process_request_thread,
-                             args = (request, client_address))
+        t = threading.Thread(target=self.process_request_thread,
+                             args=(request, client_address))
         t.daemon = self.daemon_threads
         t.start()
 
 
-class ForkingUDPServer(ForkingMixIn, UDPServer): pass
-class ForkingTCPServer(ForkingMixIn, TCPServer): pass
+class ForkingUDPServer(ForkingMixIn, UDPServer):
+    pass
 
-class ThreadingUDPServer(ThreadingMixIn, UDPServer): pass
-class ThreadingTCPServer(ThreadingMixIn, TCPServer): pass
+
+class ForkingTCPServer(ForkingMixIn, TCPServer):
+    pass
+
+
+class ThreadingUDPServer(ThreadingMixIn, UDPServer):
+    pass
+
+
+class ThreadingTCPServer(ThreadingMixIn, TCPServer):
+    pass
+
 
 if hasattr(socket, 'AF_UNIX'):
 
@@ -626,9 +647,12 @@ if hasattr(socket, 'AF_UNIX'):
     class UnixDatagramServer(UDPServer):
         address_family = socket.AF_UNIX
 
-    class ThreadingUnixStreamServer(ThreadingMixIn, UnixStreamServer): pass
+    class ThreadingUnixStreamServer(ThreadingMixIn, UnixStreamServer):
+        pass
 
-    class ThreadingUnixDatagramServer(ThreadingMixIn, UnixDatagramServer): pass
+    class ThreadingUnixDatagramServer(ThreadingMixIn, UnixDatagramServer):
+        pass
+
 
 class BaseRequestHandler:
 

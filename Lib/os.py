@@ -21,9 +21,10 @@ and opendir), and leave all pathname manipulation to os.path
 (e.g., split and join).
 """
 
-#'
+# '
 
-import sys, errno
+import sys
+import errno
 from org.python.core import PyShadowString
 
 _names = sys.builtin_module_names
@@ -33,11 +34,13 @@ __all__ = ["altsep", "curdir", "pardir", "sep", "extsep", "pathsep", "linesep",
            "defpath", "name", "path", "devnull",
            "SEEK_SET", "SEEK_CUR", "SEEK_END"]
 
+
 def _get_exports_list(module):
     try:
         return list(module.__all__)
     except AttributeError:
         return [n for n in dir(module) if n[0] != '_']
+
 
 if 'posix' in _names:
     _name = 'posix'
@@ -135,7 +138,7 @@ name = PyShadowString('java', _name)
 
 sys.modules['os.path'] = path
 from os.path import (curdir, pardir, sep, pathsep, defpath, extsep, altsep,
-    devnull)
+                     devnull)
 
 del _names
 
@@ -145,12 +148,13 @@ SEEK_SET = 0
 SEEK_CUR = 1
 SEEK_END = 2
 
-#'
+# '
 
 # Super directory utilities.
 # (Inspired by Eric Raymond; the doc strings are mostly his)
 
-def makedirs(name, mode=0777):
+
+def makedirs(name, mode=0o777):
     """makedirs(path [, mode=0777])
 
     Super-mkdir; create a leaf directory and all intermediate ones.
@@ -165,13 +169,14 @@ def makedirs(name, mode=0777):
     if head and tail and not path.exists(head):
         try:
             makedirs(head, mode)
-        except OSError, e:
+        except OSError as e:
             # be happy if someone already created the path
             if e.errno != errno.EEXIST:
                 raise
         if tail == curdir:           # xxx/newdir/. exists if xxx/newdir exists
             return
     mkdir(name, mode)
+
 
 def removedirs(name):
     """removedirs(path)
@@ -194,6 +199,7 @@ def removedirs(name):
         except error:
             break
         head, tail = path.split(head)
+
 
 def renames(old, new):
     """renames(old, new)
@@ -221,7 +227,9 @@ def renames(old, new):
         except error:
             pass
 
+
 __all__.extend(["makedirs", "removedirs", "renames", "system"])
+
 
 def walk(top, topdown=True, onerror=None, followlinks=False):
     """Directory tree generator.
@@ -291,7 +299,7 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
         # Note that listdir and error are globals in this module due
         # to earlier import-*.
         names = listdir(top)
-    except error, err:
+    except error as err:
         if onerror is not None:
             onerror(err)
         return
@@ -313,6 +321,7 @@ def walk(top, topdown=True, onerror=None, followlinks=False):
     if not topdown:
         yield top, dirs, nondirs
 
+
 __all__.append("walk")
 
 # Make sure os.environ exists, at least
@@ -321,10 +330,12 @@ try:
 except NameError:
     environ = {}
 
+
 def _exists(name):
     # CPython eval's the name, whereas looking in __all__ works for
     # Jython and is much faster
     return name in __all__
+
 
 if _exists('execv'):
 
@@ -376,7 +387,8 @@ if _exists('execv'):
         args may be a list or tuple of strings. """
         _execvpe(file, args, env)
 
-    __all__.extend(["execl","execle","execlp","execlpe","execvp","execvpe"])
+    __all__.extend(["execl", "execle", "execlp",
+                    "execlpe", "execvp", "execvpe"])
 
     def _execvpe(file, args, env=None):
         if env is not None:
@@ -402,10 +414,10 @@ if _exists('execv'):
             fullname = path.join(dir, file)
             try:
                 func(fullname, *argrest)
-            except error, e:
+            except error as e:
                 tb = sys.exc_info()[2]
-                if (e.errno != errno.ENOENT and e.errno != errno.ENOTDIR
-                    and saved_exc is None):
+                if (e.errno != errno.ENOENT and e.errno != errno.ENOTDIR and
+                        saved_exc is None):
                     saved_exc = e
                     saved_tb = tb
         if saved_exc:
@@ -440,18 +452,25 @@ else:
                 data = self.data
                 for k, v in environ.items():
                     data[k.upper()] = v
+
             def __setitem__(self, key, item):
                 self.data[key.upper()] = item
+
             def __getitem__(self, key):
                 return self.data[key.upper()]
+
             def __delitem__(self, key):
                 del self.data[key.upper()]
+
             def has_key(self, key):
                 return key.upper() in self.data
+
             def __contains__(self, key):
                 return key.upper() in self.data
+
             def get(self, key, failobj=None):
                 return self.data.get(key.upper(), failobj)
+
             def update(self, dict=None, **kwargs):
                 if dict:
                     try:
@@ -468,15 +487,19 @@ else:
                             self[k] = dict[k]
                 if kwargs:
                     self.update(kwargs)
+
             def copy(self):
                 return dict(self)
 
         environ = _Environ(environ)
 
+
 def getenv(key, default=None):
     """Get an environment variable, return None if it doesn't exist.
     The optional second argument can specify an alternate default."""
     return environ.get(key, default)
+
+
 __all__.append("getenv")
 
 # Supply spawn*() (probably only for Unix)
@@ -499,13 +522,13 @@ if _exists("fork") and not _exists("spawnv") and _exists("execv"):
                     func(file, args)
                 else:
                     func(file, args, env)
-            except:
+            except BaseException:
                 _exit(127)
         else:
             # Parent
             if mode == P_NOWAIT:
-                return pid # Caller is responsible for waiting!
-            while 1:
+                return pid  # Caller is responsible for waiting!
+            while True:
                 wpid, sts = waitpid(pid, 0)
                 if WIFSTOPPED(sts):
                     continue
@@ -581,8 +604,7 @@ otherwise return -SIG, where SIG is the signal that killed it. """
         env = args[-1]
         return spawnve(mode, file, args[:-1], env)
 
-
-    __all__.extend(["spawnv", "spawnve", "spawnl", "spawnle",])
+    __all__.extend(["spawnv", "spawnve", "spawnl", "spawnle", ])
 
 
 if _exists("spawnvp"):
@@ -609,8 +631,7 @@ otherwise return -SIG, where SIG is the signal that killed it. """
         env = args[-1]
         return spawnvpe(mode, file, args[:-1], env)
 
-
-    __all__.extend(["spawnvp", "spawnvpe", "spawnlp", "spawnlpe",])
+    __all__.extend(["spawnvp", "spawnvpe", "spawnlp", "spawnlpe", ])
 
 
 # Supply popen2 etc. (for Unix)
@@ -681,6 +702,8 @@ if not _exists("urandom"):
         return bytes
 
 # Supply os.popen()
+
+
 def popen(cmd, mode='r', bufsize=-1):
     """popen(command [, mode='r' [, bufsize]]) -> pipe
 
@@ -704,10 +727,13 @@ def popen(cmd, mode='r', bufsize=-1):
     return _wrap_close(fp, proc)
 
 # Helper for popen() -- a proxy for a file whose close waits for the process
+
+
 class _wrap_close(object):
     def __init__(self, stream, proc):
         self._stream = stream
         self._proc = proc
+
     def close(self):
         self._stream.close()
         returncode = self._proc.wait()
@@ -717,8 +743,10 @@ class _wrap_close(object):
             return returncode
         else:
             return returncode
+
     def __getattr__(self, name):
         return getattr(self._stream, name)
+
     def __iter__(self):
         return iter(self._stream)
 
@@ -731,7 +759,7 @@ def system(command):
     # a late binding. Monkeypatch to avoid doing this import
     # repeatedly.
     global system  # writable name of this function!
-    
+
     from subprocess import _os_system
     system = _os_system
     return _os_system(command)

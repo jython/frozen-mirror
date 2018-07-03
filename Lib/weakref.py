@@ -12,13 +12,13 @@ http://www.python.org/dev/peps/pep-0205/
 # the module-global ref() function imported from _weakref.
 
 from _weakref import (
-     getweakrefcount,
-     getweakrefs,
-     ref,
-     proxy,
-     CallableProxyType,
-     ProxyType,
-     ReferenceType)
+    getweakrefcount,
+    getweakrefs,
+    ref,
+    proxy,
+    CallableProxyType,
+    ProxyType,
+    ReferenceType)
 
 from _weakrefset import WeakSet
 
@@ -54,7 +54,7 @@ class WeakValueDictionary(dict):
 
         """
         for value in self.itervalues():
-            yield ref(value) 
+            yield ref(value)
 
     def valuerefs(self):
         """Return a list of weak references to the values.
@@ -68,7 +68,9 @@ class WeakValueDictionary(dict):
         """
         return [ref(value) for value in self.itervalues()]
 
-WeakValueDictionaryBuilder = dict_builder(MapMaker().weakValues().makeMap, WeakValueDictionary)
+
+WeakValueDictionaryBuilder = dict_builder(
+    MapMaker().weakValues().makeMap, WeakValueDictionary)
 
 
 class WeakKeyDictionary(dict):
@@ -110,10 +112,12 @@ class WeakKeyDictionary(dict):
         """
         return [ref(key) for key in self.iterkeys()]
 
-WeakKeyDictionaryBuilder = dict_builder(MapMaker().weakKeys().makeMap, WeakKeyDictionary)
+
+WeakKeyDictionaryBuilder = dict_builder(
+    MapMaker().weakKeys().makeMap, WeakKeyDictionary)
 
 
-# Jython does not use below, however retaining in the case of any user code that might 
+# Jython does not use below, however retaining in the case of any user code that might
 # be using it. Note that it is not exported.
 
 class KeyedRef(ref):
@@ -134,4 +138,4 @@ class KeyedRef(ref):
         return self
 
     def __init__(self, ob, callback, key):
-        super(KeyedRef,  self).__init__(ob, callback)
+        super(KeyedRef, self).__init__(ob, callback)

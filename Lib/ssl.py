@@ -72,7 +72,7 @@ log = logging.getLogger("_socket")
 
 # Pretend to be OpenSSL
 OPENSSL_VERSION = "OpenSSL 1.0.0 (as emulated by Java SSL)"
-OPENSSL_VERSION_NUMBER = 0x1000000L
+OPENSSL_VERSION_NUMBER = 0x1000000
 OPENSSL_VERSION_INFO = (1, 0, 0, 0, 0)
 _OPENSSL_API_VERSION = OPENSSL_VERSION_INFO
 
@@ -83,7 +83,8 @@ _CERT_TO_CLIENT_AUTH = {CERT_NONE: ClientAuth.NONE,
                         CERT_REQUIRED: ClientAuth.REQUIRE}
 
 # Do not support PROTOCOL_SSLv2, it is highly insecure and it is optional
-_, PROTOCOL_SSLv3, PROTOCOL_SSLv23, PROTOCOL_TLSv1, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2 = range(6)
+_, PROTOCOL_SSLv3, PROTOCOL_SSLv23, PROTOCOL_TLSv1, PROTOCOL_TLSv1_1, PROTOCOL_TLSv1_2 = range(
+    6)
 _PROTOCOL_NAMES = {
     PROTOCOL_SSLv3: 'SSLv3',
     PROTOCOL_SSLv23: 'SSLv23',
@@ -167,6 +168,7 @@ _cert_name_types = [
     "ipAddress",
     "registeredID"]
 
+
 def _str_or_unicode(s):
     try:
         return s.encode('ascii')
@@ -174,6 +176,7 @@ def _str_or_unicode(s):
         return s
     except AttributeError:
         return str(s)
+
 
 class CertificateError(ValueError):
     pass
@@ -183,14 +186,18 @@ class CertificateError(ValueError):
 class SSLZeroReturnError(SSLError):
     pass
 
+
 class SSLWantReadError(SSLError):
     pass
+
 
 class SSLWantWriteError(SSLError):
     pass
 
+
 class SSLSyscallError(SSLError):
     pass
+
 
 class SSLEOFError(SSLError):
     pass
@@ -290,9 +297,10 @@ def match_hostname(cert, hostname):
                                "subjectAltName fields were found")
 
 
-DefaultVerifyPaths = namedtuple("DefaultVerifyPaths",
-                                "cafile capath openssl_cafile_env openssl_cafile openssl_capath_env "
-                                "openssl_capath")
+DefaultVerifyPaths = namedtuple(
+    "DefaultVerifyPaths",
+    "cafile capath openssl_cafile_env openssl_cafile openssl_capath_env "
+    "openssl_capath")
 
 
 def get_default_verify_paths():
@@ -308,9 +316,11 @@ def get_default_verify_paths():
         cafile = java_cert_file
     else:
         if default_cert_dir_env is not None:
-            capath = default_cert_dir_env if os.path.isdir(default_cert_dir_env) else None
+            capath = default_cert_dir_env if os.path.isdir(
+                default_cert_dir_env) else None
         if default_cert_file_env is not None:
-            cafile = default_cert_file_env if os.path.isfile(default_cert_file_env) else None
+            cafile = default_cert_file_env if os.path.isfile(
+                default_cert_file_env) else None
 
         if cafile is None:
             # http://docs.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html
@@ -321,10 +331,13 @@ def get_default_verify_paths():
                     cafile = java_cert_file
                     capath = os.path.dirname(cafile)
 
-    return DefaultVerifyPaths(cafile if os.path.isfile(cafile) else None,
-                              capath if capath and os.path.isdir(capath) else None,
-                              'SSL_CERT_FILE', default_cert_file_env,
-                              'SSL_CERT_DIR', default_cert_dir_env)
+    return DefaultVerifyPaths(
+        cafile if os.path.isfile(cafile) else None,
+        capath if capath and os.path.isdir(capath) else None,
+        'SSL_CERT_FILE',
+        default_cert_file_env,
+        'SSL_CERT_DIR',
+        default_cert_dir_env)
 
 
 class _ASN1Object(namedtuple("_ASN1Object", "nid shortname longname oid")):
@@ -335,15 +348,30 @@ class _ASN1Object(namedtuple("_ASN1Object", "nid shortname longname oid")):
     def __new__(cls, oid):
         # TODO, just fake it for now
         if oid == '1.3.6.1.5.5.7.3.1':
-            return super(_ASN1Object, cls).__new__(cls, 129, 'serverAuth', 'TLS Web Server Authentication', oid)
+            return super(
+                _ASN1Object,
+                cls).__new__(
+                cls,
+                129,
+                'serverAuth',
+                'TLS Web Server Authentication',
+                oid)
         elif oid == '1.3.6.1.5.5.7.3.2':
-            return super(_ASN1Object, cls).__new__(cls, 130, 'clientAuth', 'clientAuth', oid)
+            return super(
+                _ASN1Object,
+                cls).__new__(
+                cls,
+                130,
+                'clientAuth',
+                'clientAuth',
+                oid)
         raise ValueError()
 
 
 class Purpose(_ASN1Object):
     """SSLContext purpose flags with X509v3 Extended Key Usage objects
     """
+
 
 Purpose.SERVER_AUTH = Purpose('1.3.6.1.5.5.7.3.1')
 Purpose.CLIENT_AUTH = Purpose('1.3.6.1.5.5.7.3.2')
@@ -401,10 +429,16 @@ def create_default_context(purpose=Purpose.SERVER_AUTH, cafile=None,
     return context
 
 
-def _create_unverified_context(protocol=PROTOCOL_SSLv23, cert_reqs=None,
-                               check_hostname=False, purpose=Purpose.SERVER_AUTH,
-                               certfile=None, keyfile=None,
-                               cafile=None, capath=None, cadata=None):
+def _create_unverified_context(
+        protocol=PROTOCOL_SSLv23,
+        cert_reqs=None,
+        check_hostname=False,
+        purpose=Purpose.SERVER_AUTH,
+        certfile=None,
+        keyfile=None,
+        cafile=None,
+        capath=None,
+        cadata=None):
     """Create a SSLContext object for Python stdlib modules
 
     All Python stdlib modules shall use this function to create SSLContext
@@ -462,10 +496,21 @@ class SSLInitializer(ChannelInitializer):
 
 class SSLSocket(object):
 
-    def __init__(self, sock, keyfile=None, certfile=None, server_side=False, cert_reqs=CERT_NONE,
-                 ssl_version=PROTOCOL_SSLv23, ca_certs=None,
-                 do_handshake_on_connect=True, suppress_ragged_eofs=True, npn_protocols=None, ciphers=None,
-                 server_hostname=None, _context=None):
+    def __init__(
+            self,
+            sock,
+            keyfile=None,
+            certfile=None,
+            server_side=False,
+            cert_reqs=CERT_NONE,
+            ssl_version=PROTOCOL_SSLv23,
+            ca_certs=None,
+            do_handshake_on_connect=True,
+            suppress_ragged_eofs=True,
+            npn_protocols=None,
+            ciphers=None,
+            server_hostname=None,
+            _context=None):
         # TODO ^^ handle suppress_ragged_eofs
         self.sock = sock
         self.do_handshake_on_connect = do_handshake_on_connect
@@ -522,7 +567,7 @@ class SSLSocket(object):
         # We use _sslobj here to support the CPython convention that
         # an object means we have handshaked. It is used by existing code
         # in the wild that looks at this ostensibly internal attribute.
-        
+
         # FIXME CPython uses _sslobj to track the OpenSSL wrapper
         # object that's implemented in C, with the following
         # properties:
@@ -535,7 +580,9 @@ class SSLSocket(object):
         self.engine = None
 
         if self.do_handshake_on_connect and self._sock.connected:
-            log.debug("Handshaking socket on connect", extra={"sock": self._sock})
+            log.debug(
+                "Handshaking socket on connect", extra={
+                    "sock": self._sock})
             if isinstance(self._sock, ChildSocket):
                 # Need to handle child sockets differently depending
                 # on whether the parent socket is wrapped or not.
@@ -547,18 +594,24 @@ class SSLSocket(object):
                 # 1. If wrapped, this is going through SSLSocket.accept
 
                 if isinstance(self._sock.parent_socket, SSLSocket):
-                    # already wrapped, via `wrap_child` function a few lines below
+                    # already wrapped, via `wrap_child` function a few lines
+                    # below
                     log.debug(
                         "Child socket - will handshake in child loop type=%s parent=%s",
-                        type(self._sock), self._sock.parent_socket,
-                        extra={"sock": self._sock})
+                        type(
+                            self._sock),
+                        self._sock.parent_socket,
+                        extra={
+                            "sock": self._sock})
                     self._sock._make_active()
 
                 # 2. If not, using code will be calling SSLContext.wrap_socket
                 #    *after* accept from an unwrapped socket
 
                 else:
-                    log.debug("Child socket will wrap self with handshake", extra={"sock": self._sock})
+                    log.debug(
+                        "Child socket will wrap self with handshake", extra={
+                            "sock": self._sock})
                     setup_handshake_latch = CountDownLatch(1)
 
                     def setup_handshake():
@@ -569,8 +622,13 @@ class SSLSocket(object):
                     self._sock.ssl_wrap_self = setup_handshake
                     self._sock._make_active()
                     setup_handshake_latch.await()
-                    log.debug("Child socket waiting on handshake=%s", self._handshake_future, extra={"sock": self._sock})
-                    self._sock._handle_channel_future(self._handshake_future, "SSL handshake")
+                    log.debug(
+                        "Child socket waiting on handshake=%s",
+                        self._handshake_future,
+                        extra={
+                            "sock": self._sock})
+                    self._sock._handle_channel_future(
+                        self._handshake_future, "SSL handshake")
             else:
                 self.do_handshake()
 
@@ -585,7 +643,8 @@ class SSLSocket(object):
                     suppress_ragged_eofs=self.suppress_ragged_eofs,
                     server_side=True)
                 if self.do_handshake_on_connect:
-                    # this handshake will be done in the child pool - initChannel will block on it
+                    # this handshake will be done in the child pool -
+                    # initChannel will block on it
                     child._wrapper_socket.do_handshake()
             self._sock.ssl_wrap_child_socket = wrap_child
 
@@ -601,9 +660,9 @@ class SSLSocket(object):
         if self.engine is None:
             # http://stackoverflow.com/questions/13390964/java-ssl-fatal-error-80-unwrapping-net-record-after-adding-the-https-en
             self.engine = self._context._createSSLEngine(
-                addr, self.server_hostname,
-                cert_file=getattr(self, "certfile", None), key_file=getattr(self, "keyfile", None),
-                server_side=self.server_side)
+                addr, self.server_hostname, cert_file=getattr(
+                    self, "certfile", None), key_file=getattr(
+                    self, "keyfile", None), server_side=self.server_side)
             self.engine.setUseClientMode(not self.server_side)
 
     def connect(self, addr):
@@ -614,7 +673,11 @@ class SSLSocket(object):
         if self._connected:
             raise ValueError("attempt to connect already-connected SSLSocket!")
 
-        log.debug("Connect SSL with handshaking %s", self.do_handshake_on_connect, extra={"sock": self._sock})
+        log.debug(
+            "Connect SSL with handshaking %s",
+            self.do_handshake_on_connect,
+            extra={
+                "sock": self._sock})
 
         self._sock.connect(addr)
         if self.do_handshake_on_connect:
@@ -628,7 +691,11 @@ class SSLSocket(object):
         if self._connected:
             raise ValueError("attempt to connect already-connected SSLSocket!")
 
-        log.debug("Connect SSL with handshaking %s", self.do_handshake_on_connect, extra={"sock": self._sock})
+        log.debug(
+            "Connect SSL with handshaking %s",
+            self.do_handshake_on_connect,
+            extra={
+                "sock": self._sock})
 
         rc = self._sock.connect_ex(addr)
         if rc == errno.EISCONN:
@@ -666,7 +733,11 @@ class SSLSocket(object):
         self.setup_engine(self.sock.getpeername())
 
         def handshake_step(result):
-            log.debug("SSL handshaking completed %s", result, extra={"sock": self._sock})
+            log.debug(
+                "SSL handshaking completed %s",
+                result,
+                extra={
+                    "sock": self._sock})
             self._notify_selectors()
 
         if self.ssl_handler is None:
@@ -674,12 +745,19 @@ class SSLSocket(object):
             self.ssl_handler.handshakeFuture().addListener(handshake_step)
 
             if hasattr(self._sock, "connected") and self._sock.connected:
-                # The underlying socket is already connected, so some extra work to manage
-                log.debug("Adding SSL handler to pipeline after connection", extra={"sock": self._sock})
+                # The underlying socket is already connected, so some extra
+                # work to manage
+                log.debug(
+                    "Adding SSL handler to pipeline after connection",
+                    extra={
+                        "sock": self._sock})
                 self._sock.channel.pipeline().addFirst("ssl", self.ssl_handler)
             else:
-                log.debug("Not connected, adding SSL initializer...", extra={"sock": self._sock})
-                self._sock.connect_handlers.append(SSLInitializer(self.ssl_handler))
+                log.debug(
+                    "Not connected, adding SSL initializer...", extra={
+                        "sock": self._sock})
+                self._sock.connect_handlers.append(
+                    SSLInitializer(self.ssl_handler))
 
         self._handshake_future = self.ssl_handler.handshakeFuture()
         if isinstance(self._sock, ChildSocket):
@@ -688,7 +766,8 @@ class SSLSocket(object):
             # http://stackoverflow.com/questions/24628271/exception-in-netty-io-netty-util-concurrent-blockingoperationexception
             # - handshake in the child thread pool
         else:
-            self._sock._handle_channel_future(self._handshake_future, "SSL handshake")
+            self._sock._handle_channel_future(
+                self._handshake_future, "SSL handshake")
 
     def dup(self):
         raise NotImplemented("Can't dup() %s instances" %
@@ -696,7 +775,7 @@ class SSLSocket(object):
 
     @raises_java_exception
     def _ensure_handshake(self):
-        log.debug("Ensure handshake", extra={"sock": self}) 
+        log.debug("Ensure handshake", extra={"sock": self})
         self._sock._make_active()
         # nonblocking code should never wait here, but only attempt to
         # come to this point when notified via a selector
@@ -842,7 +921,9 @@ class SSLSocket(object):
         rdns = SSLContext._parse_dn(dn)
         alt_names = tuple()
         if cert.getSubjectAlternativeNames():
-            alt_names = tuple(((_cert_name_types[type], str(name)) for (type, name) in cert.getSubjectAlternativeNames()))
+            alt_names = tuple(
+                ((_cert_name_types[type], str(name)) for (
+                    type, name) in cert.getSubjectAlternativeNames()))
 
         pycert = {
             "notAfter": str(_rfc2822_date_format.format(cert.getNotAfter())),
@@ -876,7 +957,7 @@ class SSLSocket(object):
         if cb_type != "tls-unique":
             raise NotImplementedError(
                 "{0} channel binding type not implemented"
-                    .format(cb_type))
+                .format(cb_type))
 
         # TODO support this properly
         return None
@@ -896,15 +977,29 @@ class SSLSocket(object):
 # ssl_version - use SSLEngine.setEnabledProtocols(java.lang.String[])
 # ciphers - SSLEngine.setEnabledCipherSuites(String[] suites)
 
+
 @raises_java_exception
-def wrap_socket(sock, keyfile=None, certfile=None, server_side=False, cert_reqs=CERT_NONE,
-                ssl_version=PROTOCOL_SSLv23, ca_certs=None, do_handshake_on_connect=True,
-                suppress_ragged_eofs=True, ciphers=None):
+def wrap_socket(
+        sock,
+        keyfile=None,
+        certfile=None,
+        server_side=False,
+        cert_reqs=CERT_NONE,
+        ssl_version=PROTOCOL_SSLv23,
+        ca_certs=None,
+        do_handshake_on_connect=True,
+        suppress_ragged_eofs=True,
+        ciphers=None):
 
     return SSLSocket(
         sock,
-        keyfile=keyfile, certfile=certfile, cert_reqs=cert_reqs, ca_certs=ca_certs,
-        server_side=server_side, ssl_version=ssl_version, ciphers=ciphers,
+        keyfile=keyfile,
+        certfile=certfile,
+        cert_reqs=cert_reqs,
+        ca_certs=ca_certs,
+        server_side=server_side,
+        ssl_version=ssl_version,
+        ciphers=ciphers,
         do_handshake_on_connect=do_handshake_on_connect)
 
 
@@ -924,10 +1019,10 @@ def cert_time_to_seconds(cert_time):
     from calendar import timegm
 
     months = (
-        "Jan","Feb","Mar","Apr","May","Jun",
-        "Jul","Aug","Sep","Oct","Nov","Dec"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     )
-    time_format = ' %d %H:%M:%S %Y GMT' # NOTE: no month, fixed GMT
+    time_format = ' %d %H:%M:%S %Y GMT'  # NOTE: no month, fixed GMT
     try:
         month_number = months.index(cert_time[:3].title()) + 1
     except ValueError:
@@ -1006,7 +1101,11 @@ def sslwrap_simple(sock, keyfile=None, certfile=None):
     for compability with Python 2.5 and earlier.  Will disappear in
     Python 3.0."""
 
-    ssl_sock = wrap_socket(sock, keyfile=keyfile, certfile=certfile, ssl_version=PROTOCOL_SSLv23)
+    ssl_sock = wrap_socket(
+        sock,
+        keyfile=keyfile,
+        certfile=certfile,
+        ssl_version=PROTOCOL_SSLv23)
     try:
         sock.getpeername()
     except socket_error:
@@ -1036,7 +1135,14 @@ def RAND_add(bytes, entropy):
 
 class SSLContext(object):
 
-    _jsse_keyType_names = ('RSA', 'DSA', 'DH_RSA', 'DH_DSA', 'EC', 'EC_EC', 'EC_RSA')
+    _jsse_keyType_names = (
+        'RSA',
+        'DSA',
+        'DH_RSA',
+        'DH_DSA',
+        'EC',
+        'EC_EC',
+        'EC_RSA')
 
     def __init__(self, protocol):
         try:
@@ -1076,11 +1182,18 @@ class SSLContext(object):
                          server_hostname=server_hostname,
                          _context=self)
 
-    def _createSSLEngine(self, addr, hostname=None, cert_file=None, key_file=None, server_side=False):
+    def _createSSLEngine(
+            self,
+            addr,
+            hostname=None,
+            cert_file=None,
+            key_file=None,
+            server_side=False):
         tmf = InsecureTrustManagerFactory.INSTANCE
         if self.verify_mode != CERT_NONE:
             # XXX need to refactor so we don't have to get trust managers twice
-            stmf = SimpleTrustManagerFactory.getInstance(SimpleTrustManagerFactory.getDefaultAlgorithm())
+            stmf = SimpleTrustManagerFactory.getInstance(
+                SimpleTrustManagerFactory.getDefaultAlgorithm())
             stmf.init(self._trust_store)
 
             tmf = CompositeX509TrustManagerFactory(stmf.getTrustManagers())
@@ -1088,7 +1201,8 @@ class SSLContext(object):
 
         kmf = self._key_managers
         if self._key_managers is None:
-            kmf = _get_openssl_key_manager(cert_file=cert_file, key_file=key_file)
+            kmf = _get_openssl_key_manager(
+                cert_file=cert_file, key_file=key_file)
 
         context_builder = None
 
@@ -1103,29 +1217,36 @@ class SSLContext(object):
 
         context_builder = context_builder.trustManager(tmf)
         context_builder = context_builder.sslProvider(SslProvider.JDK)
-        context_builder = context_builder.clientAuth(_CERT_TO_CLIENT_AUTH[self.verify_mode])
+        context_builder = context_builder.clientAuth(
+            _CERT_TO_CLIENT_AUTH[self.verify_mode])
 
         if self._ciphers is not None:
             context_builder = context_builder.ciphers(self._ciphers)
 
         if self._check_hostname:
-            engine = context_builder.build().newEngine(ByteBufAllocator.DEFAULT, hostname, addr[1])
+            engine = context_builder.build().newEngine(
+                ByteBufAllocator.DEFAULT, hostname, addr[1])
             if HAS_SNI:
                 params = engine.getSSLParameters()
                 params.setEndpointIdentificationAlgorithm('HTTPS')
                 params.setServerNames([SNIHostName(hostname)])
                 engine.setSSLParameters(params)
         else:
-            engine = context_builder.build().newEngine(ByteBufAllocator.DEFAULT, addr[0], addr[1])
+            engine = context_builder.build().newEngine(
+                ByteBufAllocator.DEFAULT, addr[0], addr[1])
 
         return engine
 
     def cert_store_stats(self):
-        return {'crl': 0, 'x509': self._key_store.size(), 'x509_ca': self._trust_store.size()}
+        return {
+            'crl': 0,
+            'x509': self._key_store.size(),
+            'x509_ca': self._trust_store.size()}
 
     def load_cert_chain(self, certfile, keyfile=None, password=None):
         try:
-            self._key_managers = _get_openssl_key_manager(certfile, keyfile, password, _key_store=self._key_store)
+            self._key_managers = _get_openssl_key_manager(
+                certfile, keyfile, password, _key_store=self._key_store)
         except IllegalArgumentException as err:
             raise SSLError(SSL_ERROR_SSL, "PEM lib ({})".format(err))
 
@@ -1158,7 +1279,9 @@ class SSLContext(object):
                             if PEM_HEADER in f.read():
                                 cafiles.append(possible_cafile)
                     except IOError:
-                        log.debug("Not including %s file as a possible cafile due to permissions error" % possible_cafile)
+                        log.debug(
+                            "Not including %s file as a possible cafile due to permissions error" %
+                            possible_cafile)
                         pass  # Probably permissions related...ignore
 
         certs = []
@@ -1171,9 +1294,11 @@ class SSLContext(object):
         for cert in certs:
             # FIXME not sure this is correct?
             if private_key is None:
-                self._trust_store.setCertificateEntry(_str_hash_key_entry(cert), cert)
+                self._trust_store.setCertificateEntry(
+                    _str_hash_key_entry(cert), cert)
             else:
-                self._key_store.setCertificateEntry(_str_hash_key_entry(cert), cert)
+                self._key_store.setCertificateEntry(
+                    _str_hash_key_entry(cert), cert)
 
     def load_default_certs(self, purpose=Purpose.SERVER_AUTH):
         # TODO handle/support purpose
@@ -1191,7 +1316,9 @@ class SSLContext(object):
         """
         default_verify_paths = get_default_verify_paths()
 
-        self.load_verify_locations(cafile=default_verify_paths.cafile, capath=default_verify_paths.capath)
+        self.load_verify_locations(
+            cafile=default_verify_paths.cafile,
+            capath=default_verify_paths.capath)
 
     def set_alpn_protocols(self, protocols):
         raise NotImplementedError()
@@ -1200,10 +1327,11 @@ class SSLContext(object):
         raise NotImplementedError()
 
     def set_servername_callback(self, server_name_callback):
-        if not callable(server_name_callback) and server_name_callback is not None:
-            raise TypeError("{!r} is not callable".format(server_name_callback))
+        if not callable(
+                server_name_callback) and server_name_callback is not None:
+            raise TypeError(
+                "{!r} is not callable".format(server_name_callback))
         self._server_name_callback = server_name_callback
-
 
     def load_dh_params(self, dhfile):
         # TODO?
@@ -1245,12 +1373,17 @@ class SSLContext(object):
                     issuer_info = self._parse_dn(cert.issuerDN)
                     subject_info = self._parse_dn(cert.subjectDN)
 
-                    cert_info = {'issuer': issuer_info, 'subject': subject_info}
+                    cert_info = {
+                        'issuer': issuer_info,
+                        'subject': subject_info}
                     for k in ('serialNumber', 'version'):
                         cert_info[k] = getattr(cert, k)
 
                     for k in ('notBefore', 'notAfter'):
-                        cert_info[k] = str(_rfc2822_date_format.format(getattr(cert, k)))
+                        cert_info[k] = str(
+                            _rfc2822_date_format.format(
+                                getattr(
+                                    cert, k)))
 
                     certs.append(cert_info)
 
@@ -1291,7 +1424,8 @@ class SSLContext(object):
     @verify_flags.setter
     def verify_flags(self, val):
         if not isinstance(val, int):
-            raise TypeError("verfy_flags must be one of the ssl.VERIFY_* flags")
+            raise TypeError(
+                "verfy_flags must be one of the ssl.VERIFY_* flags")
         self._verify_flags = val
 
     @classmethod
@@ -1299,4 +1433,7 @@ class SSLContext(object):
         ln = LdapName(unicode(dn))
         # FIXME given this tuple of a single element tuple structure assumed here, is it possible this is
         # not actually the case, eg because of multi value attributes?
-        return tuple((((_ldap_rdn_display_names.get(rdn.type), _str_or_unicode(rdn.value)),) for rdn in ln.getRdns()))
+        return tuple(
+            (((_ldap_rdn_display_names.get(
+                rdn.type), _str_or_unicode(
+                rdn.value)),) for rdn in ln.getRdns()))

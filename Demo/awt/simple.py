@@ -9,7 +9,10 @@ and they all show how to use different parts of the AWT.
 import java
 from java import awt
 
-def exit(e): java.lang.System.exit(0)
+
+def exit(e):
+    java.lang.System.exit(0)
+
 
 frame = awt.Frame('AWT Example', visible=1)
 button = awt.Button('Close Me!', actionPerformed=exit)

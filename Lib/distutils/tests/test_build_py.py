@@ -59,7 +59,7 @@ class BuildPyTestCase(support.TempdirManager,
             self.assert_("__init__.pyc" in files)
         self.assert_("README.txt" in files)
 
-    def test_empty_package_dir (self):
+    def test_empty_package_dir(self):
         # See SF 1668596/1720897.
         cwd = os.getcwd()
 
@@ -109,8 +109,10 @@ class BuildPyTestCase(support.TempdirManager,
 
         self.assertTrue('byte-compiling is disabled' in self.logs[0][1])
 
+
 def test_suite():
     return unittest.makeSuite(BuildPyTestCase)
+
 
 if __name__ == "__main__":
     unittest.main(defaultTest="test_suite")

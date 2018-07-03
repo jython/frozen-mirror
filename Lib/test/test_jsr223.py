@@ -18,10 +18,12 @@ class JSR223TestCase(unittest.TestCase):
     def test_factory(self):
         engine = ScriptEngineManager().getEngineByName("python")
         f = engine.factory
-        language_version = ".".join(str(comp) for comp in sys.version_info[0:2]) # such as "2.5"
-        impl_version =  ".".join(str(comp) for comp in sys.version_info[0:3]) # such as "2.5.2"
+        language_version = ".".join(
+            str(comp) for comp in sys.version_info[0:2])  # such as "2.5"
+        impl_version = ".".join(str(comp)
+                                for comp in sys.version_info[0:3])  # such as "2.5.2"
 
-        self.assertNotEqual(f.scriptEngine, engine) # we don't pool engines
+        self.assertNotEqual(f.scriptEngine, engine)  # we don't pool engines
 
         self.assertEqual(f.engineName, "jython")
         self.assertEqual(f.engineVersion, impl_version)
@@ -29,17 +31,28 @@ class JSR223TestCase(unittest.TestCase):
         self.assertEqual(f.languageName, "python")
         self.assertEqual(f.languageVersion, language_version)
         self.assertEqual(set(f.names), set(["python", "jython"]))
-        self.assertEqual(set(f.mimeTypes), set(["text/python", "application/python", "text/x-python", "application/x-python"]))
+        self.assertEqual(set(f.mimeTypes), set(
+            ["text/python", "application/python", "text/x-python", "application/x-python"]))
 
         # variants
         self.assertEqual(f.getParameter(ScriptEngine.ENGINE), "jython")
-        self.assertEqual(f.getParameter(ScriptEngine.ENGINE_VERSION), impl_version)
+        self.assertEqual(
+            f.getParameter(
+                ScriptEngine.ENGINE_VERSION),
+            impl_version)
         self.assertEqual(f.getParameter(ScriptEngine.NAME), "jython")
         self.assertEqual(f.getParameter(ScriptEngine.LANGUAGE), "python")
-        self.assertEqual(f.getParameter(ScriptEngine.LANGUAGE_VERSION), language_version)
+        self.assertEqual(
+            f.getParameter(
+                ScriptEngine.LANGUAGE_VERSION),
+            language_version)
 
         self.assertEqual(f.getOutputStatement("abc"), "print u'abc'")
-        self.assertEqual(f.getProgram("x = 42", "y = 'abc'"), "x = 42\ny = 'abc'\n")
+        self.assertEqual(
+            f.getProgram(
+                "x = 42",
+                "y = 'abc'"),
+            "x = 42\ny = 'abc'\n")
 
 
 def test_main():

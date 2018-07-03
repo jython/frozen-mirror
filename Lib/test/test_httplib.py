@@ -18,12 +18,19 @@ CERT_localhost = os.path.join(here, 'keycert.pem')
 # Self-signed cert file for 'fakehostname'
 CERT_fakehostname = os.path.join(here, 'keycert2.pem')
 # Self-signed cert file for self-signed.pythontest.net
-CERT_selfsigned_pythontestdotnet = os.path.join(here, 'selfsigned_pythontestdotnet.pem')
+CERT_selfsigned_pythontestdotnet = os.path.join(
+    here, 'selfsigned_pythontestdotnet.pem')
 
 HOST = test_support.HOST
 
+
 class FakeSocket:
-    def __init__(self, text, fileclass=StringIO.StringIO, host=None, port=None):
+    def __init__(
+            self,
+            text,
+            fileclass=StringIO.StringIO,
+            host=None,
+            port=None):
         self.text = text
         self.fileclass = fileclass
         self.data = ''
@@ -39,7 +46,7 @@ class FakeSocket:
             raise httplib.UnimplementedFileMode()
         # keep the file around so we can check how much was read from it
         self.file = self.fileclass(self.text)
-        self.file.close = self.file_close #nerf close ()
+        self.file.close = self.file_close  # nerf close ()
         return self.file
 
     def file_close(self):
@@ -47,6 +54,7 @@ class FakeSocket:
 
     def close(self):
         pass
+
 
 class EPipeSocket(FakeSocket):
 
@@ -63,12 +71,14 @@ class EPipeSocket(FakeSocket):
     def close(self):
         pass
 
+
 class NoEOFStringIO(StringIO.StringIO):
     """Like StringIO, but raises AssertionError on EOF.
 
     This is used below to test that httplib doesn't try to read
     more from the underlying file than it should.
     """
+
     def read(self, n=-1):
         data = StringIO.StringIO.read(self, n)
         if data == '':
@@ -90,6 +100,7 @@ class HeaderTests(TestCase):
         class HeaderCountingBuffer(list):
             def __init__(self):
                 self.count = {}
+
             def append(self, item):
                 kv = item.split(':')
                 if len(kv) > 1:
@@ -118,6 +129,7 @@ class HeaderTests(TestCase):
             def __init__(self):
                 list.__init__(self)
                 self.content_length = None
+
             def append(self, item):
                 kv = item.split(':', 1)
                 if len(kv) > 1 and kv[0].lower() == 'content-length':
@@ -142,7 +154,7 @@ class HeaderTests(TestCase):
         # the body is None because it might cause unexpected behaviour on the
         # server.
         methods_without_body = (
-             'GET', 'CONNECT', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE',
+            'GET', 'CONNECT', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE',
         )
         for method in methods_without_body:
             conn = httplib.HTTPConnection('example.com')
@@ -181,8 +193,8 @@ class HeaderTests(TestCase):
     def test_putheader(self):
         conn = httplib.HTTPConnection('example.com')
         conn.sock = FakeSocket(None)
-        conn.putrequest('GET','/')
-        conn.putheader('Content-length',42)
+        conn.putrequest('GET', '/')
+        conn.putheader('Content-length', 42)
         self.assertIn('Content-length: 42', conn._buffer)
 
         conn.putheader('Foo', ' bar ')
@@ -241,119 +253,120 @@ class HeaderTests(TestCase):
         self.assertEqual(resp.getheader('First'), 'val')
         self.assertEqual(resp.getheader('Second'), 'val')
 
-	def test_malformed_truncation(self):
-		# Other malformed header lines, especially without colons, used to
-		# cause the rest of the header section to be truncated
-		resp = (
-			b'HTTP/1.1 200 OK\r\n'
-			b'Public-Key-Pins: \n'
-			b'pin-sha256="xxx=";\n'
-			b'report-uri="https://..."\r\n'
-			b'Transfer-Encoding: chunked\r\n'
-			b'\r\n'
-			b'4\r\nbody\r\n0\r\n\r\n'
-		)
-		resp = httplib.HTTPResponse(FakeSocket(resp))
-		resp.begin()
-		self.assertIsNotNone(resp.getheader('Public-Key-Pins'))
-		self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
-		self.assertEqual(resp.read(), b'body')
+        def test_malformed_truncation(self):
+                # Other malformed header lines, especially without colons, used to
+                # cause the rest of the header section to be truncated
+            resp = (
+                b'HTTP/1.1 200 OK\r\n'
+                b'Public-Key-Pins: \n'
+                b'pin-sha256="xxx=";\n'
+                b'report-uri="https://..."\r\n'
+                b'Transfer-Encoding: chunked\r\n'
+                b'\r\n'
+                b'4\r\nbody\r\n0\r\n\r\n'
+            )
+            resp = httplib.HTTPResponse(FakeSocket(resp))
+            resp.begin()
+            self.assertIsNotNone(resp.getheader('Public-Key-Pins'))
+            self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
+            self.assertEqual(resp.read(), b'body')
 
-	def test_blank_line_forms(self):
-		# Test that both CRLF and LF blank lines can terminate the header
-		# section and start the body
-		for blank in (b'\r\n', b'\n'):
-			resp = b'HTTP/1.1 200 OK\r\n' b'Transfer-Encoding: chunked\r\n'
-			resp += blank
-			resp += b'4\r\nbody\r\n0\r\n\r\n'
-			resp = httplib.HTTPResponse(FakeSocket(resp))
-			resp.begin()
-			self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
-			self.assertEqual(resp.read(), b'body')
+        def test_blank_line_forms(self):
+            # Test that both CRLF and LF blank lines can terminate the header
+            # section and start the body
+            for blank in (b'\r\n', b'\n'):
+                resp = b'HTTP/1.1 200 OK\r\n' b'Transfer-Encoding: chunked\r\n'
+                resp += blank
+                resp += b'4\r\nbody\r\n0\r\n\r\n'
+                resp = httplib.HTTPResponse(FakeSocket(resp))
+                resp.begin()
+                self.assertEqual(
+                    resp.getheader('Transfer-Encoding'), 'chunked')
+                self.assertEqual(resp.read(), b'body')
 
-			resp = b'HTTP/1.0 200 OK\r\n' + blank + b'body'
-			resp = httplib.HTTPResponse(FakeSocket(resp))
-			resp.begin()
-			self.assertEqual(resp.read(), b'body')
+                resp = b'HTTP/1.0 200 OK\r\n' + blank + b'body'
+                resp = httplib.HTTPResponse(FakeSocket(resp))
+                resp.begin()
+                self.assertEqual(resp.read(), b'body')
 
-		# A blank line ending in CR is not treated as the end of the HTTP
-		# header section, therefore header fields following it should be
-		# parsed if possible
-		resp = (
-			b'HTTP/1.1 200 OK\r\n'
-			b'\r'
-			b'Name: value\r\n'
-			b'Transfer-Encoding: chunked\r\n'
-			b'\r\n'
-			b'4\r\nbody\r\n0\r\n\r\n'
-		)
-		resp = httplib.HTTPResponse(FakeSocket(resp))
-		resp.begin()
-		self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
-		self.assertEqual(resp.read(), b'body')
+            # A blank line ending in CR is not treated as the end of the HTTP
+            # header section, therefore header fields following it should be
+            # parsed if possible
+            resp = (
+                b'HTTP/1.1 200 OK\r\n'
+                b'\r'
+                b'Name: value\r\n'
+                b'Transfer-Encoding: chunked\r\n'
+                b'\r\n'
+                b'4\r\nbody\r\n0\r\n\r\n'
+            )
+            resp = httplib.HTTPResponse(FakeSocket(resp))
+            resp.begin()
+            self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
+            self.assertEqual(resp.read(), b'body')
 
-		# No header fields nor blank line
-		resp = b'HTTP/1.0 200 OK\r\n'
-		resp = httplib.HTTPResponse(FakeSocket(resp))
-		resp.begin()
-		self.assertEqual(resp.read(), b'')
+            # No header fields nor blank line
+            resp = b'HTTP/1.0 200 OK\r\n'
+            resp = httplib.HTTPResponse(FakeSocket(resp))
+            resp.begin()
+            self.assertEqual(resp.read(), b'')
 
-	def test_from_line(self):
-		# The parser handles "From" lines specially, so test this does not
-		# affect parsing the rest of the header section
-		resp = (
-			b'HTTP/1.1 200 OK\r\n'
-			b'From start\r\n'
-			b' continued\r\n'
-			b'Name: value\r\n'
-			b'From middle\r\n'
-			b' continued\r\n'
-			b'Transfer-Encoding: chunked\r\n'
-			b'From end\r\n'
-			b'\r\n'
-			b'4\r\nbody\r\n0\r\n\r\n'
-		)
-		resp = httplib.HTTPResponse(FakeSocket(resp))
-		resp.begin()
-		self.assertIsNotNone(resp.getheader('Name'))
-		self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
-		self.assertEqual(resp.read(), b'body')
+        def test_from_line(self):
+            # The parser handles "From" lines specially, so test this does not
+            # affect parsing the rest of the header section
+            resp = (
+                b'HTTP/1.1 200 OK\r\n'
+                b'From start\r\n'
+                b' continued\r\n'
+                b'Name: value\r\n'
+                b'From middle\r\n'
+                b' continued\r\n'
+                b'Transfer-Encoding: chunked\r\n'
+                b'From end\r\n'
+                b'\r\n'
+                b'4\r\nbody\r\n0\r\n\r\n'
+            )
+            resp = httplib.HTTPResponse(FakeSocket(resp))
+            resp.begin()
+            self.assertIsNotNone(resp.getheader('Name'))
+            self.assertEqual(resp.getheader('Transfer-Encoding'), 'chunked')
+            self.assertEqual(resp.read(), b'body')
 
-		resp = (
-			b'HTTP/1.0 200 OK\r\n'
-			b'From alone\r\n'
-			b'\r\n'
-			b'body'
-		)
-		resp = httplib.HTTPResponse(FakeSocket(resp))
-		resp.begin()
-		self.assertEqual(resp.read(), b'body')
+            resp = (
+                b'HTTP/1.0 200 OK\r\n'
+                b'From alone\r\n'
+                b'\r\n'
+                b'body'
+            )
+            resp = httplib.HTTPResponse(FakeSocket(resp))
+            resp.begin()
+            self.assertEqual(resp.read(), b'body')
 
-	def test_parse_all_octets(self):
-		# Ensure no valid header field octet breaks the parser
-		body = (
-			b'HTTP/1.1 200 OK\r\n'
-			b"!#$%&'*+-.^_`|~: value\r\n"  # Special token characters
-			b'VCHAR: ' + bytearray(range(0x21, 0x7E + 1)) + b'\r\n'
-			b'obs-text: ' + bytearray(range(0x80, 0xFF + 1)) + b'\r\n'
-			b'obs-fold: text\r\n'
-			b' folded with space\r\n'
-			b'\tfolded with tab\r\n'
-			b'Content-Length: 0\r\n'
-			b'\r\n'
-		)
-		sock = FakeSocket(body)
-		resp = httplib.HTTPResponse(sock)
-		resp.begin()
-		self.assertEqual(resp.getheader('Content-Length'), '0')
-		self.assertEqual(resp.getheader("!#$%&'*+-.^_`|~"), 'value')
-		vchar = ''.join(map(chr, range(0x21, 0x7E + 1)))
-		self.assertEqual(resp.getheader('VCHAR'), vchar)
-		self.assertIsNotNone(resp.getheader('obs-text'))
-		folded = resp.getheader('obs-fold')
-		self.assertTrue(folded.startswith('text'))
-		self.assertIn(' folded with space', folded)
-		self.assertTrue(folded.endswith('folded with tab'))
+        def test_parse_all_octets(self):
+            # Ensure no valid header field octet breaks the parser
+            body = (
+                b'HTTP/1.1 200 OK\r\n'
+                b"!#$%&'*+-.^_`|~: value\r\n"  # Special token characters
+                b'VCHAR: ' + bytearray(range(0x21, 0x7E + 1)) + b'\r\n'
+                b'obs-text: ' + bytearray(range(0x80, 0xFF + 1)) + b'\r\n'
+                b'obs-fold: text\r\n'
+                b' folded with space\r\n'
+                b'\tfolded with tab\r\n'
+                b'Content-Length: 0\r\n'
+                b'\r\n'
+            )
+            sock = FakeSocket(body)
+            resp = httplib.HTTPResponse(sock)
+            resp.begin()
+            self.assertEqual(resp.getheader('Content-Length'), '0')
+            self.assertEqual(resp.getheader("!#$%&'*+-.^_`|~"), 'value')
+            vchar = ''.join(map(chr, range(0x21, 0x7E + 1)))
+            self.assertEqual(resp.getheader('VCHAR'), vchar)
+            self.assertIsNotNone(resp.getheader('obs-text'))
+            folded = resp.getheader('obs-fold')
+            self.assertTrue(folded.startswith('text'))
+            self.assertIn(' folded with space', folded)
+            self.assertTrue(folded.endswith('folded with tab'))
 
     def test_invalid_headers(self):
         conn = httplib.HTTPConnection('example.com')
@@ -498,7 +511,9 @@ class BasicTest(TestCase):
             self.fail("Did not expect response from HEAD request")
 
     def test_too_many_headers(self):
-        headers = '\r\n'.join('Header%d: foo' % i for i in xrange(200)) + '\r\n'
+        headers = '\r\n'.join(
+            'Header%d: foo' %
+            i for i in xrange(200)) + '\r\n'
         text = ('HTTP/1.1 200 OK\r\n' + headers)
         s = FakeSocket(text)
         r = httplib.HTTPResponse(s)
@@ -566,10 +581,10 @@ class BasicTest(TestCase):
             resp.begin()
             try:
                 resp.read()
-            except httplib.IncompleteRead, i:
+            except httplib.IncompleteRead as i:
                 self.assertEqual(i.partial, 'hello world')
-                self.assertEqual(repr(i),'IncompleteRead(11 bytes read)')
-                self.assertEqual(str(i),'IncompleteRead(11 bytes read)')
+                self.assertEqual(repr(i), 'IncompleteRead(11 bytes read)')
+                self.assertEqual(str(i), 'IncompleteRead(11 bytes read)')
             else:
                 self.fail('IncompleteRead expected')
             finally:
@@ -601,7 +616,8 @@ class BasicTest(TestCase):
         self.assertTrue(resp.isclosed())
 
     def test_incomplete_read(self):
-        sock = FakeSocket('HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\nHello\r\n')
+        sock = FakeSocket(
+            'HTTP/1.1 200 OK\r\nContent-Length: 10\r\n\r\nHello\r\n')
         resp = httplib.HTTPResponse(sock, method="GET")
         resp.begin()
         try:
@@ -636,8 +652,8 @@ class BasicTest(TestCase):
         body = "HTTP/1.1 200 Ok\r\n\r\nText"
         sock = FakeSocket(body)
         resp = httplib.HTTPResponse(sock)
-        self.assertTrue(hasattr(resp,'fileno'),
-                'HTTPResponse should expose a fileno attribute')
+        self.assertTrue(hasattr(resp, 'fileno'),
+                        'HTTPResponse should expose a fileno attribute')
 
     # Test lines overflowing the max line size (_MAXLINE in httplib)
 
@@ -645,7 +661,10 @@ class BasicTest(TestCase):
         self.skipTest("disabled for HTTP 0.9 support")
         body = "HTTP/1.1 200 Ok" + "k" * 65536 + "\r\n"
         resp = httplib.HTTPResponse(FakeSocket(body))
-        self.assertRaises((httplib.LineTooLong, httplib.BadStatusLine), resp.begin)
+        self.assertRaises(
+            (httplib.LineTooLong,
+             httplib.BadStatusLine),
+            resp.begin)
 
     def test_overflowing_header_line(self):
         body = (
@@ -658,8 +677,8 @@ class BasicTest(TestCase):
     def test_overflowing_chunked_line(self):
         body = (
             'HTTP/1.1 200 OK\r\n'
-            'Transfer-Encoding: chunked\r\n\r\n'
-            + '0' * 65536 + 'a\r\n'
+            'Transfer-Encoding: chunked\r\n\r\n' +
+            '0' * 65536 + 'a\r\n'
             'hello world\r\n'
             '0\r\n'
         )
@@ -680,16 +699,18 @@ class BasicTest(TestCase):
         # Test that the socket is not leaked if getresponse() fails
         conn = httplib.HTTPConnection('example.com')
         response = []
+
         class Response(httplib.HTTPResponse):
             def __init__(self, *pos, **kw):
-                response.append(self)  # Avoid garbage collector closing the socket
+                # Avoid garbage collector closing the socket
+                response.append(self)
                 httplib.HTTPResponse.__init__(self, *pos, **kw)
         conn.response_class = Response
         conn.sock = FakeSocket('')  # Emulate server dropping connection
         conn.request('GET', '/')
         self.assertRaises(httplib.BadStatusLine, conn.getresponse)
         self.assertTrue(response)
-        #self.assertTrue(response[0].closed)
+        # self.assertTrue(response[0].closed)
         self.assertTrue(conn.sock.file_closed)
 
     def test_proxy_tunnel_without_status_line(self):
@@ -702,6 +723,7 @@ class BasicTest(TestCase):
         with self.assertRaisesRegexp(socket.error, "Invalid response"):
             conn._tunnel()
 
+
 class OfflineTest(TestCase):
     def test_responses(self):
         self.assertEqual(httplib.responses[httplib.NOT_FOUND], "Not Found")
@@ -712,6 +734,7 @@ class TestServerMixin:
 
     This is used by test cases for testing http connection end points.
     """
+
     def setUp(self):
         self.serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.port = test_support.bind_port(self.serv)
@@ -726,18 +749,21 @@ class TestServerMixin:
         self.serv.close()
         self.serv = None
 
+
 class SourceAddressTest(TestServerMixin, TestCase):
     def testHTTPConnectionSourceAddress(self):
-        self.conn = httplib.HTTPConnection(HOST, self.port,
-                source_address=('', self.source_port))
+        self.conn = httplib.HTTPConnection(
+            HOST, self.port, source_address=(
+                '', self.source_port))
         self.conn.connect()
         self.assertEqual(self.conn.sock.getsockname()[1], self.source_port)
 
     @unittest.skipIf(not hasattr(httplib, 'HTTPSConnection'),
                      'httplib.HTTPSConnection not defined')
     def testHTTPSConnectionSourceAddress(self):
-        self.conn = httplib.HTTPSConnection(HOST, self.port,
-                source_address=('', self.source_port))
+        self.conn = httplib.HTTPSConnection(
+            HOST, self.port, source_address=(
+                '', self.source_port))
         # We don't test anything here other than the constructor not barfing as
         # this code doesn't deal with setting up an active running SSL server
         # for an ssl_wrapped connect() to actually return from.
@@ -831,8 +857,10 @@ class HTTPSTest(TestCase):
             with self.assertRaises(ssl.SSLError) as exc_info:
                 h.request('GET', '/')
             if test_support.is_jython:
-                return # FIXME: SSLError.reason not yet available for Jython
-            self.assertEqual(exc_info.exception.reason, 'CERTIFICATE_VERIFY_FAILED')
+                return  # FIXME: SSLError.reason not yet available for Jython
+            self.assertEqual(
+                exc_info.exception.reason,
+                'CERTIFICATE_VERIFY_FAILED')
 
     def test_networked_noverification(self):
         # Switch off cert verification
@@ -865,7 +893,8 @@ class HTTPSTest(TestCase):
             context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
             context.verify_mode = ssl.CERT_REQUIRED
             context.load_verify_locations(CERT_selfsigned_pythontestdotnet)
-            h = httplib.HTTPSConnection('self-signed.pythontest.net', 443, context=context)
+            h = httplib.HTTPSConnection(
+                'self-signed.pythontest.net', 443, context=context)
             h.request('GET', '/')
             resp = h.getresponse()
             server_string = resp.getheader('server')
@@ -879,12 +908,15 @@ class HTTPSTest(TestCase):
             context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
             context.verify_mode = ssl.CERT_REQUIRED
             context.load_verify_locations(CERT_localhost)
-            h = httplib.HTTPSConnection('self-signed.pythontest.net', 443, context=context)
+            h = httplib.HTTPSConnection(
+                'self-signed.pythontest.net', 443, context=context)
             with self.assertRaises(ssl.SSLError) as exc_info:
                 h.request('GET', '/')
             if test_support.is_jython:
-                return # FIXME: SSLError.reason not yet available for Jython
-            self.assertEqual(exc_info.exception.reason, 'CERTIFICATE_VERIFY_FAILED')
+                return  # FIXME: SSLError.reason not yet available for Jython
+            self.assertEqual(
+                exc_info.exception.reason,
+                'CERTIFICATE_VERIFY_FAILED')
 
     def test_local_unknown_cert(self):
         # The custom cert isn't known to the default trust bundle
@@ -894,11 +926,14 @@ class HTTPSTest(TestCase):
         with self.assertRaises(ssl.SSLError) as exc_info:
             h.request('GET', '/')
         if test_support.is_jython:
-            return # FIXME: SSLError.reason not yet available for Jython
-        self.assertEqual(exc_info.exception.reason, 'CERTIFICATE_VERIFY_FAILED')
+            return  # FIXME: SSLError.reason not yet available for Jython
+        self.assertEqual(
+            exc_info.exception.reason,
+            'CERTIFICATE_VERIFY_FAILED')
 
-    @unittest.skipIf(test_support.is_jython,
-                     'FIXME: Failing test on Jython (causes other exceptions if not skipped)')
+    @unittest.skipIf(
+        test_support.is_jython,
+        'FIXME: Failing test on Jython (causes other exceptions if not skipped)')
     def test_local_good_hostname(self):
         # The (valid) cert validates the HTTP hostname
         import ssl
@@ -999,6 +1034,7 @@ def test_main(verbose=None):
     test_support.run_unittest(HeaderTests, OfflineTest, BasicTest, TimeoutTest,
                               HTTPTest, HTTPSTest, SourceAddressTest,
                               TunnelTests)
+
 
 if __name__ == '__main__':
     test_main()

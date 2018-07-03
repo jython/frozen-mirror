@@ -3,6 +3,7 @@ import os
 import globwalk
 import astview
 
+
 def makepath(path):
     """
     from holger@trillke.net 2002/03/18
@@ -10,11 +11,13 @@ def makepath(path):
     """
 
     from os import makedirs
-    from os.path import normpath,dirname,exists,abspath
+    from os.path import normpath, dirname, exists, abspath
 
     dpath = normpath(dirname(path))
-    if not exists(dpath): makedirs(dpath)
+    if not exists(dpath):
+        makedirs(dpath)
     return normpath(abspath(path))
+
 
 def main(code_path, output_dir, testfile=False):
     if os.path.exists(output_dir):
@@ -36,6 +39,7 @@ def main(code_path, output_dir, testfile=False):
         print fh
         pprint.pprint(astview.tree(pyfile), fh)
 
+
 if __name__ == '__main__':
     import sys
     import getopt
@@ -50,7 +54,7 @@ Usage: python %s [-t] code_path output_dir
     testfile = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'th')
-    except:
+    except BaseException:
         print usage
         sys.exit(1)
     for o, v in opts:

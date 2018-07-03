@@ -13,4 +13,5 @@ def f1():
     v2 = foo
     assert v2 == 22
 
+
 f1()

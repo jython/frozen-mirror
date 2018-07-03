@@ -17,6 +17,7 @@ import time
 from java.lang import Runtime
 from java.util.concurrent import Executors, ExecutorCompletionService
 
+
 class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
@@ -25,8 +26,10 @@ class ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
         response = "%s: %s" % (cur_thread.getName(), data)
         self.request.send(response)
 
+
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     "mix together"
+
 
 def client(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -35,6 +38,7 @@ def client(ip, port, message):
     response = sock.recv(1024)
     # print threading.currentThread().getName(), response
     sock.close()
+
 
 if __name__ == "__main__":
     # ephemeral ports should work on every Java system now
@@ -50,10 +54,11 @@ if __name__ == "__main__":
     server_thread.start()
 
     # create a client pool to run all client requests
-    pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1)
+    pool = Executors.newFixedThreadPool(
+        Runtime.getRuntime().availableProcessors() + 1)
     ecs = ExecutorCompletionService(pool)
-    for i in xrange(4000): # empirically, this will exhaust heap when run with 16m heap
+    for i in xrange(
+            4000):  # empirically, this will exhaust heap when run with 16m heap
         ecs.submit(lambda: client(ip, port, "Hello World %i" % i))
-        ecs.take() # wait until we have a thread available in the pool
+        ecs.take()  # wait until we have a thread available in the pool
     pool.shutdown()
-        

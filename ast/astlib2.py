@@ -12,16 +12,19 @@ import _ast
 import os
 import globwalk
 
+
 def lispify_ast(node):
     return tuple(lispify_ast2(node))
+
 
 def lispify_ast2(node):
     yield node.__class__.__name__
     try:
         for field in node._fields:
             yield tuple(lispify_field(field, getattr(node, field)))
-    except:
+    except BaseException:
         pass
+
 
 def lispify_field(field, child):
     yield field
@@ -35,17 +38,23 @@ def lispify_field(field, child):
             yield lispify_ast(node)
         else:
             if isinstance(node, float):
-                #stringify floats so they match Java's float representation better
+                # stringify floats so they match Java's float representation
+                # better
                 yield str(node)
             else:
                 yield node
+
 
 if __name__ == '__main__':
     import sys
     from pprint import pprint
 
     code_path = sys.argv[1]
-    ast = compile(open(code_path).read(), code_path, "exec", _ast.PyCF_ONLY_AST)
+    ast = compile(
+        open(code_path).read(),
+        code_path,
+        "exec",
+        _ast.PyCF_ONLY_AST)
 
     lispified = lispify_ast(ast)
     pprint(lispified)

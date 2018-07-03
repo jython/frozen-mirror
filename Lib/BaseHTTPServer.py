@@ -72,12 +72,12 @@ __all__ = ["HTTPServer", "BaseHTTPRequestHandler"]
 
 import sys
 import time
-import socket # For gethostbyaddr()
+import socket  # For gethostbyaddr()
 from warnings import filterwarnings, catch_warnings
 with catch_warnings():
     if sys.py3kwarning:
         filterwarnings("ignore", ".*mimetools has been removed",
-                        DeprecationWarning)
+                       DeprecationWarning)
     import mimetools
 import SocketServer
 
@@ -96,8 +96,10 @@ DEFAULT_ERROR_MESSAGE = """\
 
 DEFAULT_ERROR_CONTENT_TYPE = "text/html"
 
+
 def _quote_html(html):
     return html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
 
 class HTTPServer(SocketServer.TCPServer):
 
@@ -278,11 +280,13 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
             except (ValueError, IndexError):
                 self.send_error(400, "Bad request version (%r)" % version)
                 return False
-            if version_number >= (1, 1) and self.protocol_version >= "HTTP/1.1":
+            if version_number >= (
+                    1, 1) and self.protocol_version >= "HTTP/1.1":
                 self.close_connection = 0
             if version_number >= (2, 0):
-                self.send_error(505,
-                          "Invalid HTTP Version (%s)" % base_version_number)
+                self.send_error(
+                    505, "Invalid HTTP Version (%s)" %
+                    base_version_number)
                 return False
         elif len(words) == 2:
             command, path = words
@@ -337,9 +341,10 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
                 return
             method = getattr(self, mname)
             method()
-            self.wfile.flush() #actually send the response if not already done.
-        except socket.timeout, e:
-            #a read or a write timed out.  Discard this connection
+            # actually send the response if not already done.
+            self.wfile.flush()
+        except socket.timeout as e:
+            # a read or a write timed out.  Discard this connection
             self.log_error("Request timed out: %r", e)
             self.close_connection = 1
             return
@@ -373,9 +378,13 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
             message = short
         explain = long
         self.log_error("code %d, message %s", code, message)
-        # using _quote_html to prevent Cross Site Scripting attacks (see bug #1100201)
-        content = (self.error_message_format %
-                   {'code': code, 'message': _quote_html(message), 'explain': explain})
+        # using _quote_html to prevent Cross Site Scripting attacks (see bug
+        # #1100201)
+        content = (
+            self.error_message_format % {
+                'code': code,
+                'message': _quote_html(message),
+                'explain': explain})
         self.send_response(code, message)
         self.send_header("Content-Type", self.error_content_type)
         self.send_header('Connection', 'close')
@@ -466,7 +475,7 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
         sys.stderr.write("%s - - [%s] %s\n" %
                          (self.client_address[0],
                           self.log_date_time_string(),
-                          format%args))
+                          format % args))
 
     def version_string(self):
         """Return the server software version string."""
@@ -478,9 +487,9 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
             timestamp = time.time()
         year, month, day, hh, mm, ss, wd, y, z = time.gmtime(timestamp)
         s = "%s, %02d %3s %4d %02d:%02d:%02d GMT" % (
-                self.weekdayname[wd],
-                day, self.monthname[month], year,
-                hh, mm, ss)
+            self.weekdayname[wd],
+            day, self.monthname[month], year,
+            hh, mm, ss)
         return s
 
     def log_date_time_string(self):
@@ -488,7 +497,7 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
         now = time.time()
         year, month, day, hh, mm, ss, x, y, z = time.localtime(now)
         s = "%02d/%3s/%04d %02d:%02d:%02d" % (
-                day, self.monthname[month], year, hh, mm, ss)
+            day, self.monthname[month], year, hh, mm, ss)
         return s
 
     weekdayname = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -584,11 +593,11 @@ class BaseHTTPRequestHandler(SocketServer.StreamRequestHandler):
         504: ('Gateway Timeout',
               'The gateway server did not receive a timely response'),
         505: ('HTTP Version Not Supported', 'Cannot fulfill request.'),
-        }
+    }
 
 
-def test(HandlerClass = BaseHTTPRequestHandler,
-         ServerClass = HTTPServer, protocol="HTTP/1.0"):
+def test(HandlerClass=BaseHTTPRequestHandler,
+         ServerClass=HTTPServer, protocol="HTTP/1.0"):
     """Test the HTTP request handler class.
 
     This runs an HTTP server on port 8000 (or the first command line

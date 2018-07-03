@@ -3,6 +3,7 @@ import sys
 import unittest
 from test import test_support
 
+
 class CodecsTestCase(unittest.TestCase):
 
     def test_print_sans_lib(self):
@@ -12,8 +13,8 @@ class CodecsTestCase(unittest.TestCase):
         Checks that the builtin utf-8 codec is always available:
         http://bugs.jython.org/issue1458"""
         subprocess.call([sys.executable, "-J-Dpython.cachedir.skip=true",
-            "-J-Dpython.security.respectJavaAccessibility=false",
-            test_support.findfile('print_sans_lib.py')])
+                         "-J-Dpython.security.respectJavaAccessibility=false",
+                         test_support.findfile('print_sans_lib.py')])
 
     def test_string_escape_1502(self):
         # http://bugs.jython.org/issue1502

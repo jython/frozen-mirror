@@ -10,7 +10,7 @@ class ApproxFloat(unittest.TestCase):
     # subsequent test classes - when we can guarantee that floats that
     # are pickled by cPickle are exact in the same way they are on
     # CPython
-    
+
     def test_float(self):
         from test.pickletester import protocols
 
@@ -24,7 +24,10 @@ class ApproxFloat(unittest.TestCase):
                 self.assertAlmostEqual(value, got)
 
 
-class cPickleTests(ApproxFloat, AbstractPickleTests, AbstractPickleModuleTests):
+class cPickleTests(
+        ApproxFloat,
+        AbstractPickleTests,
+        AbstractPickleModuleTests):
 
     def setUp(self):
         self.dumps = cPickle.dumps
@@ -76,6 +79,7 @@ class cPickleListPicklerTests(AbstractPickleTests):
         return p.load()
 
     error = cPickle.BadPickleGet
+
 
 class cPickleFastPicklerTests(ApproxFloat, AbstractPickleTests):
 
@@ -146,8 +150,8 @@ def test_main():
         del cPickleFastPicklerTests.test_recursive_dict
         del cPickleFastPicklerTests.test_recursive_multi
 
-
     test_support.run_unittest(*tests)
+
 
 if __name__ == "__main__":
     test_main()

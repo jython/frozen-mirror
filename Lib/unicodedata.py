@@ -16,23 +16,37 @@ except ImportError:
 
 
 __all__ = (
-    "bidirectional", "category", "combining", "decimal", "decomposition", "digit", "east_asian_width",
-    "lookup", "mirrored", "name", "normalize", "numeric", "unidata_version")
+    "bidirectional",
+    "category",
+    "combining",
+    "decimal",
+    "decomposition",
+    "digit",
+    "east_asian_width",
+    "lookup",
+    "mirrored",
+    "name",
+    "normalize",
+    "numeric",
+    "unidata_version")
 
 
 _forms = {
-    'NFC':  Normalizer.NFC,
+    'NFC': Normalizer.NFC,
     'NFKC': Normalizer.NFKC,
-    'NFD':  Normalizer.NFD,
+    'NFD': Normalizer.NFD,
     'NFKD': Normalizer.NFKD
 }
 
-Nonesuch = object()   # to distinguish from None, which is a valid return value for some functions
+# to distinguish from None, which is a valid return value for some functions
+Nonesuch = object()
 
 
 def _validate_unichr(unichr):
     if not(isinstance(unichr, unicode)):
-        raise TypeError("must be unicode, not {}".format(type(unichr).__name__))
+        raise TypeError(
+            "must be unicode, not {}".format(
+                type(unichr).__name__))
     if len(unichr) > 1 or len(unichr) == 0:
         raise TypeError("need a single Unicode character as parameter")
 
@@ -93,8 +107,8 @@ def numeric(unichr, default=Nonesuch):
 _decomp = {
     DecompositionType.CANONICAL: "canonical",
     DecompositionType.CIRCLE: "circle",
-    DecompositionType.COMPAT: "compat", 
-    DecompositionType.FINAL: "final", 
+    DecompositionType.COMPAT: "compat",
+    DecompositionType.FINAL: "final",
     DecompositionType.FONT: "font",
     DecompositionType.FRACTION: "fraction",
     DecompositionType.INITIAL: "initial",
@@ -107,9 +121,10 @@ _decomp = {
     DecompositionType.SQUARE: "square",
     DecompositionType.SUB: "sub",
     DecompositionType.SUPER: "super",
-    DecompositionType.VERTICAL: "vertical", 
+    DecompositionType.VERTICAL: "vertical",
     DecompositionType.WIDE: "wide"
 }
+
 
 def _get_decomp_type(unichr):
     if unichr == u"\u2044":  # FRACTION SLASH
@@ -117,7 +132,9 @@ def _get_decomp_type(unichr):
         # http://www.fileformat.info/info/unicode/char/2044/index.htm
         return "fraction"
     else:
-        return _decomp[UCharacter.getIntPropertyValue(ord(unichr), UProperty.DECOMPOSITION_TYPE)]
+        return _decomp[UCharacter.getIntPropertyValue(
+            ord(unichr), UProperty.DECOMPOSITION_TYPE)]
+
 
 def decomposition(unichr):
     _validate_unichr(unichr)
@@ -184,6 +201,7 @@ _cat = {
     ECharacterCategory.UPPERCASE_LETTER: "Lu",
 }
 
+
 def category(unichr):
     return _cat[UCharacter.getType(_get_codepoint(unichr))]
 
@@ -214,6 +232,7 @@ _dir = {
     ECharacterDirection.WHITE_SPACE_NEUTRAL: "WS"
 }
 
+
 def bidirectional(unichr):
     return _dir[UCharacter.getDirection(_get_codepoint(unichr))]
 
@@ -228,17 +247,19 @@ def mirrored(unichr):
 
 _eaw = {
     # http://www.unicode.org/reports/tr11/
-    EastAsianWidth.AMBIGUOUS : "A",
-    EastAsianWidth.COUNT     : "?",  # apparently not used, see above TR
-    EastAsianWidth.FULLWIDTH : "F",
-    EastAsianWidth.HALFWIDTH : "H", 
-    EastAsianWidth.NARROW    : "Na",
-    EastAsianWidth.NEUTRAL   : "N",
-    EastAsianWidth.WIDE      : "W"
+    EastAsianWidth.AMBIGUOUS: "A",
+    EastAsianWidth.COUNT: "?",  # apparently not used, see above TR
+    EastAsianWidth.FULLWIDTH: "F",
+    EastAsianWidth.HALFWIDTH: "H",
+    EastAsianWidth.NARROW: "Na",
+    EastAsianWidth.NEUTRAL: "N",
+    EastAsianWidth.WIDE: "W"
 }
 
+
 def east_asian_width(unichr):
-    return _eaw[UCharacter.getIntPropertyValue(_get_codepoint(unichr), UProperty.EAST_ASIAN_WIDTH)]
+    return _eaw[UCharacter.getIntPropertyValue(
+        _get_codepoint(unichr), UProperty.EAST_ASIAN_WIDTH)]
 
 
 def normalize(form, unistr):

@@ -10,6 +10,7 @@ from java.lang import Thread
 
 import pkgutil
 
+
 class ClasspathImporterTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -92,7 +93,9 @@ class PyclasspathImporterTestCase(unittest.TestCase):
         import jar_pkg
         self.assertEquals(prefix + '/jar_pkg/__init__.py', jar_pkg.__file__)
         from jar_pkg import prefer_compiled
-        self.assertEquals(prefix + '/jar_pkg/' + compiled, prefer_compiled.__file__)
+        self.assertEquals(
+            prefix + '/jar_pkg/' + compiled,
+            prefer_compiled.__file__)
         self.assert_(prefer_compiled.compiled)
         self.assertRaises(NameError, __import__, 'flat_bad')
         self.assertRaises(NameError, __import__, 'jar_pkg.bad')
@@ -120,13 +123,15 @@ class PyclasspathImporterTestCase(unittest.TestCase):
         self.assertTrue(loader.is_package('jar_pkg'))
         self.assertFalse(loader.is_package('jar_pkg.prefer_compiled'))
 
-    @unittest.skipIf(test_support.is_jython_posix, "FIXME: failing on Linux issue #2422")
+    @unittest.skipIf(
+        test_support.is_jython_posix,
+        "FIXME: failing on Linux issue #2422")
     def test_loader_get_code(self):
         # Execute Python code out of the JAR
         jar = self.prepareJar('classimport.jar')
         Thread.currentThread().contextClassLoader = test_support.make_jar_classloader(jar)
         loader = pkgutil.get_loader('jar_pkg')
-        space = { 'value':None, 'compiled':None}
+        space = {'value': None, 'compiled': None}
 
         # flat_in_jar contains the assignment value = 7
         code = loader.get_code('flat_in_jar')
@@ -194,8 +199,8 @@ class PyclasspathImporterTestCase(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(
-                    ClasspathImporterTestCase,
-                    PyclasspathImporterTestCase
+        ClasspathImporterTestCase,
+        PyclasspathImporterTestCase
     )
 
 

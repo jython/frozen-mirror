@@ -33,6 +33,7 @@ import sys
 #    memuse-per-size should remain sane (less than a few thousand); if your
 #    test uses more, adjust 'size' upward, instead.
 
+
 class StrTest(unittest.TestCase):
     @bigmemtest(minsize=_2G, memuse=2)
     def test_capitalize(self, size):
@@ -40,7 +41,7 @@ class StrTest(unittest.TestCase):
         s = '-' * size + SUBSTR
         caps = s.capitalize()
         self.assertEquals(caps[-len(SUBSTR):],
-                         SUBSTR.capitalize())
+                          SUBSTR.capitalize())
         self.assertEquals(caps.lstrip('-'), SUBSTR)
 
     @bigmemtest(minsize=_2G + 10, memuse=1)
@@ -109,9 +110,9 @@ class StrTest(unittest.TestCase):
         self.assertEquals(s.find(SUBSTR, len(SUBSTR)), sublen + size)
         self.assertEquals(s.find('i'), SUBSTR.find('i'))
         self.assertEquals(s.find('i', sublen),
-                         sublen + size + SUBSTR.find('i'))
+                          sublen + size + SUBSTR.find('i'))
         self.assertEquals(s.find('i', size),
-                         sublen + size + SUBSTR.find('i'))
+                          sublen + size + SUBSTR.find('i'))
         self.assertEquals(s.find('j'), -1)
 
     @bigmemtest(minsize=_2G, memuse=2)
@@ -125,9 +126,9 @@ class StrTest(unittest.TestCase):
         self.assertEquals(s.index(SUBSTR, sublen), sublen + size)
         self.assertEquals(s.index('i'), SUBSTR.index('i'))
         self.assertEquals(s.index('i', sublen),
-                         sublen + size + SUBSTR.index('i'))
+                          sublen + size + SUBSTR.index('i'))
         self.assertEquals(s.index('i', size),
-                         sublen + size + SUBSTR.index('i'))
+                          sublen + size + SUBSTR.index('i'))
         self.assertRaises(ValueError, s.index, 'j')
 
     @bigmemtest(minsize=_2G, memuse=2)
@@ -156,7 +157,7 @@ class StrTest(unittest.TestCase):
 
     @bigmemtest(minsize=_2G, memuse=2)
     def test_islower(self, size):
-        chars = ''.join([ chr(c) for c in range(255) if not chr(c).isupper() ])
+        chars = ''.join([chr(c) for c in range(255) if not chr(c).isupper()])
         repeats = size // len(chars) + 2
         s = chars * repeats
         self.failUnless(s.islower())
@@ -184,7 +185,7 @@ class StrTest(unittest.TestCase):
 
     @bigmemtest(minsize=_2G, memuse=2)
     def test_isupper(self, size):
-        chars = ''.join([ chr(c) for c in range(255) if not chr(c).islower() ])
+        chars = ''.join([chr(c) for c in range(255) if not chr(c).islower()])
         repeats = size // len(chars) + 2
         s = chars * repeats
         self.failUnless(s.isupper())
@@ -564,6 +565,7 @@ class StrTest(unittest.TestCase):
         s = '\xFE' * (size + 1)
         self.failIf(h1 == hash(s))
 
+
 class TupleTest(unittest.TestCase):
 
     # Tuples have a small, fixed-sized head and an array of pointers to
@@ -638,7 +640,7 @@ class TupleTest(unittest.TestCase):
         self.assertEquals(t[size - 5:size], (None,) * 5)
         self.assertEquals(t[size - 6:size - 2], (None,) * 4)
         self.assertEquals(t[size:size], ())
-        self.assertEquals(t[size:size+5], ())
+        self.assertEquals(t[size:size + 5], ())
 
     # Like test_concat, split in two.
     def basic_test_repeat(self, size):
@@ -672,6 +674,7 @@ class TupleTest(unittest.TestCase):
     @bigmemtest(minsize=_2G + 2, memuse=8 + 3)
     def test_repr_large(self, size):
         return self.basic_test_repr(size)
+
 
 class ListTest(unittest.TestCase):
 
@@ -755,7 +758,7 @@ class ListTest(unittest.TestCase):
         self.assertEquals(l[size - 5:size], [None] * 5)
         self.assertEquals(l[size - 6:size - 2], [None] * 4)
         self.assertEquals(l[size:size], [])
-        self.assertEquals(l[size:size+5], [])
+        self.assertEquals(l[size:size + 5], [])
 
         l[size - 2] = 5
         self.assertEquals(len(l), size)
@@ -854,7 +857,7 @@ class ListTest(unittest.TestCase):
     def test_append(self, size):
         l = [object()] * size
         l.append(object())
-        self.assertEquals(len(l), size+1)
+        self.assertEquals(len(l), size + 1)
         self.failUnless(l[-3] is l[-2])
         self.failIf(l[-2] is l[-1])
 
@@ -881,13 +884,13 @@ class ListTest(unittest.TestCase):
 
     @bigmemtest(minsize=_2G // 5 + 2, memuse=8 * 5)
     def test_index(self, size):
-        l = [1L, 2L, 3L, 4L, 5L] * size
+        l = [1, 2, 3, 4, 5] * size
         size *= 5
         self.assertEquals(l.index(1), 0)
         self.assertEquals(l.index(5, size - 5), size - 1)
         self.assertEquals(l.index(5, size - 5, size), size - 1)
         self.assertRaises(ValueError, l.index, 1, size - 4, size)
-        self.assertRaises(ValueError, l.index, 6L)
+        self.assertRaises(ValueError, l.index, 6)
 
     # This tests suffers from overallocation, just like test_append.
     @bigmemtest(minsize=_2G + 10, memuse=9)
@@ -963,15 +966,16 @@ class ListTest(unittest.TestCase):
 
     @bigmemtest(minsize=_2G // 5 + 2, memuse=8 * 5)
     def test_sort(self, size):
-        l = [1, 2, 3, 4, 5] * size
-        l.sort()
+        l = sorted([1, 2, 3, 4, 5] * size)
         self.assertEquals(len(l), size * 5)
         self.assertEquals(l.count(1), size)
         self.assertEquals(l[:10], [1] * 10)
         self.assertEquals(l[-10:], [5] * 10)
 
+
 def test_main():
     test_support.run_unittest(StrTest, TupleTest, ListTest)
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

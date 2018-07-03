@@ -22,10 +22,14 @@ def exec_code_in_pi(source, inp=None, out=None, err=None, locals=None):
 
         ps = PySystemState()
         pi = PythonInterpreter({}, ps)
-        if locals is not None: pi.setLocals(locals)
-        if inp is not None: pi.setIn(inp)
-        if out is not None: pi.setOut(out)
-        if err is not None: pi.setErr(err)
+        if locals is not None:
+            pi.setLocals(locals)
+        if inp is not None:
+            pi.setIn(inp)
+        if out is not None:
+            pi.setOut(out)
+        if err is not None:
+            pi.setErr(err)
         try:
             if isinstance(source, types.FunctionType):
                 # A function wrapping a compiled code block
@@ -44,12 +48,11 @@ def exec_code_in_pi(source, inp=None, out=None, err=None, locals=None):
                 # A str or unicode (see UnicodeSourceTest)
                 pi.exec(source)
 
-        except:
+        except BaseException:
             print
-            print '-'*60
+            print '-' * 60
             traceback.print_exc(file=sys.stdout)
-            print '-'*60
-
+            print '-' * 60
 
     import threading
     context = threading.Thread(target=execution_context)
@@ -69,7 +72,7 @@ class InterpreterTest(unittest.TestCase):
             u'\u1000\u2000\u3000\u4000',
             # Some language names from wikipedia
             u'Català · Česky · Dansk · Deutsch · English · Español · Esperanto · Français · Bahasa Indonesia · Italiano · Magyar · Nederlands · 日本語 · Norsk (bokmål) · Polski · Português · Русский · Română · Slovenčina · Suomi · Svenska · Türkçe · Українська · Volapük · 中文',
-            ]
+        ]
 
         def f():
             global text
@@ -127,21 +130,22 @@ class UnicodeSourceTest(unittest.TestCase):
 
     def test_ascii_str(self):
         # Program written in bytes with ascii range only
-        self.do_test('a = 42\nprint a', u'42\n', {'a':42})
+        self.do_test('a = 42\nprint a', u'42\n', {'a': 42})
 
     def test_latin_str(self):
         # Program written in bytes with codes above 127
-        self.do_test('a = "caf\xe9"\nprint a', u'caf\xe9\n', {'a':'caf\xe9'})
+        self.do_test('a = "caf\xe9"\nprint a', u'caf\xe9\n', {'a': 'caf\xe9'})
 
     def test_ascii_unicode(self):
         # Program written in Unicode with ascii range only
-        self.do_test(u'a = "hello"\nprint a', u'hello\n', {'a':'hello'})
+        self.do_test(u'a = "hello"\nprint a', u'hello\n', {'a': 'hello'})
 
     def test_latin_unicode(self):
         # Program written in Unicode with codes above 127
-       self.do_test(u'a = "caf\xe9"\nprint a', u'caf\xe9\n', {'a':'caf\xe9'})
+        self.do_test(u'a = "caf\xe9"\nprint a', u'caf\xe9\n', {'a': 'caf\xe9'})
 
-    @unittest.skip("PythonInterpreter.exec(String) does not distinguish str/unicode")
+    @unittest.skip(
+        "PythonInterpreter.exec(String) does not distinguish str/unicode")
     def test_bmp_unicode(self):
         # Program written in Unicode with codes above 255
         a = u"畫蛇添足 Λόγος"
@@ -171,13 +175,14 @@ class UnicodeSourceTest(unittest.TestCase):
                      u'{}\n'.format(repr(a)),
                      {'a': a})
 
+
 def unicode_lines():
     input_lines = [
         u'Some text',
         u'un café crème',
         u"Λόγος",
         u"畫蛇添足",
-        ]
+    ]
     input_text = u'\n'.join(input_lines)
     return input_lines, input_text
 
@@ -198,14 +203,15 @@ class InterpreterSetInTest(unittest.TestCase):
         buf = bytearray()
         while True:
             c = sys.stdin.read(1)
-            if not c: break
+            if not c:
+                break
             buf.append(c)
         # A defined encoding ought to be advertised in sys.stdin.encoding
         enc = getattr(sys.stdin, 'encoding', None)
         # In the test, allow an override via local variables
         enc = locals().get('encoding', enc)
         if enc:
-            result = buf.decode(enc) # unicode
+            result = buf.decode(enc)  # unicode
         else:
             result = bytes(buf)
 
@@ -253,8 +259,10 @@ class InterpreterSetInTest(unittest.TestCase):
         result = list()
         while True:
             line = sys.stdin.readline()
-            if not line: break
-            if enc: line = line.decode(enc) # unicode
+            if not line:
+                break
+            if enc:
+                line = line.decode(enc)  # unicode
             result.append(line.rstrip('\n'))
 
     def test_pi_bytes_readline(self):
@@ -319,6 +327,7 @@ class StdoutWrapperTest(unittest.TestCase):
             class Example:
                 def __str__(self):
                     return "str"
+
                 def __repr__(self):
                     return "repr"
             print Example()
@@ -331,11 +340,12 @@ class StdoutWrapperTest(unittest.TestCase):
 
 def test_main():
     test.test_support.run_unittest(
-            InterpreterTest,
-            UnicodeSourceTest,
-            InterpreterSetInTest,
-            StdoutWrapperTest
+        InterpreterTest,
+        UnicodeSourceTest,
+        InterpreterSetInTest,
+        StdoutWrapperTest
     )
+
 
 if __name__ == "__main__":
     test_main()

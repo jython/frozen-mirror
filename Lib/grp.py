@@ -21,7 +21,8 @@ from os import _name, _posix_impl
 from org.python.core.Py import newString
 
 if _name == 'nt':
-    raise ImportError, 'grp module not supported on Windows'
+    raise ImportError('grp module not supported on Windows')
+
 
 class struct_group(tuple):
     """

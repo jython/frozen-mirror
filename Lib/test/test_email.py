@@ -5,12 +5,14 @@
 from email.test.test_email import TestEncoders, suite
 from test import test_support
 
+
 def test_main():
-    #This one doesn't work on Jython
+    # This one doesn't work on Jython
     del TestEncoders.test_encode7or8bit
 
     s = suite()
     test_support.run_unittest(suite())
+
 
 if __name__ == '__main__':
     test_main()

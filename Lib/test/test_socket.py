@@ -14,7 +14,8 @@ import socket
 import struct
 import sys
 import time
-import thread, threading
+import thread
+import threading
 from weakref import proxy
 from StringIO import StringIO
 from _socket import _check_threadpool_for_pending_threads, NIO_GROUP
@@ -32,6 +33,7 @@ if test_support.is_jython:
     _socket._NUM_THREADS = 5
 
     import java.util.logging
+
     def _set_java_logging(name, level):
         java.util.logging.Logger.getLogger(name).setLevel(level)
 
@@ -51,6 +53,7 @@ class SocketTCPTest(unittest.TestCase):
         self.serv.close()
         self.serv = None
 
+
 class SocketUDPTest(unittest.TestCase):
 
     HOST = HOST
@@ -64,6 +67,7 @@ class SocketUDPTest(unittest.TestCase):
     def tearDown(self):
         self.serv.close()
         self.serv = None
+
 
 class ThreadableTest:
     """Threadable Test class
@@ -135,7 +139,7 @@ class ThreadableTest:
         # Do some munging to start the client test.
         methodname = self.id()
         i = methodname.rfind('.')
-        methodname = methodname[i+1:]
+        methodname = methodname[i + 1:]
         self.test_method_name = methodname
         test_method = getattr(self, '_' + methodname)
         self.client_thread = thread.start_new_thread(
@@ -149,7 +153,7 @@ class ThreadableTest:
     def _assert_no_pending_threads(self, group, msg):
         # Ensure __del__ finalizers are called on sockets. Two things to note:
         # 1. It takes two collections for finalization to run.
-        # 2. gc.collect() is only advisory to the JVM, never mandatory. Still 
+        # 2. gc.collect() is only advisory to the JVM, never mandatory. Still
         #    it usually seems to happen under light load.
 
         # Wait up to one second for there not to be pending threads
@@ -159,10 +163,10 @@ class ThreadableTest:
             if len(pending_threads) == 0:
                 break
             test_support.gc_collect()
-            
+
         if pending_threads:
             print "Pending threads in Netty msg={} pool={}".format(msg, pprint.pformat(pending_threads))
-        
+
     def _tearDown(self):
         self.done.wait()   # wait for the client to exit
         self.__tearDown()
@@ -170,33 +174,34 @@ class ThreadableTest:
         msg = None
         if not self.queue.empty():
             msg = self.queue.get()
-        
+
         self._assert_no_pending_threads(NIO_GROUP, "Client thread pool")
         if hasattr(self, "srv"):
-            self._assert_no_pending_threads(self.srv.group, "Server thread pool")
+            self._assert_no_pending_threads(
+                self.srv.group, "Server thread pool")
 
         if msg:
             print "Got this message=%s %r" % (type(msg), msg)
             self.fail("msg={}".format(msg))
 
-            
     def clientRun(self, test_func):
         self.server_ready.wait()
         self.client_ready.set()
         self.clientSetUp()
         if not callable(test_func):
-            raise TypeError, "test_func must be a callable function"
+            raise TypeError("test_func must be a callable function")
         try:
             test_func()
-        except Exception, strerror:
+        except Exception as strerror:
             self.queue.put(strerror)
         self.clientTearDown()
 
     def clientSetUp(self):
-        raise NotImplementedError, "clientSetUp must be implemented."
+        raise NotImplementedError("clientSetUp must be implemented.")
 
     def clientTearDown(self):
         self.done.set()
+
 
 class ThreadedTCPSocketTest(SocketTCPTest, ThreadableTest):
 
@@ -213,6 +218,7 @@ class ThreadedTCPSocketTest(SocketTCPTest, ThreadableTest):
         self.cli = None
         ThreadableTest.clientTearDown(self)
 
+
 class ThreadedUDPSocketTest(SocketUDPTest, ThreadableTest):
 
     def __init__(self, methodName='runTest'):
@@ -222,6 +228,7 @@ class ThreadedUDPSocketTest(SocketUDPTest, ThreadableTest):
     def clientSetUp(self):
         self.cli = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.cli.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
 
 class SocketConnectedTest(ThreadedTCPSocketTest):
 
@@ -251,6 +258,7 @@ class SocketConnectedTest(ThreadedTCPSocketTest):
         self.serv_conn = None
         ThreadedTCPSocketTest.clientTearDown(self)
 
+
 class SocketPairTest(unittest.TestCase, ThreadableTest):
 
     def __init__(self, methodName='runTest'):
@@ -274,12 +282,13 @@ class SocketPairTest(unittest.TestCase, ThreadableTest):
 
 
 #######################################################################
-## Begin Tests
+# Begin Tests
 
 class GeneralModuleTests(unittest.TestCase):
 
     def test_weakref(self):
-        if sys.platform[:4] == 'java': return
+        if sys.platform[:4] == 'java':
+            return
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         p = proxy(s)
         self.assertEqual(p.fileno(), s.fileno())
@@ -296,8 +305,10 @@ class GeneralModuleTests(unittest.TestCase):
         # Testing socket module exceptions
         def raise_error(*args, **kwargs):
             raise socket.error
+
         def raise_herror(*args, **kwargs):
             raise socket.herror
+
         def raise_gaierror(*args, **kwargs):
             raise socket.gaierror
         self.failUnlessRaises(socket.error, raise_error,
@@ -327,7 +338,8 @@ class GeneralModuleTests(unittest.TestCase):
             self.assert_(isinstance(ip, str))
         except socket.error:
             # Probably name lookup wasn't set up right; skip this test
-            self.fail("Probably name lookup wasn't set up right; skip testHostnameRes.gethostbyname")
+            self.fail(
+                "Probably name lookup wasn't set up right; skip testHostnameRes.gethostbyname")
             return
         self.assert_(ip.find('.') >= 0, "Error resolving host to ip.")
         try:
@@ -337,12 +349,13 @@ class GeneralModuleTests(unittest.TestCase):
                 self.assert_(all(isinstance(host, str) for host in hosts))
         except socket.error:
             # Probably a similar problem as above; skip this test
-            self.fail("Probably name lookup wasn't set up right; skip testHostnameRes.gethostbyaddr")
+            self.fail(
+                "Probably name lookup wasn't set up right; skip testHostnameRes.gethostbyaddr")
             return
         all_host_names = [hostname, hname] + aliases
         fqhn = socket.getfqdn()
         self.assert_(isinstance(fqhn, str))
-        if not fqhn in all_host_names:
+        if fqhn not in all_host_names:
             self.fail("Error testing host resolution mechanisms.")
 
     def testRefCountGetNameInfo(self):
@@ -352,13 +365,14 @@ class GeneralModuleTests(unittest.TestCase):
             try:
                 # On some versions, this loses a reference
                 orig = sys.getrefcount(__name__)
-                socket.getnameinfo(__name__,0)
+                socket.getnameinfo(__name__, 0)
             except SystemError:
-                if sys.getrefcount(__name__) <> orig:
+                if sys.getrefcount(__name__) != orig:
                     self.fail("socket.getnameinfo loses a reference")
 
     def testInterpreterCrash(self):
-        if sys.platform[:4] == 'java': return
+        if sys.platform[:4] == 'java':
+            return
         # Making sure getnameinfo doesn't crash the interpreter
         try:
             # On some versions, this crashes the interpreter.
@@ -369,19 +383,20 @@ class GeneralModuleTests(unittest.TestCase):
 # Need to implement binary AND for ints and longs
 
     def testNtoH(self):
-        if sys.platform[:4] == 'java': return # problems with int & long
+        if sys.platform[:4] == 'java':
+            return  # problems with int & long
         # This just checks that htons etc. are their own inverse,
         # when looking at the lower 16 or 32 bits.
         sizes = {socket.htonl: 32, socket.ntohl: 32,
                  socket.htons: 16, socket.ntohs: 16}
         for func, size in sizes.items():
-            mask = (1L<<size) - 1
+            mask = (1 << size) - 1
             for i in (0, 1, 0xffff, ~0xffff, 2, 0x01234567, 0x76543210):
-                self.assertEqual(i & mask, func(func(i&mask)) & mask)
+                self.assertEqual(i & mask, func(func(i & mask)) & mask)
 
             swapped = func(mask)
             self.assertEqual(swapped & mask, mask)
-            self.assertRaises(OverflowError, func, 1L<<34)
+            self.assertRaises(OverflowError, func, 1 << 34)
 
     def testGetServBy(self):
         eq = self.assertEqual
@@ -425,20 +440,28 @@ class GeneralModuleTests(unittest.TestCase):
             result = socket.getservbyname("nosuchservice")
         except socket.error:
             pass
-        except Exception, x:
-            self.fail("getservbyname raised wrong exception for non-existent service: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getservbyname raised wrong exception for non-existent service: %s" %
+                str(x))
         else:
-            self.fail("getservbyname failed to raise exception for non-existent service: %s" % str(result))
+            self.fail(
+                "getservbyname failed to raise exception for non-existent service: %s" %
+                str(result))
 
         # Now getservbyport
         try:
             result = socket.getservbyport(55555)
         except socket.error:
             pass
-        except Exception, x:
-            self.fail("getservbyport raised wrong exception for unknown port: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getservbyport raised wrong exception for unknown port: %s" %
+                str(x))
         else:
-            self.fail("getservbyport failed to raise exception for unknown port: %s" % str(result))
+            self.fail(
+                "getservbyport failed to raise exception for unknown port: %s" %
+                str(result))
 
     def testGetProtoByName(self):
         self.failUnlessEqual(socket.IPPROTO_TCP, socket.getprotobyname("tcp"))
@@ -447,10 +470,14 @@ class GeneralModuleTests(unittest.TestCase):
             result = socket.getprotobyname("nosuchproto")
         except socket.error:
             pass
-        except Exception, x:
-            self.fail("getprotobyname raised wrong exception for unknown protocol: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getprotobyname raised wrong exception for unknown protocol: %s" %
+                str(x))
         else:
-            self.fail("getprotobyname failed to raise exception for unknown protocol: %s" % str(result))
+            self.fail(
+                "getprotobyname failed to raise exception for unknown protocol: %s" %
+                str(result))
 
     def testDefaultTimeout(self):
         # Testing default timeout
@@ -482,9 +509,10 @@ class GeneralModuleTests(unittest.TestCase):
 
     def testIPv4toString(self):
         if not hasattr(socket, 'inet_pton'):
-            return # No inet_pton() on this platform
+            return  # No inet_pton() on this platform
         from socket import inet_aton as f, inet_pton, AF_INET
-        g = lambda a: inet_pton(AF_INET, a)
+
+        def g(a): return inet_pton(AF_INET, a)
 
         self.assertEquals('\x00\x00\x00\x00', f('0.0.0.0'))
         self.assertEquals('\xff\x00\xff\x00', f('255.0.255.0'))
@@ -497,14 +525,15 @@ class GeneralModuleTests(unittest.TestCase):
 
     def testIPv6toString(self):
         if not hasattr(socket, 'inet_pton'):
-            return # No inet_pton() on this platform
+            return  # No inet_pton() on this platform
         try:
             from socket import inet_pton, AF_INET6, has_ipv6
             if not has_ipv6:
                 return
         except ImportError:
             return
-        f = lambda a: inet_pton(AF_INET6, a)
+
+        def f(a): return inet_pton(AF_INET6, a)
 
         self.assertEquals('\x00' * 16, f('::'))
         self.assertEquals('\x00' * 16, f('0::0'))
@@ -516,34 +545,41 @@ class GeneralModuleTests(unittest.TestCase):
 
     def test_inet_pton_exceptions(self):
         if not hasattr(socket, 'inet_pton'):
-            return # No inet_pton() on this platform
+            return  # No inet_pton() on this platform
 
         try:
             socket.inet_pton(socket.AF_UNSPEC, "doesntmatter")
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EAFNOSUPPORT)
-        except Exception, x:
-            self.fail("inet_pton raised wrong exception for incorrect address family AF_UNSPEC: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_pton raised wrong exception for incorrect address family AF_UNSPEC: %s" %
+                str(x))
 
         try:
             socket.inet_pton(socket.AF_INET, "1.2.3.")
-        except socket.error, se:
+        except socket.error as se:
             pass
-        except Exception, x:
-            self.fail("inet_pton raised wrong exception for invalid AF_INET address: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_pton raised wrong exception for invalid AF_INET address: %s" %
+                str(x))
 
         try:
             socket.inet_pton(socket.AF_INET6, ":::")
-        except socket.error, se:
+        except socket.error as se:
             pass
-        except Exception, x:
-            self.fail("inet_pton raised wrong exception for invalid AF_INET6 address: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_pton raised wrong exception for invalid AF_INET6 address: %s" %
+                str(x))
 
     def testStringToIPv4(self):
         if not hasattr(socket, 'inet_ntop'):
-            return # No inet_ntop() on this platform
+            return  # No inet_ntop() on this platform
         from socket import inet_ntoa as f, inet_ntop, AF_INET
-        g = lambda a: inet_ntop(AF_INET, a)
+
+        def g(a): return inet_ntop(AF_INET, a)
 
         self.assertEquals('1.0.1.0', f('\x01\x00\x01\x00'))
         self.assertEquals('170.85.170.85', f('\xaa\x55\xaa\x55'))
@@ -556,60 +592,65 @@ class GeneralModuleTests(unittest.TestCase):
 
     def testStringToIPv6(self):
         if not hasattr(socket, 'inet_ntop'):
-            return # No inet_ntop() on this platform
+            return  # No inet_ntop() on this platform
         try:
             from socket import inet_ntop, AF_INET6, has_ipv6
             if not has_ipv6:
                 return
         except ImportError:
             return
-        f = lambda a: inet_ntop(AF_INET6, a)
+
+        def f(a): return inet_ntop(AF_INET6, a)
 
 #        self.assertEquals('::', f('\x00' * 16))
 #        self.assertEquals('::1', f('\x00' * 15 + '\x01'))
         # java.net.InetAddress always return the full unabbreviated form
         self.assertEquals('0:0:0:0:0:0:0:0', f('\x00' * 16))
         self.assertEquals('0:0:0:0:0:0:0:1', f('\x00' * 15 + '\x01'))
-        self.assertEquals(
-            'aef:b01:506:1001:ffff:9997:55:170',
-            f('\x0a\xef\x0b\x01\x05\x06\x10\x01\xff\xff\x99\x97\x00\x55\x01\x70')
-        )
+        self.assertEquals('aef:b01:506:1001:ffff:9997:55:170', f(
+            '\x0a\xef\x0b\x01\x05\x06\x10\x01\xff\xff\x99\x97\x00\x55\x01\x70'))
 
     def test_inet_ntop_exceptions(self):
         if not hasattr(socket, 'inet_ntop'):
-            return # No inet_ntop() on this platform
+            return  # No inet_ntop() on this platform
         valid_address = '\x01\x01\x01\x01'
         invalid_address = '\x01\x01\x01\x01\x01'
 
         try:
             socket.inet_ntop(socket.AF_UNSPEC, valid_address)
-        except ValueError, v:
+        except ValueError as v:
             pass
-        except Exception, x:
-            self.fail("inet_ntop raised wrong exception for incorrect address family AF_UNSPEC: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_ntop raised wrong exception for incorrect address family AF_UNSPEC: %s" %
+                str(x))
 
         try:
             socket.inet_ntop(socket.AF_INET, invalid_address)
-        except ValueError, v:
+        except ValueError as v:
             pass
-        except Exception, x:
-            self.fail("inet_ntop raised wrong exception for invalid AF_INET address: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_ntop raised wrong exception for invalid AF_INET address: %s" %
+                str(x))
 
         try:
             socket.inet_ntop(socket.AF_INET6, invalid_address)
-        except ValueError, v:
+        except ValueError as v:
             pass
-        except Exception, x:
-            self.fail("inet_ntop raised wrong exception for invalid AF_INET address: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "inet_ntop raised wrong exception for invalid AF_INET address: %s" %
+                str(x))
 
     # XXX The following don't test module-level functionality...
 
     def testSockName(self):
         # Testing getsockname()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(("0.0.0.0", PORT+1))
+        sock.bind(("0.0.0.0", PORT + 1))
         name = sock.getsockname()
-        self.assertEqual(name, ("0.0.0.0", PORT+1))
+        self.assertEqual(name, ("0.0.0.0", PORT + 1))
 
     def testSockNameEphemeralV4(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -663,6 +704,7 @@ class GeneralModuleTests(unittest.TestCase):
     def testSocketTypeAvailable(self):
         self.assertIs(socket.socket, socket.SocketType)
 
+
 class IPAddressTests(unittest.TestCase):
 
     def testValidIpV4Addresses(self):
@@ -673,9 +715,15 @@ class IPAddressTests(unittest.TestCase):
             "255.12.34.56",
             "255.255.255.255",
         ]:
-            self.failUnless(socket.is_ipv4_address(a), "is_ipv4_address failed for valid IPV4 address '%s'" % a)
-            self.failUnless(socket.is_ip_address(a), "is_ip_address failed for valid IPV4 address '%s'" % a)
-            
+            self.failUnless(
+                socket.is_ipv4_address(a),
+                "is_ipv4_address failed for valid IPV4 address '%s'" %
+                a)
+            self.failUnless(
+                socket.is_ip_address(a),
+                "is_ip_address failed for valid IPV4 address '%s'" %
+                a)
+
     def testInvalidIpV4Addresses(self):
         for a in [
             "99.2",
@@ -690,8 +738,14 @@ class IPAddressTests(unittest.TestCase):
             "255.24.-1.128.",
             "255.0.0.999",
         ]:
-            self.failUnless(not socket.is_ipv4_address(a), "not is_ipv4_address failed for invalid IPV4 address '%s'" % a)
-            self.failUnless(not socket.is_ip_address(a), "not is_ip_address failed for invalid IPV4 address '%s'" % a)
+            self.failUnless(
+                not socket.is_ipv4_address(a),
+                "not is_ipv4_address failed for invalid IPV4 address '%s'" %
+                a)
+            self.failUnless(
+                not socket.is_ip_address(a),
+                "not is_ip_address failed for invalid IPV4 address '%s'" %
+                a)
 
     def testValidIpV6Addresses(self):
         for a in [
@@ -708,18 +762,30 @@ class IPAddressTests(unittest.TestCase):
             "fecc:face::b00c:f001:fedc:fedd",
             "CaFe:BaBe:dEAd:BeeF:12:345:6789:abcd",
         ]:
-            self.failUnless(socket.is_ipv6_address(a), "is_ipv6_address failed for valid IPV6 address '%s'" % a)
-            self.failUnless(socket.is_ip_address(a), "is_ip_address failed for valid IPV6 address '%s'" % a)
-            
+            self.failUnless(
+                socket.is_ipv6_address(a),
+                "is_ipv6_address failed for valid IPV6 address '%s'" %
+                a)
+            self.failUnless(
+                socket.is_ip_address(a),
+                "is_ip_address failed for valid IPV6 address '%s'" %
+                a)
+
     def testInvalidIpV6Addresses(self):
         for a in [
-            "2001:db8:::192.0.2.1", # from RFC 5954
+            "2001:db8:::192.0.2.1",  # from RFC 5954
             "CaFe:BaBe:dEAd:BeeF:12:345:6789:abcd:",
             "CaFe:BaBe:dEAd:BeeF:12:345:6789:abcd:ef",
             "CaFFe:1a77e:dEAd:BeeF:12:345:6789:abcd",
         ]:
-            self.failUnless(not socket.is_ipv6_address(a), "not is_ipv6_address failed for invalid IPV6 address '%s'" % a)
-            self.failUnless(not socket.is_ip_address(a), "not is_ip_address failed for invalid IPV6 address '%s'" % a)
+            self.failUnless(
+                not socket.is_ipv6_address(a),
+                "not is_ipv6_address failed for invalid IPV6 address '%s'" %
+                a)
+            self.failUnless(
+                not socket.is_ip_address(a),
+                "not is_ip_address failed for invalid IPV6 address '%s'" %
+                a)
 
     def testRFC5952(self):
         for a in [
@@ -748,9 +814,16 @@ class IPAddressTests(unittest.TestCase):
             "2001:db8:aaaa:bbbb:cccc:dddd:eeee:AAAA",
             "2001:db8:aaaa:bbbb:cccc:dddd:eeee:AaAa",
         ]:
-            self.failUnless(socket.is_ipv6_address(a), "is_ipv6_address failed for valid RFC 5952 IPV6 address '%s'" % a)
-            self.failUnless(socket.is_ip_address(a), "is_ip_address failed for valid RFC 5952 IPV6 address '%s'" % a)
-      
+            self.failUnless(
+                socket.is_ipv6_address(a),
+                "is_ipv6_address failed for valid RFC 5952 IPV6 address '%s'" %
+                a)
+            self.failUnless(
+                socket.is_ip_address(a),
+                "is_ip_address failed for valid RFC 5952 IPV6 address '%s'" %
+                a)
+
+
 class TestSocketOptions(unittest.TestCase):
 
     def setUp(self):
@@ -760,7 +833,8 @@ class TestSocketOptions(unittest.TestCase):
         for expected_value in values:
             sock.setsockopt(level, option, expected_value)
             retrieved_value = sock.getsockopt(level, option)
-            msg = "TCP Retrieved option(%s, %s) value %s != %s(value set)" % (level, option, retrieved_value, expected_value)
+            msg = "TCP Retrieved option(%s, %s) value %s != %s(value set)" % (
+                level, option, retrieved_value, expected_value)
             if option == socket.SO_RCVBUF:
                 self.assert_(retrieved_value >= expected_value, msg)
             else:
@@ -770,11 +844,16 @@ class TestSocketOptions(unittest.TestCase):
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self._testSetAndGetOption(sock, level, option, values)
-            # now bind the socket i.e. cause the implementation socket to be created
-            sock.bind( (HOST, PORT) )
+            # now bind the socket i.e. cause the implementation socket to be
+            # created
+            sock.bind((HOST, PORT))
             retrieved_option_value = sock.getsockopt(level, option)
-            self.failUnlessEqual(retrieved_option_value, values[-1], \
-                 "UDP Option value '(%s, %s)'='%s' did not propagate to implementation socket: got %s" % (level, option, values[-1], retrieved_option_value) )
+            self.failUnlessEqual(retrieved_option_value,
+                                 values[-1],
+                                 "UDP Option value '(%s, %s)'='%s' did not propagate to implementation socket: got %s" % (level,
+                                                                                                                          option,
+                                                                                                                          values[-1],
+                                                                                                                          retrieved_option_value))
             self._testSetAndGetOption(sock, level, option, values)
         finally:
             sock.close()
@@ -782,10 +861,11 @@ class TestSocketOptions(unittest.TestCase):
     def _testTCPClientOption(self, level, option, values):
         sock = None
         try:
-            # First listen on a server socket, so that the connection won't be refused.
+            # First listen on a server socket, so that the connection won't be
+            # refused.
             server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            server_sock.bind( (HOST, PORT) )
+            server_sock.bind((HOST, PORT))
             server_sock.listen(50)
             # Now do the tests
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -793,9 +873,10 @@ class TestSocketOptions(unittest.TestCase):
             # now connect the socket i.e. cause the implementation socket to be created
             # First bind, so that the SO_REUSEADDR setting propagates
             #sock.bind( (HOST, PORT+1) )
-            sock.connect( (HOST, PORT) )
+            sock.connect((HOST, PORT))
             retrieved_option_value = sock.getsockopt(level, option)
-            msg = "TCP client option value '%s'='%s' did not propagate to implementation socket: got %s" % (option, values[-1], retrieved_option_value)
+            msg = "TCP client option value '%s'='%s' did not propagate to implementation socket: got %s" % (
+                option, values[-1], retrieved_option_value)
             if option in (socket.SO_RCVBUF, socket.SO_SNDBUF):
                 # NOTE: there's no guarantee that bufsize will be the
                 # exact setsockopt value, particularly after
@@ -818,15 +899,17 @@ class TestSocketOptions(unittest.TestCase):
             server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._testSetAndGetOption(server_sock, level, option, values)
-            # now bind and listen on the socket i.e. cause the implementation socket to be created
-            server_sock.bind( (HOST, PORT) )
+            # now bind and listen on the socket i.e. cause the implementation
+            # socket to be created
+            server_sock.bind((HOST, PORT))
             server_sock.listen(50)
             # Now create client socket to connect to server
             cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            cli_sock.connect( (HOST, PORT) )
+            cli_sock.connect((HOST, PORT))
             accepted_sock = server_sock.accept()[0]
             retrieved_option_value = accepted_sock.getsockopt(level, option)
-            msg = "TCP client inherited option value '(%s,%s)'='%s' did not propagate to accepted socket: got %s" % (level, option, values[-1], retrieved_option_value)
+            msg = "TCP client inherited option value '(%s,%s)'='%s' did not propagate to accepted socket: got %s" % (
+                level, option, values[-1], retrieved_option_value)
             if option == socket.SO_RCVBUF:
                 # NOTE: see similar bsd/solaris workaround above
                 self.assert_(retrieved_option_value >= values[-1], msg)
@@ -846,11 +929,13 @@ class TestSocketOptions(unittest.TestCase):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._testSetAndGetOption(sock, level, option, values)
-            # now bind and listen on the socket i.e. cause the implementation socket to be created
-            sock.bind( (HOST, PORT) )
+            # now bind and listen on the socket i.e. cause the implementation
+            # socket to be created
+            sock.bind((HOST, PORT))
             sock.listen(50)
             retrieved_option_value = sock.getsockopt(level, option)
-            msg = "TCP server option value '(%s,%s)'='%s' did not propagate to implementation socket. Got %s" % (level, option, values[-1], retrieved_option_value)
+            msg = "TCP server option value '(%s,%s)'='%s' did not propagate to implementation socket. Got %s" % (
+                level, option, values[-1], retrieved_option_value)
             if option == socket.SO_RCVBUF:
                 # NOTE: see similar bsd/solaris workaround above
                 self.assert_(retrieved_option_value >= values[-1], msg)
@@ -862,7 +947,7 @@ class TestSocketOptions(unittest.TestCase):
 
     def _testOption(self, level, option, values):
         for flag, func in [
-            (self.test_udp,        self._testUDPOption),
+            (self.test_udp, self._testUDPOption),
             (self.test_tcp_client, self._testTCPClientOption),
             (self.test_tcp_server, self._testTCPServerOption),
         ]:
@@ -871,18 +956,28 @@ class TestSocketOptions(unittest.TestCase):
             else:
                 try:
                     func(level, option, values)
-                except socket.error, se:
-                    self.failUnlessEqual(se[0], errno.ENOPROTOOPT, "Wrong errno from unsupported option exception: %d" % se[0])
-                except Exception, x:
-                    self.fail("Wrong exception raised from unsupported option: %s" % str(x))
+                except socket.error as se:
+                    self.failUnlessEqual(
+                        se[0],
+                        errno.ENOPROTOOPT,
+                        "Wrong errno from unsupported option exception: %d" %
+                        se[0])
+                except Exception as x:
+                    self.fail(
+                        "Wrong exception raised from unsupported option: %s" %
+                        str(x))
                 else:
-                    self.fail("Setting unsupported option should have raised an exception")
+                    self.fail(
+                        "Setting unsupported option should have raised an exception")
 
     def _testInheritedOption(self, level, option, values):
         try:
             self._testTCPClientInheritedOption(level, option, values)
-        except Exception, x:
-            self.fail("Inherited option should not have raised exception: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Inherited option should not have raised exception: %s" %
+                str(x))
+
 
 class TestSupportedOptions(TestSocketOptions):
 
@@ -894,7 +989,8 @@ class TestSupportedOptions(TestSocketOptions):
         self.test_tcp_client = 1
         self.test_tcp_server = 1
         self._testOption(socket.SOL_SOCKET, socket.SO_KEEPALIVE, [0, 1])
-        self._testInheritedOption(socket.SOL_SOCKET, socket.SO_KEEPALIVE, [0, 1])
+        self._testInheritedOption(
+            socket.SOL_SOCKET, socket.SO_KEEPALIVE, [0, 1])
 
     # def testSO_LINGER(self):
     #     self.test_tcp_client = 1
@@ -912,38 +1008,51 @@ class TestSupportedOptions(TestSocketOptions):
     #     self._testInheritedOption(socket.SOL_SOCKET, socket.SO_OOBINLINE, [0, 1])
 
     def testSO_RCVBUF(self):
-        self.test_udp        = 1
+        self.test_udp = 1
         self.test_tcp_client = 1
         self.test_tcp_server = 1
-        self._testOption(socket.SOL_SOCKET, socket.SO_RCVBUF, [1024, 4096, 16384])
-        self._testInheritedOption(socket.SOL_SOCKET, socket.SO_RCVBUF, [1024, 4096, 16384])
+        self._testOption(
+            socket.SOL_SOCKET, socket.SO_RCVBUF, [
+                1024, 4096, 16384])
+        self._testInheritedOption(
+            socket.SOL_SOCKET, socket.SO_RCVBUF, [
+                1024, 4096, 16384])
 
     def testSO_REUSEADDR(self):
-        self.test_udp        = 1
+        self.test_udp = 1
         self.test_tcp_client = 1
         self.test_tcp_server = 1
         self._testOption(socket.SOL_SOCKET, socket.SO_REUSEADDR, [0, 1])
-        self._testInheritedOption(socket.SOL_SOCKET, socket.SO_REUSEADDR, [0, 1])
+        self._testInheritedOption(
+            socket.SOL_SOCKET, socket.SO_REUSEADDR, [0, 1])
 
     def testSO_SNDBUF(self):
-        self.test_udp        = 1
+        self.test_udp = 1
         self.test_tcp_client = 1
         self.test_tcp_server = 1
-        self._testOption(socket.SOL_SOCKET, socket.SO_SNDBUF, [1024, 4096, 16384])
-        self._testInheritedOption(socket.SOL_SOCKET, socket.SO_SNDBUF, [1024, 4096, 16384])
+        self._testOption(
+            socket.SOL_SOCKET, socket.SO_SNDBUF, [
+                1024, 4096, 16384])
+        self._testInheritedOption(
+            socket.SOL_SOCKET, socket.SO_SNDBUF, [
+                1024, 4096, 16384])
 
     def testSO_TIMEOUT(self):
-        self.test_udp        = 1
+        self.test_udp = 1
         self.test_tcp_client = 1
         self.test_tcp_server = 1
         self._testOption(socket.SOL_SOCKET, socket.SO_TIMEOUT, [0, 1, 1000])
-        self._testInheritedOption(socket.SOL_SOCKET, socket.SO_TIMEOUT, [0, 1, 1000])
+        self._testInheritedOption(
+            socket.SOL_SOCKET, socket.SO_TIMEOUT, [
+                0, 1, 1000])
 
     def testTCP_NODELAY(self):
         self.test_tcp_client = 1
         self.test_tcp_server = 1
         self._testOption(socket.IPPROTO_TCP, socket.TCP_NODELAY, [0, 1])
-        self._testInheritedOption(socket.IPPROTO_TCP, socket.TCP_NODELAY, [0, 1])
+        self._testInheritedOption(
+            socket.IPPROTO_TCP, socket.TCP_NODELAY, [0, 1])
+
 
 class TestPseudoOptions(unittest.TestCase):
 
@@ -951,8 +1060,8 @@ class TestPseudoOptions(unittest.TestCase):
         for socket_type, listen, expected_result in [
             (socket.SOCK_STREAM, 0, 0),
             (socket.SOCK_STREAM, 1, 1),
-            (socket.SOCK_DGRAM,   0, Exception),
-            ]:
+            (socket.SOCK_DGRAM, 0, Exception),
+        ]:
             s = socket.socket(socket.AF_INET, socket_type)
             if listen:
                 s.listen(1)
@@ -960,12 +1069,16 @@ class TestPseudoOptions(unittest.TestCase):
                 result = s.getsockopt(socket.SOL_SOCKET, socket.SO_ACCEPTCONN)
                 if expected_result is not Exception:
                     self.failUnlessEqual(result, expected_result)
-            except socket.error, se:
+            except socket.error as se:
                 if expected_result is Exception:
                     if se[0] != errno.ENOPROTOOPT:
-                        self.fail("getsockopt(SO_ACCEPTCONN) on wrong socket type raised wrong exception: %s" % str(se))
+                        self.fail(
+                            "getsockopt(SO_ACCEPTCONN) on wrong socket type raised wrong exception: %s" %
+                            str(se))
                 else:
-                    self.fail("getsocket(SO_ACCEPTCONN) on valid socket type should not have raised exception: %s" % (str(se)))
+                    self.fail(
+                        "getsocket(SO_ACCEPTCONN) on valid socket type should not have raised exception: %s" %
+                        (str(se)))
 
     def testSO_ERROR(self):
         good = bad = None
@@ -978,11 +1091,20 @@ class TestPseudoOptions(unittest.TestCase):
             bad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             bad.bind((HOST, PORT))
             bad.listen(1)
-            self.fail("Listen operation against same port did not generate an expected error")
-        except socket.error, se:
-            self.failUnlessEqual(bad.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR), se[0])
+            self.fail(
+                "Listen operation against same port did not generate an expected error")
+        except socket.error as se:
+            self.failUnlessEqual(
+                bad.getsockopt(
+                    socket.SOL_SOCKET,
+                    socket.SO_ERROR),
+                se[0])
             # try again, should now be reset
-            self.failUnlessEqual(bad.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR), 0)
+            self.failUnlessEqual(
+                bad.getsockopt(
+                    socket.SOL_SOCKET,
+                    socket.SO_ERROR),
+                0)
         finally:
             if good is not None:
                 good.close()
@@ -992,7 +1114,12 @@ class TestPseudoOptions(unittest.TestCase):
     def testSO_TYPE(self):
         for socket_type in [socket.SOCK_STREAM, socket.SOCK_DGRAM]:
             s = socket.socket(socket.AF_INET, socket_type)
-            self.failUnlessEqual(s.getsockopt(socket.SOL_SOCKET, socket.SO_TYPE), socket_type)
+            self.failUnlessEqual(
+                s.getsockopt(
+                    socket.SOL_SOCKET,
+                    socket.SO_TYPE),
+                socket_type)
+
 
 class TestUnsupportedOptions(TestSocketOptions):
 
@@ -1006,7 +1133,7 @@ class TestUnsupportedOptions(TestSocketOptions):
         # this is an MS specific option that will not be appearing on java
         # http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6421091
         # http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6402335
-        # 
+        #
         # As of 2.7.1, we no longer support this option - it is also
         # not not necessary since Java implements BSD semantics for
         # address reuse even on Windows. See
@@ -1034,6 +1161,7 @@ class TestUnsupportedOptions(TestSocketOptions):
 
     def testSO_USELOOPBACK(self):
         self.failUnless(hasattr(socket, 'SO_USELOOPBACK'))
+
 
 class BasicTCPTest(SocketConnectedTest):
 
@@ -1078,7 +1206,7 @@ class BasicTCPTest(SocketConnectedTest):
 
     def testOverFlowRecvFrom(self):
         # Testing recvfrom() in chunks over TCP
-        seg1, addr = self.cli_conn.recvfrom(len(MSG)-3)
+        seg1, addr = self.cli_conn.recvfrom(len(MSG) - 3)
         seg2, addr = self.cli_conn.recvfrom(1024)
         msg = seg1 + seg2
         self.assertEqual(msg, MSG)
@@ -1089,7 +1217,7 @@ class BasicTCPTest(SocketConnectedTest):
     def testSendAll(self):
         # Testing sendall() with a 2048 byte string over TCP
         msg = ''
-        while 1:
+        while True:
             read = self.cli_conn.recv(1024)
             if not read:
                 break
@@ -1103,7 +1231,7 @@ class BasicTCPTest(SocketConnectedTest):
     def testFromFd(self):
         # Testing fromfd()
         if not hasattr(socket, "fromfd"):
-            return # On Windows or Jython, this doesn't exist
+            return  # On Windows or Jython, this doesn't exist
         fd = self.cli_conn.fileno()
         sock = socket.fromfd(fd, socket.AF_INET, socket.SOCK_STREAM)
         msg = sock.recv(1024)
@@ -1128,11 +1256,13 @@ class BasicTCPTest(SocketConnectedTest):
         for x in range(5):
             try:
                 self.serv_conn.send("spam")
-            except socket.error, se:
+            except socket.error as se:
                 self.failUnlessEqual(se[0], errno.ECONNRESET)
                 return
-            except Exception, x:
-                self.fail("Sending on remotely closed socket raised wrong exception: %s" % x)
+            except Exception as x:
+                self.fail(
+                    "Sending on remotely closed socket raised wrong exception: %s" %
+                    x)
             time.sleep(0.5)
         self.fail("Sending on remotely closed socket should have raised exception")
 
@@ -1142,7 +1272,7 @@ class BasicTCPTest(SocketConnectedTest):
 
         dup_conn = self.cli_conn.dup()
         msg = dup_conn.recv(len('and ' + MSG))
-        self.assertEqual(msg, 'and ' +  MSG)
+        self.assertEqual(msg, 'and ' + MSG)
         dup_conn.close()  # need to ensure all sockets are closed
 
     def _testDup(self):
@@ -1151,11 +1281,13 @@ class BasicTCPTest(SocketConnectedTest):
 
     def testSelect(self):
         # http://bugs.jython.org/issue2242
-        self.assertIs(self.cli_conn.gettimeout(), None, "Server socket is not blocking")
+        self.assertIs(self.cli_conn.gettimeout(), None,
+                      "Server socket is not blocking")
         start_time = time.time()
         r, w, x = select.select([self.cli_conn], [], [], 10)
         if (time.time() - start_time) > 1:
-            self.fail("Child socket was not immediately available for read when set to blocking")
+            self.fail(
+                "Child socket was not immediately available for read when set to blocking")
         self.assertEqual(r[0], self.cli_conn)
         self.assertEqual(self.cli_conn.recv(1024), MSG)
 
@@ -1169,24 +1301,30 @@ class UDPBindTest(unittest.TestCase):
     PORT = PORT
 
     def setUp(self):
-        self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def testBindSpecific(self):
-        self.sock.bind( (self.HOST, self.PORT) ) # Use a specific port
+        self.sock.bind((self.HOST, self.PORT))  # Use a specific port
         actual_port = self.sock.getsockname()[1]
-        self.failUnless(actual_port == self.PORT,
-            "Binding to specific port number should have returned same number: %d != %d" % (actual_port, self.PORT))
+        self.failUnless(
+            actual_port == self.PORT,
+            "Binding to specific port number should have returned same number: %d != %d" %
+            (actual_port,
+             self.PORT))
 
     def testBindEphemeral(self):
-        self.sock.bind( (self.HOST, 0) ) # let system choose a free port
-        self.failUnless(self.sock.getsockname()[1] != 0, "Binding to port zero should have allocated an ephemeral port number")
+        self.sock.bind((self.HOST, 0))  # let system choose a free port
+        self.failUnless(
+            self.sock.getsockname()[1] != 0,
+            "Binding to port zero should have allocated an ephemeral port number")
 
     def testShutdown(self):
-        self.sock.bind( (self.HOST, self.PORT) )
+        self.sock.bind((self.HOST, self.PORT))
         self.sock.shutdown(socket.SHUT_RDWR)
 
     def tearDown(self):
         self.sock.close()
+
 
 class BasicUDPTest(ThreadedUDPSocketTest):
 
@@ -1218,7 +1356,7 @@ class BasicUDPTest(ThreadedUDPSocketTest):
         self.assertEqual(msg, MSG)
 
     def _testSendAndRecv(self):
-        self.cli.connect( (self.HOST, self.PORT) )
+        self.cli.connect((self.HOST, self.PORT))
         self.cli.send(MSG, 0)
 
     def testSendAndRecvTimeoutMode(self):
@@ -1230,7 +1368,7 @@ class BasicUDPTest(ThreadedUDPSocketTest):
         self.assertEqual(msg, MSG)
 
     def _testSendAndRecvTimeoutMode(self):
-        self.cli.connect( (self.HOST, self.PORT) )
+        self.cli.connect((self.HOST, self.PORT))
         self.cli.settimeout(5)
         time.sleep(1)
         self.cli.send(MSG, 0)
@@ -1273,6 +1411,7 @@ class BasicUDPTest(ThreadedUDPSocketTest):
         self.cli.settimeout(10)
         self.cli.sendto(EIGHT_BIT_MSG, 0, (self.HOST, self.PORT))
 
+
 class UDPBroadcastTest(ThreadedUDPSocketTest):
 
     def setUp(self):
@@ -1280,13 +1419,14 @@ class UDPBroadcastTest(ThreadedUDPSocketTest):
         self.serv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def testBroadcast(self):
-        self.serv.bind( ("", self.PORT) )
+        self.serv.bind(("", self.PORT))
         msg = self.serv.recv(len(EIGHT_BIT_MSG))
         self.assertEqual(msg, EIGHT_BIT_MSG)
 
     def _testBroadcast(self):
         self.cli.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        self.cli.sendto(EIGHT_BIT_MSG, ("<broadcast>", self.PORT) )
+        self.cli.sendto(EIGHT_BIT_MSG, ("<broadcast>", self.PORT))
+
 
 class BasicSocketPairTest(SocketPairTest):
 
@@ -1306,6 +1446,7 @@ class BasicSocketPairTest(SocketPairTest):
     def _testSend(self):
         msg = self.cli.recv(1024)
         self.assertEqual(msg, MSG)
+
 
 class NonBlockingTCPServerTests(SocketTCPTest):
 
@@ -1330,6 +1471,7 @@ class NonBlockingTCPServerTests(SocketTCPTest):
         else:
             self.fail("Error trying to do non-blocking accept.")
 
+
 class NonBlockingTCPTests(ThreadedTCPSocketTest):
 
     def __init__(self, methodName='runTest'):
@@ -1348,7 +1490,8 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
             conn, addr = self.serv.accept()
             conn.close()
         else:
-            self.fail("Error trying to do accept after select: server socket was not in 'read'able list")
+            self.fail(
+                "Error trying to do accept after select: server socket was not in 'read'able list")
 
     def _testAcceptConnection(self):
         # Make a connection to the server
@@ -1375,7 +1518,8 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
             conn, addr = self.serv.accept()
             conn.close()
         else:
-            self.fail("Error trying to do accept after select: server socket was not in 'read'able list")
+            self.fail(
+                "Error trying to do accept after select: server socket was not in 'read'able list")
 
     def _testNonBlockingConnect(self):
         # Testing non-blocking connect
@@ -1389,7 +1533,8 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
         try:
             self.cli.send(MSG)
         except socket.error:
-            self.fail("Sending on connected socket should not have raised socket.error")
+            self.fail(
+                "Sending on connected socket should not have raised socket.error")
 
     def testConnectWithLocalBind(self):
         # Test blocking connect
@@ -1403,11 +1548,11 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
         while True:
             # Keep trying until a local port is available
             self.cli.settimeout(1)
-            self.cli.bind( (self.HOST, cli_port) )
+            self.cli.bind((self.HOST, cli_port))
             try:
                 self.cli.connect((self.HOST, self.PORT))
                 break
-            except socket.error, se:
+            except socket.error as se:
                 # cli_port is in use (maybe in TIME_WAIT state from a
                 # previous test run). reset the client socket and try
                 # again
@@ -1442,7 +1587,8 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
                 msg = conn.recv(len(MSG))
                 self.assertEqual(msg, MSG)
             else:
-                self.fail("Non-blocking socket with data should been in read list.")
+                self.fail(
+                    "Non-blocking socket with data should been in read list.")
         finally:
             conn.close()
 
@@ -1459,20 +1605,25 @@ class NonBlockingTCPTests(ThreadedTCPSocketTest):
         except socket.error:
             pass
         else:
-            self.fail("Non-blocking recv of no data should have raised socket.error.")
+            self.fail(
+                "Non-blocking recv of no data should have raised socket.error.")
         finally:
             conn.close()
 
     def _testRecvNoData(self):
         self.cli.connect((self.HOST, self.PORT))
-        time.sleep(1)  # Without a sleep, we may not see the connect, because the channel will be closed
+        # Without a sleep, we may not see the connect, because the channel will
+        # be closed
+        time.sleep(1)
 
 
-class NonBlockingUDPTests(ThreadedUDPSocketTest): pass
+class NonBlockingUDPTests(ThreadedUDPSocketTest):
+    pass
 
 #
 # TODO: Write some non-blocking UDP tests
 #
+
 
 class TCPFileObjectClassOpenCloseTests(SocketConnectedTest):
 
@@ -1486,8 +1637,10 @@ class TCPFileObjectClassOpenCloseTests(SocketConnectedTest):
         self.cli_file.close()
         try:
             self.serv_conn.send(MSG)
-        except Exception, x:
-            self.fail("Closing file wrapper appears to have closed underlying socket: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Closing file wrapper appears to have closed underlying socket: %s" %
+                str(x))
 
     def testCloseSocketDoesNotCloseFile(self):
         msg = self.cli_conn.recv(1024)
@@ -1499,8 +1652,11 @@ class TCPFileObjectClassOpenCloseTests(SocketConnectedTest):
         try:
             self.cli_file.write(MSG)
             self.cli_file.flush()
-        except Exception, x:
-            self.fail("Closing socket appears to have closed file wrapper: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Closing socket appears to have closed file wrapper: %s" %
+                str(x))
+
 
 class UDPFileObjectClassOpenCloseTests(ThreadedUDPSocketTest):
 
@@ -1514,8 +1670,10 @@ class UDPFileObjectClassOpenCloseTests(ThreadedUDPSocketTest):
         self.cli_file.close()
         try:
             self.cli.sendto(MSG, 0, (self.HOST, self.PORT))
-        except Exception, x:
-            self.fail("Closing file wrapper appears to have closed underlying socket: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Closing file wrapper appears to have closed underlying socket: %s" %
+                str(x))
 
     def testCloseSocketDoesNotCloseFile(self):
         self.serv_file = self.serv.makefile('rb')
@@ -1526,8 +1684,11 @@ class UDPFileObjectClassOpenCloseTests(ThreadedUDPSocketTest):
     def _testCloseSocketDoesNotCloseFile(self):
         try:
             self.cli.sendto(MSG, 0, (self.HOST, self.PORT))
-        except Exception, x:
-            self.fail("Closing file wrapper appears to have closed underlying socket: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Closing file wrapper appears to have closed underlying socket: %s" %
+                str(x))
+
 
 class FileAndDupOpenCloseTests(SocketConnectedTest):
 
@@ -1547,14 +1708,14 @@ class FileAndDupOpenCloseTests(SocketConnectedTest):
 
         try:
             self.serv_conn.send(MSG)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EBADF)
         else:
             self.fail("Original socket did not close")
 
         try:
             self.dup_conn1.send(MSG)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EBADF)
         else:
             self.fail("Duplicate socket 1 did not close")
@@ -1564,13 +1725,16 @@ class FileAndDupOpenCloseTests(SocketConnectedTest):
 
         try:
             self.cli_file.write('and ' + MSG)
-        except Exception, x:
-            self.fail("Closing others appears to have closed the socket file: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Closing others appears to have closed the socket file: %s" %
+                str(x))
         self.cli_file.close()
+
 
 class FileObjectClassTestCase(SocketConnectedTest):
 
-    bufsize = -1 # Use default buffer size
+    bufsize = -1  # Use default buffer size
 
     def __init__(self, methodName='runTest'):
         SocketConnectedTest.__init__(self, methodName=methodName)
@@ -1597,7 +1761,7 @@ class FileObjectClassTestCase(SocketConnectedTest):
 
     def testSmallRead(self):
         # Performing small file read test
-        first_seg = self.serv_file.read(len(MSG)-3)
+        first_seg = self.serv_file.read(len(MSG) - 3)
         second_seg = self.serv_file.read(3)
         msg = first_seg + second_seg
         self.assertEqual(msg, MSG)
@@ -1618,7 +1782,7 @@ class FileObjectClassTestCase(SocketConnectedTest):
     def testUnbufferedRead(self):
         # Performing unbuffered file read test
         buf = ''
-        while 1:
+        while True:
             char = self.serv_file.read(1)
             if not char:
                 break
@@ -1640,9 +1804,10 @@ class FileObjectClassTestCase(SocketConnectedTest):
 
     def testClosedAttr(self):
         self.assert_(not self.serv_file.closed)
-        
+
     def _testClosedAttr(self):
         self.assert_(not self.cli_file.closed)
+
 
 class PrivateFileObjectTestCase(unittest.TestCase):
 
@@ -1664,6 +1829,7 @@ class PrivateFileObjectTestCase(unittest.TestCase):
         self.socket_like.seek(0)
         self.assertEqual(fileobject.read(), 'hello jython')
 
+
 class UnbufferedFileObjectClassTestCase(FileObjectClassTestCase):
 
     """Repeat the tests from FileObjectClassTestCase with bufsize==0.
@@ -1674,29 +1840,31 @@ class UnbufferedFileObjectClassTestCase(FileObjectClassTestCase):
     first file object's buffer.  Note that httplib relies on this
     when reading multiple requests from the same socket."""
 
-    bufsize = 0 # Use unbuffered mode
+    bufsize = 0  # Use unbuffered mode
 
     def testUnbufferedReadline(self):
         # Read a line, create a new file object, read another line with it
-        line = self.serv_file.readline() # first line
-        self.assertEqual(line, "A. " + MSG) # first line
+        line = self.serv_file.readline()  # first line
+        self.assertEqual(line, "A. " + MSG)  # first line
         self.serv_file = self.cli_conn.makefile('rb', 0)
-        line = self.serv_file.readline() # second line
-        self.assertEqual(line, "B. " + MSG) # second line
+        line = self.serv_file.readline()  # second line
+        self.assertEqual(line, "B. " + MSG)  # second line
 
     def _testUnbufferedReadline(self):
         self.cli_file.write("A. " + MSG)
         self.cli_file.write("B. " + MSG)
         self.cli_file.flush()
 
+
 class LineBufferedFileObjectClassTestCase(FileObjectClassTestCase):
 
-    bufsize = 1 # Default-buffered for reading; line-buffered for writing
+    bufsize = 1  # Default-buffered for reading; line-buffered for writing
 
 
 class SmallBufferedFileObjectClassTestCase(FileObjectClassTestCase):
 
-    bufsize = 2 # Exercise the buffering code
+    bufsize = 2  # Exercise the buffering code
+
 
 class TCPServerTimeoutTest(SocketTCPTest):
 
@@ -1704,8 +1872,10 @@ class TCPServerTimeoutTest(SocketTCPTest):
         def raise_timeout(*args, **kwargs):
             self.serv.settimeout(1.0)
             self.serv.accept()
-        self.failUnlessRaises(socket.timeout, raise_timeout,
-                              "TCP socket accept failed to generate a timeout exception (TCP)")
+        self.failUnlessRaises(
+            socket.timeout,
+            raise_timeout,
+            "TCP socket accept failed to generate a timeout exception (TCP)")
 
     def testTimeoutZero(self):
         ok = False
@@ -1716,10 +1886,11 @@ class TCPServerTimeoutTest(SocketTCPTest):
             self.fail("caught timeout instead of error (TCP)")
         except socket.error:
             ok = True
-        except Exception, x:
+        except Exception as x:
             self.fail("caught unexpected exception (TCP): %s" % str(x))
         if not ok:
             self.fail("accept() returned success when we did not expect it")
+
 
 class TCPClientTimeoutTest(SocketTCPTest):
 
@@ -1729,10 +1900,12 @@ class TCPClientTimeoutTest(SocketTCPTest):
         host = '192.0.2.42'  # address in TEST-NET-1, guaranteed to not be routeable
         try:
             cli.connect((host, 5000))
-        except socket.timeout, st:
+        except socket.timeout as st:
             pass
-        except Exception, x:
-            self.fail("Client socket timeout should have raised socket.timeout, not %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Client socket timeout should have raised socket.timeout, not %s" %
+                str(x))
         else:
             self.fail('''Client socket timeout should have raised
 socket.timeout.  This tries to connect to %s in the assumption that it isn't
@@ -1745,10 +1918,12 @@ used, but if it is on your network this failure is bogus.''' % host)
         host = '192.0.2.42'  # address in TEST-NET-1, guaranteed to not be routeable
         try:
             cli.connect((host, 5000))
-        except socket.timeout, st:
+        except socket.timeout as st:
             pass
-        except Exception, x:
-            self.fail("Client socket timeout should have raised socket.timeout, not %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Client socket timeout should have raised socket.timeout, not %s" %
+                str(x))
         else:
             self.fail('''Client socket timeout should have raised
 socket.timeout.  This tries to connect to %s in the assumption that it isn't
@@ -1759,39 +1934,48 @@ used, but if it is on your network this failure is bogus.''' % host)
     def testRecvTimeout(self):
         def raise_timeout(*args, **kwargs):
             cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            cli_sock.connect( (self.HOST, self.PORT) )
+            cli_sock.connect((self.HOST, self.PORT))
             cli_sock.settimeout(1)
             cli_sock.recv(1024)
-        self.failUnlessRaises(socket.timeout, raise_timeout,
-                              "TCP socket recv failed to generate a timeout exception (TCP)")
+        self.failUnlessRaises(
+            socket.timeout,
+            raise_timeout,
+            "TCP socket recv failed to generate a timeout exception (TCP)")
 
-    @unittest.skipIf(test_support.is_jython, "This test takes a very long time")
+    @unittest.skipIf(
+        test_support.is_jython,
+        "This test takes a very long time")
     def testSendTimeout(self):
         def raise_timeout(*args, **kwargs):
             cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            cli_sock.connect( (self.HOST, self.PORT) )
+            cli_sock.connect((self.HOST, self.PORT))
             # First fill the socket
             cli_sock.settimeout(1)
             sent = 0
             while True:
                 bytes_sent = cli_sock.send(MSG)
                 sent += bytes_sent
-        self.failUnlessRaises(socket.timeout, raise_timeout,
-                              "TCP socket send failed to generate a timeout exception (TCP)")
+        self.failUnlessRaises(
+            socket.timeout,
+            raise_timeout,
+            "TCP socket send failed to generate a timeout exception (TCP)")
 
     def testSwitchModes(self):
         cli_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        cli_sock.connect( (self.HOST, self.PORT) )
+        cli_sock.connect((self.HOST, self.PORT))
         # set non-blocking mode
         cli_sock.setblocking(0)
         # then set timeout mode
         cli_sock.settimeout(1)
         try:
             cli_sock.send(MSG)
-        except Exception, x:
-            self.fail("Switching mode from non-blocking to timeout raised exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Switching mode from non-blocking to timeout raised exception: %s" %
+                x)
         else:
             pass
+
 
 class UDPTimeoutTest(SocketUDPTest):
 
@@ -1811,62 +1995,81 @@ class UDPTimeoutTest(SocketUDPTest):
             self.fail("caught timeout instead of error (UDP)")
         except socket.error:
             ok = True
-        except Exception, x:
+        except Exception as x:
             self.fail("caught unexpected exception (UDP): %s" % str(x))
         if not ok:
             self.fail("recv() returned success when we did not expect it")
+
 
 class TestGetAddrInfo(unittest.TestCase):
 
     def testBadFamily(self):
         try:
             socket.getaddrinfo(HOST, PORT, 9999)
-        except socket.gaierror, gaix:
+        except socket.gaierror as gaix:
             self.failUnlessEqual(gaix[0], errno.EIO)
-        except Exception, x:
-            self.fail("getaddrinfo with bad family raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "getaddrinfo with bad family raised wrong exception: %s" %
+                x)
         else:
             self.fail("getaddrinfo with bad family should have raised exception")
 
     def testBadSockType(self):
-        for socktype in [socket.SOCK_RAW, socket.SOCK_RDM, socket.SOCK_SEQPACKET]:
+        for socktype in [
+                socket.SOCK_RAW,
+                socket.SOCK_RDM,
+                socket.SOCK_SEQPACKET]:
             try:
                 socket.getaddrinfo(HOST, PORT, socket.AF_UNSPEC, socktype)
-            except socket.error, se:
+            except socket.error as se:
                 self.failUnlessEqual(se[0], errno.ESOCKTNOSUPPORT)
-            except Exception, x:
-                self.fail("getaddrinfo with bad socktype raised wrong exception: %s" % x)
+            except Exception as x:
+                self.fail(
+                    "getaddrinfo with bad socktype raised wrong exception: %s" %
+                    x)
             else:
-                self.fail("getaddrinfo with bad socktype should have raised exception")
+                self.fail(
+                    "getaddrinfo with bad socktype should have raised exception")
 
     def testBadSockTypeProtoCombination(self):
         for socktype, proto in [
             (socket.SOCK_STREAM, socket.IPPROTO_UDP),
             (socket.SOCK_STREAM, socket.IPPROTO_ICMP),
-            (socket.SOCK_DGRAM,  socket.IPPROTO_TCP),
-            (socket.SOCK_DGRAM,  socket.IPPROTO_FRAGMENT),
-            ]:
+            (socket.SOCK_DGRAM, socket.IPPROTO_TCP),
+            (socket.SOCK_DGRAM, socket.IPPROTO_FRAGMENT),
+        ]:
             try:
-                results = socket.getaddrinfo(HOST, PORT, socket.AF_UNSPEC, socktype, proto)
-                self.failUnless(len(results) == 0, "getaddrinfo with bad socktype/proto combo should not have returned results")
-            except Exception, x:
-                self.fail("getaddrinfo with bad socktype/proto combo should not have raised exception")
+                results = socket.getaddrinfo(
+                    HOST, PORT, socket.AF_UNSPEC, socktype, proto)
+                self.failUnless(
+                    len(results) == 0,
+                    "getaddrinfo with bad socktype/proto combo should not have returned results")
+            except Exception as x:
+                self.fail(
+                    "getaddrinfo with bad socktype/proto combo should not have raised exception")
 
     def testNoSockTypeWithProto(self):
         for expect_results, proto in [
-            (True,  socket.IPPROTO_UDP),
+            (True, socket.IPPROTO_UDP),
             (False, socket.IPPROTO_ICMP),
-            (True,  socket.IPPROTO_TCP),
+            (True, socket.IPPROTO_TCP),
             (False, socket.IPPROTO_FRAGMENT),
-            ]:
+        ]:
             try:
-                results = socket.getaddrinfo(HOST, PORT, socket.AF_UNSPEC, 0, proto)
+                results = socket.getaddrinfo(
+                    HOST, PORT, socket.AF_UNSPEC, 0, proto)
                 if expect_results:
-                    self.failUnless(len(results) > 0, "getaddrinfo with no socktype and supported proto combo should have returned results")
+                    self.failUnless(
+                        len(results) > 0,
+                        "getaddrinfo with no socktype and supported proto combo should have returned results")
                 else:
-                    self.failUnless(len(results) == 0, "getaddrinfo with no socktype and unsupported proto combo should not have returned results")
-            except Exception, x:
-                self.fail("getaddrinfo with no socktype (un)supported proto combo should not have raised exception")
+                    self.failUnless(
+                        len(results) == 0,
+                        "getaddrinfo with no socktype and unsupported proto combo should not have returned results")
+            except Exception as x:
+                self.fail(
+                    "getaddrinfo with no socktype (un)supported proto combo should not have raised exception")
 
     def testReturnsAreStrings(self):
         addrinfos = socket.getaddrinfo(HOST, PORT)
@@ -1876,22 +2079,26 @@ class TestGetAddrInfo(unittest.TestCase):
             self.assert_(isinstance(sockaddr[0], str))
 
     def testSockAddrAsTuple(self):
-        family, socktype, proto, canonname, sockaddr = socket.getaddrinfo(HOST, PORT, socket.AF_INET, socket.SOCK_STREAM)[0]
+        family, socktype, proto, canonname, sockaddr = socket.getaddrinfo(
+            HOST, PORT, socket.AF_INET, socket.SOCK_STREAM)[0]
         self.assertEqual(len(sockaddr), 2)
         self.assertEqual(sockaddr[-1], PORT)
         self.assertEqual(sockaddr[:2], ('127.0.0.1', PORT))
 
-        family, socktype, proto, canonname, sockaddr = socket.getaddrinfo('::1', PORT, socket.AF_INET6, socket.SOCK_STREAM)[0]
+        family, socktype, proto, canonname, sockaddr = socket.getaddrinfo(
+            '::1', PORT, socket.AF_INET6, socket.SOCK_STREAM)[0]
         self.assertEqual(len(sockaddr), 4)
         self.assertEqual(sockaddr[-3], PORT)
-        #self.assertEqual(sockaddr[:2], ('::1', PORT))      # FIXME: Got '0:0:...:1' instead!
+        # self.assertEqual(sockaddr[:2], ('::1', PORT))      # FIXME: Got
+        # '0:0:...:1' instead!
 
     def testAI_PASSIVE(self):
         # Disabling this test for now; it's expectations are not portable.
         # Expected results are too dependent on system config to be made portable between systems.
-        # And the only way to determine what configuration to test is to use the 
-        # java.net.InetAddress.getAllByName() method, which is what is used to 
-        # implement the getaddrinfo() function. Therefore, no real point in the test.
+        # And the only way to determine what configuration to test is to use the
+        # java.net.InetAddress.getAllByName() method, which is what is used to
+        # implement the getaddrinfo() function. Therefore, no real point in the
+        # test.
         return
         IPV4_LOOPBACK = "127.0.0.1"
         local_hostname = java.net.InetAddress.getLocalHost().getHostName()
@@ -1911,20 +2118,37 @@ class TestGetAddrInfo(unittest.TestCase):
             #(socket.AI_PASSIVE|socket.AI_CANONNAME, "localhost", local_hostname, IPV4_LOOPBACK),
             #(socket.AI_PASSIVE|socket.AI_CANONNAME, local_hostname, local_hostname, local_ip_address),
         ]:
-            addrinfos = socket.getaddrinfo(host_param, 0, socket.AF_INET, socket.SOCK_STREAM, 0, flags)
+            addrinfos = socket.getaddrinfo(
+                host_param, 0, socket.AF_INET, socket.SOCK_STREAM, 0, flags)
             for family, socktype, proto, canonname, sockaddr in addrinfos:
-                self.failUnlessEqual(expected_canonname, canonname, "For hostname '%s' and flags %d, canonname '%s' != '%s'" % (host_param, flags, expected_canonname, canonname) )
-                self.failUnlessEqual(expected_sockaddr, sockaddr[0], "For hostname '%s' and flags %d, sockaddr '%s' != '%s'" % (host_param, flags, expected_sockaddr, sockaddr[0]) )
+                self.failUnlessEqual(
+                    expected_canonname,
+                    canonname,
+                    "For hostname '%s' and flags %d, canonname '%s' != '%s'" %
+                    (host_param,
+                     flags,
+                     expected_canonname,
+                     canonname))
+                self.failUnlessEqual(
+                    expected_sockaddr,
+                    sockaddr[0],
+                    "For hostname '%s' and flags %d, sockaddr '%s' != '%s'" %
+                    (host_param,
+                     flags,
+                     expected_sockaddr,
+                     sockaddr[0]))
 
     def testAddrTupleTypes(self):
-        ipv4_address_tuple = socket.getaddrinfo("localhost", 80, socket.AF_INET, socket.SOCK_STREAM, 0, 0)[0][4]
+        ipv4_address_tuple = socket.getaddrinfo(
+            "localhost", 80, socket.AF_INET, socket.SOCK_STREAM, 0, 0)[0][4]
         self.failUnlessEqual(ipv4_address_tuple[0], "127.0.0.1")
         self.failUnlessEqual(ipv4_address_tuple[1], 80)
         self.failUnlessRaises(IndexError, lambda: ipv4_address_tuple[2])
         self.failUnlessEqual(str(ipv4_address_tuple), "('127.0.0.1', 80)")
         self.failUnlessEqual(repr(ipv4_address_tuple), "('127.0.0.1', 80)")
 
-        addrinfo = socket.getaddrinfo("localhost", 80, socket.AF_INET6, socket.SOCK_STREAM, 0, 0)
+        addrinfo = socket.getaddrinfo(
+            "localhost", 80, socket.AF_INET6, socket.SOCK_STREAM, 0, 0)
         if not addrinfo:
             # Maybe no IPv6 configured on the test machine.
             return
@@ -1939,9 +2163,14 @@ class TestGetAddrInfo(unittest.TestCase):
             self.fail("Failed to retrieve third element of ipv6 4-tuple")
         self.failUnlessRaises(IndexError, lambda: ipv6_address_tuple[4])
         # These str/repr tests may fail on some systems: the scope element of the tuple may be non-zero
-        # In this case, we'll have to change the test to use .startswith() or .split() to exclude the scope element
-        self.assertIn(str(ipv6_address_tuple), ["('::1', 80, 0, 0)", "('0:0:0:0:0:0:0:1', 80, 0, 0)"])
-        self.assertIn(repr(ipv6_address_tuple), ["('::1', 80, 0, 0)", "('0:0:0:0:0:0:0:1', 80, 0, 0)"])
+        # In this case, we'll have to change the test to use .startswith() or
+        # .split() to exclude the scope element
+        self.assertIn(
+            str(ipv6_address_tuple), [
+                "('::1', 80, 0, 0)", "('0:0:0:0:0:0:0:1', 80, 0, 0)"])
+        self.assertIn(
+            repr(ipv6_address_tuple), [
+                "('::1', 80, 0, 0)", "('0:0:0:0:0:0:0:1', 80, 0, 0)"])
 
     def testNonIntPort(self):
         hostname = "localhost"
@@ -1949,118 +2178,152 @@ class TestGetAddrInfo(unittest.TestCase):
         # Port value of None should map to 0
         addrs = socket.getaddrinfo(hostname, None)
         for a in addrs:
-            self.failUnlessEqual(a[4][1], 0, "Port value of None should have returned 0")
+            self.failUnlessEqual(
+                a[4][1], 0, "Port value of None should have returned 0")
 
         # Port value can be a string rep of the port number
         addrs = socket.getaddrinfo(hostname, "80")
         for a in addrs:
-            self.failUnlessEqual(a[4][1], 80, "Port value of '80' should have returned 80")
+            self.failUnlessEqual(
+                a[4][1], 80, "Port value of '80' should have returned 80")
 
         # Can also specify a service name
         # This test assumes that service http will always be at port 80
         addrs = socket.getaddrinfo(hostname, "http")
         for a in addrs:
-            self.failUnlessEqual(a[4][1], 80, "Port value of 'http' should have returned 80")
+            self.failUnlessEqual(
+                a[4][1], 80, "Port value of 'http' should have returned 80")
 
         # Check treatment of non-integer numeric port
         try:
             socket.getaddrinfo(hostname, 79.99)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], "Int or String expected")
-        except Exception, x:
-            self.fail("getaddrinfo for float port number raised wrong exception: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getaddrinfo for float port number raised wrong exception: %s" %
+                str(x))
         else:
-            self.fail("getaddrinfo for float port number failed to raise exception")
+            self.fail(
+                "getaddrinfo for float port number failed to raise exception")
 
         # Check treatment of non-integer numeric port, as a string
-        # The result is that it should fail in the same way as a non-existent service
+        # The result is that it should fail in the same way as a non-existent
+        # service
         try:
             socket.getaddrinfo(hostname, "79.99")
-        except socket.gaierror, g:
+        except socket.gaierror as g:
             self.failUnlessEqual(g[0], socket.EAI_SERVICE)
-        except Exception, x:
-            self.fail("getaddrinfo for non-integer numeric port, as a string raised wrong exception: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getaddrinfo for non-integer numeric port, as a string raised wrong exception: %s" %
+                str(x))
         else:
-            self.fail("getaddrinfo for non-integer numeric port, as a string failed to raise exception")
+            self.fail(
+                "getaddrinfo for non-integer numeric port, as a string failed to raise exception")
 
         # Check enforcement of AI_NUMERICSERV
         try:
-            socket.getaddrinfo(hostname, "http", 0, 0, 0, socket.AI_NUMERICSERV)
-        except socket.gaierror, g:
+            socket.getaddrinfo(
+                hostname, "http", 0, 0, 0, socket.AI_NUMERICSERV)
+        except socket.gaierror as g:
             self.failUnlessEqual(g[0], socket.EAI_NONAME)
-        except Exception, x:
-            self.fail("getaddrinfo for service name with AI_NUMERICSERV raised wrong exception: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getaddrinfo for service name with AI_NUMERICSERV raised wrong exception: %s" %
+                str(x))
         else:
-            self.fail("getaddrinfo for service name with AI_NUMERICSERV failed to raise exception")
+            self.fail(
+                "getaddrinfo for service name with AI_NUMERICSERV failed to raise exception")
 
         # Check treatment of non-existent service
         try:
             socket.getaddrinfo(hostname, "nosuchservice")
-        except socket.gaierror, g:
+        except socket.gaierror as g:
             self.failUnlessEqual(g[0], socket.EAI_SERVICE)
-        except Exception, x:
-            self.fail("getaddrinfo for unknown service name raised wrong exception: %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "getaddrinfo for unknown service name raised wrong exception: %s" %
+                str(x))
         else:
-            self.fail("getaddrinfo for unknown service name failed to raise exception")
+            self.fail(
+                "getaddrinfo for unknown service name failed to raise exception")
 
     def testHostNames(self):
         # None is only acceptable if AI_NUMERICHOST is not specified
-        for flags, expect_exception in [(0, False), (socket.AI_NUMERICHOST, True)]:
+        for flags, expect_exception in [
+                (0, False), (socket.AI_NUMERICHOST, True)]:
             try:
                 socket.getaddrinfo(None, 80, 0, 0, 0, flags)
                 if expect_exception:
-                    self.fail("Non-numeric hostname == None should have raised exception")
-            except Exception, x:
+                    self.fail(
+                        "Non-numeric hostname == None should have raised exception")
+            except Exception as x:
                 if not expect_exception:
-                    self.fail("hostname == None should not have raised exception: %s" % str(x))
+                    self.fail(
+                        "hostname == None should not have raised exception: %s" %
+                        str(x))
 
         # Check enforcement of AI_NUMERICHOST
         for host in ["", " ", "localhost"]:
             try:
                 socket.getaddrinfo(host, 80, 0, 0, 0, socket.AI_NUMERICHOST)
-            except socket.gaierror, ge:
+            except socket.gaierror as ge:
                 self.failUnlessEqual(ge[0], socket.EAI_NONAME)
-            except Exception, x:
-                self.fail("Non-numeric host with AI_NUMERICHOST raised wrong exception: %s" % str(x))
+            except Exception as x:
+                self.fail(
+                    "Non-numeric host with AI_NUMERICHOST raised wrong exception: %s" %
+                    str(x))
             else:
-                self.fail("Non-numeric hostname '%s' with AI_NUMERICHOST should have raised exception" % host)
+                self.fail(
+                    "Non-numeric hostname '%s' with AI_NUMERICHOST should have raised exception" %
+                    host)
 
         # Check enforcement of AI_NUMERICHOST with wrong address families
-        for host, family in [("127.0.0.1", socket.AF_INET6), ("::1", socket.AF_INET)]:
+        for host, family in [
+                ("127.0.0.1", socket.AF_INET6), ("::1", socket.AF_INET)]:
             try:
-                socket.getaddrinfo(host, 80, family, 0, 0, socket.AI_NUMERICHOST)
-            except socket.gaierror, ge:
+                socket.getaddrinfo(
+                    host, 80, family, 0, 0, socket.AI_NUMERICHOST)
+            except socket.gaierror as ge:
                 self.failUnlessEqual(ge[0], socket.EAI_ADDRFAMILY)
-            except Exception, x:
-                self.fail("Numeric host '%s' in wrong family '%s' with AI_NUMERICHOST raised wrong exception: %s" % 
-                    (host, family, str(x)) )
+            except Exception as x:
+                self.fail(
+                    "Numeric host '%s' in wrong family '%s' with AI_NUMERICHOST raised wrong exception: %s" %
+                    (host, family, str(x)))
             else:
-                self.fail("Numeric host '%s' in wrong family '%s' with AI_NUMERICHOST should have raised exception" % 
-                    (host, family) )
+                self.fail(
+                    "Numeric host '%s' in wrong family '%s' with AI_NUMERICHOST should have raised exception" %
+                    (host, family))
+
 
 class TestGetNameInfo(unittest.TestCase):
 
     def testBadParameters(self):
         for address, flags in [
-            ( (0,0),       0),
-            ( (0,"http"),  0),
-            ( "localhost", 0),
-            ( 0,           0),
-            ( ("",),       0),
+            ((0, 0), 0),
+            ((0, "http"), 0),
+            ("localhost", 0),
+            (0, 0),
+            (("",), 0),
         ]:
             try:
                 socket.getnameinfo(address, flags)
             except TypeError:
                 pass
-            except Exception, x:
-                self.fail("Bad getnameinfo parameters (%s, %s) raised wrong exception: %s" % (str(address), flags, str(x)))
+            except Exception as x:
+                self.fail(
+                    "Bad getnameinfo parameters (%s, %s) raised wrong exception: %s" %
+                    (str(address), flags, str(x)))
             else:
-                self.fail("Bad getnameinfo parameters (%s, %s) failed to raise exception" % (str(address), flags))
+                self.fail(
+                    "Bad getnameinfo parameters (%s, %s) failed to raise exception" %
+                    (str(address), flags))
 
     def testPort(self):
         for address, flags, expected in [
-            ( ("127.0.0.1", 25),  0,                     "smtp" ),
-            ( ("127.0.0.1", 25),  socket.NI_NUMERICSERV, 25     ),
+            (("127.0.0.1", 25), 0, "smtp"),
+            (("127.0.0.1", 25), socket.NI_NUMERICSERV, 25),
 
             # This portion of the test does not suceed on OS X;
             # the above entries probably suffice
@@ -2070,9 +2333,9 @@ class TestGetNameInfo(unittest.TestCase):
             result = socket.getnameinfo(address, flags)
             self.failUnlessEqual(result[1], expected)
 
-
     # This test currently fails due to the recent changes (as of March 2014) at python.org:
-    # TBD perhaps there are well-known addresses that guarantee stable resolution
+    # TBD perhaps there are well-known addresses that guarantee stable
+    # resolution
 
     # def testHost(self):
     #     for address, flags, expected in [
@@ -2088,35 +2351,43 @@ class TestGetNameInfo(unittest.TestCase):
         # This test may delay for some seconds
         unreversible_address = "198.51.100.1"
         try:
-            socket.getnameinfo( (unreversible_address, 80), socket.NI_NAMEREQD)
-        except socket.gaierror, ge:
+            socket.getnameinfo((unreversible_address, 80), socket.NI_NAMEREQD)
+        except socket.gaierror as ge:
             self.failUnlessEqual(ge[0], socket.EAI_NONAME)
-        except Exception, x:
-            self.fail("Unreversible address with NI_NAMEREQD (%s) raised wrong exception: %s" % (unreversible_address, str(x)))
+        except Exception as x:
+            self.fail(
+                "Unreversible address with NI_NAMEREQD (%s) raised wrong exception: %s" %
+                (unreversible_address, str(x)))
         else:
-            self.fail("Unreversible address with NI_NAMEREQD (%s) failed to raise exception" % unreversible_address)
+            self.fail(
+                "Unreversible address with NI_NAMEREQD (%s) failed to raise exception" %
+                unreversible_address)
 
     def testHostIdna(self):
         fqdn = u"\u043f\u0440\u0430\u0432\u0438\u0442\u0435\u043b\u044c\u0441\u0442\u0432\u043e.\u0440\u0444"
-        idn  = "xn--80aealotwbjpid2k.xn--p1ai"
-        ip   = "95.173.135.62"
+        idn = "xn--80aealotwbjpid2k.xn--p1ai"
+        ip = "95.173.135.62"
         try:
             import java.net.IDN
         except ImportError:
             try:
-                socket.getnameinfo( (fqdn, 80), 0)
+                socket.getnameinfo((fqdn, 80), 0)
             except UnicodeEncodeError:
                 pass
-            except Exception, x:
-                self.fail("International domain without java.net.IDN raised wrong exception: %s" % str(x))
+            except Exception as x:
+                self.fail(
+                    "International domain without java.net.IDN raised wrong exception: %s" %
+                    str(x))
             else:
-                self.fail("International domain without java.net.IDN failed to raise exception")
+                self.fail(
+                    "International domain without java.net.IDN failed to raise exception")
         else:
-            # have to disable this test until I find an IDN that reverses to the punycode name
+            # have to disable this test until I find an IDN that reverses to
+            # the punycode name
             return
             for address, flags, expected in [
-                ( (fqdn, 80),  0,             idn  ),
-                ( (fqdn, 80),  socket.NI_IDN, fqdn ),
+                ((fqdn, 80), 0, idn),
+                ((fqdn, 80), socket.NI_IDN, fqdn),
             ]:
                 result = socket.getnameinfo(address, flags)
                 self.failUnlessEqual(result[0], expected)
@@ -2128,36 +2399,72 @@ class TestGetNameInfo(unittest.TestCase):
 # is exercised by nearly every socket usage, along with the
 # corresponding tests.
 
-@unittest.skipIf(test_support.is_jython, "Skip internal tests for address lookup due to underlying OS issues")
+@unittest.skipIf(
+    test_support.is_jython,
+    "Skip internal tests for address lookup due to underlying OS issues")
 class TestJython_get_jsockaddr(unittest.TestCase):
     "These tests are specific to jython: they test a key internal routine"
 
     def testIPV4AddressesFromGetAddrInfo(self):
-        local_addr = socket.getaddrinfo("localhost", 80, socket.AF_INET, socket.SOCK_STREAM, 0, 0)[0][4]
-        sockaddr = socket._get_jsockaddr(local_addr, socket.AF_INET, None, 0, 0)
-        self.failUnless(isinstance(sockaddr, java.net.InetSocketAddress), "_get_jsockaddr returned wrong type: '%s'" % str(type(sockaddr)))
+        local_addr = socket.getaddrinfo(
+            "localhost",
+            80,
+            socket.AF_INET,
+            socket.SOCK_STREAM,
+            0,
+            0)[0][4]
+        sockaddr = socket._get_jsockaddr(
+            local_addr, socket.AF_INET, None, 0, 0)
+        self.failUnless(
+            isinstance(
+                sockaddr,
+                java.net.InetSocketAddress),
+            "_get_jsockaddr returned wrong type: '%s'" % str(
+                type(sockaddr)))
         self.failUnlessEqual(sockaddr.address.hostAddress, "127.0.0.1")
         self.failUnlessEqual(sockaddr.port, 80)
 
     def testIPV6AddressesFromGetAddrInfo(self):
-        addrinfo = socket.getaddrinfo("localhost", 80, socket.AF_INET6, socket.SOCK_STREAM, 0, 0)
+        addrinfo = socket.getaddrinfo(
+            "localhost", 80, socket.AF_INET6, socket.SOCK_STREAM, 0, 0)
         if not addrinfo and is_bsd:
             # older FreeBSDs may have spotty IPV6 Java support
             return
         local_addr = addrinfo[0][4]
-        sockaddr = socket._get_jsockaddr(local_addr, socket.AF_INET6, None, 0, 0)
-        self.failUnless(isinstance(sockaddr, java.net.InetSocketAddress), "_get_jsockaddr returned wrong type: '%s'" % str(type(sockaddr)))
-        self.failUnless(sockaddr.address.hostAddress in ["::1", "0:0:0:0:0:0:0:1"])
+        sockaddr = socket._get_jsockaddr(
+            local_addr, socket.AF_INET6, None, 0, 0)
+        self.failUnless(
+            isinstance(
+                sockaddr,
+                java.net.InetSocketAddress),
+            "_get_jsockaddr returned wrong type: '%s'" % str(
+                type(sockaddr)))
+        self.failUnless(
+            sockaddr.address.hostAddress in [
+                "::1", "0:0:0:0:0:0:0:1"])
         self.failUnlessEqual(sockaddr.port, 80)
 
     def testAddressesFrom2Tuple(self):
         for family, addr_tuple, jaddress_type, expected in [
-            (socket.AF_INET,  ("localhost", 80), java.net.Inet4Address, ["127.0.0.1"]),
+            (socket.AF_INET, ("localhost", 80), java.net.Inet4Address, ["127.0.0.1"]),
             (socket.AF_INET6, ("localhost", 80), java.net.Inet6Address, ["::1", "0:0:0:0:0:0:0:1"]),
-            ]:
+        ]:
             sockaddr = socket._get_jsockaddr(addr_tuple, family, 0, 0, 0)
-            self.failUnless(isinstance(sockaddr, java.net.InetSocketAddress), "_get_jsockaddr returned wrong type: '%s'" % str(type(sockaddr)))
-            self.failUnless(isinstance(sockaddr.address, jaddress_type), "_get_jsockaddr returned wrong address type: '%s'(family=%d)" % (str(type(sockaddr.address)), family))
+            self.failUnless(
+                isinstance(
+                    sockaddr,
+                    java.net.InetSocketAddress),
+                "_get_jsockaddr returned wrong type: '%s'" % str(
+                    type(sockaddr)))
+            self.failUnless(
+                isinstance(
+                    sockaddr.address,
+                    jaddress_type),
+                "_get_jsockaddr returned wrong address type: '%s'(family=%d)" %
+                (str(
+                    type(
+                        sockaddr.address)),
+                    family))
             self.failUnless(sockaddr.address.hostAddress in expected)
             self.failUnlessEqual(sockaddr.port, 80)
 
@@ -2165,53 +2472,81 @@ class TestJython_get_jsockaddr(unittest.TestCase):
         for addr_tuple in [
             ("localhost", 80),
             ("localhost", 80, 0, 0),
-            ]:
-            sockaddr = socket._get_jsockaddr(addr_tuple, socket.AF_INET6, 0, 0, 0)
-            self.failUnless(isinstance(sockaddr, java.net.InetSocketAddress), "_get_jsockaddr returned wrong type: '%s'" % str(type(sockaddr)))
-            self.failUnless(isinstance(sockaddr.address, java.net.Inet6Address), "_get_jsockaddr returned wrong address type: '%s'" % str(type(sockaddr.address)))
-            self.failUnless(sockaddr.address.hostAddress in ["::1", "0:0:0:0:0:0:0:1"])
+        ]:
+            sockaddr = socket._get_jsockaddr(
+                addr_tuple, socket.AF_INET6, 0, 0, 0)
+            self.failUnless(
+                isinstance(
+                    sockaddr,
+                    java.net.InetSocketAddress),
+                "_get_jsockaddr returned wrong type: '%s'" % str(
+                    type(sockaddr)))
+            self.failUnless(
+                isinstance(
+                    sockaddr.address,
+                    java.net.Inet6Address),
+                "_get_jsockaddr returned wrong address type: '%s'" % str(
+                    type(
+                        sockaddr.address)))
+            self.failUnless(
+                sockaddr.address.hostAddress in [
+                    "::1", "0:0:0:0:0:0:0:1"])
             self.failUnlessEqual(sockaddr.address.scopeId, 0)
             self.failUnlessEqual(sockaddr.port, 80)
 
     def testSpecialHostnames(self):
         for family, sock_type, flags, addr_tuple, expected in [
-            ( socket.AF_INET,  0,                 0,                 ("", 80),            ["localhost"]),
-            ( socket.AF_INET,  0,                 socket.AI_PASSIVE, ("", 80),            [socket.INADDR_ANY]),
-            ( socket.AF_INET6, 0,                 0,                 ("", 80),            ["localhost"]),
-            ( socket.AF_INET6, 0,                 socket.AI_PASSIVE, ("", 80),            [socket.IN6ADDR_ANY_INIT, "0:0:0:0:0:0:0:0"]),
-            ( socket.AF_INET,  socket.SOCK_DGRAM, 0,                 ("<broadcast>", 80), ["broadcasthost"]),
-            ]:
-            sockaddr = socket._get_jsockaddr(addr_tuple, family, sock_type, 0, flags)
-            self.failUnless(sockaddr.hostName in expected, "_get_jsockaddr returned wrong hostname '%s' for special hostname '%s'(family=%d)" % (sockaddr.hostName, addr_tuple[0], family))
+            (socket.AF_INET, 0, 0, ("", 80), ["localhost"]),
+            (socket.AF_INET, 0, socket.AI_PASSIVE, ("", 80), [socket.INADDR_ANY]),
+            (socket.AF_INET6, 0, 0, ("", 80), ["localhost"]),
+            (socket.AF_INET6, 0, socket.AI_PASSIVE, ("", 80), [socket.IN6ADDR_ANY_INIT, "0:0:0:0:0:0:0:0"]),
+            (socket.AF_INET, socket.SOCK_DGRAM, 0, ("<broadcast>", 80), ["broadcasthost"]),
+        ]:
+            sockaddr = socket._get_jsockaddr(
+                addr_tuple, family, sock_type, 0, flags)
+            self.failUnless(
+                sockaddr.hostName in expected,
+                "_get_jsockaddr returned wrong hostname '%s' for special hostname '%s'(family=%d)" %
+                (sockaddr.hostName,
+                 addr_tuple[0],
+                    family))
 
     def testNoneTo_get_jsockaddr(self):
         for family, flags, expected in [
-            ( socket.AF_INET,  0,                 ["localhost"]),
-            ( socket.AF_INET,  socket.AI_PASSIVE, [socket.INADDR_ANY]),
-            ( socket.AF_INET6, 0,                 ["localhost"]),
-            ( socket.AF_INET6, socket.AI_PASSIVE, [socket.IN6ADDR_ANY_INIT, "0:0:0:0:0:0:0:0"]),
-            ]:
+            (socket.AF_INET, 0, ["localhost"]),
+            (socket.AF_INET, socket.AI_PASSIVE, [socket.INADDR_ANY]),
+            (socket.AF_INET6, 0, ["localhost"]),
+            (socket.AF_INET6, socket.AI_PASSIVE, [socket.IN6ADDR_ANY_INIT, "0:0:0:0:0:0:0:0"]),
+        ]:
             sockaddr = socket._get_jsockaddr(None, family, 0, 0, flags)
-            self.failUnless(sockaddr.hostName in expected, "_get_jsockaddr returned wrong hostname '%s' for sock tuple == None (family=%d)" % (sockaddr.hostName, family))
+            self.failUnless(
+                sockaddr.hostName in expected,
+                "_get_jsockaddr returned wrong hostname '%s' for sock tuple == None (family=%d)" %
+                (sockaddr.hostName,
+                 family))
 
     def testBadAddressTuples(self):
         for family, address_tuple in [
-            ( socket.AF_INET,  ()                      ),
-            ( socket.AF_INET,  ("")                    ),
-            ( socket.AF_INET,  (80)                    ),
-            ( socket.AF_INET,  ("localhost", 80, 0)    ),
-            ( socket.AF_INET,  ("localhost", 80, 0, 0) ),
-            ( socket.AF_INET6,  ()                      ),
-            ( socket.AF_INET6,  ("")                    ),
-            ( socket.AF_INET6,  (80)                    ),
-            ( socket.AF_INET6,  ("localhost", 80, 0)    ),
-            ]:
+            (socket.AF_INET, ()),
+            (socket.AF_INET, ("")),
+            (socket.AF_INET, (80)),
+            (socket.AF_INET, ("localhost", 80, 0)),
+            (socket.AF_INET, ("localhost", 80, 0, 0)),
+            (socket.AF_INET6, ()),
+            (socket.AF_INET6, ("")),
+            (socket.AF_INET6, (80)),
+            (socket.AF_INET6, ("localhost", 80, 0)),
+        ]:
             try:
-                sockaddr = socket._get_jsockaddr(address_tuple, family, None, 0, 0)
+                sockaddr = socket._get_jsockaddr(
+                    address_tuple, family, None, 0, 0)
             except TypeError:
                 pass
             else:
-                self.fail("Bad tuple %s (family=%d) should have raised TypeError" % (str(address_tuple), family))
+                self.fail(
+                    "Bad tuple %s (family=%d) should have raised TypeError" %
+                    (str(address_tuple), family))
+
 
 class TestExceptions(unittest.TestCase):
 
@@ -2225,8 +2560,19 @@ class TestExceptions(unittest.TestCase):
         for exc_class_name in ['error', 'herror', 'gaierror', 'timeout']:
             exc_class = getattr(socket, exc_class_name)
             exc = exc_class(12345, "Expected message")
-            self.failUnlessEqual(getattr(exc, 'errno'), 12345, "Socket module exceptions must have an 'errno' attribute")
-            self.failUnlessEqual(getattr(exc, 'strerror'), "Expected message", "Socket module exceptions must have an 'strerror' attribute")
+            self.failUnlessEqual(
+                getattr(
+                    exc,
+                    'errno'),
+                12345,
+                "Socket module exceptions must have an 'errno' attribute")
+            self.failUnlessEqual(
+                getattr(
+                    exc,
+                    'strerror'),
+                "Expected message",
+                "Socket module exceptions must have an 'strerror' attribute")
+
 
 class TestJythonExceptionsShared:
 
@@ -2237,28 +2583,35 @@ class TestJythonExceptionsShared:
     def testHostNotFound(self):
         try:
             socket.gethostbyname("doesnotexist")
-        except socket.gaierror, gaix:
+        except socket.gaierror as gaix:
             self.failUnlessEqual(gaix[0], errno.EGETADDRINFOFAILED)
-        except Exception, x:
-            self.fail("Get host name for non-existent host raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Get host name for non-existent host raised wrong exception: %s" %
+                x)
 
     def testUnresolvedAddress(self):
         try:
-            self.s.connect( ('non.existent.server', PORT) )
-        except socket.gaierror, gaix:
+            self.s.connect(('non.existent.server', PORT))
+        except socket.gaierror as gaix:
             self.failUnlessEqual(gaix[0], errno.ENOEXEC)
-        except Exception, x:
-            self.fail("Get host name for non-existent host raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Get host name for non-existent host raised wrong exception: %s" %
+                x)
         else:
-            self.fail("Get host name for non-existent host should have raised exception")
+            self.fail(
+                "Get host name for non-existent host should have raised exception")
 
     def testSocketNotConnected(self):
         try:
             self.s.send(MSG)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.ENOTCONN)
-        except Exception, x:
-            self.fail("Send on unconnected socket raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Send on unconnected socket raised wrong exception: %s" %
+                x)
         else:
             self.fail("Send on unconnected socket raised exception")
 
@@ -2266,21 +2619,22 @@ class TestJythonExceptionsShared:
         self.s.close()
         try:
             self.s.send(MSG)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EBADF)
 
         dup = self.s.dup()
         try:
             dup.send(MSG)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EBADF)
 
         fp = self.s.makefile()
         try:
             fp.write(MSG)
             fp.flush()
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EBADF)
+
 
 class TestJythonTCPExceptions(TestJythonExceptionsShared, unittest.TestCase):
 
@@ -2291,37 +2645,46 @@ class TestJythonTCPExceptions(TestJythonExceptionsShared, unittest.TestCase):
     def testConnectionRefused(self):
         try:
             # This port should not be open at this time
-            self.s.connect( (HOST, PORT) )
-        except socket.error, se:
+            self.s.connect((HOST, PORT))
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.ECONNREFUSED)
-        except Exception, x:
-            self.fail("Connection to non-existent host/port raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Connection to non-existent host/port raised wrong exception: %s" %
+                x)
         else:
-            self.fail("Socket (%s,%s) should not have been listening at this time" % (HOST, PORT))
+            self.fail(
+                "Socket (%s,%s) should not have been listening at this time" %
+                (HOST, PORT))
 
     def testBindException(self):
         # First bind to the target port
-        self.s.bind( (HOST, PORT) )
+        self.s.bind((HOST, PORT))
         self.s.listen(50)
         try:
             # And then try to bind again
             t = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            t.bind( (HOST, PORT) )
+            t.bind((HOST, PORT))
             t.listen(50)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EADDRINUSE)
-        except Exception, x:
-            self.fail("Binding to already bound host/port raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Binding to already bound host/port raised wrong exception: %s" %
+                x)
         else:
-            self.fail("Binding to already bound host/port should have raised exception")
+            self.fail(
+                "Binding to already bound host/port should have raised exception")
 
     def testSocketNotBound(self):
         try:
             result = self.s.recv(1024)
-        except socket.error, se:
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.ENOTCONN)
-        except Exception, x:
-            self.fail("Receive on unbound socket raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Receive on unbound socket raised wrong exception: %s" %
+                x)
         else:
             self.fail("Receive on unbound socket raised exception")
 
@@ -2334,17 +2697,21 @@ class TestJythonUDPExceptions(TestJythonExceptionsShared, unittest.TestCase):
 
     def testBindException(self):
         # First bind to the target port
-        self.s.bind( (HOST, PORT) )
+        self.s.bind((HOST, PORT))
         try:
             # And then try to bind again
             t = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            t.bind( (HOST, PORT) )
-        except socket.error, se:
+            t.bind((HOST, PORT))
+        except socket.error as se:
             self.failUnlessEqual(se[0], errno.EADDRINUSE)
-        except Exception, x:
-            self.fail("Binding to already bound host/port raised wrong exception: %s" % x)
+        except Exception as x:
+            self.fail(
+                "Binding to already bound host/port raised wrong exception: %s" %
+                x)
         else:
-            self.fail("Binding to already bound host/port should have raised exception")
+            self.fail(
+                "Binding to already bound host/port should have raised exception")
+
 
 class TestAddressParameters:
 
@@ -2372,15 +2739,18 @@ class TestAddressParameters:
         else:
             self.fail("Illegal non-tuple connect address did not raise TypeError")
 
+
 class TestTCPAddressParameters(unittest.TestCase, TestAddressParameters):
 
     def setUp(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+
 class TestUDPAddressParameters(unittest.TestCase, TestAddressParameters):
 
     def setUp(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
 
 class UnicodeTest(ThreadedTCPSocketTest):
 
@@ -2390,6 +2760,7 @@ class UnicodeTest(ThreadedTCPSocketTest):
     def _testUnicodeHostname(self):
         self.cli.connect((unicode(self.HOST), self.PORT))
 
+
 class IDNATest(unittest.TestCase):
 
     def testGetAddrInfoIDNAHostname(self):
@@ -2397,39 +2768,56 @@ class IDNATest(unittest.TestCase):
         if socket.supports('idna'):
             try:
                 addresses = socket.getaddrinfo(idna_domain, 80)
-                self.failUnless(len(addresses) > 0, "No addresses returned for test IDNA domain '%s'" % repr(idna_domain))
-            except Exception, x:
-                self.fail("Unexpected exception raised for socket.getaddrinfo(%s)" % repr(idna_domain))
+                self.failUnless(
+                    len(addresses) > 0,
+                    "No addresses returned for test IDNA domain '%s'" %
+                    repr(idna_domain))
+            except Exception as x:
+                self.fail(
+                    "Unexpected exception raised for socket.getaddrinfo(%s)" %
+                    repr(idna_domain))
         else:
             try:
                 socket.getaddrinfo(idna_domain, 80)
             except UnicodeEncodeError:
                 pass
-            except Exception, x:
-                self.fail("Non ascii domain '%s' should have raised UnicodeEncodeError, not %s" % (repr(idna_domain), str(x)))
+            except Exception as x:
+                self.fail(
+                    "Non ascii domain '%s' should have raised UnicodeEncodeError, not %s" %
+                    (repr(idna_domain), str(x)))
             else:
-                self.fail("Non ascii domain '%s' should have raised UnicodeEncodeError: no exception raised" % repr(idna_domain))
+                self.fail(
+                    "Non ascii domain '%s' should have raised UnicodeEncodeError: no exception raised" %
+                    repr(idna_domain))
 
     def testAddrTupleIDNAHostname(self):
         idna_domain = u"al\u00e1n.com"
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if socket.supports('idna'):
             try:
-                s.bind( (idna_domain, 80) )
+                s.bind((idna_domain, 80))
             except socket.error:
-                # We're not worried about socket errors, i.e. bind problems, etc.
+                # We're not worried about socket errors, i.e. bind problems,
+                # etc.
                 pass
-            except Exception, x:
-                self.fail("Unexpected exception raised for socket.bind(%s)" % repr(idna_domain))
+            except Exception as x:
+                self.fail(
+                    "Unexpected exception raised for socket.bind(%s)" %
+                    repr(idna_domain))
         else:
             try:
-                s.bind( (idna_domain, 80) )
+                s.bind((idna_domain, 80))
             except UnicodeEncodeError:
                 pass
-            except Exception, x:
-                self.fail("Non ascii domain '%s' should have raised UnicodeEncodeError, not %s" % (repr(idna_domain), str(x)))
+            except Exception as x:
+                self.fail(
+                    "Non ascii domain '%s' should have raised UnicodeEncodeError, not %s" %
+                    (repr(idna_domain), str(x)))
             else:
-                self.fail("Non ascii domain '%s' should have raised UnicodeEncodeError: no exception raised" % repr(idna_domain))
+                self.fail(
+                    "Non ascii domain '%s' should have raised UnicodeEncodeError: no exception raised" %
+                    repr(idna_domain))
+
 
 class TestInvalidUsage(unittest.TestCase):
 
@@ -2437,60 +2825,77 @@ class TestInvalidUsage(unittest.TestCase):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def testShutdownIOOnListener(self):
-        self.socket.listen(50) # socket is now a server socket
+        self.socket.listen(50)  # socket is now a server socket
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
-        except Exception, x:
-            self.fail("Shutdown on listening socket should not have raised socket exception, not %s" % str(x))
+        except Exception as x:
+            self.fail(
+                "Shutdown on listening socket should not have raised socket exception, not %s" %
+                str(x))
         else:
             pass
 
     def testShutdownOnUnconnectedSocket(self):
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
-        except socket.error, se:
-            self.failUnlessEqual(se[0], errno.ENOTCONN, "Shutdown on unconnected socket should have raised errno.ENOTCONN, not %s" % str(se[0]))
-        except Exception, x:
-            self.fail("Shutdown on unconnected socket should have raised socket exception, not %s" % str(x))
+        except socket.error as se:
+            self.failUnlessEqual(
+                se[0],
+                errno.ENOTCONN,
+                "Shutdown on unconnected socket should have raised errno.ENOTCONN, not %s" % str(
+                    se[0]))
+        except Exception as x:
+            self.fail(
+                "Shutdown on unconnected socket should have raised socket exception, not %s" %
+                str(x))
         else:
-            self.fail("Shutdown on unconnected socket should have raised socket exception")
+            self.fail(
+                "Shutdown on unconnected socket should have raised socket exception")
+
 
 class TestGetSockAndPeerName:
 
     def testGetpeernameNoImpl(self):
         try:
             self.s.getpeername()
-        except socket.error, se:
+        except socket.error as se:
             if se[0] == errno.ENOTCONN:
                 return
-        self.fail("getpeername() on unconnected socket should have raised socket.error")
+        self.fail(
+            "getpeername() on unconnected socket should have raised socket.error")
 
     def testGetsocknameUnboundNoImpl(self):
         try:
             self.s.getsockname()
-        except socket.error, se:
+        except socket.error as se:
             if se[0] == errno.ENOTCONN:
                 return
-        self.fail("getsockname() on unconnected socket should have raised socket.error")
+        self.fail(
+            "getsockname() on unconnected socket should have raised socket.error")
 
     def testGetsocknameBoundNoImpl(self):
-        self.s.bind( ("localhost", 0) )
+        self.s.bind(("localhost", 0))
         try:
             self.s.getsockname()
-        except socket.error, se:
-            self.fail("getsockname() on bound socket should have not raised socket.error")
+        except socket.error as se:
+            self.fail(
+                "getsockname() on bound socket should have not raised socket.error")
 
     def testGetsocknameImplCreated(self):
         self._create_impl_socket()
         try:
             self.s.getsockname()
-        except socket.error, se:
-            self.fail("getsockname() on active socket should not have raised socket.error")
+        except socket.error as se:
+            self.fail(
+                "getsockname() on active socket should not have raised socket.error")
 
     def tearDown(self):
         self.s.close()
 
-class TestGetSockAndPeerNameTCPClient(unittest.TestCase, TestGetSockAndPeerName):
+
+class TestGetSockAndPeerNameTCPClient(
+        unittest.TestCase,
+        TestGetSockAndPeerName):
 
     def setUp(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -2498,7 +2903,7 @@ class TestGetSockAndPeerNameTCPClient(unittest.TestCase, TestGetSockAndPeerName)
         # It uses an ephemeral port, so there should be no port clashes or
         # problems with reuse.
         self.server_peer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_peer.bind( ("localhost", 0) )
+        self.server_peer.bind(("localhost", 0))
         self.server_peer.listen(5)
 
     def _create_impl_socket(self):
@@ -2508,14 +2913,20 @@ class TestGetSockAndPeerNameTCPClient(unittest.TestCase, TestGetSockAndPeerName)
         self._create_impl_socket()
         try:
             self.s.getpeername()
-        except socket.error, se:
-            self.fail("getpeername() on active socket should not have raised socket.error")
-        self.failUnlessEqual(self.s.getpeername(), self.server_peer.getsockname())
+        except socket.error as se:
+            self.fail(
+                "getpeername() on active socket should not have raised socket.error")
+        self.failUnlessEqual(
+            self.s.getpeername(),
+            self.server_peer.getsockname())
 
     def tearDown(self):
         self.server_peer.close()
 
-class TestGetSockAndPeerNameTCPServer(unittest.TestCase, TestGetSockAndPeerName):
+
+class TestGetSockAndPeerNameTCPServer(
+        unittest.TestCase,
+        TestGetSockAndPeerName):
 
     def setUp(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -2528,10 +2939,12 @@ class TestGetSockAndPeerNameTCPServer(unittest.TestCase, TestGetSockAndPeerName)
         self._create_impl_socket()
         try:
             self.s.getpeername()
-        except socket.error, se:
+        except socket.error as se:
             if se[0] == errno.ENOTCONN:
                 return
-        self.fail("getpeername() on listening socket should have raised socket.error")
+        self.fail(
+            "getpeername() on listening socket should have raised socket.error")
+
 
 class TestGetSockAndPeerNameUDP(unittest.TestCase, TestGetSockAndPeerName):
 
@@ -2546,29 +2959,35 @@ class TestGetSockAndPeerNameUDP(unittest.TestCase, TestGetSockAndPeerName):
         self._create_impl_socket()
         try:
             self.s.getpeername()
-        except socket.error, se:
+        except socket.error as se:
             if se[0] == errno.ENOTCONN:
                 return
-        self.fail("getpeername() on unconnected UDP socket should have raised socket.error")
+        self.fail(
+            "getpeername() on unconnected UDP socket should have raised socket.error")
 
     def testGetpeernameImplCreatedAndConnected(self):
-        # This test also tests that an UDP socket can be bound and connected at the same time
+        # This test also tests that an UDP socket can be bound and connected at
+        # the same time
         self._create_impl_socket()
         # Need to connect to an UDP port
         self._udp_peer = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._udp_peer.bind( ("localhost", 0) )
+        self._udp_peer.bind(("localhost", 0))
         self.s.connect(self._udp_peer.getsockname())
         try:
             try:
                 self.s.getpeername()
-            except socket.error, se:
+            except socket.error as se:
                 # FIXME Apparently Netty doesn't set remoteAddress,
                 # even if connected, for datagram channels so we may
                 # have to shadow
-                self.fail("getpeername() on connected UDP socket should not have raised socket.error")
-            self.failUnlessEqual(self.s.getpeername(), self._udp_peer.getsockname())
+                self.fail(
+                    "getpeername() on connected UDP socket should not have raised socket.error")
+            self.failUnlessEqual(
+                self.s.getpeername(),
+                self._udp_peer.getsockname())
         finally:
             self._udp_peer.close()
+
 
 class ConfigurableClientSocketTest(SocketTCPTest, ThreadableTest):
 
@@ -2610,10 +3029,12 @@ class ConfigurableClientSocketTest(SocketTCPTest, ThreadableTest):
     def _testRecv(self):
         self.serv_conn.send(MSG)
 
+
 class ProtocolCanBeZeroTest(ConfigurableClientSocketTest):
 
     def config_client(self):
         return socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+
 
 class SocketClassCanBeSubclassed(ConfigurableClientSocketTest):
 
@@ -2664,8 +3085,8 @@ def test_main():
         SmallBufferedFileObjectClassTestCase,
         UnicodeTest,
         IDNATest,
-        TestGetSockAndPeerNameTCPClient, 
-        TestGetSockAndPeerNameTCPServer, 
+        TestGetSockAndPeerNameTCPClient,
+        TestGetSockAndPeerNameTCPServer,
         TestGetSockAndPeerNameUDP,
         ProtocolCanBeZeroTest,
         SocketClassCanBeSubclassed

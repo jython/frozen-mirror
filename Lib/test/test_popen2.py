@@ -30,6 +30,7 @@ except ImportError:
     from os import fork
     del fork
 
+
 class Popen2Test(unittest.TestCase):
     cmd = "cat"
     if os.name == "nt" or (os.name == "java" and os._name == "nt"):
@@ -44,7 +45,7 @@ class Popen2Test(unittest.TestCase):
         popen2._cleanup()
         # When the test runs, there shouldn't be any open pipes
         self.assertFalse(popen2._active, "Active pipes when test starts" +
-            repr([c.cmd for c in popen2._active]))
+                         repr([c.cmd for c in popen2._active]))
 
     def tearDown(self):
         for inst in popen2._active:
@@ -133,6 +134,7 @@ class Popen2Test(unittest.TestCase):
 
 def test_main():
     run_unittest(Popen2Test)
+
 
 if __name__ == "__main__":
     test_main()

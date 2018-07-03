@@ -39,10 +39,11 @@ import __builtin__
 
 try:
     1 // 0
-except:
-    tb = sys.exc_traceback
+except BaseException:
+    tb = sys.exc_info()[2]
 
 git = mod.StupidGit()
+
 
 class IsTestBase(unittest.TestCase):
     predicates = set([inspect.isbuiltin, inspect.isclass, inspect.iscode,
@@ -60,22 +61,23 @@ class IsTestBase(unittest.TestCase):
                 continue
             self.assertFalse(other(obj), 'not %s(%s)' % (other.__name__, exp))
 
+
 def generator_function_example(self):
     for i in xrange(2):
         yield i
 
+
 class TestPredicates(IsTestBase):
     def test_sixteen(self):
-        count = len(filter(lambda x:x.startswith('is'), dir(inspect)))
+        count = len(filter(lambda x: x.startswith('is'), dir(inspect)))
         # This test is here for remember you to update Doc/library/inspect.rst
         # which claims there are 16 such functions
         expected = 16
         err_msg = "There are %d (not %d) is* functions" % (count, expected)
         self.assertEqual(count, expected, err_msg)
 
-
     def test_excluding_predicates(self):
-        #self.istest(inspect.isbuiltin, 'sys.exit')  # Not valid for Jython
+        # self.istest(inspect.isbuiltin, 'sys.exit')  # Not valid for Jython
         self.istest(inspect.isbuiltin, '[].append')
         self.istest(inspect.iscode, 'mod.spam.func_code')
         self.istest(inspect.isframe, 'tb.tb_frame')
@@ -92,13 +94,18 @@ class TestPredicates(IsTestBase):
             self.istest(inspect.isgetsetdescriptor,
                         'type(tb.tb_frame).f_locals')
         else:
-            self.assertFalse(inspect.isgetsetdescriptor(type(tb.tb_frame).f_locals))
+            self.assertFalse(
+                inspect.isgetsetdescriptor(
+                    type(
+                        tb.tb_frame).f_locals))
         if hasattr(types, 'MemberDescriptorType'):
             # Not valid for Jython
             # self.istest(inspect.ismemberdescriptor, 'datetime.timedelta.days')
             pass
         else:
-            self.assertFalse(inspect.ismemberdescriptor(datetime.timedelta.days))
+            self.assertFalse(
+                inspect.ismemberdescriptor(
+                    datetime.timedelta.days))
 
     def test_isroutine(self):
         self.assertTrue(inspect.isroutine(mod.spam))
@@ -108,7 +115,8 @@ class TestPredicates(IsTestBase):
         self.istest(inspect.isclass, 'mod.StupidGit')
         self.assertTrue(inspect.isclass(list))
 
-        class newstyle(object): pass
+        class newstyle(object):
+            pass
         self.assertTrue(inspect.isclass(newstyle))
 
         class CustomGetattr(object):
@@ -162,14 +170,14 @@ class TestInterpreterStack(IsTestBase):
 
     def test_stack(self):
         self.assertTrue(len(mod.st) >= 5)
-        self.assertEqual(mod.st[0][1:],
-             (modfile, 16, 'eggs', ['    st = inspect.stack()\n'], 0))
+        self.assertEqual(mod.st[0][1:], (modfile, 16, 'eggs', [
+                         '    st = inspect.stack()\n'], 0))
         self.assertEqual(mod.st[1][1:],
-             (modfile, 9, 'spam', ['    eggs(b + d, c + f)\n'], 0))
-        self.assertEqual(mod.st[2][1:],
-             (modfile, 43, 'argue', ['            spam(a, b, c)\n'], 0))
-        self.assertEqual(mod.st[3][1:],
-             (modfile, 39, 'abuse', ['        self.argue(a, b, c)\n'], 0))
+                         (modfile, 9, 'spam', ['    eggs(b + d, c + f)\n'], 0))
+        self.assertEqual(mod.st[2][1:], (modfile, 43, 'argue', [
+                         '            spam(a, b, c)\n'], 0))
+        self.assertEqual(mod.st[3][1:], (modfile, 39, 'abuse', [
+                         '        self.argue(a, b, c)\n'], 0))
 
     def test_trace(self):
         self.assertEqual(len(git.tr), 3)
@@ -195,7 +203,8 @@ class TestInterpreterStack(IsTestBase):
         self.assertEqual(varargs, 'g')
         self.assertEqual(varkw, 'h')
         self.assertEqual(inspect.formatargvalues(args, varargs, varkw, locals),
-             '(a=7, b=8, c=9, d=3, (e=4, (f=5,)), *g=(), **h={})')
+                         '(a=7, b=8, c=9, d=3, (e=4, (f=5,)), *g=(), **h={})')
+
 
 class GetSourceBase(unittest.TestCase):
     # Subclasses must override.
@@ -209,11 +218,12 @@ class GetSourceBase(unittest.TestCase):
 
     def sourcerange(self, top, bottom):
         lines = self.source.split("\n")
-        return "\n".join(lines[top-1:bottom]) + "\n"
+        return "\n".join(lines[top - 1:bottom]) + "\n"
 
     def assertSourceEqual(self, obj, top, bottom):
         self.assertEqual(inspect.getsource(obj),
                          self.sourcerange(top, bottom))
+
 
 class TestRetrievingSourceCode(GetSourceBase):
     fodderFile = mod
@@ -231,7 +241,7 @@ class TestRetrievingSourceCode(GetSourceBase):
                           (mod.StupidGit, ()),
                           [(mod.MalodorousPervert, (mod.StupidGit,)),
                            [(mod.FesteringGob, (mod.MalodorousPervert,
-                                                   mod.ParrotDroppings))
+                                                mod.ParrotDroppings))
                             ]
                            ]
                           ])
@@ -292,17 +302,18 @@ class TestRetrievingSourceCode(GetSourceBase):
         from types import ModuleType
         name = '__inspect_dummy'
         m = sys.modules[name] = ModuleType(name)
-        m.__file__ = "<string>" # hopefully not a real filename...
+        m.__file__ = "<string>"  # hopefully not a real filename...
         m.__loader__ = "dummy"  # pretend the filename is understood by a loader
         exec "def x(): pass" in m.__dict__
         self.assertEqual(inspect.getsourcefile(m.x.func_code), '<string>')
         del sys.modules[name]
-        inspect.getmodule(compile('a=10','','single'))
+        inspect.getmodule(compile('a=10', '', 'single'))
 
     def test_proceed_with_fake_filename(self):
         '''doctest monkeypatches linecache to enable inspection'''
         fn, source = '<test>', 'def x(): pass\n'
         getlines = linecache.getlines
+
         def monkey(filename, module_globals=None):
             if filename == fn:
                 return source.splitlines(True)
@@ -316,6 +327,7 @@ class TestRetrievingSourceCode(GetSourceBase):
         finally:
             linecache.getlines = getlines
 
+
 class TestDecorators(GetSourceBase):
     fodderFile = mod2
 
@@ -325,8 +337,10 @@ class TestDecorators(GetSourceBase):
     def test_replacing_decorator(self):
         self.assertSourceEqual(mod2.gone, 9, 10)
 
+
 class TestOneliners(GetSourceBase):
     fodderFile = mod2
+
     def test_oneline_lambda(self):
         # Test inspect.getsource with a one-line lambda function.
         self.assertSourceEqual(mod2.oll, 25, 25)
@@ -367,6 +381,7 @@ class TestOneliners(GetSourceBase):
         # as argument to another function.
         self.assertSourceEqual(mod2.anonymous, 55, 55)
 
+
 class TestBuggyCases(GetSourceBase):
     fodderFile = mod2
 
@@ -391,10 +406,10 @@ class TestBuggyCases(GetSourceBase):
     def test_method_in_dynamic_class(self):
         self.assertSourceEqual(mod2.method_in_dynamic_class, 95, 97)
 
-    @unittest.skipIf(
-        not hasattr(unicodedata, '__file__') or
-            unicodedata.__file__[-4:] in (".pyc", ".pyo") or unicodedata.__file__.endswith('$py.class'),
-        "unicodedata is not an external binary module")
+    @unittest.skipIf(not hasattr(unicodedata,
+                                 '__file__') or unicodedata.__file__[-4:] in (".pyc",
+                                                                              ".pyo") or unicodedata.__file__.endswith('$py.class'),
+                     "unicodedata is not an external binary module")
     def test_findsource_binary(self):
         self.assertRaises(IOError, inspect.getsource, unicodedata)
         self.assertRaises(IOError, inspect.findsource, unicodedata)
@@ -406,7 +421,7 @@ class TestBuggyCases(GetSourceBase):
         self.assertRaises(IOError, inspect.findsource, co)
         self.assertRaises(IOError, inspect.getsource, co)
         linecache.cache[co.co_filename] = (1, None, lines, co.co_filename)
-        self.assertEqual(inspect.findsource(co), (lines,0))
+        self.assertEqual(inspect.findsource(co), (lines, 0))
         self.assertEqual(inspect.getsource(co), lines[0])
 
 
@@ -443,10 +458,17 @@ def attrs_wo_objs(cls):
 class TestClassesAndFunctions(unittest.TestCase):
     def test_classic_mro(self):
         # Test classic-class method resolution order.
-        class A:    pass
-        class B(A): pass
-        class C(A): pass
-        class D(B, C): pass
+        class A:
+            pass
+
+        class B(A):
+            pass
+
+        class C(A):
+            pass
+
+        class D(B, C):
+            pass
 
         expected = (D, B, A, C)
         got = inspect.getmro(D)
@@ -454,29 +476,41 @@ class TestClassesAndFunctions(unittest.TestCase):
 
     def test_newstyle_mro(self):
         # The same w/ new-class MRO.
-        class A(object):    pass
-        class B(A): pass
-        class C(A): pass
-        class D(B, C): pass
+        class A(object):
+            pass
+
+        class B(A):
+            pass
+
+        class C(A):
+            pass
+
+        class D(B, C):
+            pass
 
         expected = (D, B, C, A, object)
         got = inspect.getmro(D)
         self.assertEqual(expected, got)
 
-    def assertArgSpecEquals(self, routine, args_e, varargs_e = None,
-                            varkw_e = None, defaults_e = None,
-                            formatted = None):
+    def assertArgSpecEquals(self, routine, args_e, varargs_e=None,
+                            varkw_e=None, defaults_e=None,
+                            formatted=None):
         args, varargs, varkw, defaults = inspect.getargspec(routine)
         self.assertEqual(args, args_e)
         self.assertEqual(varargs, varargs_e)
         self.assertEqual(varkw, varkw_e)
         self.assertEqual(defaults, defaults_e)
         if formatted is not None:
-            self.assertEqual(inspect.formatargspec(args, varargs, varkw, defaults),
-                             formatted)
+            self.assertEqual(
+                inspect.formatargspec(
+                    args,
+                    varargs,
+                    varkw,
+                    defaults),
+                formatted)
 
     def test_getargspec(self):
-        self.assertArgSpecEquals(mod.eggs, ['x', 'y'], formatted = '(x, y)')
+        self.assertArgSpecEquals(mod.eggs, ['x', 'y'], formatted='(x, y)')
 
         self.assertArgSpecEquals(mod.spam,
                                  ['a', 'b', 'c', 'd', ['e', ['f']]],
@@ -498,7 +532,6 @@ class TestClassesAndFunctions(unittest.TestCase):
 
             exec 'def fakeSublistOfOne((foo)): return 1'
             self.assertArgSpecEquals(fakeSublistOfOne, ['foo'])
-
 
     def _classify_test(self, newstyle):
         """Helper for testing that classify_class_attrs finds a bunch of
@@ -530,7 +563,8 @@ class TestClassesAndFunctions(unittest.TestCase):
             md = _BrokenMethodDescriptor()
 
         attrs = attrs_wo_objs(A)
-        self.assertIn(('s', 'static method', A), attrs, 'missing static method')
+        self.assertIn(('s', 'static method', A),
+                      attrs, 'missing static method')
         self.assertIn(('c', 'class method', A), attrs, 'missing class method')
         self.assertIn(('p', 'property', A), attrs, 'missing property')
         self.assertIn(('m', 'method', A), attrs, 'missing plain method')
@@ -543,7 +577,8 @@ class TestClassesAndFunctions(unittest.TestCase):
             def m(self): pass
 
         attrs = attrs_wo_objs(B)
-        self.assertIn(('s', 'static method', A), attrs, 'missing static method')
+        self.assertIn(('s', 'static method', A),
+                      attrs, 'missing static method')
         self.assertIn(('c', 'class method', A), attrs, 'missing class method')
         self.assertIn(('p', 'property', A), attrs, 'missing property')
         self.assertIn(('m', 'method', B), attrs, 'missing plain method')
@@ -552,13 +587,14 @@ class TestClassesAndFunctions(unittest.TestCase):
         self.assertIn(('md', 'method', A), attrs, 'missing method descriptor')
         self.assertIn(('dd', 'data', A), attrs, 'missing data descriptor')
 
-
         class C(A):
             def m(self): pass
+
             def c(self): pass
 
         attrs = attrs_wo_objs(C)
-        self.assertIn(('s', 'static method', A), attrs, 'missing static method')
+        self.assertIn(('s', 'static method', A),
+                      attrs, 'missing static method')
         self.assertIn(('c', 'method', C), attrs, 'missing plain method')
         self.assertIn(('p', 'property', A), attrs, 'missing property')
         self.assertIn(('m', 'method', C), attrs, 'missing plain method')
@@ -571,11 +607,13 @@ class TestClassesAndFunctions(unittest.TestCase):
             def m1(self): pass
 
         attrs = attrs_wo_objs(D)
-        self.assertIn(('s', 'static method', A), attrs, 'missing static method')
+        self.assertIn(('s', 'static method', A),
+                      attrs, 'missing static method')
         if newstyle:
             self.assertIn(('c', 'method', C), attrs, 'missing plain method')
         else:
-            self.assertIn(('c', 'class method', A), attrs, 'missing class method')
+            self.assertIn(('c', 'class method', A),
+                          attrs, 'missing class method')
         self.assertIn(('p', 'property', A), attrs, 'missing property')
         self.assertIn(('m', 'method', B), attrs, 'missing plain method')
         self.assertIn(('m1', 'method', D), attrs, 'missing plain method')
@@ -583,14 +621,12 @@ class TestClassesAndFunctions(unittest.TestCase):
         self.assertIn(('md', 'method', A), attrs, 'missing method descriptor')
         self.assertIn(('dd', 'data', A), attrs, 'missing data descriptor')
 
-
     def test_classify_oldstyle(self):
         """classify_class_attrs finds static methods, class methods,
         properties, normal methods, and data attributes on an old-style
         class.
         """
         self._classify_test(False)
-
 
     def test_classify_newstyle(self):
         """Just like test_classify_oldstyle, but for a new-style class.
@@ -654,14 +690,14 @@ class TestGetcallargsFunctions(unittest.TestCase):
         locs = dict(locs or {}, func=func)
         try:
             eval('func(%s)' % call_param_string, None, locs)
-        except Exception, ex1:
+        except Exception as ex1:
             pass
         else:
             self.fail('Exception not raised')
         try:
             eval('inspect.getcallargs(func, %s)' % call_param_string, None,
                  locs)
-        except Exception, ex2:
+        except Exception as ex2:
             pass
         else:
             self.fail('Exception not raised')
@@ -673,10 +709,10 @@ class TestGetcallargsFunctions(unittest.TestCase):
         autogenerated '.1', '.2', etc. tuple param names (if any)."""
         with check_py3k_warnings(
             ("tuple parameter unpacking has been removed", SyntaxWarning),
-            quiet=True):
+                quiet=True):
             code = ("lambda %s: dict(i for i in locals().items() "
                     "if not is_tuplename(i[0]))")
-            return eval(code % signature, {'is_tuplename' : self.is_tuplename})
+            return eval(code % signature, {'is_tuplename': self.is_tuplename})
 
     def test_plain(self):
         f = self.makeCallable('a, b=1')
@@ -807,6 +843,7 @@ class TestGetcallargsFunctions(unittest.TestCase):
         self.assertEqualException(f3, '1, 2')
         self.assertEqualException(f3, '1, 2, a=1, b=2')
 
+
 class TestGetcallargsMethods(TestGetcallargsFunctions):
 
     def setUp(self):
@@ -820,6 +857,7 @@ class TestGetcallargsMethods(TestGetcallargsFunctions):
         mk = super(TestGetcallargsMethods, self).makeCallable
         self.cls.method = mk('self, ' + signature)
         return self.inst.method
+
 
 class TestGetcallargsUnboundMethods(TestGetcallargsMethods):
 
@@ -840,12 +878,20 @@ class TestGetcallargsUnboundMethods(TestGetcallargsMethods):
         locs = dict(locs or {}, inst=self.inst)
         return (func, 'inst,' + call_params_string, locs)
 
+
 def test_main():
     run_unittest(
-        TestDecorators, TestRetrievingSourceCode, TestOneliners, TestBuggyCases,
-        TestInterpreterStack, TestClassesAndFunctions, TestPredicates,
-        TestGetcallargsFunctions, TestGetcallargsMethods,
+        TestDecorators,
+        TestRetrievingSourceCode,
+        TestOneliners,
+        TestBuggyCases,
+        TestInterpreterStack,
+        TestClassesAndFunctions,
+        TestPredicates,
+        TestGetcallargsFunctions,
+        TestGetcallargsMethods,
         TestGetcallargsUnboundMethods)
+
 
 if __name__ == "__main__":
     test_main()

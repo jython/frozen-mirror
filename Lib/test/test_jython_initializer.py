@@ -6,6 +6,7 @@ from test import test_support
 
 WINDOWS = (os._name if test_support.is_jython else os.name) == 'nt'
 
+
 class TestUsingInitializer(unittest.TestCase):
 
     def test_syspath_initializer(self):
@@ -22,8 +23,10 @@ class TestUsingInitializer(unittest.TestCase):
 
         self.assertEquals(0, subprocess.call([sys.executable, fn], env=env))
 
+
 def test_main():
     test_support.run_unittest(TestUsingInitializer)
+
 
 if __name__ == "__main__":
     test_main()

@@ -57,12 +57,13 @@ Compile():
 """
 
 # import internals, not guaranteed interface
-from org.python.core import Py,CompilerFlags,CompileMode
+from org.python.core import Py, CompilerFlags, CompileMode
 from org.python.core.CompilerFlags import PyCF_DONT_IMPLY_DEDENT
 
 # public interface
 
 __all__ = ["compile_command", "Compile", "CommandCompiler"]
+
 
 def compile_command(source, filename="<input>", symbol="single"):
     r"""Compile a command and determine whether it is incomplete.
@@ -82,22 +83,26 @@ def compile_command(source, filename="<input>", symbol="single"):
       syntax error (OverflowError and ValueError can be produced by
       malformed literals).
     """
-    if symbol not in ['single','eval']:
-        raise ValueError,"symbol arg must be either single or eval"
+    if symbol not in ['single', 'eval']:
+        raise ValueError("symbol arg must be either single or eval")
     symbol = CompileMode.getMode(symbol)
-    return Py.compile_command_flags(source,filename,symbol,Py.getCompilerFlags(),0)
+    return Py.compile_command_flags(
+        source, filename, symbol, Py.getCompilerFlags(), 0)
+
 
 class Compile:
     """Instances of this class behave much like the built-in compile
     function, but if one is used to compile text containing a future
     statement, it "remembers" and compiles all subsequent program texts
     with the statement in force."""
+
     def __init__(self):
         self._cflags = CompilerFlags()
 
     def __call__(self, source, filename, symbol):
         symbol = CompileMode.getMode(symbol)
         return Py.compile_flags(source, filename, symbol, self._cflags)
+
 
 class CommandCompiler:
     """Instances of this class have __call__ methods identical in
@@ -128,7 +133,8 @@ class CommandCompiler:
           syntax error (OverflowError and ValueError can be produced by
           malformed literals).
         """
-        if symbol not in ['single','eval']:
-            raise ValueError,"symbol arg must be either single or eval"
+        if symbol not in ['single', 'eval']:
+            raise ValueError("symbol arg must be either single or eval")
         symbol = CompileMode.getMode(symbol)
-        return Py.compile_command_flags(source,filename,symbol,self._cflags,0)
+        return Py.compile_command_flags(
+            source, filename, symbol, self._cflags, 0)

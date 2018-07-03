@@ -11,4 +11,3 @@ support.compileJava("test338j1.java", classpath=".")
 support.compileJava("test338j.java", classpath=".")
 
 support.runJava("test338j", classpath=".")
-

@@ -3,14 +3,18 @@
 #
 
 from SimpleXMLRPCServer import SimpleXMLRPCServer
-import threading, xmlrpclib, unittest
+import threading
+import xmlrpclib
+import unittest
 from test import test_support
 
 HOST = "127.0.0.1"
 PORT = 7218
 
+
 def multiply(x, y):
     return x * y
+
 
 class MyService:
     """This test class is going to be used to test an entire class being
@@ -26,9 +30,11 @@ class MyService:
         """Square"""
         return x * x
 
+
 class ServerThread(threading.Thread):
     """A test harness for launching a SimpleXMLRPCServer instance in the
        background."""
+
     def __init__(self, server):
         threading.Thread.__init__(self)
         self.server = server
@@ -39,13 +45,15 @@ class ServerThread(threading.Thread):
         self.server.handle_request()
         self.server.server_close()
 
+
 class SimpleXMLRPCServerTestCase(unittest.TestCase):
     """Test case for the Python SimpleXMLRPCServer module."""
+
     def test_exposeLambda(self):
         """Expose a lambda function via XML-RPC."""
         # Create a server instance.
         server = SimpleXMLRPCServer((HOST, PORT))
-        server.register_function(lambda x,y: x+y, 'add')
+        server.register_function(lambda x, y: x + y, 'add')
         ServerThread(server).start()
 
         # Access the exposed service.

@@ -13,17 +13,18 @@ from httplib import HTTPException
 from test import test_support
 from StringIO import StringIO
 
-class TestBase:
-    encoding        = ''   # codec name
-    codec           = None # codec tuple (with 4 elements)
-    tstring         = ''   # string to test StreamReader
 
-    codectests      = None # must set. codec test tuple
-    roundtriptest   = 1    # set if roundtrip is possible with unicode
-    has_iso10646    = 0    # set if this encoding contains whole iso10646 map
-    xmlcharnametest = None # string to test xmlcharrefreplace
-    unmappedunicode = u'\ufffe' # a unicode codepoint that is not mapped
-                                # CPython uses an isolated surrogate, which will not work on Jython
+class TestBase:
+    encoding = ''   # codec name
+    codec = None  # codec tuple (with 4 elements)
+    tstring = ''   # string to test StreamReader
+
+    codectests = None  # must set. codec test tuple
+    roundtriptest = 1    # set if roundtrip is possible with unicode
+    has_iso10646 = 0    # set if this encoding contains whole iso10646 map
+    xmlcharnametest = None  # string to test xmlcharrefreplace
+    unmappedunicode = u'\ufffe'  # a unicode codepoint that is not mapped
+    # CPython uses an isolated surrogate, which will not work on Jython
 
     def setUp(self):
         if self.codec is None:
@@ -52,13 +53,13 @@ class TestBase:
             if expected:
                 result = func(source, scheme)[0]
                 if func is self.decode:
-                    self.assertTrue(type(result) is unicode, type(result))
+                    self.assertTrue(isinstance(result, unicode), type(result))
                     self.assertEqual(result, expected,
                                      '%r.decode(%r, %r)=%r != %r'
                                      % (source, self.encoding, scheme, result,
                                         expected))
                 else:
-                    self.assertTrue(type(result) is bytes, type(result))
+                    self.assertTrue(isinstance(result, bytes), type(result))
                     self.assertEqual(result, expected,
                                      '%r.encode(%r, %r)=%r != %r'
                                      % (source, self.encoding, scheme, result,
@@ -101,7 +102,7 @@ class TestBase:
             sin = u"\xab\u211c\xbb = \u2329\u1234\u232a"
             sout = "&laquo;&real;&raquo; = &lang;&#4660;&rang;"
         self.assertEqual(self.encode(sin,
-                                    "test.xmlcharnamereplace")[0], sout)
+                                     "test.xmlcharnamereplace")[0], sout)
 
     def test_callback_wrong_objects(self):
         def myreplace(exc):
@@ -120,7 +121,7 @@ class TestBase:
                                      'test.cjktest'), ('abcdxefgh', 9))
 
         def myreplace(exc):
-            return (u'x', sys.maxint + 1)
+            return (u'x', sys.maxsize + 1)
         codecs.register_error("test.cjktest", myreplace)
         self.assertRaises(IndexError, self.encode, self.unmappedunicode,
                           'test.cjktest')
@@ -141,9 +142,14 @@ class TestBase:
                 return (u'TERMINAL', exc.end)
         myreplace.limit = 3
         codecs.register_error("test.cjktest", myreplace)
-        self.assertEqual(self.encode(u'abcd' + self.unmappedunicode + u'efgh',
-                                     'test.cjktest'),
-                ('abcdREPLACEDabcdREPLACEDabcdREPLACEDabcdTERMINALefgh', 9))
+        self.assertEqual(
+            self.encode(
+                u'abcd' +
+                self.unmappedunicode +
+                u'efgh',
+                'test.cjktest'),
+            ('abcdREPLACEDabcdREPLACEDabcdREPLACEDabcdTERMINALefgh',
+             9))
 
     def test_callback_forward_index(self):
         def myreplace(exc):
@@ -166,7 +172,7 @@ class TestBase:
             istream = UTF8Reader(StringIO(self.tstring[1]))
             ostream = StringIO()
             encoder = self.incrementalencoder()
-            while 1:
+            while True:
                 if sizehint is not None:
                     data = istream.read(sizehint)
                 else:
@@ -186,7 +192,7 @@ class TestBase:
             istream = StringIO(self.tstring[0])
             ostream = UTF8Writer(StringIO())
             decoder = self.incrementaldecoder()
-            while 1:
+            while True:
                 data = istream.read(sizehint)
                 if not data:
                     break
@@ -206,6 +212,7 @@ class TestBase:
         self.assertEqual(e.encode(inv, True), '')
 
         e.reset()
+
         def tempreplace(exc):
             return (u'called', exc.end)
         codecs.register_error('test.incremental_error_callback', tempreplace)
@@ -224,7 +231,7 @@ class TestBase:
                 istream = self.reader(StringIO(self.tstring[0]))
                 ostream = UTF8Writer(StringIO())
                 func = getattr(istream, name)
-                while 1:
+                while True:
                     data = func(sizehint)
                     if not data:
                         break
@@ -244,7 +251,7 @@ class TestBase:
                 istream = UTF8Reader(StringIO(self.tstring[1]))
                 ostream = self.writer(StringIO())
                 func = getattr(istream, name)
-                while 1:
+                while True:
                     if sizehint is not None:
                         data = func(sizehint)
                     else:
@@ -259,6 +266,7 @@ class TestBase:
 
                 self.assertEqual(ostream.getvalue(), self.tstring[0])
 
+
 class TestBase_Mapping(unittest.TestCase):
     pass_enctest = []
     pass_dectest = []
@@ -268,9 +276,9 @@ class TestBase_Mapping(unittest.TestCase):
     def __init__(self, *args, **kw):
         unittest.TestCase.__init__(self, *args, **kw)
         try:
-            self.open_mapping_file().close() # test it to report the error early
+            self.open_mapping_file().close()  # test it to report the error early
         except (IOError, HTTPException):
-            self.skipTest("Could not retrieve "+self.mapfileurl)
+            self.skipTest("Could not retrieve " + self.mapfileurl)
 
     def open_mapping_file(self):
         return test_support.open_urlresource(self.mapfileurl)
@@ -282,8 +290,9 @@ class TestBase_Mapping(unittest.TestCase):
             self._test_mapping_file_plain()
 
     def _test_mapping_file_plain(self):
-        _unichr = lambda c: eval("u'\\U%08x'" % int(c, 16))
-        unichrs = lambda s: u''.join(_unichr(c) for c in s.split('+'))
+        def _unichr(c): return eval("u'\\U%08x'" % int(c, 16))
+
+        def unichrs(s): return u''.join(_unichr(c) for c in s.split('+'))
         urt_wa = {}
 
         with self.open_mapping_file() as f:
@@ -299,10 +308,10 @@ class TestBase_Mapping(unittest.TestCase):
                     csetch = chr(csetval & 0xff)
                 elif csetval >= 0x1000000:
                     csetch = chr(csetval >> 24) + chr((csetval >> 16) & 0xff) + \
-                             chr((csetval >> 8) & 0xff) + chr(csetval & 0xff)
+                        chr((csetval >> 8) & 0xff) + chr(csetval & 0xff)
                 elif csetval >= 0x10000:
                     csetch = chr(csetval >> 16) + \
-                             chr((csetval >> 8) & 0xff) + chr(csetval & 0xff)
+                        chr((csetval >> 8) & 0xff) + chr(csetval & 0xff)
                 elif csetval >= 0x100:
                     csetch = chr(csetval >> 8) + chr(csetval & 0xff)
                 else:
@@ -332,15 +341,15 @@ class TestBase_Mapping(unittest.TestCase):
         if (csetch, unich) not in self.pass_enctest:
             try:
                 self.assertEqual(unich.encode(self.encoding), csetch)
-            except UnicodeError, exc:
+            except UnicodeError as exc:
                 self.fail('Encoding failed while testing %s -> %s: %s' % (
-                            repr(unich), repr(csetch), exc.reason))
+                    repr(unich), repr(csetch), exc.reason))
         if (csetch, unich) not in self.pass_dectest:
             try:
                 self.assertEqual(csetch.decode(self.encoding), unich)
-            except UnicodeError, exc:
+            except UnicodeError as exc:
                 self.fail('Decoding failed while testing %s -> %s: %s' % (
-                            repr(csetch), repr(unich), exc.reason))
+                    repr(csetch), repr(unich), exc.reason))
 
     def test_errorhandle(self):
         for source, scheme, expected in self.codectests:
@@ -351,20 +360,21 @@ class TestBase_Mapping(unittest.TestCase):
             if expected:
                 if isinstance(source, bytes):
                     result = func(self.encoding, scheme)
-                    self.assertTrue(type(result) is unicode, type(result))
+                    self.assertTrue(isinstance(result, unicode), type(result))
                     self.assertEqual(result, expected,
                                      '%r.decode(%r, %r)=%r != %r'
                                      % (source, self.encoding, scheme, result,
                                         expected))
                 else:
                     result = func(self.encoding, scheme)
-                    self.assertTrue(type(result) is bytes, type(result))
+                    self.assertTrue(isinstance(result, bytes), type(result))
                     self.assertEqual(result, expected,
                                      '%r.encode(%r, %r)=%r != %r'
                                      % (source, self.encoding, scheme, result,
                                         expected))
             else:
                 self.assertRaises(UnicodeError, func, self.encoding, scheme)
+
 
 def load_teststring(name):
     dir = os.path.join(os.path.dirname(__file__), 'cjkencodings')

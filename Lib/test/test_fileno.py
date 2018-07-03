@@ -9,6 +9,7 @@ import tempfile
 import test.test_support as test_support
 import unittest
 
+
 class TestFilenoTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -72,7 +73,7 @@ class TestOsOpenTestCase(unittest.TestCase):
         if self.fd:
             try:
                 os.close(self.fd)
-            except:
+            except BaseException:
                 pass
         if os.path.exists(self.filename):
             os.remove(self.filename)
@@ -98,13 +99,21 @@ class TestOsOpenTestCase(unittest.TestCase):
         raises(OSError, 9, os.write, self.fd, 'new')
         # Acts as append on windows (seeks to the end)
         os.lseek(self.fd, 0, 0)
-        self.assertEquals(os.read(self.fd, len('jython filenos')), 'jython filenos')
+        self.assertEquals(
+            os.read(
+                self.fd,
+                len('jython filenos')),
+            'jython filenos')
         os.close(self.fd)
 
         # falls back to read only without O_WRONLY/O_RDWR
         self.fd = os.open(self.filename, os.O_CREAT)
         raises(OSError, 9, os.write, self.fd, 'new')
-        self.assertEquals(os.read(self.fd, len('jython filenos')), 'jython filenos')
+        self.assertEquals(
+            os.read(
+                self.fd,
+                len('jython filenos')),
+            'jython filenos')
         os.close(self.fd)
 
         # interpreted as RDWR
@@ -217,7 +226,7 @@ class TestOsOpenTestCase(unittest.TestCase):
         self.dir = tempfile.mkdtemp()
         try:
             self.fd = os.open(self.dir, os.O_SYNC | os.O_RDWR)
-        except OSError, ose:
+        except OSError as ose:
             assert ose.errno == errno.EISDIR, ose.errno
 
     def test_bad_open(self):
@@ -240,7 +249,7 @@ class TestOsFdopenTestCase(unittest.TestCase):
         if self.fd:
             try:
                 os.close(self.fd)
-            except:
+            except BaseException:
                 pass
         if os.path.exists(self.filename):
             os.remove(self.filename)
@@ -267,23 +276,23 @@ class TestOsFdopenTestCase(unittest.TestCase):
         fp = os.fdopen(origw, 'w')
         fp.write('fdopen')
         # Windows CPython doesn't raise an exception here
-        #raises(IOError, '[Errno 9] Bad file descriptor',
+        # raises(IOError, '[Errno 9] Bad file descriptor',
         #       fp.read, 7)
         fp.close()
 
         fp = os.fdopen(origr)
         self.assertEquals(fp.read(), 'fdopen')
         # Windows CPython raises IOError [Errno 0] Error
-        #raises(IOError, '[Errno 9] Bad file descriptor',
+        # raises(IOError, '[Errno 9] Bad file descriptor',
         #       fp.write, 'test')
         raises(IOError, None,
                fp.write, 'test')
         fp.close()
 
         # Windows CPython raises OSError [Errno 0] Error for both these
-        #raises(OSError, '[Errno 9] Bad file descriptor',
+        # raises(OSError, '[Errno 9] Bad file descriptor',
         #       os.fdopen, origw, 'w')
-        #raises(OSError, '[Errno 9] Bad file descriptor',
+        # raises(OSError, '[Errno 9] Bad file descriptor',
         #       os.fdopen, origr, 'r')
         raises(OSError, None,
                os.fdopen, origw, 'w')
@@ -293,19 +302,19 @@ class TestOsFdopenTestCase(unittest.TestCase):
         # These all raise IO/OSErrors on FreeBSD
         try:
             origw_fp.close()
-        except:
+        except BaseException:
             pass
         try:
             origr_fp.close()
-        except:
+        except BaseException:
             pass
         try:
             os.close(origw)
-        except:
+        except BaseException:
             pass
         try:
             os.close(origr)
-        except:
+        except BaseException:
             pass
 
 
@@ -326,7 +335,7 @@ def raises(exc, expected, callable, *args):
                 msg += ': %r' % expected[1]
     try:
         callable(*args)
-    except exc, val:
+    except exc as val:
         if expected and str(val) != msg:
             raise test_support.TestFailed(
                 "Message %r, expected %r" % (str(val), msg))
@@ -338,6 +347,7 @@ def test_main():
     test_support.run_unittest(TestFilenoTestCase,
                               TestOsOpenTestCase,
                               TestOsFdopenTestCase)
+
 
 if __name__ == '__main__':
     test_main()

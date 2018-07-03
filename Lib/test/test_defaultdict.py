@@ -8,8 +8,10 @@ from test import test_support
 
 from collections import defaultdict
 
+
 def foobar():
     return list
+
 
 class TestDefaultDict(unittest.TestCase):
 
@@ -43,7 +45,7 @@ class TestDefaultDict(unittest.TestCase):
         self.assertEqual(d2.default_factory, None)
         try:
             d2[15]
-        except KeyError, err:
+        except KeyError as err:
             self.assertEqual(err.args, (15,))
         else:
             self.fail("d2[15] didn't raise KeyError")
@@ -66,6 +68,7 @@ class TestDefaultDict(unittest.TestCase):
         self.assertEqual(d2.default_factory, int)
         d2[12] = 42
         self.assertEqual(repr(d2), "defaultdict(<type 'int'>, {12: 42})")
+
         def foo(): return 43
         d3 = defaultdict(foo)
         self.assertTrue(d3.default_factory is foo)
@@ -74,6 +77,7 @@ class TestDefaultDict(unittest.TestCase):
 
     def test_print(self):
         d1 = defaultdict()
+
         def foo(): return 42
         d2 = defaultdict(foo, {1: 2})
         # NOTE: We can't use tempfile.[Named]TemporaryFile since this
@@ -143,17 +147,20 @@ class TestDefaultDict(unittest.TestCase):
         d1 = defaultdict()
         try:
             d1[(1,)]
-        except KeyError, err:
+        except KeyError as err:
             self.assertEqual(err.args[0], (1,))
         else:
             self.fail("expected KeyError")
 
-    @unittest.skipIf(test_support.is_jython, "FIXME: incorrect formatting of default_factory when it's a bound method")
+    @unittest.skipIf(
+        test_support.is_jython,
+        "FIXME: incorrect formatting of default_factory when it's a bound method")
     def test_recursive_repr(self):
         # Issue2045: stack overflow when default_factory is a bound method
         class sub(defaultdict):
             def __init__(self):
                 self.default_factory = self._factory
+
             def _factory(self):
                 return []
         d = sub()
@@ -175,8 +182,10 @@ class TestDefaultDict(unittest.TestCase):
     def test_callable_arg(self):
         self.assertRaises(TypeError, defaultdict, {})
 
+
 def test_main():
     test_support.run_unittest(TestDefaultDict)
+
 
 if __name__ == "__main__":
     test_main()

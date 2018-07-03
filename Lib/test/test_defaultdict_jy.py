@@ -12,6 +12,7 @@ from random import randint
 
 from java.util.concurrent.atomic import AtomicInteger
 
+
 class PickleTestCase(unittest.TestCase):
 
     def test_pickle(self):
@@ -31,7 +32,7 @@ class ThreadSafetyTestCase(unittest.TestCase):
             t = threading.Thread(target=f)
             t.start()
             threads.append(t)
-        timeout = 10. # be especially generous
+        timeout = 10.  # be especially generous
         for t in threads:
             t.join(timeout)
             timeout = 0.
@@ -41,8 +42,8 @@ class ThreadSafetyTestCase(unittest.TestCase):
     class Counter(object):
         def __init__(self, initial=0):
             self.atomic = AtomicInteger(initial)
-             # waiting is important here to ensure that
-             # defaultdict factories can step on each other
+            # waiting is important here to ensure that
+            # defaultdict factories can step on each other
             time.sleep(0.001)
 
         def decrementAndGet(self):
@@ -77,14 +78,16 @@ class ThreadSafetyTestCase(unittest.TestCase):
         class DerivedDefaultDict(defaultdict):
             def __missing__(self, key):
                 if self.default_factory is None:
-                    raise KeyError("Invalid key '{0}' and no default factory was set")
+                    raise KeyError(
+                        "Invalid key '{0}' and no default factory was set")
 
                 val = self.default_factory(key)
 
                 self[key] = val
                 return val
 
-        counters = DerivedDefaultDict(lambda key: ThreadSafetyTestCase.Counter(key))
+        counters = DerivedDefaultDict(
+            lambda key: ThreadSafetyTestCase.Counter(key))
         size = 17
 
         def tester():
@@ -126,7 +129,7 @@ class GetVariantsTestCase(unittest.TestCase):
     def test_getitem_does_vivify(self):
         d = defaultdict(list)
         self.assertEquals(d["vivify"], [])
-        self.assertEquals(d.items(), [("vivify", [])]) 
+        self.assertEquals(d.items(), [("vivify", [])])
 
 
 class GetItemPropagateWhateverMissingRaisedTestCase(unittest.TestCase):
@@ -160,9 +163,11 @@ class GetItemPropagateWhateverMissingRaisedTestCase(unittest.TestCase):
 class OverrideMissingTestCase(unittest.TestCase):
     class KeyDefaultDict(defaultdict):
         """defaultdict to pass the requested key to factory function."""
+
         def __missing__(self, key):
             if self.default_factory is None:
-                raise KeyError("Invalid key '{0}' and no default factory was set")
+                raise KeyError(
+                    "Invalid key '{0}' and no default factory was set")
             else:
                 val = self.default_factory(key)
 
@@ -175,24 +180,25 @@ class OverrideMissingTestCase(unittest.TestCase):
 
     def setUp(self):
         self.kdd = OverrideMissingTestCase.KeyDefaultDict(
-                OverrideMissingTestCase.KeyDefaultDict.double)
+            OverrideMissingTestCase.KeyDefaultDict.double)
 
     def test_dont_call_derived_missing(self):
         self.kdd[3] = 5
         self.assertEquals(self.kdd[3], 5)
 
-    #http://bugs.jython.org/issue2088
+    # http://bugs.jython.org/issue2088
     def test_override_missing(self):
-        # line below causes KeyError in Jython, ignoring overridden __missing__ method
+        # line below causes KeyError in Jython, ignoring overridden __missing__
+        # method
         self.assertEquals(self.kdd[3], 6)
         self.assertEquals(self.kdd['ab'], 'abab')
 
 
 def test_main():
     test_support.run_unittest(PickleTestCase, ThreadSafetyTestCase,
-            UnhashableKeyRaiseTypeErrorTestCase,
-            GetVariantsTestCase, OverrideMissingTestCase,
-            GetItemPropagateWhateverMissingRaisedTestCase)
+                              UnhashableKeyRaiseTypeErrorTestCase,
+                              GetVariantsTestCase, OverrideMissingTestCase,
+                              GetItemPropagateWhateverMissingRaisedTestCase)
 
 
 if __name__ == '__main__':

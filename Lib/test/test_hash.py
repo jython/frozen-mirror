@@ -27,22 +27,22 @@ class HashEqualityTestCase(unittest.TestCase):
                 self.fail("hashed values differ: %r" % (objlist,))
 
     def test_numeric_literals(self):
-        self.same_hash(1, 1L, 1.0, 1.0+0.0j)
-        self.same_hash(0, 0L, 0.0, 0.0+0.0j)
-        self.same_hash(-1, -1L, -1.0, -1.0+0.0j)
-        self.same_hash(-2, -2L, -2.0, -2.0+0.0j)
+        self.same_hash(1, 1, 1.0, 1.0 + 0.0j)
+        self.same_hash(0, 0, 0.0, 0.0 + 0.0j)
+        self.same_hash(-1, -1, -1.0, -1.0 + 0.0j)
+        self.same_hash(-2, -2, -2.0, -2.0 + 0.0j)
 
     def test_coerced_integers(self):
         self.same_hash(int(1), long(1), float(1), complex(1),
                        int('1'), float('1.0'))
         self.same_hash(int(-2**31), long(-2**31), float(-2**31))
-        self.same_hash(int(1-2**31), long(1-2**31), float(1-2**31))
-        self.same_hash(int(2**31-1), long(2**31-1), float(2**31-1))
+        self.same_hash(int(1 - 2**31), long(1 - 2**31), float(1 - 2**31))
+        self.same_hash(int(2**31 - 1), long(2**31 - 1), float(2**31 - 1))
         # for 64-bit platforms
         self.same_hash(int(2**31), long(2**31), float(2**31))
         self.same_hash(int(-2**63), long(-2**63), float(-2**63))
-        self.same_hash(int(1-2**63), long(1-2**63))
-        self.same_hash(int(2**63-1), long(2**63-1))
+        self.same_hash(int(1 - 2**63), long(1 - 2**63))
+        self.same_hash(int(2**63 - 1), long(2**63 - 1))
         self.same_hash(long(2**63), float(2**63))
 
     def test_coerced_floats(self):
@@ -51,37 +51,60 @@ class HashEqualityTestCase(unittest.TestCase):
 
 
 _default_hash = object.__hash__
-class DefaultHash(object): pass
+
+
+class DefaultHash(object):
+    pass
+
 
 _FIXED_HASH_VALUE = 42
+
+
 class FixedHash(object):
     def __hash__(self):
         return _FIXED_HASH_VALUE
+
 
 class OnlyEquality(object):
     def __eq__(self, other):
         return self is other
     # Trick to suppress Py3k warning in 2.x
     __hash__ = None
+
+
 del OnlyEquality.__hash__
+
 
 class OnlyInequality(object):
     def __ne__(self, other):
         return self is not other
+
 
 class OnlyCmp(object):
     def __cmp__(self, other):
         return cmp(id(self), id(other))
     # Trick to suppress Py3k warning in 2.x
     __hash__ = None
+
+
 del OnlyCmp.__hash__
 
-class InheritedHashWithEquality(FixedHash, OnlyEquality): pass
-class InheritedHashWithInequality(FixedHash, OnlyInequality): pass
-class InheritedHashWithCmp(FixedHash, OnlyCmp): pass
+
+class InheritedHashWithEquality(FixedHash, OnlyEquality):
+    pass
+
+
+class InheritedHashWithInequality(FixedHash, OnlyInequality):
+    pass
+
+
+class InheritedHashWithCmp(FixedHash, OnlyCmp):
+    pass
+
 
 class NoHash(object):
     __hash__ = None
+
 
 class HashInheritanceTestCase(unittest.TestCase):
     default_expected = [object(),
@@ -89,7 +112,7 @@ class HashInheritanceTestCase(unittest.TestCase):
                         OnlyEquality(),
                         OnlyInequality(),
                         OnlyCmp(),
-                       ]
+                        ]
     fixed_expected = [FixedHash(),
                       InheritedHashWithEquality(),
                       InheritedHashWithInequality(),
@@ -125,22 +148,26 @@ class HashInheritanceTestCase(unittest.TestCase):
 #   in 2.x along with the lazy call to PyType_Ready in PyObject_Hash)
 class DefaultIterSeq(object):
     seq = range(10)
+
     def __len__(self):
         return len(self.seq)
+
     def __getitem__(self, index):
         return self.seq[index]
+
 
 class HashBuiltinsTestCase(unittest.TestCase):
     hashes_to_check = [xrange(10),
                        enumerate(xrange(10)),
                        iter(DefaultIterSeq()),
                        iter(lambda: 0, 0),
-                      ]
+                       ]
 
     def test_hashes(self):
         _default_hash = object.__hash__
         for obj in self.hashes_to_check:
             self.assertEqual(hash(obj), _default_hash(obj))
+
 
 class HashRandomizationTests(unittest.TestCase):
 
@@ -171,6 +198,7 @@ class HashRandomizationTests(unittest.TestCase):
         run2 = self.get_hash(self.repr_, seed='random')
         self.assertNotEqual(run1, run2)
 
+
 class StringlikeHashRandomizationTests(HashRandomizationTests):
     def test_null_hash(self):
         # PYTHONHASHSEED=0 disables the randomized hash
@@ -200,12 +228,14 @@ class StringlikeHashRandomizationTests(HashRandomizationTests):
                 h = -1024014457
         self.assertEqual(self.get_hash(self.repr_, seed=42), h)
 
+
 @unittest.skipIf(test_support.is_jython, "No randomized hash in Jython")
 class StrHashRandomizationTests(StringlikeHashRandomizationTests):
     repr_ = repr('abc')
 
     def test_empty_string(self):
         self.assertEqual(hash(""), 0)
+
 
 @unittest.skipIf(test_support.is_jython, "No randomized hash in Jython")
 class UnicodeHashRandomizationTests(StringlikeHashRandomizationTests):
@@ -214,6 +244,7 @@ class UnicodeHashRandomizationTests(StringlikeHashRandomizationTests):
     def test_empty_string(self):
         self.assertEqual(hash(u""), 0)
 
+
 @unittest.skipIf(test_support.is_jython, "No buffer in Jython")
 class BufferHashRandomizationTests(StringlikeHashRandomizationTests):
     repr_ = 'buffer("abc")'
@@ -221,15 +252,19 @@ class BufferHashRandomizationTests(StringlikeHashRandomizationTests):
     def test_empty_string(self):
         self.assertEqual(hash(buffer("")), 0)
 
+
 class DatetimeTests(HashRandomizationTests):
     def get_hash_command(self, repr_):
         return 'import datetime; print(hash(%s))' % repr_
 
+
 class DatetimeDateTests(DatetimeTests):
     repr_ = repr(datetime.date(1066, 10, 14))
 
+
 class DatetimeDatetimeTests(DatetimeTests):
     repr_ = repr(datetime.datetime(1, 2, 3, 4, 5, 6, 7))
+
 
 class DatetimeTimeTests(DatetimeTests):
     repr_ = repr(datetime.time(0))
@@ -245,7 +280,6 @@ def test_main():
                               DatetimeDateTests,
                               DatetimeDatetimeTests,
                               DatetimeTimeTests)
-
 
 
 if __name__ == "__main__":

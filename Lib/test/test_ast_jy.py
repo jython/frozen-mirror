@@ -5,8 +5,10 @@ import unittest
 import ast
 from test import test_support
 
+
 def srcExprToTree(source, kind='exec'):
     return compile(source, '<module>', kind, ast.PyCF_ONLY_AST)
+
 
 class TestCompile(unittest.TestCase):
 
@@ -33,7 +35,7 @@ class TestCompile(unittest.TestCase):
         self.assert_(isinstance(compare.comparators[1], ast.Name))
         self.assert_(isinstance(compare.ops[1:][0], ast.Lt))
         self.assert_(isinstance(compare.comparators[1:][0], ast.Name))
-        z = zip( compare.ops[1:], compare.comparators[1:])
+        z = zip(compare.ops[1:], compare.comparators[1:])
         self.assert_(isinstance(z[0][0], ast.Lt))
         self.assert_(isinstance(z[0][1], ast.Name))
 
@@ -46,7 +48,7 @@ class TestCompile(unittest.TestCase):
         # now.  We may need them in the future since CPython allows this, but
         # it may fall under implementation detail.
 
-        #ast.AST()
+        # ast.AST()
         ast.Add()
         ast.And()
         ast.Assert()
@@ -133,24 +135,26 @@ class TestCompile(unittest.TestCase):
         ast.Yield()
         ast.alias()
         ast.arguments()
-        #ast.boolop()
-        #ast.cmpop()
+        # ast.boolop()
+        # ast.cmpop()
         ast.comprehension()
-        #ast.excepthandler()
-        #ast.expr()
-        #ast.expr_context()
+        # ast.excepthandler()
+        # ast.expr()
+        # ast.expr_context()
         ast.keyword()
-        #ast.mod()
-        #ast.operator()
-        #ast.slice()
-        #ast.stmt()
-        #ast.unaryop()
+        # ast.mod()
+        # ast.operator()
+        # ast.slice()
+        # ast.stmt()
+        # ast.unaryop()
 
-#==============================================================================
+# ==============================================================================
+
 
 def test_main(verbose=None):
     test_classes = [TestCompile]
     test_support.run_unittest(*test_classes)
+
 
 if __name__ == "__main__":
     test_main(verbose=True)

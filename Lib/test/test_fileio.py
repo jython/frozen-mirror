@@ -23,6 +23,7 @@ XXX: ignoring ValueError on Jython for now as the ValueError/IOError thing is
      should get this cleaned up if possible.
 """
 
+
 class AutoFileTests(unittest.TestCase):
     # file tests for which a test file is automatically set up
 
@@ -74,7 +75,7 @@ class AutoFileTests(unittest.TestCase):
         # verify readinto
         self.f.write(b"\x01\x02")
         self.f.close()
-        a = array(b'b', b'x'*10)
+        a = array(b'b', b'x' * 10)
         self.f = _FileIO(TESTFN, 'r')
         n = self.f.readinto(a)
         self.assertEqual(array(b'b', [1, 2]), a[:n])
@@ -102,7 +103,7 @@ class AutoFileTests(unittest.TestCase):
         self.assertTrue(not f.isatty())
         self.assertTrue(not f.closed)
         #self.assertEqual(f.name, TESTFN)
-        self.assertRaises(ValueError, f.read, 10) # Open for writing
+        self.assertRaises(ValueError, f.read, 10)  # Open for writing
         f.close()
         self.assertTrue(f.closed)
         f = self.f = _FileIO(TESTFN, 'r')
@@ -112,7 +113,7 @@ class AutoFileTests(unittest.TestCase):
         self.assertTrue(f.closed)
 
         # These methods all accept a call with 0 arguments
-        methods = ['fileno', 'isatty', 'read', 
+        methods = ['fileno', 'isatty', 'read',
                    'tell', 'truncate', 'seekable',
                    'readable', 'writable']
         if sys.platform.startswith('atheos'):
@@ -129,9 +130,9 @@ class AutoFileTests(unittest.TestCase):
         # These other methods should be tested using a specific call
         # in case the test for number of arguments comes first.
         b = bytearray()
-        self.assertRaises(ValueError, self.f.readinto, b )
+        self.assertRaises(ValueError, self.f.readinto, b)
         self.assertRaises(ValueError, self.f.seek, 0)
-        self.assertRaises(ValueError, self.f.write, b )
+        self.assertRaises(ValueError, self.f.write, b)
 
     def testOpendir(self):
         # Issue 3703: opening a directory should fill the errno
@@ -145,12 +146,12 @@ class AutoFileTests(unittest.TestCase):
         else:
             self.fail("Should have raised IOError")
 
-    #A set of functions testing that we get expected behaviour if someone has
-    #manually closed the internal file descriptor.  First, a decorator:
+    # A set of functions testing that we get expected behaviour if someone has
+    # manually closed the internal file descriptor.  First, a decorator:
     def ClosedFD(func):
         @wraps(func)
         def wrapper(self):
-            #forcibly close the fd before invoking the problem function
+            # forcibly close the fd before invoking the problem function
             f = self.f
             os.close(f.fileno())
             try:
@@ -171,7 +172,7 @@ class AutoFileTests(unittest.TestCase):
     def ClosedFDRaises(func):
         @wraps(func)
         def wrapper(self):
-            #forcibly close the fd before invoking the problem function
+            # forcibly close the fd before invoking the problem function
             f = self.f
             os.close(f.fileno())
             try:
@@ -256,8 +257,9 @@ class AutoFileTests(unittest.TestCase):
     @ClosedFDRaises
     def testErrnoOnClosedReadinto(self, f):
         f = self.ReopenForRead()
-        a = array(b'b', b'x'*10)
+        a = array(b'b', b'x' * 10)
         f.readinto(a)
+
 
 class OtherFileTests(unittest.TestCase):
     # file tests for which a test file is not created but cleaned up
@@ -350,7 +352,8 @@ class OtherFileTests(unittest.TestCase):
 
     def testInvalidFd(self):
         if is_jython:
-            self.assertRaises(TypeError, _FileIO, -10)  # file descriptor not int in Jython
+            # file descriptor not int in Jython
+            self.assertRaises(TypeError, _FileIO, -10)
         else:
             self.assertRaises(ValueError, _FileIO, -10)
         self.assertRaises(OSError, _FileIO, make_bad_fd())
@@ -383,7 +386,7 @@ class OtherFileTests(unittest.TestCase):
         self.assertEqual(f.seek(0, os.SEEK_END), 5)
         f.truncate(15)
         self.assertEqual(f.tell(), 5)
-        #XXX: next assert not working in Jython:
+        # XXX: next assert not working in Jython:
         #self.assertEqual(f.seek(0, os.SEEK_END), 15)
         f.close()
 
@@ -395,7 +398,7 @@ class OtherFileTests(unittest.TestCase):
             f.write(bytes(range(11)))
             f.close()
 
-            f = self.f = _FileIO(TESTFN,'r+')
+            f = self.f = _FileIO(TESTFN, 'r+')
             data = f.read(5)
             if data != bytes(range(5)):
                 self.fail("Read on file opened for update failed %r" % data)
@@ -438,6 +441,7 @@ class OtherFileTests(unittest.TestCase):
             self.assertRaises(ValueError, _FileIO, "/some/invalid/name", "rt")
             self.assertEqual(w.warnings, [])
 
+
 def test_main():
     # Historically, these tests have been sloppy about removing TESTFN.
     # So get rid of it no matter what.
@@ -446,6 +450,7 @@ def test_main():
     finally:
         if os.path.exists(TESTFN):
             os.unlink(TESTFN)
+
 
 if __name__ == '__main__':
     test_main()

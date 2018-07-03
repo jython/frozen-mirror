@@ -23,13 +23,14 @@ _DUMMY_SYMLINK = os.path.join(tempfile.gettempdir(),
 warnings.filterwarnings('ignore', '.* potential security risk .*',
                         RuntimeWarning)
 
+
 class PosixTester(unittest.TestCase):
 
     def setUp(self):
         # create empty file
         fp = open(test_support.TESTFN, 'w+')
         fp.close()
-        self.teardown_files = [ test_support.TESTFN ]
+        self.teardown_files = [test_support.TESTFN]
 
     def tearDown(self):
         for teardown_file in self.teardown_files:
@@ -38,11 +39,11 @@ class PosixTester(unittest.TestCase):
     def testNoArgFunctions(self):
         # test posix functions which take no arguments and have
         # no side-effects which we need to cleanup (e.g., fork, wait, abort)
-        NO_ARG_FUNCTIONS = [ "ctermid", "getcwd", "getcwdu", "uname",
-                             "times", "getloadavg", "tmpnam",
-                             "getegid", "geteuid", "getgid", "getgroups",
-                             "getpid", "getpgrp", "getppid", "getuid",
-                           ]
+        NO_ARG_FUNCTIONS = ["ctermid", "getcwd", "getcwdu", "uname",
+                            "times", "getloadavg", "tmpnam",
+                            "getegid", "geteuid", "getgid", "getgroups",
+                            "getpid", "getpgrp", "getppid", "getuid",
+                            ]
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", "", DeprecationWarning)
@@ -77,7 +78,7 @@ class PosixTester(unittest.TestCase):
             # Don't do this test if someone is silly enough to run us as root.
             current_user_ids = posix.getresuid()
             if 0 not in current_user_ids:
-                new_user_ids = (current_user_ids[0]+1, -1, -1)
+                new_user_ids = (current_user_ids[0] + 1, -1, -1)
                 self.assertRaises(OSError, posix.setresuid, *new_user_ids)
 
     if hasattr(posix, 'setresgid'):
@@ -91,7 +92,7 @@ class PosixTester(unittest.TestCase):
             # Don't do this test if someone is silly enough to run us as root.
             current_group_ids = posix.getresgid()
             if 0 not in current_group_ids:
-                new_group_ids = (current_group_ids[0]+1, -1, -1)
+                new_group_ids = (current_group_ids[0] + 1, -1, -1)
                 self.assertRaises(OSError, posix.setresgid, *new_group_ids)
 
     @unittest.skipUnless(hasattr(posix, 'initgroups'),
@@ -177,32 +178,32 @@ class PosixTester(unittest.TestCase):
     def test_osexlock(self):
         if hasattr(posix, "O_EXLOCK"):
             fd = os.open(test_support.TESTFN,
-                         os.O_WRONLY|os.O_EXLOCK|os.O_CREAT)
+                         os.O_WRONLY | os.O_EXLOCK | os.O_CREAT)
             self.assertRaises(OSError, os.open, test_support.TESTFN,
-                              os.O_WRONLY|os.O_EXLOCK|os.O_NONBLOCK)
+                              os.O_WRONLY | os.O_EXLOCK | os.O_NONBLOCK)
             os.close(fd)
 
             if hasattr(posix, "O_SHLOCK"):
                 fd = os.open(test_support.TESTFN,
-                             os.O_WRONLY|os.O_SHLOCK|os.O_CREAT)
+                             os.O_WRONLY | os.O_SHLOCK | os.O_CREAT)
                 self.assertRaises(OSError, os.open, test_support.TESTFN,
-                                  os.O_WRONLY|os.O_EXLOCK|os.O_NONBLOCK)
+                                  os.O_WRONLY | os.O_EXLOCK | os.O_NONBLOCK)
                 os.close(fd)
 
     def test_osshlock(self):
         if hasattr(posix, "O_SHLOCK"):
             fd1 = os.open(test_support.TESTFN,
-                         os.O_WRONLY|os.O_SHLOCK|os.O_CREAT)
+                          os.O_WRONLY | os.O_SHLOCK | os.O_CREAT)
             fd2 = os.open(test_support.TESTFN,
-                          os.O_WRONLY|os.O_SHLOCK|os.O_CREAT)
+                          os.O_WRONLY | os.O_SHLOCK | os.O_CREAT)
             os.close(fd2)
             os.close(fd1)
 
             if hasattr(posix, "O_EXLOCK"):
                 fd = os.open(test_support.TESTFN,
-                             os.O_WRONLY|os.O_SHLOCK|os.O_CREAT)
+                             os.O_WRONLY | os.O_SHLOCK | os.O_CREAT)
                 self.assertRaises(OSError, os.open, test_support.TESTFN,
-                                  os.O_RDONLY|os.O_EXLOCK|os.O_NONBLOCK)
+                                  os.O_RDONLY | os.O_EXLOCK | os.O_NONBLOCK)
                 os.close(fd)
 
     def test_fstat(self):
@@ -302,7 +303,8 @@ class PosixTester(unittest.TestCase):
     def test_tempnam(self):
         if hasattr(posix, 'tempnam'):
             with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", "tempnam", DeprecationWarning)
+                warnings.filterwarnings(
+                    "ignore", "tempnam", DeprecationWarning)
                 self.assertTrue(posix.tempnam())
                 self.assertTrue(posix.tempnam(os.curdir))
                 self.assertTrue(posix.tempnam(os.curdir, 'blah'))
@@ -310,7 +312,8 @@ class PosixTester(unittest.TestCase):
     def test_tmpfile(self):
         if hasattr(posix, 'tmpfile'):
             with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", "tmpfile", DeprecationWarning)
+                warnings.filterwarnings(
+                    "ignore", "tmpfile", DeprecationWarning)
                 fp = posix.tmpfile()
                 fp.close()
 
@@ -318,9 +321,12 @@ class PosixTester(unittest.TestCase):
         if hasattr(posix, 'utime'):
             now = time.time()
             posix.utime(test_support.TESTFN, None)
-            self.assertRaises(TypeError, posix.utime, test_support.TESTFN, (None, None))
-            self.assertRaises(TypeError, posix.utime, test_support.TESTFN, (now, None))
-            self.assertRaises(TypeError, posix.utime, test_support.TESTFN, (None, now))
+            self.assertRaises(TypeError, posix.utime,
+                              test_support.TESTFN, (None, None))
+            self.assertRaises(TypeError, posix.utime,
+                              test_support.TESTFN, (now, None))
+            self.assertRaises(TypeError, posix.utime,
+                              test_support.TESTFN, (None, now))
             posix.utime(test_support.TESTFN, (int(now), int(now)))
             posix.utime(test_support.TESTFN, (now, now))
 
@@ -342,11 +348,13 @@ class PosixTester(unittest.TestCase):
     def test_chflags(self):
         self._test_chflags_regular_file(posix.chflags, test_support.TESTFN)
 
-    @unittest.skipUnless(hasattr(posix, 'lchflags'), 'test needs os.lchflags()')
+    @unittest.skipUnless(hasattr(posix, 'lchflags'),
+                         'test needs os.lchflags()')
     def test_lchflags_regular_file(self):
         self._test_chflags_regular_file(posix.lchflags, test_support.TESTFN)
 
-    @unittest.skipUnless(hasattr(posix, 'lchflags'), 'test needs os.lchflags()')
+    @unittest.skipUnless(hasattr(posix, 'lchflags'),
+                         'test needs os.lchflags()')
     def test_lchflags_symlink(self):
         testfn_st = os.stat(test_support.TESTFN)
 
@@ -378,29 +386,31 @@ class PosixTester(unittest.TestCase):
             try:
                 os.mkdir(base_path)
                 os.chdir(base_path)
-            except:
-#               Just returning nothing instead of the SkipTest exception,
-#               because the test results in Error in that case.
-#               Is that ok?
-#                raise unittest.SkipTest, "cannot create directory for testing"
+            except BaseException:
+                #               Just returning nothing instead of the SkipTest exception,
+                #               because the test results in Error in that case.
+                #               Is that ok?
+                # raise unittest.SkipTest, "cannot create directory for
+                # testing"
                 return
 
             try:
-                def _create_and_do_getcwd(dirname, current_path_length = 0):
+                def _create_and_do_getcwd(dirname, current_path_length=0):
                     try:
                         os.mkdir(dirname)
-                    except:
+                    except BaseException:
                         raise unittest.SkipTest, "mkdir cannot create directory sufficiently deep for getcwd test"
 
                     os.chdir(dirname)
                     try:
                         os.getcwd()
                         if current_path_length < 4099:
-                            _create_and_do_getcwd(dirname, current_path_length + len(dirname) + 1)
+                            _create_and_do_getcwd(
+                                dirname, current_path_length + len(dirname) + 1)
                     except OSError as e:
                         expected_errno = errno.ENAMETOOLONG
                         if 'sunos' in sys.platform or 'openbsd' in sys.platform:
-                            expected_errno = errno.ERANGE # Issue 9185
+                            expected_errno = errno.ERANGE  # Issue 9185
                         self.assertEqual(e.errno, expected_errno)
                     finally:
                         os.chdir('..')
@@ -426,8 +436,9 @@ class PosixTester(unittest.TestCase):
         # #10822 - it is implementation defined whether posix.getgroups()
         # includes the effective gid so we include it anyway, since id -G does
         self.assertEqual(
-                set([int(x) for x in groups.split()]),
-                set(posix.getgroups() + [posix.getegid()]))
+            set([int(x) for x in groups.split()]),
+            set(posix.getgroups() + [posix.getegid()]))
+
 
 class PosixGroupsTester(unittest.TestCase):
 
@@ -467,6 +478,7 @@ class PosixGroupsTester(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(PosixTester, PosixGroupsTester)
+
 
 if __name__ == '__main__':
     test_main()

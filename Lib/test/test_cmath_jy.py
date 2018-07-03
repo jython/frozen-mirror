@@ -103,6 +103,7 @@ class CmathTestCase(unittest.TestCase):
         class Foo:
             def __float__(self):
                 return 1.0
+
         class Bar(object):
             def __float__(self):
                 return 1.0
@@ -113,6 +114,7 @@ class CmathTestCase(unittest.TestCase):
         class Foo:
             def __complex__(self):
                 return 1.0j
+
         class Bar(object):
             def __complex__(self):
                 return 1.0j
@@ -122,6 +124,7 @@ class CmathTestCase(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(CmathTestCase)
+
 
 if __name__ == "__main__":
     test_main()

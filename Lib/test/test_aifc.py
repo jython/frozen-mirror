@@ -26,8 +26,8 @@ class AIFCTest(unittest.TestCase):
             pass
 
     def test_skipunknown(self):
-        #Issue 2245
-        #This file contains chunk types aifc doesn't recognize.
+        # Issue 2245
+        # This file contains chunk types aifc doesn't recognize.
         self.f = aifc.open(self.sndfilepath)
 
     def test_params(self):
@@ -38,7 +38,14 @@ class AIFCTest(unittest.TestCase):
         self.assertEqual(f.getnframes(), 14400)
         self.assertEqual(f.getcomptype(), 'NONE')
         self.assertEqual(f.getcompname(), 'not compressed')
-        self.assertEqual(f.getparams(), (2, 2, 48000, 14400, 'NONE', 'not compressed'))
+        self.assertEqual(
+            f.getparams(),
+            (2,
+             2,
+             48000,
+             14400,
+             'NONE',
+             'not compressed'))
 
     def test_read(self):
         f = self.f = aifc.open(self.sndfilepath)
@@ -83,8 +90,8 @@ class AIFCTest(unittest.TestCase):
         fout.close()
         self.assertLess(
             os.stat(TESTFN).st_size,
-            os.stat(self.sndfilepath).st_size*0.75,
-            )
+            os.stat(self.sndfilepath).st_size * 0.75,
+        )
         fout = self.fout = aifc.open(TESTFN, 'rb')
         f.rewind()
         self.assertEqual(f.getparams()[0:3], fout.getparams()[0:3])
@@ -98,9 +105,11 @@ class AIFCTest(unittest.TestCase):
             def __init__(self, file):
                 self.file = open(file, 'rb')
                 self.closed = False
+
             def close(self):
                 self.file.close()
                 self.closed = True
+
             def __getattr__(self, attr): return getattr(self.file, attr)
         testfile = Wrapfile(self.sndfilepath)
         f = self.f = aifc.open(testfile)

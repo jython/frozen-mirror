@@ -25,7 +25,7 @@ benchmarks = [
     ('(Python|Perl|Tcl)', 'Perl'),      # Grouped alternation
     ('(Python)\\1', 'PythonPython'),    # Backreference
     ('([0a-z][a-z]*,)+', 'a5,b7,c9,'),  # Disable the fastmap optimization
-    ('([a-z][a-z0-9]*,)+', 'a5,b7,c9,') # A few sets
+    ('([a-z][a-z0-9]*,)+', 'a5,b7,c9,')  # A few sets
 ]
 
 # Test suite (for verifying correctness)
@@ -58,7 +58,8 @@ tests = [
     ('(?P<foo_123>a)(?P=foo_123', 'aa', SYNTAX_ERROR),
     ('(?P<foo_123>a)(?P=1)', 'aa', SYNTAX_ERROR),
     ('(?P<foo_123>a)(?P=!)', 'aa', SYNTAX_ERROR),
-    ('(?P<foo_123>a)(?P=foo_124', 'aa', SYNTAX_ERROR),  # Backref to undefined group
+    # Backref to undefined group
+    ('(?P<foo_123>a)(?P=foo_124', 'aa', SYNTAX_ERROR),
 
     ('(?P<foo_123>a)', 'a', SUCCEED, 'g1', 'a'),
     ('(?P<foo_123>a)(?P=foo_123)', 'aa', SUCCEED, 'g1', 'a'),
@@ -211,11 +212,13 @@ tests = [
     ('((a)(b)c)(d)', 'abcd', SUCCEED, 'g1+"-"+g2+"-"+g3+"-"+g4', 'abc-a-b-d'),
     ('[a-zA-Z_][a-zA-Z0-9_]*', 'alpha', SUCCEED, 'found', 'alpha'),
     ('^a(bc+|b[eh])g|.h$', 'abh', SUCCEED, 'found+"-"+g1', 'bh-None'),
-    ('(bc+d$|ef*g.|h?i(j|k))', 'effgz', SUCCEED, 'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
+    ('(bc+d$|ef*g.|h?i(j|k))', 'effgz', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
     ('(bc+d$|ef*g.|h?i(j|k))', 'ij', SUCCEED, 'found+"-"+g1+"-"+g2', 'ij-ij-j'),
     ('(bc+d$|ef*g.|h?i(j|k))', 'effg', FAIL),
     ('(bc+d$|ef*g.|h?i(j|k))', 'bcdd', FAIL),
-    ('(bc+d$|ef*g.|h?i(j|k))', 'reffgz', SUCCEED, 'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
+    ('(bc+d$|ef*g.|h?i(j|k))', 'reffgz', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
     ('(((((((((a)))))))))', 'a', SUCCEED, 'found', 'a'),
     ('multiple words of text', 'uh-uh', FAIL),
     ('multiple words', 'multiple words, yeah', SUCCEED, 'found', 'multiple words'),
@@ -242,8 +245,13 @@ tests = [
     ('(a)(b)c|ab', 'ab', SUCCEED, 'found+"-"+g1+"-"+g2', 'ab-None-None'),
     ('(a)+x', 'aaax', SUCCEED, 'found+"-"+g1', 'aaax-a'),
     ('([ac])+x', 'aacx', SUCCEED, 'found+"-"+g1', 'aacx-c'),
-    ('([^/]*/)*sub1/', 'd:msgs/tdir/sub1/trial/away.cpp', SUCCEED, 'found+"-"+g1', 'd:msgs/tdir/sub1/-tdir/'),
-    ('([^.]*)\\.([^:]*):[T ]+(.*)', 'track1.title:TBlah blah blah', SUCCEED, 'found+"-"+g1+"-"+g2+"-"+g3', 'track1.title:TBlah blah blah-track1-title-Blah blah blah'),
+    ('([^/]*/)*sub1/', 'd:msgs/tdir/sub1/trial/away.cpp',
+     SUCCEED, 'found+"-"+g1', 'd:msgs/tdir/sub1/-tdir/'),
+    ('([^.]*)\\.([^:]*):[T ]+(.*)',
+     'track1.title:TBlah blah blah',
+     SUCCEED,
+     'found+"-"+g1+"-"+g2+"-"+g3',
+     'track1.title:TBlah blah blah-track1-title-Blah blah blah'),
     ('([^N]*N)+', 'abNNxyzN', SUCCEED, 'found+"-"+g1', 'abNNxyzN-xyzN'),
     ('([^N]*N)+', 'abNNxyz', SUCCEED, 'found+"-"+g1', 'abNN-N'),
     ('([abc]*)x', 'abcx', SUCCEED, 'found+"-"+g1', 'abcx-abc'),
@@ -374,16 +382,18 @@ tests = [
     ('((a)(b)c)(d)', 'abcd', SUCCEED, 'g1+"-"+g2+"-"+g3+"-"+g4', 'abc-a-b-d'),
     ('[a-zA-Z_][a-zA-Z0-9_]*', 'alpha', SUCCEED, 'found', 'alpha'),
     ('^a(bc+|b[eh])g|.h$', 'abh', SUCCEED, 'found+"-"+g1', 'bh-None'),
-    ('(bc+d$|ef*g.|h?i(j|k))', 'effgz', SUCCEED, 'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
+    ('(bc+d$|ef*g.|h?i(j|k))', 'effgz', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
     ('(bc+d$|ef*g.|h?i(j|k))', 'ij', SUCCEED, 'found+"-"+g1+"-"+g2', 'ij-ij-j'),
     ('(bc+d$|ef*g.|h?i(j|k))', 'effg', FAIL),
     ('(bc+d$|ef*g.|h?i(j|k))', 'bcdd', FAIL),
-    ('(bc+d$|ef*g.|h?i(j|k))', 'reffgz', SUCCEED, 'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
+    ('(bc+d$|ef*g.|h?i(j|k))', 'reffgz', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'effgz-effgz-None'),
     ('((((((((((a))))))))))', 'a', SUCCEED, 'g10', 'a'),
     ('((((((((((a))))))))))\\10', 'aa', SUCCEED, 'found', 'aa'),
-# Python does not have the same rules for \\41 so this is a syntax error
-#    ('((((((((((a))))))))))\\41', 'aa', FAIL),
-#    ('((((((((((a))))))))))\\41', 'a!', SUCCEED, 'found', 'a!'),
+    # Python does not have the same rules for \\41 so this is a syntax error
+    #    ('((((((((((a))))))))))\\41', 'aa', FAIL),
+    #    ('((((((((((a))))))))))\\41', 'a!', SUCCEED, 'found', 'a!'),
     ('((((((((((a))))))))))\\41', '', SYNTAX_ERROR),
     ('(?i)((((((((((a))))))))))\\41', '', SYNTAX_ERROR),
     ('(((((((((a)))))))))', 'a', SUCCEED, 'found', 'a'),
@@ -505,11 +515,13 @@ tests = [
     ('(?i)((a)(b)c)(d)', 'ABCD', SUCCEED, 'g1+"-"+g2+"-"+g3+"-"+g4', 'ABC-A-B-D'),
     ('(?i)[a-zA-Z_][a-zA-Z0-9_]*', 'ALPHA', SUCCEED, 'found', 'ALPHA'),
     ('(?i)^a(bc+|b[eh])g|.h$', 'ABH', SUCCEED, 'found+"-"+g1', 'BH-None'),
-    ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'EFFGZ', SUCCEED, 'found+"-"+g1+"-"+g2', 'EFFGZ-EFFGZ-None'),
+    ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'EFFGZ', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'EFFGZ-EFFGZ-None'),
     ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'IJ', SUCCEED, 'found+"-"+g1+"-"+g2', 'IJ-IJ-J'),
     ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'EFFG', FAIL),
     ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'BCDD', FAIL),
-    ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'REFFGZ', SUCCEED, 'found+"-"+g1+"-"+g2', 'EFFGZ-EFFGZ-None'),
+    ('(?i)(bc+d$|ef*g.|h?i(j|k))', 'REFFGZ', SUCCEED,
+     'found+"-"+g1+"-"+g2', 'EFFGZ-EFFGZ-None'),
     ('(?i)((((((((((a))))))))))', 'A', SUCCEED, 'g10', 'A'),
     ('(?i)((((((((((a))))))))))\\10', 'AA', SUCCEED, 'found', 'AA'),
     #('(?i)((((((((((a))))))))))\\41', 'AA', FAIL),
@@ -518,12 +530,13 @@ tests = [
     ('(?i)(?:(?:(?:(?:(?:(?:(?:(?:(?:(a))))))))))', 'A', SUCCEED, 'g1', 'A'),
     ('(?i)(?:(?:(?:(?:(?:(?:(?:(?:(?:(a|b|c))))))))))', 'C', SUCCEED, 'g1', 'C'),
     ('(?i)multiple words of text', 'UH-UH', FAIL),
-    ('(?i)multiple words', 'MULTIPLE WORDS, YEAH', SUCCEED, 'found', 'MULTIPLE WORDS'),
+    ('(?i)multiple words', 'MULTIPLE WORDS, YEAH',
+     SUCCEED, 'found', 'MULTIPLE WORDS'),
     ('(?i)(.*)c(.*)', 'ABCDE', SUCCEED, 'found+"-"+g1+"-"+g2', 'ABCDE-AB-DE'),
     ('(?i)\\((.*), (.*)\\)', '(A, B)', SUCCEED, 'g2+"-"+g1', 'B-A'),
     ('(?i)[k]', 'AB', FAIL),
-#    ('(?i)abcd', 'ABCD', SUCCEED, 'found+"-"+\\found+"-"+\\\\found', 'ABCD-$&-\\ABCD'),
-#    ('(?i)a(bc)d', 'ABCD', SUCCEED, 'g1+"-"+\\g1+"-"+\\\\g1', 'BC-$1-\\BC'),
+    #    ('(?i)abcd', 'ABCD', SUCCEED, 'found+"-"+\\found+"-"+\\\\found', 'ABCD-$&-\\ABCD'),
+    #    ('(?i)a(bc)d', 'ABCD', SUCCEED, 'g1+"-"+\\g1+"-"+\\\\g1', 'BC-$1-\\BC'),
     ('(?i)a[-]?c', 'AC', SUCCEED, 'found', 'AC'),
     ('(?i)(abc)\\1', 'ABCABC', SUCCEED, 'g1', 'ABC'),
     ('(?i)([a-c]*)\\1', 'ABCABC', SUCCEED, 'g1', 'ABC'),
@@ -554,9 +567,9 @@ tests = [
 
     # using the m embedded pattern modifier
 
-    #('^abc', """jkl
-#abc
-#xyz""", FAIL),
+    # ('^abc', """jkl
+    # abc
+    # xyz""", FAIL),
     ('(?m)^abc', """jkl
 abc
 xyz""", SUCCEED, 'found', 'abc'),
@@ -578,7 +591,8 @@ xyzabc
     ('[\\D]+', '1234abc5678', SUCCEED, 'found', 'abc'),
     ('[\\da-fA-F]+', '123abc', SUCCEED, 'found', '123abc'),
     ('[\\d-x]', '-', SYNTAX_ERROR),
-    (r'([\s]*)([\S]*)([\s]*)', ' testing!1972', SUCCEED, 'g3+g2+g1', 'testing!1972 '),
+    (r'([\s]*)([\S]*)([\s]*)', ' testing!1972',
+     SUCCEED, 'g3+g2+g1', 'testing!1972 '),
     (r'(\s*)(\S*)(\s*)', ' testing!1972', SUCCEED, 'g3+g2+g1', 'testing!1972 '),
 
     (r'\xff', '\377', SUCCEED, 'found', chr(255)),

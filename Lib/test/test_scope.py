@@ -21,7 +21,7 @@ class ScopeTests(unittest.TestCase):
     def testExtraNesting(self):
 
         def make_adder2(x):
-            def extra(): # check freevars passing through non-use scopes
+            def extra():  # check freevars passing through non-use scopes
                 def adder(y):
                     return x + y
                 return adder
@@ -38,7 +38,7 @@ class ScopeTests(unittest.TestCase):
         def make_adder3(x):
             def adder(y):
                 return x + y
-            x = x + 1 # check tracking of assignment to x in defining scope
+            x = x + 1  # check tracking of assignment to x in defining scope
             return adder
 
         inc = make_adder3(0)
@@ -49,11 +49,11 @@ class ScopeTests(unittest.TestCase):
 
     def testNestingGlobalNoFree(self):
 
-        def make_adder4(): # XXX add exta level of indirection
+        def make_adder4():  # XXX add exta level of indirection
             def nest():
                 def nest():
                     def adder(y):
-                        return global_x + y # check that plain old globals work
+                        return global_x + y  # check that plain old globals work
                     return adder
                 return nest()
             return nest()
@@ -83,6 +83,7 @@ class ScopeTests(unittest.TestCase):
 
         def make_adder6(x):
             global global_nest_x
+
             def adder(y):
                 return global_nest_x + y
             global_nest_x = x
@@ -91,14 +92,15 @@ class ScopeTests(unittest.TestCase):
         inc = make_adder6(1)
         plus10 = make_adder6(10)
 
-        self.assertEqual(inc(1), 11) # there's only one global
+        self.assertEqual(inc(1), 11)  # there's only one global
         self.assertEqual(plus10(-2), 8)
 
     def testNearestEnclosingScope(self):
 
         def f(x):
             def g(y):
-                x = 42 # check that this masks binding in f()
+                x = 42  # check that this masks binding in f()
+
                 def h(z):
                     return x + z
                 return h
@@ -114,12 +116,13 @@ class ScopeTests(unittest.TestCase):
 
         def f(x, y, z):
             def g(a, b, c):
-                a = a + x # 3
+                a = a + x  # 3
+
                 def h():
                     # z * (4 + 9)
                     # 3 * 13
                     return identity(z * (b + y))
-                y = c + z # 9
+                y = c + z  # 9
                 return h
             return g
 
@@ -131,13 +134,17 @@ class ScopeTests(unittest.TestCase):
 
         def test():
             method_and_var = "var"
+
             class Test:
                 def method_and_var(self):
                     return "method"
+
                 def test(self):
                     return method_and_var
+
                 def actual_global(self):
                     return str("global")
+
                 def str(self):
                     return str(self)
             return Test()
@@ -148,14 +155,18 @@ class ScopeTests(unittest.TestCase):
         self.assertEqual(t.actual_global(), "global")
 
         method_and_var = "var"
+
         class Test:
             # this class is not nested, so the rules are different
             def method_and_var(self):
                 return "method"
+
             def test(self):
                 return method_and_var
+
             def actual_global(self):
                 return str("global")
+
             def str(self):
                 return str(self)
 
@@ -175,10 +186,9 @@ class ScopeTests(unittest.TestCase):
             if x >= 0:
                 return fact(x)
             else:
-                raise ValueError, "x must be >= 0"
+                raise ValueError("x must be >= 0")
 
         self.assertEqual(f(6), 720)
-
 
     def testUnoptimizedNamespaces(self):
 
@@ -207,7 +217,8 @@ def unoptimized_clash2():
         return f
 """)
 
-        # XXX could allow this for exec with const argument, but what's the point
+        # XXX could allow this for exec with const argument, but what's the
+        # point
         check_syntax_error(self, """\
 def error(y):
     exec "a = 1"
@@ -251,24 +262,24 @@ def noproblem3():
 
     def testLambdas(self):
 
-        f1 = lambda x: lambda y: x + y
+        def f1(x): return lambda y: x + y
         inc = f1(1)
         plus10 = f1(10)
         self.assertEqual(inc(1), 2)
         self.assertEqual(plus10(5), 15)
 
-        f2 = lambda x: (lambda : lambda y: x + y)()
+        def f2(x): return (lambda: lambda y: x + y)()
         inc = f2(1)
         plus10 = f2(10)
         self.assertEqual(inc(1), 2)
         self.assertEqual(plus10(5), 15)
 
-        f3 = lambda x: lambda y: global_x + y
+        def f3(x): return lambda y: global_x + y
         global_x = 1
         inc = f3(None)
         self.assertEqual(inc(2), 3)
 
-        f8 = lambda x, y, z: lambda a, b, c: lambda : z * (b + y)
+        def f8(x, y, z): return lambda a, b, c: lambda: z * (b + y)
         g = f8(1, 2, 3)
         h = g(2, 4, 6)
         self.assertEqual(h(), 18)
@@ -277,6 +288,7 @@ def noproblem3():
 
         def errorInOuter():
             print y
+
             def inner():
                 return y
             y = 1
@@ -321,7 +333,7 @@ else:
                 return lst
             return returner
 
-        self.assertEqual(makeReturner(1,2,3)(), (1,2,3))
+        self.assertEqual(makeReturner(1, 2, 3)(), (1, 2, 3))
 
         def makeReturner2(**kwargs):
             def returner():
@@ -338,11 +350,11 @@ def makeAddPair((a, b)):
         return (a + c, b + d)
     return addPair
 """ in locals()
-        self.assertEqual(makeAddPair((1, 2))((100, 200)), (101,202))
+        self.assertEqual(makeAddPair((1, 2))((100, 200)), (101, 202))
 
     @unittest.skip("FIXME: broken")
     def testScopeOfGlobalStmt(self):
-# Examples posted by Samuele Pedroni to python-dev on 3/1/2001
+        # Examples posted by Samuele Pedroni to python-dev on 3/1/2001
 
         exec """\
 # I
@@ -438,6 +450,7 @@ self.assertEqual(g.get(), 13)
 
         def f1():
             x = Foo()
+
             def f2():
                 return x
             f2()
@@ -508,6 +521,7 @@ self.assert_(X.passed)
         def f(x):
             class C:
                 x = 12
+
                 def m(self):
                     return x
                 locals()
@@ -518,6 +532,7 @@ self.assert_(X.passed)
         def f(x):
             class C:
                 y = x
+
                 def m(self):
                     return x
                 z = list(locals())
@@ -533,7 +548,7 @@ self.assert_(X.passed)
         # include free variables. But in class statements, free
         # variables are not inserted...
         import sys
-        sys.settrace(lambda a,b,c:None)
+        sys.settrace(lambda a, b, c: None)
         try:
             x = 12
 
@@ -541,7 +556,7 @@ self.assert_(X.passed)
                 def f(self):
                     return x
 
-            self.assertEquals(x, 12) # Used to raise UnboundLocalError
+            self.assertEquals(x, 12)  # Used to raise UnboundLocalError
         finally:
             sys.settrace(None)
 
@@ -561,7 +576,8 @@ self.assert_(X.passed)
     def testInteractionWithTraceFunc(self):
 
         import sys
-        def tracer(a,b,c):
+
+        def tracer(a, b, c):
             return tracer
 
         def adaptgetter(name, klass, getter):
@@ -632,13 +648,14 @@ self.assert_(X.passed)
 
         def f():
             global nestedcell_get
+
             def nestedcell_get():
                 return c
 
             c = (Special(),)
             c = 2
 
-        f() # used to crash the interpreter...
+        f()  # used to crash the interpreter...
 
     @unittest.skip("FIXME: broken")
     def testGlobalInParallelNestedFunctions(self):
@@ -671,6 +688,7 @@ def test_main():
     with check_warnings(("import \* only allowed at module level",
                          SyntaxWarning)):
         run_unittest(ScopeTests)
+
 
 if __name__ == '__main__':
     test_main()

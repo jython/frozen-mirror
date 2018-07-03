@@ -3,8 +3,11 @@ from test import test_support
 from java.util import Map
 from java.util.concurrent import ConcurrentMap
 
-import UserDict, random, string
-import gc, weakref
+import UserDict
+import random
+import string
+import gc
+import weakref
 
 
 class DictTest(unittest.TestCase):
@@ -41,8 +44,8 @@ class DictTest(unittest.TestCase):
         self.assertEqual(d.keys(), [])
         d = {'a': 1, 'b': 2}
         k = d.keys()
-        self.assertTrue(d.has_key('a'))
-        self.assertTrue(d.has_key('b'))
+        self.assertTrue('a' in d)
+        self.assertTrue('b' in d)
 
         self.assertRaises(TypeError, d.keys, None)
 
@@ -50,7 +53,7 @@ class DictTest(unittest.TestCase):
         d = self._make_dict({})
         self.assertEqual(d.values(), [])
 
-        d = self._make_dict({1:2})
+        d = self._make_dict({1: 2})
         self.assertEqual(d.values(), [2])
 
         self.assertRaises(TypeError, d.values, None)
@@ -59,18 +62,17 @@ class DictTest(unittest.TestCase):
         d = self._make_dict({})
         self.assertEqual(d.items(), [])
 
-        d = self._make_dict({1:2})
+        d = self._make_dict({1: 2})
         self.assertEqual(d.items(), [(1, 2)])
 
         self.assertRaises(TypeError, d.items, None)
 
     def test_has_key(self):
         d = self._make_dict({})
-        self.assertFalse(d.has_key('a'))
+        self.assertFalse('a' in d)
 
         d = self._make_dict({'a': 1, 'b': 2})
-        k = d.keys()
-        k.sort()
+        k = sorted(d.keys())
         self.assertEqual(k, ['a', 'b'])
 
         self.assertRaises(TypeError, d.has_key)
@@ -111,6 +113,7 @@ class DictTest(unittest.TestCase):
         class BadEq(object):
             def __eq__(self, other):
                 raise Exc()
+
             def __hash__(self):
                 return 24
 
@@ -118,10 +121,12 @@ class DictTest(unittest.TestCase):
         d[BadEq()] = 42
         self.assertRaises(KeyError, d.__getitem__, 23)
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class BadHash(object):
             fail = False
+
             def __hash__(self):
                 if self.fail:
                     raise Exc()
@@ -134,7 +139,7 @@ class DictTest(unittest.TestCase):
         self.assertRaises(Exc, d.__getitem__, x)
 
     def test_clear(self):
-        d = self._make_dict({1:1, 2:2, 3:3})
+        d = self._make_dict({1: 1, 2: 2, 3: 3})
         d.clear()
         self.assertEqual(d, {})
 
@@ -142,30 +147,34 @@ class DictTest(unittest.TestCase):
 
     def test_update(self):
         d = self._make_dict({})
-        d.update({1:100})
-        d.update({2:20})
-        d.update({1:1, 2:2, 3:3})
-        self.assertEqual(d, {1:1, 2:2, 3:3})
+        d.update({1: 100})
+        d.update({2: 20})
+        d.update({1: 1, 2: 2, 3: 3})
+        self.assertEqual(d, {1: 1, 2: 2, 3: 3})
 
         d.update()
-        self.assertEqual(d, {1:1, 2:2, 3:3})
+        self.assertEqual(d, {1: 1, 2: 2, 3: 3})
 
         self.assertRaises((TypeError, AttributeError), d.update, None)
 
         class SimpleUserDict:
             def __init__(self):
-                self.d = {1:1, 2:2, 3:3}
+                self.d = {1: 1, 2: 2, 3: 3}
+
             def keys(self):
                 return self.d.keys()
+
             def __getitem__(self, i):
                 return self.d[i]
         d.clear()
         d.update(SimpleUserDict())
-        self.assertEqual(d, {1:1, 2:2, 3:3})
+        self.assertEqual(d, {1: 1, 2: 2, 3: 3})
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         d.clear()
+
         class FailingUserDict:
             def keys(self):
                 raise Exc
@@ -176,14 +185,17 @@ class DictTest(unittest.TestCase):
                 class BogonIter:
                     def __init__(self):
                         self.i = 1
+
                     def __iter__(self):
                         return self
+
                     def next(self):
                         if self.i:
                             self.i = 0
                             return 'a'
                         raise Exc
                 return BogonIter()
+
             def __getitem__(self, key):
                 return key
         self.assertRaises(Exc, d.update, FailingUserDict())
@@ -193,8 +205,10 @@ class DictTest(unittest.TestCase):
                 class BogonIter:
                     def __init__(self):
                         self.i = ord('a')
+
                     def __iter__(self):
                         return self
+
                     def next(self):
                         if self.i <= ord('z'):
                             rtn = chr(self.i)
@@ -202,6 +216,7 @@ class DictTest(unittest.TestCase):
                             return rtn
                         raise StopIteration
                 return BogonIter()
+
             def __getitem__(self, key):
                 raise Exc
         self.assertRaises(Exc, d.update, FailingUserDict())
@@ -209,6 +224,7 @@ class DictTest(unittest.TestCase):
         class badseq(object):
             def __iter__(self):
                 return self
+
             def next(self):
                 raise Exc()
 
@@ -217,30 +233,37 @@ class DictTest(unittest.TestCase):
         self.assertRaises(ValueError, d.update, [(1, 2, 3)])
 
     def test_fromkeys(self):
-        self.assertEqual(dict.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
+        self.assertEqual(
+            dict.fromkeys('abc'), {
+                'a': None, 'b': None, 'c': None})
         d = self._make_dict({})
         self.assertIsNot(d.fromkeys('abc'), d)
-        self.assertEqual(d.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
-        self.assertEqual(d.fromkeys((4,5),0), {4:0, 5:0})
+        self.assertEqual(d.fromkeys('abc'), {'a': None, 'b': None, 'c': None})
+        self.assertEqual(d.fromkeys((4, 5), 0), {4: 0, 5: 0})
         self.assertEqual(d.fromkeys([]), {})
+
         def g():
             yield 1
-        self.assertEqual(d.fromkeys(g()), {1:None})
+        self.assertEqual(d.fromkeys(g()), {1: None})
         self.assertRaises(TypeError, {}.fromkeys, 3)
-        class dictlike(dict): pass
-        self.assertEqual(dictlike.fromkeys('a'), {'a':None})
-        self.assertEqual(dictlike().fromkeys('a'), {'a':None})
+
+        class dictlike(dict):
+            pass
+        self.assertEqual(dictlike.fromkeys('a'), {'a': None})
+        self.assertEqual(dictlike().fromkeys('a'), {'a': None})
         self.assertIsInstance(dictlike.fromkeys('a'), dictlike)
         self.assertIsInstance(dictlike().fromkeys('a'), dictlike)
+
         class mydict(dict):
             def __new__(cls):
                 return UserDict.UserDict()
         ud = mydict.fromkeys('ab')
-        self.assertEqual(ud, {'a':None, 'b':None})
+        self.assertEqual(ud, {'a': None, 'b': None})
         self.assertIsInstance(ud, UserDict.UserDict)
         self.assertRaises(TypeError, dict.fromkeys)
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class baddict1(dict):
             def __init__(self):
@@ -251,6 +274,7 @@ class DictTest(unittest.TestCase):
         class BadSeq(object):
             def __iter__(self):
                 return self
+
             def next(self):
                 raise Exc()
 
@@ -264,11 +288,11 @@ class DictTest(unittest.TestCase):
 
         # test fast path for dictionary inputs
         d = dict(zip(range(6), range(6)))
-        self.assertEqual(dict.fromkeys(d, 0), dict(zip(range(6), [0]*6)))
+        self.assertEqual(dict.fromkeys(d, 0), dict(zip(range(6), [0] * 6)))
 
     def test_copy(self):
-        d = self._make_dict({1:1, 2:2, 3:3})
-        self.assertEqual(d.copy(), {1:1, 2:2, 3:3})
+        d = self._make_dict({1: 1, 2: 2, 3: 3})
+        self.assertEqual(d.copy(), {1: 1, 2: 2, 3: 3})
         self.assertEqual(self._make_dict({}).copy(), {})
         self.assertRaises(TypeError, d.copy, None)
 
@@ -297,10 +321,12 @@ class DictTest(unittest.TestCase):
         self.assertEqual(len(d['key']), 2)
         self.assertRaises(TypeError, d.setdefault)
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class BadHash(object):
             fail = False
+
             def __hash__(self):
                 if self.fail:
                     raise Exc()
@@ -318,16 +344,19 @@ class DictTest(unittest.TestCase):
             def __init__(self):
                 self.hash_count = 0
                 self.eq_count = 0
+
             def __hash__(self):
                 self.hash_count += 1
                 return 42
+
             def __eq__(self, other):
                 self.eq_count += 1
                 return id(self) == id(other)
         hashed1 = Hashed()
         y = self._make_dict({hashed1: 5})
         if isinstance(y, Map) and not isinstance(y, ConcurrentMap):
-            raise unittest.SkipTest("java.util.Map objects that do not implement ConcurrentMap have no concurrency guarantees")
+            raise unittest.SkipTest(
+                "java.util.Map objects that do not implement ConcurrentMap have no concurrency guarantees")
         # given that there are potentially multiple copies of the
         # above dict in self._make_dict, record the hash_count so it
         # can be subtracted out
@@ -379,7 +408,7 @@ class DictTest(unittest.TestCase):
 
         # verify longs/ints get same value when key > 32 bits
         # (for 64-bit archs).  See SF bug #689659.
-        x = 4503599627370496L
+        x = 4503599627370496
         y = 4503599627370496
         h = self._make_dict({x: 'anything', y: 'something else'})
         self.assertEqual(h[x], h[y])
@@ -390,10 +419,12 @@ class DictTest(unittest.TestCase):
 
         self.assertRaises(TypeError, d.pop)
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class BadHash(object):
             fail = False
+
             def __hash__(self):
                 if self.fail:
                     raise Exc()
@@ -405,14 +436,16 @@ class DictTest(unittest.TestCase):
         x.fail = True
         self.assertRaises(Exc, d.pop, x)
 
-    @unittest.skipIf(test_support.is_jython, "Weakly consistent iteration is compatible with mutation") 
+    @unittest.skipIf(
+        test_support.is_jython,
+        "Weakly consistent iteration is compatible with mutation")
     def test_mutatingiteration(self):
         # changing dict size during iteration
         d = self._make_dict({})
         d[1] = 1
         with self.assertRaises(RuntimeError):
             for i in d:
-                d[i+1] = 1
+                d[i + 1] = 1
 
     def test_repr(self):
         d = self._make_dict({})
@@ -424,7 +457,8 @@ class DictTest(unittest.TestCase):
         d[1] = d
         self.assertEqual(repr(d), '{1: {...}}')
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class BadRepr(object):
             def __repr__(self):
@@ -435,13 +469,15 @@ class DictTest(unittest.TestCase):
 
     def test_le(self):
         self.assertFalse(self._make_dict({}) < {})
-        self.assertFalse(self._make_dict({1: 2}) < {1L: 2L})
+        self.assertFalse(self._make_dict({1: 2}) < {1: 2})
 
-        class Exc(Exception): pass
+        class Exc(Exception):
+            pass
 
         class BadCmp(object):
             def __eq__(self, other):
                 raise Exc()
+
             def __hash__(self):
                 return 42
 
@@ -460,6 +496,7 @@ class DictTest(unittest.TestCase):
         # (E) subclass defines __missing__ method raising RuntimeError
         # (F) subclass sets __missing__ instance variable (no effect)
         # (G) subclass doesn't define __missing__ at a all
+
         class D(dict):
             def __missing__(self, key):
                 return 42
@@ -553,6 +590,7 @@ class DictTest(unittest.TestCase):
         class X(object):
             def __hash__(self):
                 return 5
+
             def __eq__(self, other):
                 if resizing:
                     d.clear()
@@ -573,8 +611,8 @@ class DictTest(unittest.TestCase):
         # than 7 was in the freelist, it triggered an assertion failure
         with self.assertRaises(ZeroDivisionError):
             d = self._make_dict(
-                    {'a': 1 // 0, 'b': None, 'c': None, 'd': None, 'e': None,
-                        'f': None, 'g': None, 'h': None})
+                {'a': 1 // 0, 'b': None, 'c': None, 'd': None, 'e': None,
+                 'f': None, 'g': None, 'h': None})
         d = {}
 
     def test_container_iterator(self):
@@ -609,7 +647,7 @@ class DictTest(unittest.TestCase):
         x, y, z, w = 1.5, "a", (1, None), []
 
         self._not_tracked({})
-        self._not_tracked({x:(), y:x, z:1})
+        self._not_tracked({x: (), y: x, z: 1})
         self._not_tracked({1: "a", "b": 2})
         self._not_tracked({1: 2, (None, True, False, ()): int})
         self._not_tracked({1: object()})
@@ -693,21 +731,26 @@ class DictTest(unittest.TestCase):
         self._tracked(MyDict())
 
     def test_list_equality(self):
-        class A(dict): pass
+        class A(dict):
+            pass
         for dtype in (A, dict):
             self.assertEquals([dtype()], [dict()])
 
 
 from test import mapping_tests
 
+
 class GeneralMappingTests(mapping_tests.BasicTestMappingProtocol):
     type2test = dict
+
 
 class Dict(dict):
     pass
 
+
 class SubclassMappingTests(mapping_tests.BasicTestMappingProtocol):
     type2test = Dict
+
 
 def test_main():
     with test_support.check_py3k_warnings(
@@ -718,6 +761,7 @@ def test_main():
             GeneralMappingTests,
             SubclassMappingTests,
         )
+
 
 if __name__ == "__main__":
     test_main()

@@ -18,7 +18,7 @@ from test_support import is_jython
 
 import marshal
 
-#since this tests getargs.c impl, ignore for jython.
+# since this tests getargs.c impl, ignore for jython.
 if not is_jython:
     try:
         marshal.loads(u"\222")

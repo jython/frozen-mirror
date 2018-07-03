@@ -13,7 +13,7 @@ from java.io import *
 try:
     # Do a connection that will yield a ECONNREFUSED -> ConnectException.
     conn = Socket('localhost', 8342)
-except IOException, e:
+except IOException as e:
     pass
-except:
+except BaseException:
     raise support.TestError, "A %s was raised which is an IOExcption but except IOException above didn't catch it" % sys.exc_info()[0]

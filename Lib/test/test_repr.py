@@ -9,7 +9,7 @@ import shutil
 import unittest
 
 from test.test_support import run_unittest, check_py3k_warnings
-from repr import repr as r # Don't shadow builtin repr
+from repr import repr as r  # Don't shadow builtin repr
 from repr import Repr
 
 
@@ -19,19 +19,20 @@ def nestedTuple(nesting):
         t = (t,)
     return t
 
+
 class ReprTests(unittest.TestCase):
 
     def test_string(self):
         eq = self.assertEqual
         eq(r("abc"), "'abc'")
-        eq(r("abcdefghijklmnop"),"'abcdefghijklmnop'")
+        eq(r("abcdefghijklmnop"), "'abcdefghijklmnop'")
 
-        s = "a"*30+"b"*30
+        s = "a" * 30 + "b" * 30
         expected = repr(s)[:13] + "..." + repr(s)[-14:]
         eq(r(s), expected)
 
         eq(r("\"'"), repr("\"'"))
-        s = "\""*30+"'"*100
+        s = "\"" * 30 + "'" * 100
         expected = repr(s)[:13] + "..." + repr(s)[-14:]
         eq(r(s), expected)
 
@@ -78,7 +79,8 @@ class ReprTests(unittest.TestCase):
         eq(r(frozenset([1])), "frozenset([1])")
         eq(r(frozenset([1, 2, 3])), "frozenset([1, 2, 3])")
         eq(r(frozenset([1, 2, 3, 4, 5, 6])), "frozenset([1, 2, 3, 4, 5, 6])")
-        eq(r(frozenset([1, 2, 3, 4, 5, 6, 7])), "frozenset([1, 2, 3, 4, 5, 6, ...])")
+        eq(r(frozenset([1, 2, 3, 4, 5, 6, 7])),
+           "frozenset([1, 2, 3, 4, 5, 6, ...])")
 
         # collections.deque after 6
         eq(r(deque([1, 2, 3, 4, 5, 6, 7])), "deque([1, 2, 3, 4, 5, 6, ...])")
@@ -98,15 +100,15 @@ class ReprTests(unittest.TestCase):
         eq(r(array('i', [1, 2, 3, 4])), "array('i', [1, 2, 3, 4])")
         eq(r(array('i', [1, 2, 3, 4, 5])), "array('i', [1, 2, 3, 4, 5])")
         eq(r(array('i', [1, 2, 3, 4, 5, 6])),
-                   "array('i', [1, 2, 3, 4, 5, ...])")
+           "array('i', [1, 2, 3, 4, 5, ...])")
 
     def test_numbers(self):
         eq = self.assertEqual
         eq(r(123), repr(123))
-        eq(r(123L), repr(123L))
-        eq(r(1.0/3), repr(1.0/3))
+        eq(r(123), repr(123))
+        eq(r(1.0 / 3), repr(1.0 / 3))
 
-        n = 10L**100
+        n = 10**100
         expected = repr(n)[:18] + "..." + repr(n)[-19:]
         eq(r(n), expected)
 
@@ -115,12 +117,12 @@ class ReprTests(unittest.TestCase):
         i1 = ClassWithRepr("a")
         eq(r(i1), repr(i1))
 
-        i2 = ClassWithRepr("x"*1000)
+        i2 = ClassWithRepr("x" * 1000)
         expected = repr(i2)[:13] + "..." + repr(i2)[-14:]
         eq(r(i2), expected)
 
         i3 = ClassWithFailingRepr()
-        eq(r(i3), ("<ClassWithFailingRepr instance at %x>"%id(i3)))
+        eq(r(i3), ("<ClassWithFailingRepr instance at %x>" % id(i3)))
 
         s = r(ClassWithFailingRepr)
         self.assertTrue(s.startswith("<class "))
@@ -163,9 +165,9 @@ class ReprTests(unittest.TestCase):
         eq(r(nestedTuple(6)), "(((((((),),),),),),)")
         eq(r(nestedTuple(7)), "(((((((...),),),),),),)")
 
-        eq(r({ nestedTuple(5) : nestedTuple(5) }),
+        eq(r({nestedTuple(5): nestedTuple(5)}),
            "{((((((),),),),),): ((((((),),),),),)}")
-        eq(r({ nestedTuple(6) : nestedTuple(6) }),
+        eq(r({nestedTuple(6): nestedTuple(6)}),
            "{((((((...),),),),),): ((((((...),),),),),)}")
 
         eq(r([[[[[[{}]]]]]]), "[[[[[[{}]]]]]]")
@@ -190,6 +192,7 @@ class ReprTests(unittest.TestCase):
         # XXX attribute descriptors
         # XXX slot descriptors
         # static and class methods
+
         class C:
             def foo(cls): pass
         x = staticmethod(C.foo)
@@ -207,10 +210,12 @@ class ReprTests(unittest.TestCase):
         r(y)
         r(z)
 
+
 def touch(path, text=''):
     fp = open(path, 'w')
     fp.write(text)
     fp.close()
+
 
 class LongReprTest(unittest.TestCase):
     def setUp(self):
@@ -220,10 +225,10 @@ class LongReprTest(unittest.TestCase):
         # Make the package and subpackage
         shutil.rmtree(self.pkgname, ignore_errors=True)
         os.mkdir(self.pkgname)
-        touch(os.path.join(self.pkgname, '__init__'+os.extsep+'py'))
+        touch(os.path.join(self.pkgname, '__init__' + os.extsep + 'py'))
         shutil.rmtree(self.subpkgname, ignore_errors=True)
         os.mkdir(self.subpkgname)
-        touch(os.path.join(self.subpkgname, '__init__'+os.extsep+'py'))
+        touch(os.path.join(self.subpkgname, '__init__' + os.extsep + 'py'))
         # Remember where we are
         self.here = os.getcwd()
         sys.path.insert(0, self.here)
@@ -247,20 +252,23 @@ class LongReprTest(unittest.TestCase):
         eq = self.assertEqual
         touch(os.path.join(self.subpkgname, self.pkgname + os.extsep + 'py'))
         from areallylongpackageandmodulenametotestreprtruncation.areallylongpackageandmodulenametotestreprtruncation import areallylongpackageandmodulenametotestreprtruncation
-        eq(repr(areallylongpackageandmodulenametotestreprtruncation),
-           "<module '%s' from '%s'>" % (areallylongpackageandmodulenametotestreprtruncation.__name__, areallylongpackageandmodulenametotestreprtruncation.__file__))
+        eq(
+            repr(areallylongpackageandmodulenametotestreprtruncation),
+            "<module '%s' from '%s'>" %
+            (areallylongpackageandmodulenametotestreprtruncation.__name__,
+             areallylongpackageandmodulenametotestreprtruncation.__file__))
         # XXX: Jython sys module is not a real module
         #eq(repr(sys), "<module 'sys' (built-in)>")
 
     def test_type(self):
         eq = self.assertEqual
-        touch(os.path.join(self.subpkgname, 'foo'+os.extsep+'py'), '''\
+        touch(os.path.join(self.subpkgname, 'foo' + os.extsep + 'py'), '''\
 class foo(object):
     pass
 ''')
         from areallylongpackageandmodulenametotestreprtruncation.areallylongpackageandmodulenametotestreprtruncation import foo
         eq(repr(foo.foo),
-               "<class '%s.foo'>" % foo.__name__)
+           "<class '%s.foo'>" % foo.__name__)
 
     def test_object(self):
         # XXX Test the repr of a type with a really long tp_name but with no
@@ -268,7 +276,7 @@ class foo(object):
         pass
 
     def test_class(self):
-        touch(os.path.join(self.subpkgname, 'bar'+os.extsep+'py'), '''\
+        touch(os.path.join(self.subpkgname, 'bar' + os.extsep + 'py'), '''\
 class bar:
     pass
 ''')
@@ -278,7 +286,7 @@ class bar:
             "<class %s.bar at 0x" % bar.__name__))
 
     def test_instance(self):
-        touch(os.path.join(self.subpkgname, 'baz'+os.extsep+'py'), '''\
+        touch(os.path.join(self.subpkgname, 'baz' + os.extsep + 'py'), '''\
 class baz:
     pass
 ''')
@@ -289,27 +297,29 @@ class baz:
 
     def test_method(self):
         eq = self.assertEqual
-        touch(os.path.join(self.subpkgname, 'qux'+os.extsep+'py'), '''\
+        touch(os.path.join(self.subpkgname, 'qux' + os.extsep + 'py'), '''\
 class aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:
     def amethod(self): pass
 ''')
         from areallylongpackageandmodulenametotestreprtruncation.areallylongpackageandmodulenametotestreprtruncation import qux
         # Unbound methods first
         eq(repr(qux.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.amethod),
-        '<unbound method aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.amethod>')
+           '<unbound method aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.amethod>')
         # Bound method next
         iqux = qux.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa()
         self.assertTrue(repr(iqux.amethod).startswith(
-            '<bound method aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.amethod of <%s.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa instance at 0x' \
-            % (qux.__name__,) ))
+            '<bound method aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.amethod of <%s.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa instance at 0x'
+            % (qux.__name__,)))
 
     def test_builtin_function(self):
         # XXX test built-in functions and methods with really long names
         pass
 
+
 class ClassWithRepr:
     def __init__(self, s):
         self.s = s
+
     def __repr__(self):
         return "ClassWithLongRepr(%r)" % self.s
 

@@ -7,23 +7,28 @@ Written by Marc-Andre Lemburg (mal@lemburg.com).
 
 (c) Copyright 2000 Guido van Rossum.
 
-"""#"
+"""  # "
 
-import test.test_support, unittest
+import test.test_support
+import unittest
 
 import codecs
 
 # Register a search function which knows about our codec
+
+
 def codec_search_function(encoding):
     if encoding == 'testcodec':
         from test import testcodec
         return tuple(testcodec.getregentry())
     return None
 
+
 codecs.register(codec_search_function)
 
 # test codec's name (see test/testcodec.py)
 codecname = 'testcodec'
+
 
 class CharmapCodecTest(unittest.TestCase):
     def test_constructorx(self):
@@ -41,7 +46,7 @@ class CharmapCodecTest(unittest.TestCase):
         self.assertEqual(u'dxfx'.encode(codecname), 'dabcfabc')
 
     # This test isn't working on Ubuntu on an Apple Intel powerbook,
-    # Jython 2.7b1+ (default:6b4a1088566e, Feb 10 2013, 14:36:47) 
+    # Jython 2.7b1+ (default:6b4a1088566e, Feb 10 2013, 14:36:47)
     # [OpenJDK 64-Bit Server VM (Oracle Corporation)] on java1.7.0_09
     @unittest.skipIf(test.test_support.is_jython,
                      "FIXME: Currently not working on jython")
@@ -54,8 +59,10 @@ class CharmapCodecTest(unittest.TestCase):
     def test_maptoundefined(self):
         self.assertRaises(UnicodeError, unicode, 'abc\001', codecname)
 
+
 def test_main():
     test.test_support.run_unittest(CharmapCodecTest)
+
 
 if __name__ == "__main__":
     test_main()

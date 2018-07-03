@@ -16,6 +16,7 @@ from test.test_support import (unlink, TESTFN, unload, run_unittest, rmtree,
 from test import symlink_support
 from test import script_helper
 
+
 def _files(name):
     return (name + os.extsep + "py",
             name + os.extsep + "pyc",
@@ -23,13 +24,15 @@ def _files(name):
             name + os.extsep + "pyw",
             name + "$py.class")
 
+
 def chmod_files(name):
     for f in _files(name):
         try:
-            os.chmod(f, 0600)
+            os.chmod(f, 0o600)
         except OSError as exc:
             if exc.errno != errno.ENOENT:
                 raise
+
 
 def remove_files(name):
     for f in _files(name):
@@ -77,19 +80,25 @@ class ImportTests(unittest.TestCase):
 
             try:
                 mod = __import__(TESTFN)
-            except ImportError, err:
+            except ImportError as err:
                 self.fail("import from %s failed: %s" % (ext, err))
             else:
-                self.assertEqual(mod.a, a,
-                    "module loaded (%s) but contents invalid" % mod)
-                self.assertEqual(mod.b, b,
-                    "module loaded (%s) but contents invalid" % mod)
+                self.assertEqual(
+                    mod.a,
+                    a,
+                    "module loaded (%s) but contents invalid" %
+                    mod)
+                self.assertEqual(
+                    mod.b,
+                    b,
+                    "module loaded (%s) but contents invalid" %
+                    mod)
             finally:
                 unlink(source)
 
             try:
                 imp.reload(mod)
-            except ImportError, err:
+            except ImportError as err:
                 self.fail("import from .pyc/.pyo failed: %s" % err)
             finally:
                 unlink(pyc)
@@ -105,11 +114,13 @@ class ImportTests(unittest.TestCase):
         finally:
             del sys.path[0]
 
-    @unittest.skipUnless(os.name == 'posix', "test meaningful only on posix systems")
+    @unittest.skipUnless(
+        os.name == 'posix',
+        "test meaningful only on posix systems")
     def test_execute_bit_not_copied(self):
         # Issue 6070: under posix .pyc files got their execute bit set if
         # the .py file had the execute bit set, but they aren't executable.
-        oldmask = os.umask(022)
+        oldmask = os.umask(0o22)
         sys.path.insert(0, os.curdir)
         try:
             fname = TESTFN + os.extsep + "py"
@@ -144,12 +155,12 @@ class ImportTests(unittest.TestCase):
                 f.write("x = 'original'\n")
             # Tweak the mtime of the source to ensure pyc gets updated later
             s = os.stat(fname)
-            os.utime(fname, (s.st_atime, s.st_mtime-100000000))
-            os.chmod(fname, 0400)
+            os.utime(fname, (s.st_atime, s.st_mtime - 100000000))
+            os.chmod(fname, 0o400)
             m1 = __import__(TESTFN)
             self.assertEqual(m1.x, 'original')
             # Change the file and then reimport it
-            os.chmod(fname, 0600)
+            os.chmod(fname, 0o600)
             with open(fname, 'w') as f:
                 f.write("x = 'rewritten'\n")
             unload(TESTFN)
@@ -295,7 +306,7 @@ class ImportTests(unittest.TestCase):
         # NOTE: to test this, we have to remove Jython's JavaImporter
         # (bound to the string '__classpath__', which of course
         # supports such directories as possible Java packages.
-        # 
+        #
         # For Jython 3.x we really need to rethink what it does, since
         # it repeatedly causes questions on Jython forums, but too
         # late to change for 2.7, except perhaps by some option.
@@ -358,7 +369,8 @@ class ImportTests(unittest.TestCase):
             except OSError as e:
                 if e.errno != getattr(errno, 'EOVERFLOW', None):
                     raise
-                self.skipTest("cannot set modification time to large integer ({})".format(e))
+                self.skipTest(
+                    "cannot set modification time to large integer ({})".format(e))
             __import__(TESTFN)
             # The pyc file was created.
             os.stat(compiled)
@@ -479,7 +491,9 @@ func_filename = func.func_code.co_filename
         self.assertEqual(mod.code_filename, target)
         self.assertEqual(mod.func_filename, target)
 
-    @unittest.skipIf(is_jython, "Jython does not support compilation to Python bytecode (yet)")
+    @unittest.skipIf(
+        is_jython,
+        "Jython does not support compilation to Python bytecode (yet)")
     def test_foreign_code(self):
         py_compile.compile(self.file_name)
         with open(self.compiled_name, "rb") as f:
@@ -516,7 +530,7 @@ class PathsTests(unittest.TestCase):
     def test_trailing_slash(self):
         with open(os.path.join(self.path, 'test_trailing_slash.py'), 'w') as f:
             f.write("testdata = 'test_trailing_slash'")
-        sys.path.append(self.path+'/')
+        sys.path.append(self.path + '/')
         mod = __import__("test_trailing_slash")
         self.assertEqual(mod.testdata, 'test_trailing_slash')
         unload("test_trailing_slash")
@@ -530,7 +544,7 @@ class PathsTests(unittest.TestCase):
         import socket
         hn = socket.gethostname()
         drive = path[0]
-        unc = "\\\\%s\\%s$"%(hn, drive)
+        unc = "\\\\%s\\%s$" % (hn, drive)
         unc += path[2:]
         try:
             os.listdir(unc)
@@ -563,6 +577,7 @@ class RelativeImportTests(unittest.TestCase):
         # Regression test for http://bugs.python.org/issue3221.
         def check_absolute():
             exec "from os import path" in ns
+
         def check_relative():
             exec "from . import relimport" in ns
 
@@ -633,8 +648,8 @@ class TestSymbolicallyLinkedPackage(unittest.TestCase):
 
     # regression test for issue6727
     @unittest.skipUnless(
-        not hasattr(sys, 'getwindowsversion')
-        or sys.getwindowsversion() >= (6, 0),
+        not hasattr(sys, 'getwindowsversion') or
+        sys.getwindowsversion() >= (6, 0),
         "Windows Vista or later required")
     @symlink_support.skip_unless_symlink
     def test_symlinked_dir_importable(self):
@@ -652,9 +667,11 @@ class TestSymbolicallyLinkedPackage(unittest.TestCase):
             shutil.rmtree(self.tagged)
         sys.path[:] = self.orig_sys_path
 
+
 def test_main(verbose=None):
     run_unittest(ImportTests, PycRewritingTests, PathsTests,
-        RelativeImportTests, TestSymbolicallyLinkedPackage)
+                 RelativeImportTests, TestSymbolicallyLinkedPackage)
+
 
 if __name__ == '__main__':
     # Test needs to be a package, so we can do relative imports.

@@ -14,6 +14,7 @@ import subprocess
 from test import test_support
 from test_chdir import read, safe_mktemp, COMPILED_SUFFIX
 
+
 class MislabeledImportTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -48,7 +49,9 @@ class MislabeledImportTestCase(unittest.TestCase):
         # Ensure we can still import the renamed bytecode
         moved_module = os.path.basename(compiled_moved)[:-len(COMPILED_SUFFIX)]
         module_obj = __import__(moved_module)
-        self.assertEquals(module_obj.__file__, os.path.basename(compiled_moved))
+        self.assertEquals(
+            module_obj.__file__,
+            os.path.basename(compiled_moved))
         self.assertEquals(module_obj.test, 'imported')
 
     def test_dunder_init(self):
@@ -100,20 +103,21 @@ class MislabeledImportTestCase(unittest.TestCase):
         f.close()
         self.assertRaises(ImportError, __import__, "empty")
 
+
 class OverrideBuiltinsImportTestCase(unittest.TestCase):
     def test_override(self):
         modname = os.path.__name__
         tests = [
-            ("import os.path"         , "('os.path', None, -1, 'os')"),
+            ("import os.path", "('os.path', None, -1, 'os')"),
             ("import os.path as path2", "('os.path', None, -1, 'os')"),
-            ("from os.path import *"  ,
+            ("from os.path import *",
              "('os.path', ('*',), -1, '%s')" % modname),
             ("from os.path import join",
-                 "('os.path', ('join',), -1, '%s')" % modname),
+             "('os.path', ('join',), -1, '%s')" % modname),
             ("from os.path import join as join2",
-                 "('os.path', ('join',), -1, '%s')" % modname),
+             "('os.path', ('join',), -1, '%s')" % modname),
             ("from os.path import join as join2, split as split2",
-                 "('os.path', ('join', 'split'), -1, '%s')" % modname),
+             "('os.path', ('join', 'split'), -1, '%s')" % modname),
         ]
 
         import sys
@@ -138,6 +142,7 @@ class OverrideBuiltinsImportTestCase(unittest.TestCase):
                 self.assertEquals(expected, result)
         finally:
             __builtin__.__import__ = oldimp
+
 
 class ImpTestCase(unittest.TestCase):
 
@@ -174,7 +179,7 @@ class ImpTestCase(unittest.TestCase):
 
     def test_import_star(self):
         self.assertEquals(0, subprocess.call(
-                [sys.executable, test_support.findfile("import_star_from_java.py")]))
+            [sys.executable, test_support.findfile("import_star_from_java.py")]))
 
     def test_selfreferential_classes(self):
         from org.python.tests.inbred import Metis
@@ -185,13 +190,13 @@ class ImpTestCase(unittest.TestCase):
     def test_sys_modules_deletion(self):
         self.assertRaises(ZeroDivisionError, __import__, 'test.module_deleter')
 
-    #XXX: this is probably a good test to push upstream to CPython.
+    # XXX: this is probably a good test to push upstream to CPython.
     if hasattr(os, "symlink"):
         def test_symlinks(self):
             # Ensure imports work over symlinks.  Did not work in Jython from
             # 2.1 to 2.5.0, fixed in 2.5.1  See
             # http://bugs.jython.org/issue645615.
-            sym = test_support.TESTFN+"1"
+            sym = test_support.TESTFN + "1"
             try:
                 os.mkdir(test_support.TESTFN)
                 init = os.path.join(test_support.TESTFN, "__init__.py")
@@ -238,6 +243,7 @@ def test_main():
                               OverrideBuiltinsImportTestCase,
                               ImpTestCase,
                               UnicodeNamesTestCase)
+
 
 if __name__ == '__main__':
     test_main()

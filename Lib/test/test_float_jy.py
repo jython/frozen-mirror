@@ -9,22 +9,28 @@ from test import test_support
 
 jython = test_support.is_jython
 
+
 class FloatTestCase(unittest.TestCase):
 
     def test_float_repr(self):
         self.assertEqual(repr(12345678.000000005), '12345678.000000006')
         self.assertEqual(repr(12345678.0000000005), '12345678.0')
-        self.assertRegexpMatches(repr(math.pi**-100), '1.927581416056020[0-9]e-50')
+        self.assertRegexpMatches(
+            repr(
+                math.pi**-100),
+            '1.927581416056020[0-9]e-50')
         self.assertEqual(repr(-1.0), '-1.0')
         self.assertEqual(repr(-9876.543210), '-9876.54321')
         self.assertEqual(repr(0.123456789e+35), '1.23456789e+34')
 
     def test_float_repr2(self):
         # Quite possibly these divergences result from JDK bug JDK-4511638:
-        self.assertEqual(repr(9876.543210e+15),
-                              jython and '9.876543209999999e+18' or '9.87654321e+18')
-        self.assertEqual(repr(1235235235235240000.0),
-                              jython and '1.2352352352352399e+18' or '1.23523523523524e+18')
+        self.assertEqual(
+            repr(9876.543210e+15),
+            jython and '9.876543209999999e+18' or '9.87654321e+18')
+        self.assertEqual(
+            repr(1235235235235240000.0),
+            jython and '1.2352352352352399e+18' or '1.23523523523524e+18')
 
     def test_float_str(self):
         self.assertEqual(str(12345678.000005), '12345678.0')
@@ -112,6 +118,7 @@ class FloatTestCase(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(FloatTestCase)
+
 
 if __name__ == '__main__':
     test_main()

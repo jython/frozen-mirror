@@ -12,6 +12,7 @@ from javax import swing
 
 from javatests import ListTest
 
+
 class PyListTest(ListTest):
 
     def __init__(self):
@@ -46,11 +47,11 @@ class JythonBasicTests(unittest.TestCase):
 
     def test_numbers(self):
         self.assertEquals(abs(-2.), 2., 'Python float to Java double')
-        self.assertEquals(abs(-2), 2l, 'Python int to Java long')
-        self.assertEquals(abs(-2l), 2l, 'Python long to Java long')
+        self.assertEquals(abs(-2), 2, 'Python int to Java long')
+        self.assertEquals(abs(-2), 2, 'Python long to Java long')
 
         try:
-            abs(-123456789123456789123l)
+            abs(-123456789123456789123)
         except TypeError:
             pass
 
@@ -81,17 +82,17 @@ class JythonBasicTests(unittest.TestCase):
 
     def test_java_objects(self):
         self.assertEquals(BigInteger('1234', 10).intValue(), 1234,
-                                     'BigInteger(string)')
+                          'BigInteger(string)')
         self.assertEquals(BigInteger([0x11, 0x11, 0x11]).intValue(), 0x111111,
-                                     'BigInteger(byte[])')
+                          'BigInteger(byte[])')
         self.assertEquals(BigInteger(-1, [0x11, 0x11, 0x11]).intValue(),
-                                     -0x111111, 'BigInteger(int, byte[])')
+                          -0x111111, 'BigInteger(int, byte[])')
 
     def test_call_static_methods(self):
         s1 = String.valueOf(['1', '2', '3'])
         s2 = String.valueOf('123')
         s3 = String.valueOf(123)
-        s4 = String.valueOf(123l)
+        s4 = String.valueOf(123)
         s5 = String.valueOf(['0', '1', '2', '3', 'a', 'b'], 1, 3)
         self.assertEquals(s1, s2)
         self.assertEquals(s1, s3)
@@ -108,7 +109,7 @@ class JythonBasicTests(unittest.TestCase):
                         'method call no boolean')
 
         self.assertTrue(s.regionMatches(1, 1, 'eLl', 0, 3),
-                                        'method call ignore case')
+                        'method call ignore case')
         self.assertFalse(s.regionMatches(1, 'eLl', 0, 3), 'should ignore case')
 
     def test_get_set(self):
@@ -180,8 +181,10 @@ class JythonBasicTests(unittest.TestCase):
         ptt = PyTupleTest()
         ptt.testAll()
 
+
 def test_main():
     test_support.run_unittest(JythonBasicTests)
+
 
 if __name__ == '__main__':
     test_main()

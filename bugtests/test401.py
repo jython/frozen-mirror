@@ -1,4 +1,4 @@
-# 
+#
 # Test for bug 1758838
 #
 # execfile(<any file>) should not throw a NullPointerException
@@ -14,5 +14,10 @@ from org.python.util import PythonInterpreter
 
 PySystemState.initialize()
 interp = PythonInterpreter()
-code = Py.compile_command_flags("execfile('test401/to_be_executed.py')", "<input>", "single", None, 1)
+code = Py.compile_command_flags(
+    "execfile('test401/to_be_executed.py')",
+    "<input>",
+    "single",
+    None,
+    1)
 interp.exec(code)

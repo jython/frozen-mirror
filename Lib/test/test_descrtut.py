@@ -11,6 +11,7 @@
 from test.test_support import sortdict
 import pprint
 
+
 class defaultdict(dict):
     def __init__(self, default=None):
         dict.__init__(self)
@@ -31,6 +32,7 @@ class defaultdict(dict):
         for key in other:
             if key not in self:
                 self[key] = other[key]
+
 
 test_1 = """
 
@@ -101,6 +103,7 @@ just like classic classes:
     >>>
 """
 
+
 class defaultdict2(dict):
     __slots__ = ['default']
 
@@ -123,6 +126,7 @@ class defaultdict2(dict):
         for key in other:
             if key not in self:
                 self[key] = other[key]
+
 
 test_2 = """
 
@@ -419,17 +423,21 @@ called A.save()
 called C.save()
 """
 
+
 class A(object):
     def m(self):
         return "A"
+
 
 class B(A):
     def m(self):
         return "B" + super(B, self).m()
 
+
 class C(A):
     def m(self):
         return "C" + super(C, self).m()
+
 
 class D(C, B):
     def m(self):
@@ -484,6 +492,8 @@ __test__ = {"tut1": test_1,
 # This worms around a bootstrap problem.
 # Note that doctest and regrtest both look in sys.argv for a "-v" argument,
 # so this works as expected in both ways of running regrtest.
+
+
 def test_main(verbose=None):
     # Obscure:  import this module as test.test_descrtut instead of as
     # plain test_descrtut because the name of this module works its way
@@ -492,6 +502,7 @@ def test_main(verbose=None):
     # invoked.
     from test import test_support, test_descrtut
     test_support.run_doctest(test_descrtut, verbose)
+
 
 # This part isn't needed for regrtest, but for running the test directly.
 if __name__ == "__main__":

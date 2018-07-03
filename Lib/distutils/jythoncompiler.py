@@ -7,6 +7,7 @@ raises CCompiler exceptions.
 from distutils.ccompiler import CCompiler
 import warnings
 
+
 class JythonCompiler(CCompiler):
 
     """Refuses to compile C extensions on Jython"""

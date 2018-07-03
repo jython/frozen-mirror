@@ -9,12 +9,14 @@ import unittest
 from java.lang import Object
 from test import test_support
 
+
 class ClassGeneralTestCase(unittest.TestCase):
 
     TE_MSG = "can't set attributes of built-in/extension type 'str'"
 
     def test_dunder_module(self):
         self.assertEqual(str.__module__, '__builtin__')
+
         class Foo:
             pass
         Fu = types.ClassType('Fu', (), {})
@@ -30,16 +32,22 @@ class ClassGeneralTestCase(unittest.TestCase):
 
         class Bar(object):
             pass
+
         class Baz(Object):
             pass
         Bang = type('Bang', (), {})
         for cls in Bar, Baz, Bang:
             self.assert_('__module__' in cls.__dict__)
             self.assertEqual(cls.__module__, __name__)
-            self.assertEqual(str(cls), "<class '%s.%s'>" % (__name__, cls.__name__))
-            self.assertEqual(repr(cls), "<class '%s.%s'>" % (__name__, cls.__name__))
+            self.assertEqual(
+                str(cls), "<class '%s.%s'>" %
+                (__name__, cls.__name__))
+            self.assertEqual(
+                repr(cls), "<class '%s.%s'>" %
+                (__name__, cls.__name__))
         self.assert_(str(Bar()).startswith('<%s.Bar object at' % __name__))
-        self.assert_(str(Baz()).startswith("org.python.proxies.%s$Baz" % __name__))
+        self.assert_(str(Baz()).startswith(
+            "org.python.proxies.%s$Baz" % __name__))
 
     def test_builtin_attributes(self):
         for attr, val in dict(__name__='foo', __module__='bar', __dict__={},
@@ -48,19 +56,18 @@ class ClassGeneralTestCase(unittest.TestCase):
                               __mro__=(unicode, object)).iteritems():
             try:
                 setattr(str, attr, val)
-            except TypeError, te:
+            except TypeError as te:
                 self.assertEqual(str(te), self.TE_MSG)
             else:
                 self.assert_(False,
                              'setattr str.%s expected a TypeError' % attr)
             try:
                 delattr(str, attr)
-            except TypeError, te:
+            except TypeError as te:
                 self.assertEqual(str(te), self.TE_MSG)
             else:
                 self.assert_(False,
                              'delattr str.%s expected a TypeError' % attr)
-
 
     def test_attributes(self):
         class Foo(object):
@@ -70,7 +77,7 @@ class ClassGeneralTestCase(unittest.TestCase):
         self.assertEqual(Foo.__name__, 'Bar')
         try:
             del Foo.__name__
-        except TypeError, te:
+        except TypeError as te:
             self.assertEqual(str(te), "can't delete Bar.__name__")
         else:
             self.assert_(False, 'Expected a TypeError')
@@ -79,14 +86,14 @@ class ClassGeneralTestCase(unittest.TestCase):
         self.assertEqual(Foo.__module__, 'baz')
         try:
             del Foo.__module__
-        except TypeError, te:
+        except TypeError as te:
             self.assertEqual(str(te), "can't delete Bar.__module__")
         else:
             self.assert_(False, 'Expected a TypeError')
 
         try:
             Foo.__dict__ = {}
-        except AttributeError, ae:
+        except AttributeError as ae:
             self.assertEqual(str(ae),
                              "attribute '__dict__' of 'type' objects is not "
                              "writable")
@@ -94,7 +101,7 @@ class ClassGeneralTestCase(unittest.TestCase):
             self.assert_(False, 'Expected an AttributeError')
         try:
             del Foo.__dict__
-        except AttributeError, ae:
+        except AttributeError as ae:
             self.assertEqual(str(ae),
                              "attribute '__dict__' of 'type' objects is not "
                              "writable")
@@ -106,14 +113,14 @@ class ClassGeneralTestCase(unittest.TestCase):
                               __mro__=(unicode, object)).iteritems():
             try:
                 setattr(str, attr, val)
-            except TypeError, te:
+            except TypeError as te:
                 self.assertEqual(str(te), self.TE_MSG)
             else:
                 self.assert_(False,
                              'setattr Foo.%s expected a TypeError' % attr)
             try:
                 delattr(str, attr)
-            except TypeError, te:
+            except TypeError as te:
                 self.assertEqual(str(te), self.TE_MSG)
             else:
                 self.assert_(False,
@@ -123,6 +130,7 @@ class ClassGeneralTestCase(unittest.TestCase):
         # Ensure new.classobj can create new style classes
         class Foo(object):
             pass
+
         def hello(self):
             return 'hello'
         Bar = types.ClassType('Bar', (Foo,), dict(hello=hello))
@@ -137,18 +145,18 @@ class ClassGeneralTestCase(unittest.TestCase):
             pass
         try:
             Bar.bar
-            self._assert(False) # The previous line should have raised
-                                # AttributeError
-        except AttributeError, e:
+            self._assert(False)  # The previous line should have raised
+            # AttributeError
+        except AttributeError as e:
             self.assertEqual("class Bar has no attribute 'bar'", str(e))
 
         class Foo(object):
             pass
         try:
             Foo.bar
-            self._assert(False) # The previous line should have raised
-                                # AttributeError
-        except AttributeError, e:
+            self._assert(False)  # The previous line should have raised
+            # AttributeError
+        except AttributeError as e:
             self.assertEqual("type object 'Foo' has no attribute 'bar'",
                              str(e))
 
@@ -158,29 +166,33 @@ class ClassGeneralTestCase(unittest.TestCase):
                 def moo(self):
                     pass
         # Printing this caused an NPE in Jython 2.1
-        keys = list(z.t.__dict__)
-        keys.sort()
+        keys = sorted(z.t.__dict__)
         self.assertEqual(str(keys), "['__doc__', '__module__', 'moo']")
 
     def test_metaclass_and_slotted_base(self):
         class Meta(type):
             pass
+
         class SlottedBase(object):
             __slots__ = 'foo'
         # A regression up until 2.5a3: Defining Bar would cause a
         # TypeError "mro() returned base with unsuitable layout ('Bar')"
+
         class Bar(SlottedBase):
             __metaclass__ = Meta
 
     def test_slotted_diamond_problem_bug(self):
         class A(object):
             __slots__ = 'foo'
+
         class B(A):
             pass
+
         class C(A):
             pass
         # used to raise TypeError: multiple bases have instance lay-out
         # conflict
+
         class D(B, C):
             pass
 
@@ -188,19 +200,22 @@ class ClassGeneralTestCase(unittest.TestCase):
         # see http://bugs.jython.org/issue2551
         class A(object):
             __slots__ = 'foo'
+
         class B(A):
             __slots__ = 'bar'
+
         class C(A):
             __slots__ = ()
         # used to raise TypeError: multiple bases have instance lay-out
         # conflict
+
         class D(B, C):
             pass
 
     def test_getitem_exceptions(self):
         class A:
             def __getitem__(self, key):
-                raise IndexError, "Fraid not"
+                raise IndexError("Fraid not")
         self.assertRaises(IndexError, A().__getitem__, 'b')
 
     def test_winning_metatype(self):
@@ -209,6 +224,7 @@ class ClassGeneralTestCase(unittest.TestCase):
                 attrs['spam'] = name
                 attrs['counter'] = 0
                 return type.__new__(cls, name, bases, attrs)
+
             def __init__(cls, name, bases, attrs):
                 cls.counter += 1
 
@@ -219,6 +235,7 @@ class ClassGeneralTestCase(unittest.TestCase):
         self.assertEqual(Foo.spam, 'Foo')
         # and called __init__ twice
         self.assertEqual(Foo.counter, 1)
+
 
 class ClassNamelessModuleTestCase(unittest.TestCase):
 
@@ -297,8 +314,8 @@ class ClassLocalsTestCase(unittest.TestCase):
         class FieldGathererMeta(type):
             def __new__(meta, name, bases, class_dict):
                 cls = type.__new__(meta, name, bases, class_dict)
-                cls.fields = [field.upper() for field in class_dict.iterkeys() \
-                                  if not field.startswith('_')]
+                cls.fields = [field.upper() for field in class_dict.iterkeys()
+                              if not field.startswith('_')]
                 cls.fields.sort()
                 return cls
 
@@ -335,8 +352,10 @@ class IsDescendentTestCase(unittest.TestCase):
     def test_newstyle_descendent_of_oldstyle(self):
         class NewStyle(object):
             pass
+
         class OldStyle:
             pass
+
         class Retro(NewStyle, OldStyle):
             pass
         self.assert_(issubclass(Retro, NewStyle))
@@ -360,6 +379,7 @@ class JavaClassNamingTestCase(unittest.TestCase):
 
 module_name = __name__
 
+
 class ClassDefinesDunderModule(unittest.TestCase):
 
     """Verifies http://bugs.jython.org/issue1022 is fixed"""
@@ -367,6 +387,7 @@ class ClassDefinesDunderModule(unittest.TestCase):
     def test_dundermodule_in_classdef(self):
         class Foo:
             self.assertEqual(__module__, module_name)
+
         class Bar(object):
             self.assertEqual(__module__, module_name)
 
@@ -383,7 +404,13 @@ class ClassMetaclassRepr(unittest.TestCase):
         # http://bugs.jython.org/issue1131
         class FooMetaclass(type):
             def __new__(cls, name, bases, attrs):
-                return super(FooMetaclass, cls).__new__(cls, name, bases, attrs)
+                return super(
+                    FooMetaclass,
+                    cls).__new__(
+                    cls,
+                    name,
+                    bases,
+                    attrs)
 
         class Foo(object):
             __metaclass__ = FooMetaclass
@@ -393,6 +420,7 @@ class ClassMetaclassRepr(unittest.TestCase):
         class Foo(type):
             def __repr__(cls):
                 return 'foo'
+
         class Bar(object):
             __metaclass__ = Foo
         self.assertEqual(repr(Bar), 'foo')
@@ -411,7 +439,8 @@ class LenTestCase(unittest.TestCase):
                 return 2 ** 70
         with self.assertRaises(OverflowError) as cm:
             len(C())
-        self.assertEqual(str(cm.exception), "long int too large to convert to int")
+        self.assertEqual(str(cm.exception),
+                         "long int too large to convert to int")
 
         class D(object):
             def __len__(self):
@@ -429,7 +458,8 @@ class LenTestCase(unittest.TestCase):
                 return FauxInt()
         with self.assertRaises(OverflowError) as cm:
             len(C())
-        self.assertEqual(str(cm.exception), "long int too large to convert to int")
+        self.assertEqual(str(cm.exception),
+                         "long int too large to convert to int")
 
     def test_len_derived_int(self):
         class C(object):
@@ -439,7 +469,8 @@ class LenTestCase(unittest.TestCase):
                 return MyInt(2 ** 70)
         with self.assertRaises(OverflowError) as cm:
             len(C())
-        self.assertEqual(str(cm.exception), "long int too large to convert to int")
+        self.assertEqual(str(cm.exception),
+                         "long int too large to convert to int")
 
 
 def test_main():

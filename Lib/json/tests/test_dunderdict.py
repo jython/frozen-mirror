@@ -29,9 +29,13 @@ class TestDunderDictDump(object):
             self.use_dunderdict({True: False, False: True}), sort_keys=True),
             '{"false": true, "true": false}')
         self.assertEqual(self.dumps(
-            self.use_dunderdict({2: 3.0, 4.0: 5L, False: 1, 6L: True}), sort_keys=True),
+            self.use_dunderdict({2: 3.0, 4.0: 5, False: 1, 6: True}), sort_keys=True),
             '{"false": 1, "2": 3.0, "4.0": 5, "6": true}')
 
 
-class TestPyDump(TestDunderDictDump, PyTest): pass
-class TestCDump(TestDunderDictDump, CTest): pass
+class TestPyDump(TestDunderDictDump, PyTest):
+    pass
+
+
+class TestCDump(TestDunderDictDump, CTest):
+    pass

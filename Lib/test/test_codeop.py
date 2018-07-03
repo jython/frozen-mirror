@@ -12,10 +12,11 @@ if is_jython:
     import cStringIO
 
     def unify_callables(d):
-        for n,v in d.items():
+        for n, v in d.items():
             if callable(v):
                 d[n] = callable
         return d
+
 
 class CodeopTests(unittest.TestCase):
 
@@ -25,19 +26,19 @@ class CodeopTests(unittest.TestCase):
             code = compile_command(str, "<input>", symbol)
             self.assertTrue(code)
             if symbol == "single":
-                d,r = {},{}
+                d, r = {}, {}
                 saved_stdout = sys.stdout
                 sys.stdout = cStringIO.StringIO()
                 try:
                     exec code in d
-                    exec compile(str,"<input>","single") in r
+                    exec compile(str, "<input>", "single") in r
                 finally:
                     sys.stdout = saved_stdout
             elif symbol == 'eval':
                 ctx = {'a': 2}
-                d = { 'value': eval(code,ctx) }
-                r = { 'value': eval(str,ctx) }
-            self.assertEqual(unify_callables(r),unify_callables(d))
+                d = {'value': eval(code, ctx)}
+                r = {'value': eval(str, ctx)}
+            self.assertEqual(unify_callables(r), unify_callables(d))
         else:
             expected = compile(str, "<input>", symbol, PyCF_DONT_IMPLY_DEDENT)
             self.assertEqual(compile_command(str, "<input>", symbol), expected)
@@ -49,7 +50,7 @@ class CodeopTests(unittest.TestCase):
     def assertInvalid(self, str, symbol='single', is_syntax=1):
         '''succeed iff str is the start of an invalid piece of code'''
         try:
-            compile_command(str,symbol=symbol)
+            compile_command(str, symbol=symbol)
             self.fail("No exception raised for invalid code")
         except SyntaxError:
             self.assertTrue(is_syntax)
@@ -98,15 +99,15 @@ class CodeopTests(unittest.TestCase):
         av("a=3\n\n")
         av("a = 9+ \\\n3")
 
-        av("3**3","eval")
-        av("(lambda z: \n z**3)","eval")
+        av("3**3", "eval")
+        av("(lambda z: \n z**3)", "eval")
 
-        av("9+ \\\n3","eval")
-        av("9+ \\\n3\n","eval")
+        av("9+ \\\n3", "eval")
+        av("9+ \\\n3\n", "eval")
 
-        av("\n\na**3","eval")
-        av("\n \na**3","eval")
-        av("#a\n#b\na**3","eval")
+        av("\n\na**3", "eval")
+        av("\n \na**3", "eval")
+        av("#a\n#b\na**3", "eval")
 
         av("\n\na = 1\n\n")
         av("\n\nif 1: a=1\n\n")
@@ -114,9 +115,9 @@ class CodeopTests(unittest.TestCase):
         av("if 1:\n pass\n if 1:\n  pass\n else:\n  pass\n")
         av("#a\n\n   \na=3\n\n")
 
-        av("\n\na**3","eval")
-        av("\n \na**3","eval")
-        av("#a\n#b\na**3","eval")
+        av("\n\na**3", "eval")
+        av("\n \na**3", "eval")
+        av("#a\n#b\na**3", "eval")
 
         av("def f():\n try: pass\n finally: [x for x in (1,2)]\n")
         av("def f():\n pass\n#foo\n")
@@ -158,13 +159,13 @@ class CodeopTests(unittest.TestCase):
         ai("a = 'a\\")
         ai("a = '''xy")
 
-        ai("","eval")
-        ai("\n","eval")
-        ai("(","eval")
-        ai("(\n\n\n","eval")
-        ai("(9+","eval")
-        ai("9+ \\","eval")
-        ai("lambda z: \\","eval")
+        ai("", "eval")
+        ai("\n", "eval")
+        ai("(", "eval")
+        ai("(\n\n\n", "eval")
+        ai("(9+", "eval")
+        ai("9+ \\", "eval")
+        ai("lambda z: \\", "eval")
 
         ai("if True:\n if True:\n  if True:   \n")
 
@@ -180,21 +181,21 @@ class CodeopTests(unittest.TestCase):
         ai("from a import (b,c")
         ai("from a import (b,c,")
 
-        ai("[");
-        ai("[a");
-        ai("[a,");
-        ai("[a,b");
-        ai("[a,b,");
+        ai("[")
+        ai("[a")
+        ai("[a,")
+        ai("[a,b")
+        ai("[a,b,")
 
-        ai("{");
-        ai("{a");
-        ai("{a:");
-        ai("{a:b");
-        ai("{a:b,");
-        ai("{a:b,c");
-        ai("{a:b,c:");
-        ai("{a:b,c:d");
-        ai("{a:b,c:d,");
+        ai("{")
+        ai("{a")
+        ai("{a:")
+        ai("{a:b")
+        ai("{a:b,")
+        ai("{a:b,c")
+        ai("{a:b,c:")
+        ai("{a:b,c:d")
+        ai("{a:b,c:d,")
 
         ai("a(")
         ai("a(b")
@@ -256,7 +257,6 @@ class CodeopTests(unittest.TestCase):
         # Merge test cases below upstream.
         ai("def x():\n pass\n#comment")
 
-
     def test_invalid(self):
         ai = self.assertInvalid
         ai("a b")
@@ -276,18 +276,18 @@ class CodeopTests(unittest.TestCase):
         ai("a = 'a\\ ")
         ai("a = 'a\\\n")
 
-        ai("a = 1","eval")
+        ai("a = 1", "eval")
 
         # XXX: PythonPartial.g needs to reject this.
         if not is_jython:
-            ai("a = (","eval")
+            ai("a = (", "eval")
 
-        ai("]","eval")
-        ai("())","eval")
-        ai("[}","eval")
-        ai("9+","eval")
-        ai("lambda z:","eval")
-        ai("a b","eval")
+        ai("]", "eval")
+        ai("())", "eval")
+        ai("[}", "eval")
+        ai("9+", "eval")
+        ai("lambda z:", "eval")
+        ai("a b", "eval")
 
         ai("return 2.3")
         ai("if (a == 1 and b = 2): pass")

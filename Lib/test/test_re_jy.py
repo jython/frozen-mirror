@@ -9,7 +9,7 @@ from unicodedata import category
 class ReTest(unittest.TestCase):
 
     def test_bug_1140_addendum(self):
-        result = re.sub('', lambda match : None, 'foo')
+        result = re.sub('', lambda match: None, 'foo')
         self.assertEqual(result, 'foo')
         self.assert_(isinstance(result, str))
 
@@ -24,6 +24,7 @@ class ReTest(unittest.TestCase):
         class Foo2(unicode):
             def join(self, items):
                 return Foo2(unicode.join(self, items))
+
             def __getslice__(self, start, stop):
                 return Foo2(unicode.__getslice__(self, start, stop))
         result = re.sub('bar', 'baz', Foo2('bar'))
@@ -57,10 +58,11 @@ class ReTest(unittest.TestCase):
         separators = {chr(c) for c in [28, 29, 30, 31]}
         special = set([
             unicodedata.lookup('MONGOLIAN VOWEL SEPARATOR'),
-            u'\u0085', # NEXT LINE (NEL)
-            ])
+            u'\u0085',  # NEXT LINE (NEL)
+        ])
         cpython_whitespace = set(' \t\n\r\f\v') | separators | special
-        for i in xrange(0xFFFF): # could test to sys.maxunicode, but does not appear to be necessary
+        for i in xrange(
+                0xFFFF):  # could test to sys.maxunicode, but does not appear to be necessary
             if i >= 0xD800 and i <= 0xDFFF:
                 continue
             c = unichr(i)
@@ -75,7 +77,8 @@ class ReTest(unittest.TestCase):
         COMMENT_RE = re.compile(r'(\A)+')
 
         requirements = ''
-        self.assertEqual(COMMENT_RE.search(requirements).groups(), (requirements, ))
+        self.assertEqual(COMMENT_RE.search(
+            requirements).groups(), (requirements, ))
 
     def test_pip_comment(self):
         COMMENT_RE = re.compile(r'(^|\s)+#.*$')
@@ -84,6 +87,7 @@ class ReTest(unittest.TestCase):
 
 def test_main():
     test.test_support.run_unittest(ReTest)
+
 
 if __name__ == "__main__":
     test_main()

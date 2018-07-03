@@ -32,8 +32,10 @@ _history_list = None
 # going on here, namely this is functionality not yet available on
 # Jython.
 
+
 class NotImplementedWarning(ImportWarning):
     """Not yet implemented by Jython"""
+
 
 class SecurityWarning(ImportWarning):
     """Security manager prevents access to private field"""
@@ -42,19 +44,26 @@ class SecurityWarning(ImportWarning):
 def parse_and_bind(string):
     pass
 
+
 def get_line_buffer():
     return str(_reader.cursorBuffer.buffer)
+
 
 def insert_text(string):
     _reader.putString(string)
 
+
 def read_init_file(filename=None):
-    warn("read_init_file: %s" % (filename,), NotImplementedWarning, "module", 2)
+    warn(
+        "read_init_file: %s" %
+        (filename,), NotImplementedWarning, "module", 2)
+
 
 def read_history_file(filename="~/.history"):
     expanded = os.path.expanduser(filename)
     with open(expanded) as f:
         _reader.history.load(f)
+
 
 def write_history_file(filename="~/.history"):
     expanded = os.path.expanduser(filename)
@@ -63,44 +72,60 @@ def write_history_file(filename="~/.history"):
             f.write(line.value().encode("utf-8"))
             f.write("\n")
 
+
 def clear_history():
     _reader.history.clear()
+
 
 def add_history(line):
     _reader.history.add(line)
 
+
 def get_history_length():
     return _reader.history.maxSize
+
 
 def set_history_length(length):
     _reader.history.maxSize = length
 
+
 def get_current_history_length():
     return _reader.history.size()
 
+
 def get_history_item(index):
-    # JLine indexes from 0 while readline indexes from 1 (at least in test_readline)
-    if index>0:
-        return _reader.history.get(index-1)
+    # JLine indexes from 0 while readline indexes from 1 (at least in
+    # test_readline)
+    if index > 0:
+        return _reader.history.get(index - 1)
     else:
         return None
+
 
 def remove_history_item(pos):
     _reader.history.remove(pos)
 
+
 def replace_history_item(pos, line):
     _reader.history.set(pos, line)
+
 
 def redisplay():
     _reader.redrawLine()
 
+
 def set_startup_hook(function=None):
     _console.startupHook = function
 
+
 def set_pre_input_hook(function=None):
-    warn("set_pre_input_hook %s" % (function,), NotImplementedWarning, stacklevel=2)
+    warn(
+        "set_pre_input_hook %s" %
+        (function,), NotImplementedWarning, stacklevel=2)
+
 
 _completer_function = None
+
 
 def set_completer(function=None):
     """set_completer([function]) -> None
@@ -122,7 +147,8 @@ def set_completer(function=None):
         except AttributeError:
             have_ps2 = False
 
-        if (have_ps2 and _reader.prompt == sys.ps2) and (not delimited or delimited.isspace()):
+        if (have_ps2 and _reader.prompt == sys.ps2) and (
+                not delimited or delimited.isspace()):
             # Insert tab (as expanded to 4 spaces), but only if if
             # preceding is whitespace/empty and in console
             # continuation; this is a planned featue for Python 3 per
@@ -145,7 +171,7 @@ def set_completer(function=None):
             completion = None
             try:
                 completion = function(delimited, state)
-            except:
+            except BaseException:
                 pass
             if completion:
                 candidates.add(completion)
@@ -159,26 +185,34 @@ def set_completer(function=None):
 def get_completer():
     return _completer_function
 
+
 def _get_delimited(buffer, cursor):
     start = cursor
-    for i in xrange(cursor-1, -1, -1):
+    for i in xrange(cursor - 1, -1, -1):
         if buffer[i] in _completer_delims:
             break
         start = i
     return start, cursor
 
+
 def get_begidx():
-    return _get_delimited(str(_reader.cursorBuffer.buffer), _reader.cursorBuffer.cursor)[0]
+    return _get_delimited(str(_reader.cursorBuffer.buffer),
+                          _reader.cursorBuffer.cursor)[0]
+
 
 def get_endidx():
-    return _get_delimited(str(_reader.cursorBuffer.buffer), _reader.cursorBuffer.cursor)[1]
+    return _get_delimited(str(_reader.cursorBuffer.buffer),
+                          _reader.cursorBuffer.cursor)[1]
+
 
 def set_completer_delims(string):
     global _completer_delims, _completer_delims_set
     _completer_delims = string
     _completer_delims_set = set(string)
 
+
 def get_completer_delims():
     return _completer_delims
+
 
 set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>/?')

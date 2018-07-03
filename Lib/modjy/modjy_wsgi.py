@@ -1,19 +1,19 @@
 ###
 #
-# Copyright Alan Kennedy. 
-# 
+# Copyright Alan Kennedy.
+#
 # You may contact the copyright holder at this uri:
-# 
+#
 # http://www.xhaus.com/contact/modjy
-# 
+#
 # The licence under which this code is released is the Apache License v2.0.
-# 
+#
 # The terms and conditions of this license are listed in a file contained
 # in the distribution that also contained this file, under the name
 # LICENSE.txt.
-# 
+#
 # You may also read a copy of the license at the following web address.
-# 
+#
 # http://modjy.xhaus.com/LICENSE.txt
 #
 ###
@@ -36,6 +36,7 @@ j2ee_ns_prefix = "j2ee"
 
 cgi_var_char_encoding = "iso-8859-1"
 
+
 class modjy_wsgi:
 
     #
@@ -43,7 +44,7 @@ class modjy_wsgi:
     #
 
     empty_pystring = u""
-    wsgi_version = (1,0)
+    wsgi_version = (1, 0)
 
     #
     #    Container-specific constants
@@ -53,8 +54,8 @@ class modjy_wsgi:
 
     def set_string_envvar(self, dict, name, value):
         if value is None:
-            value =  self.empty_pystring
-        value =  value.encode(cgi_var_char_encoding)
+            value = self.empty_pystring
+        value = value.encode(cgi_var_char_encoding)
         dict[name] = value
 
     def set_string_envvar_optional(self, dict, name, value, default_value):
@@ -77,7 +78,7 @@ class modjy_wsgi:
         for p in j2ee_ns.keys():
             dict["%s.%s" % (j2ee_ns_prefix, p)] = j2ee_ns[p]
 
-    def set_required_cgi_environ (self, req, resp, dict):
+    def set_required_cgi_environ(self, req, resp, dict):
         self.set_string_envvar(dict, "REQUEST_METHOD", req.getMethod())
         self.set_string_envvar(dict, "QUERY_STRING", req.getQueryString())
         self.set_string_envvar(dict, "CONTENT_TYPE", req.getContentType())
@@ -85,7 +86,7 @@ class modjy_wsgi:
         self.set_string_envvar(dict, "SERVER_NAME", req.getLocalName())
         self.set_int_envvar(dict, "SERVER_PORT", req.getLocalPort(), 0)
 
-    def set_other_cgi_environ (self, req, resp, dict):
+    def set_other_cgi_environ(self, req, resp, dict):
         if req.isSecure():
             self.set_string_envvar(dict, "HTTPS", 'on')
         else:
@@ -94,8 +95,10 @@ class modjy_wsgi:
         self.set_string_envvar(dict, "REMOTE_HOST", req.getRemoteHost())
         self.set_string_envvar(dict, "REMOTE_ADDR", req.getRemoteAddr())
         self.set_int_envvar(dict, "REMOTE_PORT", req.getRemotePort(), -1)
-        self.set_string_envvar_optional(dict, "AUTH_TYPE", req.getAuthType(), None)
-        self.set_string_envvar_optional(dict, "REMOTE_USER", req.getRemoteUser(), None)
+        self.set_string_envvar_optional(
+            dict, "AUTH_TYPE", req.getAuthType(), None)
+        self.set_string_envvar_optional(
+            dict, "REMOTE_USER", req.getRemoteUser(), None)
 
     def set_http_header_environ(self, req, resp, dict):
         header_name_enum = req.getHeaderNames()
@@ -104,7 +107,7 @@ class modjy_wsgi:
             values = None
             values_enum = req.getHeaders(curr_header_name)
             while values_enum.hasMoreElements():
-                next_value  = values_enum.nextElement().encode(cgi_var_char_encoding)
+                next_value = values_enum.nextElement().encode(cgi_var_char_encoding)
                 if values is None:
                     values = next_value
                 else:
@@ -112,23 +115,25 @@ class modjy_wsgi:
                         values.append(next_value)
                     else:
                         values = [values]
-            dict["HTTP_%s" % str(curr_header_name).replace('-', '_').upper()] = values
+            dict["HTTP_%s" %
+                 str(curr_header_name).replace('-', '_').upper()] = values
 
     def set_required_wsgi_vars(self, req, resp, dict):
         dict["wsgi.version"] = self.wsgi_version
         dict["wsgi.url_scheme"] = req.getScheme()
         dict["wsgi.multithread"] = \
             int(dict["%s.cache_callables" % server_param_prefix]) \
-                and \
+            and \
             int(dict["%s.multithread" % server_param_prefix])
         dict["wsgi.multiprocess"] = self.wsgi_multiprocess = 0
-        dict["wsgi.run_once"] = not(dict["%s.cache_callables" % server_param_prefix])
+        dict["wsgi.run_once"] = not(
+            dict["%s.cache_callables" % server_param_prefix])
 
     def set_wsgi_streams(self, req, resp, dict):
         try:
-            dict["wsgi.input"]  = modjy_input_object(req.getInputStream())
+            dict["wsgi.input"] = modjy_input_object(req.getInputStream())
             dict["wsgi.errors"] = create_py_file(System.err)
-        except IOException, iox:
+        except IOException as iox:
             raise ModjyIOException(iox)
 
     def set_wsgi_classes(self, req, resp, dict):
@@ -136,7 +141,7 @@ class modjy_wsgi:
         pass
 
     def set_user_specified_environment(self, req, resp, wsgi_environ, params):
-        if not params.has_key('initial_env') or not params['initial_env']:
+        if 'initial_env' not in params or not params['initial_env']:
             return
         user_env_string = params['initial_env']
         for l in user_env_string.split('\n'):

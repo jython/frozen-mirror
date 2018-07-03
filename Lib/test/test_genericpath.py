@@ -70,7 +70,7 @@ class GenericTest(unittest.TestCase):
                 self.assertTrue(s2.startswith(p))
                 if s1 != s2:
                     n = len(p)
-                    self.assertNotEqual(s1[n:n+1], s2[n:n+1])
+                    self.assertNotEqual(s1[n:n + 1], s2[n:n + 1])
 
     def test_getsize(self):
         f = open(test_support.TESTFN, "wb")
@@ -240,7 +240,8 @@ class CommonTest(GenericTest):
                 for path in (u'', u'fuu', u'f\xf9\xf9', u'/fuu', u'U:\\'):
                     self.assertIsInstance(abspath(path), unicode)
 
-    @unittest.skipIf(sys.platform == 'darwin' or test_support.is_jython,
+    @unittest.skipIf(
+        sys.platform == 'darwin' or test_support.is_jython,
         "Both Mac OS X and Java deny the creation of a directory with an invalid utf8 name")
     def test_nonascii_abspath(self):
         # Test non-ASCII, non-UTF8 bytes in the path.
@@ -252,5 +253,5 @@ def test_main():
     test_support.run_unittest(GenericTest)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     test_main()

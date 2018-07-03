@@ -68,6 +68,7 @@ class Iterable:
                 return True
         return NotImplemented
 
+
 Iterable.register(str)
 
 
@@ -239,14 +240,14 @@ class Set(Sized, Iterable, Container):
         freedom for __eq__ or __hash__.  We match the algorithm used
         by the built-in frozenset type.
         """
-        MAX = sys.maxint
+        MAX = sys.maxsize
         MASK = 2 * MAX + 1
         n = len(self)
         h = 1927868237 * (n + 1)
         h &= MASK
         for x in self:
             hx = hash(x)
-            h ^= (hx ^ (hx << 16) ^ 89869747)  * 3644798167
+            h ^= (hx ^ (hx << 16) ^ 89869747) * 3644798167
             h &= MASK
         h = h * 69069 + 907133923
         h &= MASK
@@ -255,6 +256,7 @@ class Set(Sized, Iterable, Container):
         if h == -1:
             h = 590923713
         return h
+
 
 Set.register(frozenset)
 
@@ -326,6 +328,7 @@ class MutableSet(Set):
                 self.discard(value)
         return self
 
+
 MutableSet.register(set)
 
 
@@ -382,6 +385,7 @@ class Mapping(Sized, Iterable, Container):
 
     def __ne__(self, other):
         return not (self == other)
+
 
 class MappingView(Sized):
 
@@ -509,6 +513,7 @@ class MutableMapping(Mapping):
             self[key] = default
         return default
 
+
 MutableMapping.register(dict)
 
 
@@ -555,6 +560,7 @@ class Sequence(Sized, Iterable, Container):
     def count(self, value):
         return sum(1 for v in self if v == value)
 
+
 Sequence.register(tuple)
 Sequence.register(basestring)
 Sequence.register(buffer)
@@ -580,8 +586,8 @@ class MutableSequence(Sequence):
 
     def reverse(self):
         n = len(self)
-        for i in range(n//2):
-            self[i], self[n-i-1] = self[n-i-1], self[i]
+        for i in range(n // 2):
+            self[i], self[n - i - 1] = self[n - i - 1], self[i]
 
     def extend(self, values):
         for v in values:
@@ -599,6 +605,7 @@ class MutableSequence(Sequence):
         self.extend(values)
         return self
 
+
 MutableSequence.register(list)
 
 if sys.platform.startswith("java"):
@@ -610,7 +617,7 @@ if sys.platform.startswith("java"):
     MutableMapping.register(JMap)
     MutableSet.register(JSet)
     Iterator.register(PyFastSequenceIter)
-    
+
     del PyFastSequenceIter
     del JList
     del JMap

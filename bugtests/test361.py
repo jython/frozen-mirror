@@ -12,4 +12,3 @@ import codecs
 f = codecs.open("test361.out", "r", "utf-8")
 print f.read()
 f.close()
-

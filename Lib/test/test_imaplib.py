@@ -61,18 +61,19 @@ class SimpleIMAPHandler(SocketServer.StreamRequestHandler):
     timeout = 1
 
     def _send(self, message):
-        if verbose: print "SENT:", message.strip()
+        if verbose:
+            print "SENT:", message.strip()
         self.wfile.write(message)
 
     def handle(self):
         # Send a welcome message.
         self._send('* OK IMAP4rev1\r\n')
-        while 1:
+        while True:
             # Gather up input until we receive a line terminator or we timeout.
             # Accumulate read(1) because it's simpler to handle the differences
             # between naked sockets and SSL sockets.
             line = ''
-            while 1:
+            while True:
                 try:
                     part = self.rfile.read(1)
                     if part == '':
@@ -85,7 +86,8 @@ class SimpleIMAPHandler(SocketServer.StreamRequestHandler):
                 if line.endswith('\r\n'):
                     break
 
-            if verbose: print 'GOT:', line.strip()
+            if verbose:
+                print 'GOT:', line.strip()
             splitline = line.split()
             tag = splitline[0]
             cmd = splitline[1]
@@ -111,7 +113,8 @@ class BaseThreadedNetworkedTests(unittest.TestCase):
                 self.server_close()
                 raise
 
-        if verbose: print "creating server"
+        if verbose:
+            print "creating server"
         server = MyServer(addr, hdlr)
         self.assertEqual(server.server_address, server.socket.getsockname())
 
@@ -127,17 +130,20 @@ class BaseThreadedNetworkedTests(unittest.TestCase):
             # Short poll interval to make the test finish quickly.
             # Time between requests is short enough that we won't wake
             # up spuriously too many times.
-            kwargs={'poll_interval':0.01})
+            kwargs={'poll_interval': 0.01})
         t.daemon = True  # In case this function raises.
         t.start()
-        if verbose: print "server running"
+        if verbose:
+            print "server running"
         return server, t
 
     def reap_server(self, server, thread):
-        if verbose: print "waiting for server"
+        if verbose:
+            print "waiting for server"
         server.shutdown()
         thread.join()
-        if verbose: print "done"
+        if verbose:
+            print "done"
 
     @contextmanager
     def reaped_server(self, hdlr):
@@ -172,7 +178,9 @@ class ThreadedNetworkedTests(BaseThreadedNetworkedTests):
     imap_class = imaplib.IMAP4
 
 
-@unittest.skipIf(is_jython, "imaplib does not support passing in ca_certs; verifiable certs are necessary on Jython")
+@unittest.skipIf(
+    is_jython,
+    "imaplib does not support passing in ca_certs; verifiable certs are necessary on Jython")
 @unittest.skipUnless(ssl, "SSL not available")
 class ThreadedNetworkedTestsSSL(BaseThreadedNetworkedTests):
 

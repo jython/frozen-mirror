@@ -14,6 +14,7 @@ import unittest
 from xml.dom import pulldom
 from test import test_support
 
+
 class UnicodeTests(unittest.TestCase):
 
     testDoc = """\
@@ -36,8 +37,10 @@ class UnicodeTests(unittest.TestCase):
                 text.append(node.data)
         try:
             result = u"".join(text)
-            self.failUnlessEqual(repr(result), r"u'\n    Some greek: \u0391\u0392\u0393\u0394\u0395\n    \n    \n    \n'")
-        except Exception, x:
+            self.failUnlessEqual(
+                repr(result),
+                r"u'\n    Some greek: \u0391\u0392\u0393\u0394\u0395\n    \n    \n    \n'")
+        except Exception as x:
             self.fail("Unexpected exception joining text pieces: %s" % str(x))
 
     def testAttributes(self):
@@ -48,9 +51,13 @@ class UnicodeTests(unittest.TestCase):
                     attrText.append(node.attributes.item(attrIx).value)
         try:
             result = u"".join(attrText)
-            self.failUnlessEqual(repr(result), r"u'\u0396\u0397\u0398\u0399\u039a'")
-        except Exception, x:
-            self.fail("Unexpected exception joining attribute text pieces: %s" % str(x))
+            self.failUnlessEqual(
+                repr(result),
+                r"u'\u0396\u0397\u0398\u0399\u039a'")
+        except Exception as x:
+            self.fail(
+                "Unexpected exception joining attribute text pieces: %s" %
+                str(x))
 
     def testProcessingInstruction(self):
         piText = []
@@ -60,12 +67,16 @@ class UnicodeTests(unittest.TestCase):
         try:
             result = u"".join(piText)
             # Weird how the repr for PI data is different from text and char data.
-            # Still, the whole xml.dom.* and xml.sax.* hierarchy is rather a 
+            # Still, the whole xml.dom.* and xml.sax.* hierarchy is rather a
             # labyrinthine mess under jython, mostly because it's so old, and
-            # yet survived through major evolutionary changes in both jython and java.
-            self.failUnlessEqual(repr(result), r"u'&#x39b;&#x39c;&#x39d;&#x39e;&#x39f;'")
-        except Exception, x:
-            self.fail("Unexpected exception joining pi data pieces: %s" % str(x))
+            # yet survived through major evolutionary changes in both jython
+            # and java.
+            self.failUnlessEqual(repr(result),
+                                 r"u'&#x39b;&#x39c;&#x39d;&#x39e;&#x39f;'")
+        except Exception as x:
+            self.fail(
+                "Unexpected exception joining pi data pieces: %s" %
+                str(x))
 
     def testComment(self):
         commentText = []
@@ -74,12 +85,17 @@ class UnicodeTests(unittest.TestCase):
                 commentText.append(node.data)
         try:
             result = u"".join(commentText)
-            self.failUnlessEqual(repr(result), r"u'&#x39b;&#x39c;&#x39d;&#x39e;&#x39f;'")
-        except Exception, x:
-            self.fail("Unexpected exception joining comment data pieces: %s" % str(x))
+            self.failUnlessEqual(repr(result),
+                                 r"u'&#x39b;&#x39c;&#x39d;&#x39e;&#x39f;'")
+        except Exception as x:
+            self.fail(
+                "Unexpected exception joining comment data pieces: %s" %
+                str(x))
+
 
 def test_main():
     test_support.run_unittest(__name__)
+
 
 if __name__ == "__main__":
     test_main()

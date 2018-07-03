@@ -13,9 +13,11 @@ from test import test_support
 def data_file(*name):
     return os.path.join(os.path.dirname(__file__), *name)
 
+
 CERTFILE = data_file("keycert.pem")
 ONLYCERT = data_file("ssl_cert.pem")
 ONLYKEY = data_file("ssl_key.pem")
+
 
 def start_server():
     server_address = ('127.0.0.1', 0)
@@ -67,7 +69,7 @@ class SocketConnectTest(unittest.TestCase):
                 target=self.do_nonblocking_connection,
                 name="socket-workout-%s" % i,
                 args=(connect_results, i)))
-                           
+
         for thread in connect_threads:
             thread.start()
         for thread in connect_threads:
@@ -106,7 +108,10 @@ class SSLSocketConnectTest(unittest.TestCase):
         sock.setblocking(0)
         connect_errno = 0
         connect_attempt = 0
-        sock = ssl.wrap_socket(sock, certfile=CERTFILE, do_handshake_on_connect=True)
+        sock = ssl.wrap_socket(
+            sock,
+            certfile=CERTFILE,
+            do_handshake_on_connect=True)
 
         while connect_errno != errno.EISCONN and connect_attempt < 10000:
             connect_attempt += 1
@@ -124,7 +129,7 @@ class SSLSocketConnectTest(unittest.TestCase):
                 target=self.do_nonblocking_connection,
                 name="socket-workout-%s" % i,
                 args=(connect_results, i)))
-                           
+
         for thread in connect_threads:
             thread.start()
         for thread in connect_threads:
@@ -142,7 +147,6 @@ class SSLSocketConnectTest(unittest.TestCase):
                 self.assertEqual(code, errno.EALREADY)
 
 
-
 class SocketOptionsTest(unittest.TestCase):
 
     def test_socket_options_defined(self):
@@ -152,7 +156,10 @@ class SocketOptionsTest(unittest.TestCase):
 
 
 def test_main():
-    test_support.run_unittest(SocketConnectTest, SSLSocketConnectTest, SocketOptionsTest)
+    test_support.run_unittest(
+        SocketConnectTest,
+        SSLSocketConnectTest,
+        SocketOptionsTest)
 
 
 if __name__ == "__main__":

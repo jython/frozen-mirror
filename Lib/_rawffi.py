@@ -1,9 +1,12 @@
 import com.sun.jna as jna
 
+
 def get_libc():
     return CDLL("c")
 
+
 typecode_map = {'h': 2, 'H': 2}
+
 
 class Array(object):
     def __init__(self, typecode):
@@ -14,6 +17,7 @@ class Array(object):
         if not autofree:
             raise Exception
         return ArrayInstance(self, size)
+
 
 class ArrayInstance(object):
     def __init__(self, shape, size):
@@ -26,6 +30,7 @@ class ArrayInstance(object):
     def __getitem__(self, index):
         return self.alloc.getShort(index)
 
+
 class FuncPtr(object):
     def __init__(self, fn, name, argtypes, restype):
         self.fn = fn
@@ -37,6 +42,7 @@ class FuncPtr(object):
         container = Array('H')(1, autofree=True)
         container[0] = self.fn.invokeInt([i[0] for i in args])
         return container
+
 
 class CDLL(object):
     def __init__(self, libname):

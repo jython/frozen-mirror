@@ -1,7 +1,8 @@
 from test.test_support import run_unittest, verbose
 from test.test_math import parse_testfile, test_file
 import unittest
-import cmath, math
+import cmath
+import math
 from cmath import phase, polar, rect, pi
 
 INF = float('inf')
@@ -9,51 +10,52 @@ NAN = float('nan')
 
 complex_zeros = [complex(x, y) for x in [0.0, -0.0] for y in [0.0, -0.0]]
 complex_infinities = [complex(x, y) for x, y in [
-        (INF, 0.0),  # 1st quadrant
-        (INF, 2.3),
-        (INF, INF),
-        (2.3, INF),
-        (0.0, INF),
-        (-0.0, INF), # 2nd quadrant
-        (-2.3, INF),
-        (-INF, INF),
-        (-INF, 2.3),
-        (-INF, 0.0),
-        (-INF, -0.0), # 3rd quadrant
-        (-INF, -2.3),
-        (-INF, -INF),
-        (-2.3, -INF),
-        (-0.0, -INF),
-        (0.0, -INF), # 4th quadrant
-        (2.3, -INF),
-        (INF, -INF),
-        (INF, -2.3),
-        (INF, -0.0)
-        ]]
+    (INF, 0.0),  # 1st quadrant
+    (INF, 2.3),
+    (INF, INF),
+    (2.3, INF),
+    (0.0, INF),
+    (-0.0, INF),  # 2nd quadrant
+    (-2.3, INF),
+    (-INF, INF),
+    (-INF, 2.3),
+    (-INF, 0.0),
+    (-INF, -0.0),  # 3rd quadrant
+    (-INF, -2.3),
+    (-INF, -INF),
+    (-2.3, -INF),
+    (-0.0, -INF),
+    (0.0, -INF),  # 4th quadrant
+    (2.3, -INF),
+    (INF, -INF),
+    (INF, -2.3),
+    (INF, -0.0)
+]]
 complex_nans = [complex(x, y) for x, y in [
-        (NAN, -INF),
-        (NAN, -2.3),
-        (NAN, -0.0),
-        (NAN, 0.0),
-        (NAN, 2.3),
-        (NAN, INF),
-        (-INF, NAN),
-        (-2.3, NAN),
-        (-0.0, NAN),
-        (0.0, NAN),
-        (2.3, NAN),
-        (INF, NAN)
-        ]]
+    (NAN, -INF),
+    (NAN, -2.3),
+    (NAN, -0.0),
+    (NAN, 0.0),
+    (NAN, 2.3),
+    (NAN, INF),
+    (-INF, NAN),
+    (-2.3, NAN),
+    (-0.0, NAN),
+    (0.0, NAN),
+    (2.3, NAN),
+    (INF, NAN)
+]]
+
 
 class CMathTests(unittest.TestCase):
     # list of all functions in cmath
     test_functions = [getattr(cmath, fname) for fname in [
-            'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh',
-            'cos', 'cosh', 'exp', 'log', 'log10', 'sin', 'sinh',
-            'sqrt', 'tan', 'tanh']]
+        'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh',
+        'cos', 'cosh', 'exp', 'log', 'log10', 'sin', 'sinh',
+        'sqrt', 'tan', 'tanh']]
     # test first and second arguments independently for 2-argument log
-    test_functions.append(lambda x : cmath.log(x, 1729. + 0j))
-    test_functions.append(lambda x : cmath.log(14.-27j, x))
+    test_functions.append(lambda x: cmath.log(x, 1729. + 0j))
+    test_functions.append(lambda x: cmath.log(14. - 27j, x))
 
     def setUp(self):
         self.test_values = open(test_file)
@@ -61,7 +63,7 @@ class CMathTests(unittest.TestCase):
     def tearDown(self):
         self.test_values.close()
 
-    def rAssertAlmostEqual(self, a, b, rel_err = 2e-15, abs_err = 5e-323,
+    def rAssertAlmostEqual(self, a, b, rel_err=2e-15, abs_err=5e-323,
                            msg=None):
         """Fail if the two floating-point numbers are not almost equal.
 
@@ -98,7 +100,7 @@ class CMathTests(unittest.TestCase):
         # max representable float, and then b could legitimately be
         # infinite.  In practice these examples are rare.
         try:
-            absolute_error = abs(b-a)
+            absolute_error = abs(b - a)
         except OverflowError:
             pass
         else:
@@ -114,10 +116,20 @@ class CMathTests(unittest.TestCase):
     def test_constants(self):
         e_expected = 2.71828182845904523536
         pi_expected = 3.14159265358979323846
-        self.assertAlmostEqual(cmath.pi, pi_expected, places=9,
-            msg="cmath.pi is {}; should be {}".format(cmath.pi, pi_expected))
-        self.assertAlmostEqual(cmath.e, e_expected, places=9,
-            msg="cmath.e is {}; should be {}".format(cmath.e, e_expected))
+        self.assertAlmostEqual(
+            cmath.pi,
+            pi_expected,
+            places=9,
+            msg="cmath.pi is {}; should be {}".format(
+                cmath.pi,
+                pi_expected))
+        self.assertAlmostEqual(
+            cmath.e,
+            e_expected,
+            places=9,
+            msg="cmath.e is {}; should be {}".format(
+                cmath.e,
+                e_expected))
 
     def test_user_object(self):
         # Test automatic calling of __complex__ and __float__ by cmath
@@ -131,7 +143,7 @@ class CMathTests(unittest.TestCase):
 
         # a variety of non-complex numbers, used to check that
         # non-complex return values from __complex__ give an error
-        non_complexes = ["not complex", 1, 5L, 2., None,
+        non_complexes = ["not complex", 1, 5, 2., None,
                          object(), NotImplemented]
 
         # Now we introduce a variety of classes whose instances might
@@ -141,6 +153,7 @@ class CMathTests(unittest.TestCase):
         class MyComplex(object):
             def __init__(self, value):
                 self.value = value
+
             def __complex__(self):
                 return self.value
 
@@ -148,15 +161,18 @@ class CMathTests(unittest.TestCase):
         class MyComplexOS:
             def __init__(self, value):
                 self.value = value
+
             def __complex__(self):
                 return self.value
 
         # classes for which __complex__ raises an exception
         class SomeException(Exception):
             pass
+
         class MyComplexException(object):
             def __complex__(self):
                 raise SomeException
+
         class MyComplexExceptionOS:
             def __complex__(self):
                 raise SomeException
@@ -164,15 +180,22 @@ class CMathTests(unittest.TestCase):
         # some classes not providing __float__ or __complex__
         class NeitherComplexNorFloat(object):
             pass
+
         class NeitherComplexNorFloatOS:
             pass
+
         class MyInt(object):
             def __int__(self): return 2
-            def __long__(self): return 2L
+
+            def __long__(self): return 2
+
             def __index__(self): return 2
+
         class MyIntOS:
             def __int__(self): return 2
-            def __long__(self): return 2L
+
+            def __long__(self): return 2
+
             def __index__(self): return 2
 
         # other possible combinations of __float__ and __complex__
@@ -180,16 +203,21 @@ class CMathTests(unittest.TestCase):
         class FloatAndComplex(object):
             def __float__(self):
                 return flt_arg
+
             def __complex__(self):
                 return cx_arg
+
         class FloatAndComplexOS:
             def __float__(self):
                 return flt_arg
+
             def __complex__(self):
                 return cx_arg
+
         class JustFloat(object):
             def __float__(self):
                 return flt_arg
+
         class JustFloatOS:
             def __float__(self):
                 return flt_arg
@@ -224,7 +252,7 @@ class CMathTests(unittest.TestCase):
         # ints and longs should be acceptable inputs to all cmath
         # functions, by virtue of providing a __float__ method
         for f in self.test_functions:
-            for arg in [2, 2L, 2.]:
+            for arg in [2, 2, 2.]:
                 self.assertEqual(f(arg), f(arg.__float__()))
 
         # but strings should give a TypeError
@@ -244,7 +272,7 @@ class CMathTests(unittest.TestCase):
             [0., 1., -1.]
 
         # test_values for acosh, atanh
-        ge_one = [1.] + [1./x for x in test_values]
+        ge_one = [1.] + [1. / x for x in test_values]
         unit_open = test_values + [-x for x in test_values] + [0.]
 
         # test_values for log, log10, sqrt
@@ -255,22 +283,22 @@ class CMathTests(unittest.TestCase):
         real_line = [0.] + positive + [-x for x in positive]
 
         test_functions = {
-            'acos' : unit_interval,
-            'asin' : unit_interval,
-            'atan' : real_line,
-            'acosh' : ge_one,           # Jython added
-            'asinh' : real_line,        # Jython added
-            'atanh' : unit_open,        # Jython added
-            'cos' : real_line,
-            'cosh' : real_line,
-            'exp' : real_line,
-            'log' : positive,
-            'log10' : positive,
-            'sin' : real_line,
-            'sinh' : real_line,
-            'sqrt' : nonnegative,
-            'tan' : real_line,
-            'tanh' : real_line}
+            'acos': unit_interval,
+            'asin': unit_interval,
+            'atan': real_line,
+            'acosh': ge_one,           # Jython added
+            'asinh': real_line,        # Jython added
+            'atanh': unit_open,        # Jython added
+            'cos': real_line,
+            'cosh': real_line,
+            'exp': real_line,
+            'log': positive,
+            'log10': positive,
+            'sin': real_line,
+            'sinh': real_line,
+            'sqrt': nonnegative,
+            'tan': real_line,
+            'tanh': real_line}
 
         for fn, values in test_functions.items():
             float_fn = getattr(math, fn)
@@ -302,17 +330,17 @@ class CMathTests(unittest.TestCase):
             return complex(*polar(z))
 
         raised_fmt = '\n' \
-                '{}: {}(complex({!r}, {!r}))\n' \
-                'Raised: {!r}\n' \
-                'Expected: complex({!r}, {!r})'
+            '{}: {}(complex({!r}, {!r}))\n' \
+            'Raised: {!r}\n' \
+            'Expected: complex({!r}, {!r})'
         not_raised_fmt = '\n' \
-                '{} not raised in test {}: {}(complex({!r}, {!r}))\n' \
-                'Received: complex({!r}, {!r})'
+            '{} not raised in test {}: {}(complex({!r}, {!r}))\n' \
+            'Received: complex({!r}, {!r})'
         value_fmt = '\n' \
-                '{}: {}(complex({!r}, {!r}))\n' \
-                'Expected: complex({!r}, {!r})\n' \
-                'Received: complex({!r}, {!r})\n' \
-                'Received value insufficiently close to expected value.'
+            '{}: {}(complex({!r}, {!r}))\n' \
+            'Expected: complex({!r}, {!r})\n' \
+            'Received: complex({!r}, {!r})\n' \
+            'Received value insufficiently close to expected value.'
         failures = 0
 
         for id, fn, ar, ai, er, ei, flags in parse_testfile(test_file):
@@ -333,8 +361,15 @@ class CMathTests(unittest.TestCase):
                         pass
                     else:
                         failures += 1
-                        self.fail(not_raised_fmt.format('ValueError',
-                                id, fn, ar, ai, actual.real, actual.imag))
+                        self.fail(
+                            not_raised_fmt.format(
+                                'ValueError',
+                                id,
+                                fn,
+                                ar,
+                                ai,
+                                actual.real,
+                                actual.imag))
 
                 elif 'overflow' in flags:
                     try:
@@ -343,10 +378,17 @@ class CMathTests(unittest.TestCase):
                         pass
                     else:
                         failures += 1
-                        self.fail(not_raised_fmt.format('OverflowError',
-                                id, fn, ar, ai, actual.real, actual.imag))
+                        self.fail(
+                            not_raised_fmt.format(
+                                'OverflowError',
+                                id,
+                                fn,
+                                ar,
+                                ai,
+                                actual.real,
+                                actual.imag))
 
-                else :
+                else:
                     actual = function(arg)
 
                     # Make sign of expected conform to actual, where ignored.
@@ -364,7 +406,7 @@ class CMathTests(unittest.TestCase):
                         real_abs_err = 5e-323
 
                     error_message = value_fmt.format(id, fn, ar, ai, er, ei,
-                                            actual.real, actual.imag)
+                                                     actual.real, actual.imag)
                     self.rAssertAlmostEqual(exr, actual.real,
                                             abs_err=real_abs_err,
                                             msg=error_message)
@@ -373,37 +415,36 @@ class CMathTests(unittest.TestCase):
 
             except AssertionError as ex:
                 failures += 1
-                if verbose :
+                if verbose:
                     print(ex)
             except BaseException as ex:
                 failures += 1
-                if verbose :
+                if verbose:
                     print(raised_fmt.format(id, fn, ar, ai, ex, er, ei))
 
-        if failures :
+        if failures:
             self.fail('{} discrepancies'.format(failures))
-
 
     def assertCISEqual(self, a, b):
         eps = 1E-7
         if abs(a[0] - b[0]) > eps or abs(a[1] - b[1]) > eps:
-            self.fail((a ,b))
+            self.fail((a, b))
 
     def test_polar(self):
         self.assertCISEqual(polar(0), (0., 0.))
         self.assertCISEqual(polar(1.), (1., 0.))
         self.assertCISEqual(polar(-1.), (1., pi))
-        self.assertCISEqual(polar(1j), (1., pi/2))
-        self.assertCISEqual(polar(-1j), (1., -pi/2))
+        self.assertCISEqual(polar(1j), (1., pi / 2))
+        self.assertCISEqual(polar(-1j), (1., -pi / 2))
 
     def test_phase(self):
         self.assertAlmostEqual(phase(0), 0.)
         self.assertAlmostEqual(phase(1.), 0.)
         self.assertAlmostEqual(phase(-1.), pi)
-        self.assertAlmostEqual(phase(-1.+1E-300j), pi)
-        self.assertAlmostEqual(phase(-1.-1E-300j), -pi)
-        self.assertAlmostEqual(phase(1j), pi/2)
-        self.assertAlmostEqual(phase(-1j), -pi/2)
+        self.assertAlmostEqual(phase(-1. + 1E-300j), pi)
+        self.assertAlmostEqual(phase(-1. - 1E-300j), -pi)
+        self.assertAlmostEqual(phase(1j), pi / 2)
+        self.assertAlmostEqual(phase(-1j), -pi / 2)
 
         # zeros
         self.assertEqual(phase(complex(0.0, 0.0)), 0.0)
@@ -414,22 +455,22 @@ class CMathTests(unittest.TestCase):
         # infinities
         self.assertAlmostEqual(phase(complex(-INF, -0.0)), -pi)
         self.assertAlmostEqual(phase(complex(-INF, -2.3)), -pi)
-        self.assertAlmostEqual(phase(complex(-INF, -INF)), -0.75*pi)
-        self.assertAlmostEqual(phase(complex(-2.3, -INF)), -pi/2)
-        self.assertAlmostEqual(phase(complex(-0.0, -INF)), -pi/2)
-        self.assertAlmostEqual(phase(complex(0.0, -INF)), -pi/2)
-        self.assertAlmostEqual(phase(complex(2.3, -INF)), -pi/2)
-        self.assertAlmostEqual(phase(complex(INF, -INF)), -pi/4)
+        self.assertAlmostEqual(phase(complex(-INF, -INF)), -0.75 * pi)
+        self.assertAlmostEqual(phase(complex(-2.3, -INF)), -pi / 2)
+        self.assertAlmostEqual(phase(complex(-0.0, -INF)), -pi / 2)
+        self.assertAlmostEqual(phase(complex(0.0, -INF)), -pi / 2)
+        self.assertAlmostEqual(phase(complex(2.3, -INF)), -pi / 2)
+        self.assertAlmostEqual(phase(complex(INF, -INF)), -pi / 4)
         self.assertEqual(phase(complex(INF, -2.3)), -0.0)
         self.assertEqual(phase(complex(INF, -0.0)), -0.0)
         self.assertEqual(phase(complex(INF, 0.0)), 0.0)
         self.assertEqual(phase(complex(INF, 2.3)), 0.0)
-        self.assertAlmostEqual(phase(complex(INF, INF)), pi/4)
-        self.assertAlmostEqual(phase(complex(2.3, INF)), pi/2)
-        self.assertAlmostEqual(phase(complex(0.0, INF)), pi/2)
-        self.assertAlmostEqual(phase(complex(-0.0, INF)), pi/2)
-        self.assertAlmostEqual(phase(complex(-2.3, INF)), pi/2)
-        self.assertAlmostEqual(phase(complex(-INF, INF)), 0.75*pi)
+        self.assertAlmostEqual(phase(complex(INF, INF)), pi / 4)
+        self.assertAlmostEqual(phase(complex(2.3, INF)), pi / 2)
+        self.assertAlmostEqual(phase(complex(0.0, INF)), pi / 2)
+        self.assertAlmostEqual(phase(complex(-0.0, INF)), pi / 2)
+        self.assertAlmostEqual(phase(complex(-2.3, INF)), pi / 2)
+        self.assertAlmostEqual(phase(complex(-INF, INF)), 0.75 * pi)
         self.assertAlmostEqual(phase(complex(-INF, 2.3)), pi)
         self.assertAlmostEqual(phase(complex(-INF, 0.0)), pi)
 
@@ -468,14 +509,14 @@ class CMathTests(unittest.TestCase):
     def assertCEqual(self, a, b):
         eps = 1E-7
         if abs(a.real - b[0]) > eps or abs(a.imag - b[1]) > eps:
-            self.fail((a ,b))
+            self.fail((a, b))
 
     def test_rect(self):
         self.assertCEqual(rect(0, 0), (0, 0))
         self.assertCEqual(rect(1, 0), (1., 0))
         self.assertCEqual(rect(1, -pi), (-1., 0))
-        self.assertCEqual(rect(1, pi/2), (0, 1.))
-        self.assertCEqual(rect(1, -pi/2), (0, -1.))
+        self.assertCEqual(rect(1, pi / 2), (0, 1.))
+        self.assertCEqual(rect(1, -pi / 2), (0, -1.))
 
     def test_isnan(self):
         self.assertFalse(cmath.isnan(1))
@@ -502,6 +543,7 @@ class CMathTests(unittest.TestCase):
 
 def test_main():
     run_unittest(CMathTests)
+
 
 if __name__ == "__main__":
     test_main()

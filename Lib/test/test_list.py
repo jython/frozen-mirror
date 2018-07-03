@@ -1,6 +1,7 @@
 import sys
 from test import test_support, list_tests
 
+
 class ListTest(list_tests.CommonTest):
 
     type2test = list
@@ -16,7 +17,7 @@ class ListTest(list_tests.CommonTest):
         self.assertEqual(self.type2test(''), [])
         self.assertEqual(self.type2test('spam'), ['s', 'p', 'a', 'm'])
 
-        #FIXME: too brutal for us ATM.
+        # FIXME: too brutal for us ATM.
         if not test_support.is_jython:
             if sys.maxsize == 0x7fffffff:
                 # This test can currently only work on 32-bit machines.
@@ -33,7 +34,7 @@ class ListTest(list_tests.CommonTest):
                 # thread for the details:
 
                 #     http://sources.redhat.com/ml/newlib/2002/msg00369.html
-                self.assertRaises(MemoryError, list, xrange(sys.maxint // 2))
+                self.assertRaises(MemoryError, list, xrange(sys.maxsize // 2))
 
         # This code used to segfault in Py2.4a3
         x = []
@@ -57,11 +58,14 @@ class ListTest(list_tests.CommonTest):
 
     def test_overflow(self):
         lst = self.type2test([4, 5, 6, 7])
-        n = int((sys.maxint*2+2) // len(lst))
+        n = int((sys.maxsize * 2 + 2) // len(lst))
+
         def mul(a, b): return a * b
+
         def imul(a, b): a *= b
         self.assertRaises((MemoryError, OverflowError), mul, lst, n)
         self.assertRaises((MemoryError, OverflowError), imul, lst, n)
+
 
 def test_main(verbose=None):
     test_support.run_unittest(ListTest)

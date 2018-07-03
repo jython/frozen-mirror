@@ -29,8 +29,9 @@ warnings.warn('The javapath module is deprecated. Use the os.path module.',
 def _tostr(s, method):
     if isinstance(s, basestring):
         return s
-    raise TypeError, "%s() argument must be a str or unicode object, not %s" % (
-                method, _type_name(s))
+    raise TypeError("%s() argument must be a str or unicode object, not %s" % (
+        method, _type_name(s)))
+
 
 def _type_name(obj):
     TPFLAGS_HEAPTYPE = 1 << 9
@@ -42,21 +43,24 @@ def _type_name(obj):
     type_name += obj_type.__name__
     return type_name
 
+
 def dirname(path):
     """Return the directory component of a pathname"""
     path = _tostr(path, "dirname")
     result = asPyString(File(path).getParent())
     if not result:
         if isabs(path):
-            result = path # Must be root
+            result = path  # Must be root
         else:
             result = ""
     return result
+
 
 def basename(path):
     """Return the final component of a pathname"""
     path = _tostr(path, "basename")
     return asPyString(File(path).getName())
+
 
 def split(path):
     """Split a pathname.
@@ -68,6 +72,7 @@ def split(path):
     path = _tostr(path, "split")
     return (dirname(path), basename(path))
 
+
 def splitext(path):
     """Split the extension from a pathname.
 
@@ -78,12 +83,14 @@ def splitext(path):
     i = 0
     n = -1
     for c in path:
-        if c == '.': n = i
-        i = i+1
+        if c == '.':
+            n = i
+        i = i + 1
     if n < 0:
         return (path, "")
     else:
         return (path[:n], path[n:])
+
 
 def splitdrive(path):
     """Split a pathname into drive and path specifiers.
@@ -96,6 +103,7 @@ def splitdrive(path):
         return path[:2], path[2:]
     return '', path
 
+
 def exists(path):
     """Test whether a path exists.
 
@@ -105,20 +113,24 @@ def exists(path):
     path = _tostr(path, "exists")
     return File(sys.getPath(path)).exists()
 
+
 def isabs(path):
     """Test whether a path is absolute"""
     path = _tostr(path, "isabs")
     return File(path).isAbsolute()
+
 
 def isfile(path):
     """Test whether a path is a regular file"""
     path = _tostr(path, "isfile")
     return File(sys.getPath(path)).isFile()
 
+
 def isdir(path):
     """Test whether a path is a directory"""
     path = _tostr(path, "isdir")
     return File(sys.getPath(path)).isDirectory()
+
 
 def join(path, *args):
     """Join two or more pathname components, inserting os.sep as needed"""
@@ -135,6 +147,7 @@ def join(path, *args):
             f = File(f, a)
     return asPyString(f.getPath())
 
+
 def normcase(path):
     """Normalize case of pathname.
 
@@ -144,17 +157,21 @@ def normcase(path):
     path = _tostr(path, "normcase")
     return asPyString(File(path).getPath())
 
+
 def commonprefix(m):
     "Given a list of pathnames, return the longest common leading component"
-    if not m: return ''
+    if not m:
+        return ''
     prefix = m[0]
     for item in m:
         for i in range(len(prefix)):
-            if prefix[:i+1] <> item[:i+1]:
+            if prefix[:i + 1] != item[:i + 1]:
                 prefix = prefix[:i]
-                if i == 0: return ''
+                if i == 0:
+                    return ''
                 break
     return prefix
+
 
 def islink(path):
     """Test whether a path is a symbolic link"""
@@ -164,11 +181,13 @@ def islink(path):
         return False
     return stat.S_ISLNK(st.st_mode)
 
+
 def samefile(path, path2):
     """Test whether two pathnames reference the same actual file"""
     path = _tostr(path, "samefile")
     path2 = _tostr(path2, "samefile")
     return _realpath(path) == _realpath(path2)
+
 
 def ismount(path):
     """Test whether a path is a mount point.
@@ -177,6 +196,7 @@ def ismount(path):
 
     """
     return 0
+
 
 def walk(top, func, arg):
     """Walk a directory tree.
@@ -196,6 +216,7 @@ def walk(top, func, arg):
         if isdir(name) and not islink(name):
             walk(name, func, arg)
 
+
 def expanduser(path):
     if path[:1] == "~":
         c = path[1:2]
@@ -205,8 +226,10 @@ def expanduser(path):
             return asPyString(File(gethome(), path[2:]).getPath())
     return path
 
+
 def getuser():
     return System.getProperty("user.name")
+
 
 def gethome():
     return System.getProperty("user.home")
@@ -237,38 +260,43 @@ def normpath(path):
             del comps[i]
             while i < len(comps) and comps[i] == '':
                 del comps[i]
-        elif comps[i] == pardir and i > 0 and comps[i-1] not in ('', pardir):
-            del comps[i-1:i+1]
-            i = i-1
-        elif comps[i] == '' and i > 0 and comps[i-1] <> '':
+        elif comps[i] == pardir and i > 0 and comps[i - 1] not in ('', pardir):
+            del comps[i - 1:i + 1]
+            i = i - 1
+        elif comps[i] == '' and i > 0 and comps[i - 1] != '':
             del comps[i]
         else:
-            i = i+1
+            i = i + 1
     # If the path is now empty, substitute '.'
     if not comps and not slashes:
         comps.append(curdir)
     return slashes + string.joinfields(comps, sep)
+
 
 def abspath(path):
     """Return an absolute path normalized but symbolic links not eliminated"""
     path = _tostr(path, "abspath")
     return _abspath(path)
 
+
 def _abspath(path):
     # Must use normpath separately because getAbsolutePath doesn't normalize
     # and getCanonicalPath would eliminate symlinks.
     return normpath(asPyString(File(sys.getPath(path)).getAbsolutePath()))
+
 
 def realpath(path):
     """Return an absolute path normalized and symbolic links eliminated"""
     path = _tostr(path, "realpath")
     return _realpath(path)
 
+
 def _realpath(path):
     try:
         return asPyString(File(sys.getPath(path)).getCanonicalPath())
     except java.io.IOException:
         return _abspath(path)
+
 
 def getsize(path):
     path = _tostr(path, "getsize")
@@ -280,12 +308,14 @@ def getsize(path):
         raise OSError(0, 'No such file or directory', path)
     return size
 
+
 def getmtime(path):
     path = _tostr(path, "getmtime")
     f = File(sys.getPath(path))
     if not f.exists():
         raise OSError(0, 'No such file or directory', path)
     return f.lastModified() / 1000.0
+
 
 def getatime(path):
     # We can't detect access time so we return modification time. This
@@ -335,12 +365,12 @@ def expandvars(path):
                 res = res + c
                 index = index + 1
             elif path[index + 1:index + 2] == '{':
-                path = path[index+2:]
+                path = path[index + 2:]
                 pathlen = len(path)
                 try:
                     index = path.index('}')
                     var = path[:index]
-                    if os.environ.has_key(var):
+                    if var in os.environ:
                         res = res + os.environ[var]
                 except ValueError:
                     res = res + path
@@ -353,7 +383,7 @@ def expandvars(path):
                     var = var + c
                     index = index + 1
                     c = path[index:index + 1]
-                if os.environ.has_key(var):
+                if var in os.environ:
                     res = res + os.environ[var]
                 if c != '':
                     res = res + c
