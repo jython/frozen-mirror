@@ -22,6 +22,26 @@ class FormatSubclass(unittest.TestCase):
             def __float__(self): return self. x
         self.assertEqual('1.0', '%.1f' % Foo(1.0))
 
+    # This is a test for http://bugs.jython.org/issue2672
+    def test_formatting_int_min_value_as_decimal(self):
+        x = int(-(1<<31))
+        self.assertEqual('-2147483648', '%d' % x)
+        self.assertEqual('-2147483648', '%i' % x)
+
+    def test_formatting_int_min_value_as_hex(self):
+        x = int(-(1<<31))
+        self.assertEqual('-80000000', '%x' % x)
+        self.assertEqual('-80000000', '%X' % x)
+
+    def test_formatting_int_min_value_as_octal(self):
+        x = int(-(1<<31))
+        self.assertEqual('-20000000000', '%o' % x)
+
+    def test_formatting_int_min_value_as_binary(self):
+        x = int(-(1<<31))
+        self.assertEqual('-10000000000000000000000000000000', '{0:b}'.format(x))
+
+
 class FormatUnicodeBase(unittest.TestCase):
 
     # Test padding non-BMP result
