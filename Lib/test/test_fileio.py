@@ -13,7 +13,6 @@ from functools import wraps
 from test.test_support import (TESTFN, check_warnings, run_unittest,
                                make_bad_fd, is_jython, gc_collect)
 from test.test_support import py3k_bytes as bytes
-from test.script_helper import run_python
 
 from _io import FileIO as _FileIO
 

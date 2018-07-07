@@ -29,7 +29,6 @@ all this in Java, remove this module and revert io.py to its CPython original.
 from __future__ import (print_function, unicode_literals)
 
 import os
-import abc
 import codecs
 import warnings
 import errno

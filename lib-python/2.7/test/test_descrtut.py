@@ -8,8 +8,6 @@
 # of much interest anymore), and a few were fiddled to make the output
 # deterministic.
 
-from test.test_support import sortdict
-import pprint
 
 class defaultdict(dict):
     def __init__(self, default=None):

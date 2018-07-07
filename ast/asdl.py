@@ -89,7 +89,6 @@ class ASDLScanner(spark.GenericScanner, object):
 
     def t_comment(self, s):
         r"\-\-[^\n]*"
-        pass
 
     def t_newline(self, s):
         r"\n"
@@ -97,7 +96,6 @@ class ASDLScanner(spark.GenericScanner, object):
 
     def t_whitespace(self, s):
         r"[ \t]+"
-        pass
 
     def t_default(self, s):
         r" . +"

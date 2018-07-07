@@ -18,7 +18,6 @@ TestError: cmd /C "C:/Programme/Java/jdk1.5.0_09/bin/java.exe -jar test394jar/ru
 """
 
 import support
-import sys
 import os
 
 import support_config as cfg

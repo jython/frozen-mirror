@@ -3,7 +3,6 @@
 """
 
 import support
-import os
 
 
 def check(filename, result):

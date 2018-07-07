@@ -118,7 +118,6 @@ def test_main():
 
 # Pollute the namespace with a bunch of imported functions and classes,
 # to make sure they don't get tested.
-from doctest import *
 
 if __name__ == '__main__':
     test_main()

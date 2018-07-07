@@ -24,7 +24,6 @@ except ImportError:
     UID_GID_SUPPORT = False
 
 try:
-    import zipfile
     ZIP_SUPPORT = True
 except ImportError:
     ZIP_SUPPORT = find_executable('zip')

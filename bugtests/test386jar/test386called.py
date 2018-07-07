@@ -9,7 +9,6 @@ if not "true" == sys.registry.getProperty(skipName):
 # import a non-builtin module which is not imported by default on startup
 # this verifies that /Lib .py files can be imported
 # this fixes bug [ 1194650 ]
-import getopt
 
 # an early java import # (only works since java.util is an already loaded
 # package)
@@ -17,7 +16,6 @@ from java import util
 util  # used to give a NameError
 
 # import java specific py modules
-import os
 
 # now do some java imports which previously failed without a package scan
 # this (most of the time) solves the famous 'no module named java' problem

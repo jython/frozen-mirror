@@ -672,9 +672,7 @@ hello world
             #
             #
             pass
-            pass
             #
-            pass
             #
 
     def testTest(self):

@@ -3,9 +3,7 @@
 # TO DO
 # handle fields that have a type but no name
 
-import os
 import sys
-import traceback
 
 import asdl
 

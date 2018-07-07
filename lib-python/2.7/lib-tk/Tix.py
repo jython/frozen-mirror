@@ -1785,7 +1785,6 @@ class CObjView(TixWidget):
     to see all the objects.
     """
     # FIXME: It should inherit -superclass tixScrolledWidget
-    pass
 
 
 class Grid(TixWidget, XView, YView):

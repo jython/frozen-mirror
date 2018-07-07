@@ -2077,7 +2077,6 @@ order (MRO) for bases """
                 return 0
             def setter(self_, value):
                 "setter method"
-                pass
             prop = property(getter)
             self.assertEqual(prop.__doc__, "getter method")
             prop2 = property(fset=setter)

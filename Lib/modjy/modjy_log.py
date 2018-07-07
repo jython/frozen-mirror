@@ -20,7 +20,6 @@
 
 import java
 
-import sys
 
 DEBUG = 'debug'
 INFO = 'info'

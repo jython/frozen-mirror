@@ -2,10 +2,8 @@
 AMAK: 20050515: This module is the test_select.py from cpython 2.4, ported to jython + unittest
 """
 import errno
-import os
 import select
 import socket
-import sys
 from test import test_socket
 import unittest
 from test import test_support

@@ -53,7 +53,6 @@ for name in dir():
 
 def test_main(verbose=None):
     from test.test_support import verify
-    import sys
     for func in tests:
         expected = tests[func]
         result = list(func())

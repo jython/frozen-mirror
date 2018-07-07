@@ -13,10 +13,9 @@ from shutil import (_make_tarball, _make_zipfile, make_archive,
                     register_archive_format, unregister_archive_format,
                     get_archive_formats)
 import tarfile
-import warnings
 
 from test import test_support
-from test.test_support import TESTFN, check_warnings, captured_stdout
+from test.test_support import TESTFN, captured_stdout
 
 TESTFN2 = TESTFN + "2"
 
@@ -33,7 +32,6 @@ except ImportError:
     zlib = None
 
 try:
-    import zipfile
     ZIP_SUPPORT = True
 except ImportError:
     ZIP_SUPPORT = find_executable('zip')

@@ -289,7 +289,6 @@ class RefactoringTool(object):
     def print_output(self, old_text, new_text, filename, equal):
         """Called with the old version, new version, and filename of a
         refactored file."""
-        pass
 
     def refactor(self, items, write=False, doctests_only=False):
         """Refactor a list of files and directories."""

@@ -166,7 +166,6 @@ class BaseFix(object):
         tree - the root node of the tree to be processed.
         filename - the name of the file the tree came from.
         """
-        pass
 
 
 class ConditionalFix(BaseFix):

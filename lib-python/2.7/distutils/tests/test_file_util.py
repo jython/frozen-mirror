@@ -1,7 +1,6 @@
 """Tests for distutils.file_util."""
 import unittest
 import os
-import shutil
 
 from distutils.file_util import move_file, write_file, copy_file
 from distutils import log

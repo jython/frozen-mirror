@@ -115,7 +115,6 @@ for _name in _LOWERNAMES:
     setattr(sys.modules['email'], _name, importer)
 
 
-import email.mime
 for _name in _MIMENAMES:
     importer = LazyImporter('mime.' + _name.lower())
     sys.modules['email.MIME' + _name] = importer

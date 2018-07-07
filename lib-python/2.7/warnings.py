@@ -97,7 +97,6 @@ def resetwarnings():
 
 class _OptionError(Exception):
     """Exception used by option processing helpers."""
-    pass
 
 # Helper to process -W options passed via sys.warnoptions
 def _processoptions(args):

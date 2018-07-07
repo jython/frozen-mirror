@@ -396,7 +396,6 @@ class Maildir(Mailbox):
         """Write any pending changes to disk."""
         # Maildir changes are always written immediately, so there's nothing
         # to do.
-        pass
 
     def lock(self):
         """Lock the mailbox."""

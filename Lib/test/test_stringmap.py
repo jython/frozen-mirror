@@ -1,4 +1,3 @@
-import unittest
 from test import test_support
 
 from test_userdict import TestMappingProtocol

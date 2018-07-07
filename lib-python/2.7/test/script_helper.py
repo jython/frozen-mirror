@@ -3,7 +3,6 @@
 
 import sys
 import os
-import re
 import os.path
 import tempfile
 import subprocess

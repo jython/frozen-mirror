@@ -3,7 +3,6 @@
 # adaptation from that test
 
 import os
-import pprint
 import shlex
 import subprocess
 import sys

@@ -440,7 +440,6 @@ class GCTests(unittest.TestCase):
             for t in threads:
                 t.join()
         finally:
-            pass
             sys.setcheckinterval(old_checkinterval)
         self.assertEqual(len(C.inits), len(C.dels))
 

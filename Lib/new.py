@@ -8,11 +8,6 @@ warnpy3k("The 'new' module has been removed in Python 3.0; use the 'types' "
          "module instead.", stacklevel=2)
 del warnpy3k
 
-from types import ClassType as classobj
-from types import FunctionType as function
-from types import InstanceType as instance
-from types import MethodType as instancemethod
-from types import ModuleType as module
 
 # XXX: Jython can't really create a code object like CPython does
 # (according to test.test_new)

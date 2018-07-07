@@ -1,5 +1,3 @@
-import logging
-import unittest
 from test.test_support import run_with_locale, run_unittest
 from test.test_logging import BaseTest
 

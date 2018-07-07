@@ -891,7 +891,6 @@ class TestSocketOptions(unittest.TestCase):
             server_sock.close()
             if sock:
                 sock.close()
-            pass
 
     def _testTCPClientInheritedOption(self, level, option, values):
         cli_sock = accepted_sock = None

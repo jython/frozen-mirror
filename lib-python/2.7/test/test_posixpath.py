@@ -196,7 +196,7 @@ class PosixPathTest(unittest.TestCase):
     def test_expanduser(self):
         self.assertEqual(posixpath.expanduser("foo"), "foo")
         try:
-            import pwd
+            pass
         except ImportError:
             pass
         else:

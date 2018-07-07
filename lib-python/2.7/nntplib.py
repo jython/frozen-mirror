@@ -56,23 +56,18 @@ class NNTPError(Exception):
 
 class NNTPReplyError(NNTPError):
     """Unexpected [123]xx reply"""
-    pass
 
 class NNTPTemporaryError(NNTPError):
     """4xx errors"""
-    pass
 
 class NNTPPermanentError(NNTPError):
     """5xx errors"""
-    pass
 
 class NNTPProtocolError(NNTPError):
     """Response does not begin with [1-5]"""
-    pass
 
 class NNTPDataError(NNTPError):
     """Error in response data"""
-    pass
 
 # for backwards compatibility
 error_reply = NNTPReplyError

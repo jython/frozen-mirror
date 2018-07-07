@@ -3,7 +3,7 @@ import sys
 import unittest
 from test.test_support import run_unittest
 
-from distutils.errors import DistutilsPlatformError, DistutilsByteCompileError
+from distutils.errors import DistutilsByteCompileError
 from distutils.util import byte_compile
 
 class UtilTestCase(unittest.TestCase):

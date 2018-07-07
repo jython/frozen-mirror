@@ -79,7 +79,6 @@ class GenericScanner:
 
 	def t_default(self, s):
 		r'( . | \n )+'
-		pass
 
 class GenericParser:
 	def __init__(self, start):

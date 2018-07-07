@@ -9,11 +9,9 @@ class A:
     """Hello and goodbye"""
     def __init__():
         """Wow, I have no function!"""
-        pass
 
 class B(object):
     NO_MEANING = "eggs"
-    pass
 
 def doc_func():
     """

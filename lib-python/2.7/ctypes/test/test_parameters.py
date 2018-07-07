@@ -3,7 +3,6 @@ import unittest, sys
 class SimpleTypesTestCase(unittest.TestCase):
 
     def setUp(self):
-        import ctypes
         try:
             from _ctypes import set_conversion_mode
         except ImportError:
@@ -50,7 +49,7 @@ class SimpleTypesTestCase(unittest.TestCase):
 
     # XXX Replace by c_char_p tests
     def test_cstrings(self):
-        from ctypes import c_char_p, byref
+        from ctypes import c_char_p
 
         # c_char_p.from_param on a Python String packs the string
         # into a cparam object
@@ -69,7 +68,6 @@ class SimpleTypesTestCase(unittest.TestCase):
         self.assertTrue(c_char_p.from_param(a) is a)
 
     def test_cw_strings(self):
-        from ctypes import byref
         try:
             from ctypes import c_wchar_p
         except ImportError:
@@ -107,7 +105,7 @@ class SimpleTypesTestCase(unittest.TestCase):
     def test_byref_pointer(self):
         # The from_param class method of POINTER(typ) classes accepts what is
         # returned by byref(obj), it type(obj) == typ
-        from ctypes import c_short, c_uint, c_int, c_long, pointer, POINTER, byref
+        from ctypes import POINTER, byref, c_int, c_long, c_short, c_uint
         LPINT = POINTER(c_int)
 
         LPINT.from_param(byref(c_int(42)))

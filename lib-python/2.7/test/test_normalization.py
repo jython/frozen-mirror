@@ -3,7 +3,6 @@ import unittest
 
 from httplib import HTTPException
 import sys
-import os
 from unicodedata import normalize, unidata_version
 
 TESTDATAFILE = "NormalizationTest.txt"

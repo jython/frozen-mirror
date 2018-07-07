@@ -3,7 +3,6 @@
 Made for Jython.
 """
 import math
-import sys
 import unittest
 from test import test_support
 

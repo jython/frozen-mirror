@@ -14,7 +14,6 @@ Note: As of this writing, a CPython 2.7 bytecode-file (.pyc)
 """
 
 import unittest
-from test import test_support
 
 
 class large_method_tests(unittest.TestCase):

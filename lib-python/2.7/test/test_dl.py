@@ -22,7 +22,6 @@ def test_main():
         except dl.error, err:
             if verbose:
                 print 'failed', repr(str(err))
-            pass
         else:
             if verbose:
                 print 'succeeded...',

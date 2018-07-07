@@ -2177,7 +2177,6 @@ class Test_TestCase(TestCase, TestEquality, TestHashing):
         class Foo(unittest.TestCase):
             def runTest(self):
                 "this tests foo"
-                pass
 
         self.assertEqual(Foo().shortDescription(), "this tests foo")
 
@@ -2189,7 +2188,6 @@ class Test_TestCase(TestCase, TestEquality, TestHashing):
             def runTest(self):
                 """this tests foo
                 blah, bar and baz are also tested"""
-                pass
 
         self.assertEqual(Foo().shortDescription(), "this tests foo")
 

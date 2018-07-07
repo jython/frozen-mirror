@@ -338,57 +338,46 @@ def filemode(mode):
 
 class TarError(Exception):
     """Base exception."""
-    pass
 
 
 class ExtractError(TarError):
     """General exception for extract errors."""
-    pass
 
 
 class ReadError(TarError):
     """Exception for unreadble tar archives."""
-    pass
 
 
 class CompressionError(TarError):
     """Exception for unavailable compression methods."""
-    pass
 
 
 class StreamError(TarError):
     """Exception for unsupported operations on stream-like TarFiles."""
-    pass
 
 
 class HeaderError(TarError):
     """Base exception for header errors."""
-    pass
 
 
 class EmptyHeaderError(HeaderError):
     """Exception for empty headers."""
-    pass
 
 
 class TruncatedHeaderError(HeaderError):
     """Exception for truncated headers."""
-    pass
 
 
 class EOFHeaderError(HeaderError):
     """Exception for end of file headers."""
-    pass
 
 
 class InvalidHeaderError(HeaderError):
     """Exception for invalid headers."""
-    pass
 
 
 class SubsequentHeaderError(HeaderError):
     """Exception for missing and invalid extended headers."""
-    pass
 
 # ---------------------------
 # internal stream interface
@@ -2594,7 +2583,6 @@ class _data(_section):
 class _hole(_section):
     """Represent a hole section in a sparse file.
     """
-    pass
 
 
 class _ringbuffer(list):

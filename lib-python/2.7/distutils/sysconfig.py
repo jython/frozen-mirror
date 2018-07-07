@@ -13,7 +13,6 @@ __revision__ = "$Id$"
 
 import os
 import re
-import string
 import sys
 
 from distutils.errors import DistutilsPlatformError

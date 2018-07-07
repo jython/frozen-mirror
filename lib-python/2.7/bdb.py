@@ -157,21 +157,17 @@ class Bdb:
     def user_call(self, frame, argument_list):
         """This method is called when there is the remote possibility
         that we ever need to stop in this function."""
-        pass
 
     def user_line(self, frame):
         """This method is called when we stop or break at this line."""
-        pass
 
     def user_return(self, frame, return_value):
         """This method is called when a return trap is set here."""
-        pass
 
     def user_exception(self, frame, exc_info):
         exc_type, exc_value, exc_traceback = exc_info
         """This method is called if an exception occurs,
         but only if we are to stop at or just below this level."""
-        pass
 
     def _set_stopinfo(self, stopframe, returnframe, stoplineno=0):
         self.stopframe = stopframe

@@ -1,6 +1,5 @@
 """ Test suite for the code in msilib """
 import unittest
-import os
 from test_support import run_unittest, import_module
 msilib = import_module('msilib')
 

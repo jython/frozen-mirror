@@ -1,7 +1,6 @@
 import unittest
 import gc
 import time
-import weakref
 
 
 class ReferentDummy:

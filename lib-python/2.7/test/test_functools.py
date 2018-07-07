@@ -201,7 +201,6 @@ class TestUpdateWrapper(unittest.TestCase):
     def _default_update(self):
         def f():
             """This is a test"""
-            pass
         f.attr = 'This is also a test'
         def wrapper():
             pass
@@ -223,7 +222,6 @@ class TestUpdateWrapper(unittest.TestCase):
     def test_no_update(self):
         def f():
             """This is a test"""
-            pass
         f.attr = 'This is also a test'
         def wrapper():
             pass
@@ -264,7 +262,6 @@ class TestWraps(TestUpdateWrapper):
     def _default_update(self):
         def f():
             """This is a test"""
-            pass
         f.attr = 'This is also a test'
         @functools.wraps(f)
         def wrapper():
@@ -286,7 +283,6 @@ class TestWraps(TestUpdateWrapper):
     def test_no_update(self):
         def f():
             """This is a test"""
-            pass
         f.attr = 'This is also a test'
         @functools.wraps(f, (), ())
         def wrapper():

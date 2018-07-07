@@ -1,9 +1,6 @@
 """Tests for distutils.pypirc.pypirc."""
-import sys
 import os
 import unittest
-import tempfile
-import shutil
 
 from distutils.core import PyPIRCCommand
 from distutils.core import Distribution

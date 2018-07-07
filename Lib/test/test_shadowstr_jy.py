@@ -2,11 +2,8 @@
 
 # Tests of built-in type shadowstr
 
-import os
-import sys
 from test import string_tests
-from test.test_support import run_unittest, is_jython
-from test.test_str import StrTest
+from test.test_support import run_unittest
 import unittest
 
 from org.python.core import PyShadowString

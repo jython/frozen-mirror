@@ -42,7 +42,6 @@ try:
         holding__threading_local = True
         del sys_modules['_threading_local']
 
-    import threading
     # Need a copy of the code kept somewhere...
     sys_modules['_dummy_threading'] = sys_modules['threading']
     del sys_modules['threading']

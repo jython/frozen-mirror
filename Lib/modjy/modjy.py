@@ -21,7 +21,6 @@
 import jarray
 import synchronize
 import sys
-import types
 
 sys.add_package("javax.servlet")
 sys.add_package("javax.servlet.http")

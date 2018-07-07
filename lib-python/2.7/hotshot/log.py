@@ -63,7 +63,6 @@ class LogReader:
         new values are added.  Subclasses can inspect self._info after
         calling LogReader.__init__().
         """
-        pass
 
     def get_filename(self, fileno):
         try:

@@ -1,5 +1,4 @@
 import asyncore
-import email.utils
 import socket
 import smtpd
 import smtplib

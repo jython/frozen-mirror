@@ -100,7 +100,6 @@ class Dialog(Toplevel):
         This method should be overridden, and is called
         by the __init__ method.
         '''
-        pass
 
     def buttonbox(self):
         '''add standard button box.

@@ -505,7 +505,6 @@ class CCompiler:
 
         Raises PreprocessError on failure.
         """
-        pass
 
     def compile(self, sources, output_dir=None, macros=None,
                 include_dirs=None, debug=0, extra_preargs=None,
@@ -581,7 +580,6 @@ class CCompiler:
 
         # A concrete compiler class that does not override compile()
         # should implement _compile().
-        pass
 
     def create_static_lib(self, objects, output_libname, output_dir=None,
                           debug=0, target_lang=None):
@@ -607,7 +605,6 @@ class CCompiler:
 
         Raises LibError on failure.
         """
-        pass
 
     # values for target_desc parameter in link()
     SHARED_OBJECT = "shared_object"

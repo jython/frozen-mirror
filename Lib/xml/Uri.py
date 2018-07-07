@@ -13,7 +13,9 @@
 import os.path
 import sys
 import re
-import urlparse, urllib, urllib2
+import urllib
+import urllib2
+import urlparse
 
 def UnsplitUriRef(uriRefSeq):
     """should replace urlparse.urlunsplit

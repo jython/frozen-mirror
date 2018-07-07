@@ -241,7 +241,6 @@ class ExecEvalTest(unittest.TestCase):
 
         class A:
             "Non-mapping"
-            pass
         m = A()
         self.assertRaises(TypeError, eval, 'a', g, m)
 

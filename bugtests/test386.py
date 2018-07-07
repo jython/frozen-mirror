@@ -3,7 +3,6 @@ Test the standalone starting (java -jar jython.jar some.py)
 """
 
 import support
-import sys
 import os
 
 import support_config as cfg

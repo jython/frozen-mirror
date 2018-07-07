@@ -4,7 +4,6 @@ This module has intimate knowledge of the format of .pyc files.
 """
 
 import _py_compile
-import os
 import sys
 import traceback
 

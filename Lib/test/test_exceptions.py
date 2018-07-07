@@ -483,7 +483,6 @@ class ExceptionTests(unittest.TestCase):
 
         class MyException(Exception):
             __metaclass__ = Meta
-            pass
 
         with captured_output("stderr") as stderr:
             try:

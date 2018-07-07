@@ -5,7 +5,7 @@ from test.test_support import (run_unittest, TESTFN, rmtree, unlink,
 import unittest
 
 import trace
-from trace import CoverageResults, Trace
+from trace import Trace
 
 from test.tracedmodules import testmod
 

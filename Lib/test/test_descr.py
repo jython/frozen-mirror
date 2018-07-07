@@ -2408,7 +2408,6 @@ def properties():
 
         def setter(self, value):
             "setter method"
-            pass
         prop = property(getter)
         vereq(prop.__doc__, "getter method")
         prop2 = property(fset=setter)

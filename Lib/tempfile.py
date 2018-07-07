@@ -224,7 +224,6 @@ def _get_default_tempdir():
             except (OSError, IOError) as e:
                 if e.args[0] != _errno.EEXIST:
                     break  # no point trying more names in this directory
-                pass
     raise IOError(_errno.ENOENT,
                   ("No usable temporary directory found in %s" % dirlist))
 

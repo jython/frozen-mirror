@@ -7,7 +7,6 @@ module as os.path.
 
 import os
 import sys
-import stat
 import genericpath
 import warnings
 

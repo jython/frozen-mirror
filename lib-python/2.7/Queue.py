@@ -12,11 +12,9 @@ __all__ = ['Empty', 'Full', 'Queue', 'PriorityQueue', 'LifoQueue']
 
 class Empty(Exception):
     "Exception raised by Queue.get(block=0)/get_nowait()."
-    pass
 
 class Full(Exception):
     "Exception raised by Queue.put(block=0)/put_nowait()."
-    pass
 
 class Queue:
     """Create a queue object with a given maximum size.

@@ -34,7 +34,6 @@ import os
 import types
 import string
 import re
-import dis
 import imp
 import tokenize
 import linecache

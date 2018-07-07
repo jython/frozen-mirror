@@ -1,5 +1,4 @@
 
-import os, string
 import unittest
 
 from test_all import db, dbobj, test_support, get_new_environment_path, \

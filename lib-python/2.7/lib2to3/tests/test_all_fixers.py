@@ -6,10 +6,8 @@ running time.
 # Author: Collin Winter
 
 # Python imports
-import unittest
 
 # Local imports
-from lib2to3 import refactor
 from . import support
 
 

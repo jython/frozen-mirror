@@ -75,7 +75,6 @@ class RPCServer(SocketServer.TCPServer):
 
     def server_bind(self):
         "Override TCPServer method, no bind() phase for connecting entity"
-        pass
 
     def server_activate(self):
         """Override TCPServer method, connect() instead of listen()
@@ -474,7 +473,6 @@ class SocketIO(object):
 
     def EOFhook(self):
         "Classes using rpc client/server can override to augment EOF action"
-        pass
 
 #----------------- end class SocketIO --------------------
 

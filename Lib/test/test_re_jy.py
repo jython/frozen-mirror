@@ -1,5 +1,4 @@
 import re
-import sys
 import unittest
 import test.test_support
 import unicodedata

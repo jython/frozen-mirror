@@ -4,7 +4,6 @@ Made for Jython.
 """
 import errno
 import os
-import sys
 import tempfile
 import test.test_support as test_support
 import unittest

@@ -4,7 +4,6 @@
 # Additional csv module unit tests for Jython
 
 import csv
-import io
 import sys
 from tempfile import TemporaryFile
 from test import test_support

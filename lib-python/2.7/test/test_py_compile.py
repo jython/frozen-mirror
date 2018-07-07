@@ -1,4 +1,3 @@
-import imp
 import os
 import py_compile
 import shutil

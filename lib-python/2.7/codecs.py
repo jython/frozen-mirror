@@ -368,7 +368,6 @@ class StreamWriter(Codec):
             stream to recover state.
 
         """
-        pass
 
     def seek(self, offset, whence=0):
         self.stream.seek(offset, whence)

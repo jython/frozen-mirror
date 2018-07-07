@@ -57,14 +57,12 @@ mloads = marshal.loads
 
 class PickleError(Exception):
     """A common base class for the other pickling exceptions."""
-    pass
 
 class PicklingError(PickleError):
     """This exception is raised when an unpicklable object is passed to the
     dump() method.
 
     """
-    pass
 
 class UnpicklingError(PickleError):
     """This exception is raised when there is a problem unpickling an object,
@@ -75,7 +73,6 @@ class UnpicklingError(PickleError):
     and IndexError.
 
     """
-    pass
 
 # An instance of _Stop is raised by Unpickler.load_stop() in response to
 # the STOP opcode, passing the object that is the result of unpickling.

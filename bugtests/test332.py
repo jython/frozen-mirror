@@ -4,7 +4,6 @@
 
 import support
 
-import sys
 import SimpleHTTPServer
 import BaseHTTPServer
 

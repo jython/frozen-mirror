@@ -792,7 +792,6 @@ class PimpPackage_binary(PimpPackage):
 
     def unpackPackageOnly(self, output=None):
         """We don't unpack binary packages until installing"""
-        pass
 
     def installPackageOnly(self, output=None):
         """Install a single source package.
@@ -908,7 +907,6 @@ class PimpPackage_installer(PimpPackage):
 
     def unpackPackageOnly(self, output=None):
         """We don't unpack dmg packages until installing"""
-        pass
 
     def installPackageOnly(self, output=None):
         """Install a single source package.

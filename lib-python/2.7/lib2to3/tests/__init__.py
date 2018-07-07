@@ -6,7 +6,6 @@ from all test_*.py files in tests/."""
 import os
 import os.path
 import unittest
-import types
 
 from . import support
 

@@ -221,7 +221,6 @@ def reduce_tree(node, parent=None):
             else:
                 #TODO: handle {min, max} repeaters
                 raise NotImplementedError
-                pass
 
         #add children
         if details_node and new_node is not None:

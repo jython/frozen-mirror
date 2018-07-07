@@ -9,7 +9,6 @@ be handy when comparing Jython's implementation vs CPython.
 
 """
 import _ast
-import os
 import globwalk
 
 
