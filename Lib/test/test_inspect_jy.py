@@ -7,7 +7,6 @@ import unittest
 from java.lang import System
 from test import test_support
 
-
 class InspectTestCase(unittest.TestCase):
 
     def test_java_routine(self):

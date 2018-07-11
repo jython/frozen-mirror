@@ -9,6 +9,7 @@ import re
 import sys
 import time
 import random
+import warnings
 
 from cStringIO import StringIO
 from email.header import Header

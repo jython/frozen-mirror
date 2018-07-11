@@ -5,6 +5,6 @@
 import support
 
 import xml.dom.minidom
-DOM = xml.dom.minidom.parseString("<foo><bar/></foo>")
+DOM = xml.dom.minidom.parseString("<foo><bar/></foo>") 
 
 #raise support.TestWarning('A test of TestWarning. It is not an error')

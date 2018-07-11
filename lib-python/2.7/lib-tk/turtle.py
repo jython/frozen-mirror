@@ -814,6 +814,7 @@ class Terminator (Exception):
     Thus stops execution of turtle graphics script. Main purpose: use in
     in the Demo-Viewer turtle.Demo.py.
     """
+    pass
 
 
 class TurtleGraphicsError(Exception):

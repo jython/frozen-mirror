@@ -6,19 +6,8 @@ import unittest
 
 from test import test_support
 
-from java.lang import (
-    Boolean,
-    Class,
-    ClassLoader,
-    Comparable,
-    Integer,
-    Object,
-    Runnable,
-    String,
-    Thread,
-    ThreadGroup,
-    InterruptedException,
-    UnsupportedOperationException)
+from java.lang import (Boolean, Class, ClassLoader, Comparable,Integer, Object, Runnable, String,
+                       Thread, ThreadGroup, InterruptedException, UnsupportedOperationException)
 from java.util import AbstractList, ArrayList, Date, Hashtable, HashSet, Vector
 from java.util.concurrent import Callable, Executors
 
@@ -36,15 +25,13 @@ from javatests import (
 class InterfaceTest(unittest.TestCase):
     def test_java_calling_python_interface_implementation(self):
         called = []
-
         class PyCallback(Callbacker.Callback):
             def call(self, extraarg=None):
                 called.append(extraarg)
         Callbacker.callNoArg(PyCallback())
-        Callbacker.callOneArg(PyCallback(), 4294967295)
+        Callbacker.callOneArg(PyCallback(), 4294967295L)
         self.assertEquals(None, called[0])
-        self.assertEquals(4294967295, called[1])
-
+        self.assertEquals(4294967295L, called[1])
         class PyBadCallback(Callbacker.Callback):
             def call(pyself, extraarg):
                 self.fail("Shouldn't be callable with a no args")
@@ -52,7 +39,6 @@ class InterfaceTest(unittest.TestCase):
 
     def test_inheriting_from_python_and_java_interface(self):
         calls = []
-
         class Runner(Runnable):
             def run(self):
                 calls.append("Runner.run")
@@ -69,23 +55,18 @@ class InterfaceTest(unittest.TestCase):
 
     def test_inherit_interface_twice(self):
         # http://bugs.jython.org/issue1504
-        class A(ListModel):
-            pass
-
-        class B(A, ComboBoxModel):
-            pass
+        class A(ListModel): pass
+        class B(A, ComboBoxModel): pass
         # Regression caused B's proxy to occur in B's mro twice. That
         # caused the declaration of C to fail with an inconsistent mro
-
-        class C(B):
-            pass
-
+        class C(B): pass
+        
 
 class TableModelTest(unittest.TestCase):
     def test_class_coercion(self):
         '''Python type instances coerce to a corresponding Java wrapper type in Object.getClass'''
         class TableModel(AbstractTableModel):
-            columnNames = "First Name", "Last Name", "Sport", "# of Years", "Vegetarian"
+            columnNames = "First Name", "Last Name","Sport","# of Years","Vegetarian"
             data = [("Mary", "Campione", "Snowboarding", 5, False)]
 
             def getColumnCount(self):
@@ -107,17 +88,14 @@ class TableModelTest(unittest.TestCase):
                 return col >= 2
 
         model = TableModel()
-        for i, expectedClass in enumerate(
-                [String, String, String, Integer, Boolean]):
+        for i, expectedClass in enumerate([String, String, String, Integer, Boolean]):
             self.assertEquals(expectedClass, model.getColumnClass(i))
-
 
 class AutoSuperTest(unittest.TestCase):
     def test_auto_super(self):
         class Implicit(Rectangle):
             def __init__(self):
                 self.size = Dimension(6, 7)
-
         class Explicit(Rectangle):
             def __init__(self):
                 Rectangle.__init__(self, 6, 7)
@@ -133,38 +111,30 @@ class AutoSuperTest(unittest.TestCase):
 
 # The no-arg constructor for proxies attempts to look up its Python class by the Python class' name,
 # so the class needs to be visible at the module level or the import will fail
-
-
 class ModuleVisibleJavaSubclass(Object):
     pass
-
-
 class PythonSubclassesTest(unittest.TestCase):
     def test_multiple_inheritance_prohibited(self):
         try:
             class MultiJava(Dimension, Color):
                 pass
-            self.fail(
-                "Shouldn't be able to subclass more than one concrete java class")
+            self.fail("Shouldn't be able to subclass more than one concrete java class")
         except TypeError:
             pass
 
         class PyDim(Dimension):
             pass
-
         class PyDimRun(PyDim, Runnable):
             pass
         try:
             class PyDimRunCol(PyDimRun, Color):
                 pass
-            self.fail(
-                "Shouldn't be able to subclass more than one concrete java class")
+            self.fail("Shouldn't be able to subclass more than one concrete java class")
         except TypeError:
             pass
 
     def test_multilevel_override(self):
         runs = []
-
         class SubDate(Date):
             def run(self):
                 runs.append("SubDate")
@@ -181,9 +151,7 @@ class PythonSubclassesTest(unittest.TestCase):
                 return 'SubSubDate -> ' + SubDate.toString(self)
 
         self.assertEquals("SubDate -> Date", SubDate().toString())
-        self.assertEquals(
-            "SubSubDate -> SubDate -> Date",
-            SubSubDate().toString())
+        self.assertEquals("SubSubDate -> SubDate -> Date", SubSubDate().toString())
         self.assertEquals("SubDateMethod", SubSubDate().method())
         Coercions.runRunnable(SubSubDate())
         self.assertEquals(["SubDate"], runs)
@@ -211,18 +179,12 @@ class PythonSubclassesTest(unittest.TestCase):
     def test_override(self):
         class Foo(Runnable):
             def toString(self): return "Foo"
-        self.assertEquals(
-            String.valueOf(
-                Foo()),
-            "Foo",
-            "toString not overridden in interface")
+        self.assertEquals(String.valueOf(Foo()), "Foo", "toString not overridden in interface")
 
         class A(Object):
             def toString(self):
                 return 'name'
-        self.assertEquals(
-            'name', String.valueOf(
-                A()), 'toString not overriden in subclass')
+        self.assertEquals('name', String.valueOf(A()), 'toString not overriden in subclass')
 
     def test_can_subclass_abstract(self):
         class A(Component):
@@ -244,18 +206,15 @@ class PythonSubclassesTest(unittest.TestCase):
 
         Tests for bug #416871"""
         output = []
-
         class RegularBean(BeanInterface):
             def __init__(self):
                 output.append("init")
 
             def getName(self):
                 output.append("getName")
-
         class FinalizingBean(RegularBean):
             def finalize(self):
                 pass
-
             def clone(self):
                 return self.__class__()
 
@@ -282,23 +241,16 @@ class PythonSubclassesTest(unittest.TestCase):
 
         self.assertEquals(10, SecondSubclass().callGetValue())
 
+
     def test_deep_subclasses(self):
         '''Checks for http://bugs.jython.org/issue1363.
 
         Inheriting several classes deep from a Java class caused inconsistent MROs.'''
-        class A(Object):
-            pass
-
-        class B(A):
-            pass
-
-        class C(B):
-            pass
-
-        class D(C):
-            pass
+        class A(Object): pass
+        class B(A): pass
+        class C(B): pass
+        class D(C): pass
         d = D()
-
 
 """
 public abstract class Abstract {
@@ -309,8 +261,7 @@ public abstract class Abstract {
     public abstract void method();
 }
 """
-# The following is the correspoding bytecode for Abstract compiled with
-# javac 1.5
+# The following is the correspoding bytecode for Abstract compiled with javac 1.5
 ABSTRACT_CLASS = """\
 eJw1TrsKwkAQnI1nEmMe/oKdSaHYiyCClWih2F+SQyOaQDz9LxsFCz/AjxL3Am6xw8zs7O7n+3oD
 GKPnQcD30ELgIHQQEexJURZ6SmgN4h1BzKtcEaJlUarV9ZyqeivTEyv2WelDlRO8TXWtM7UojBrM
@@ -318,13 +269,11 @@ GKPnQcD30ELgIHQQEexJURZ6SmgN4h1BzKtcEaJlUarV9ZyqeivTEyv2WelDlRO8TXWtM7UojBrM
 5IgZF4wuhCBzpnG9Ru/+AF4RJn8=
 """.decode('base64').decode('zlib')
 
-
 class AbstractOnSyspathTest(unittest.TestCase):
     '''Subclasses an abstract class that isn't on the startup classpath.
 
     Checks for http://jython.org/bugs/1861985
     '''
-
     def setUp(self):
         out = open('Abstract.class', 'wb')
         out.write(ABSTRACT_CLASS)
@@ -344,7 +293,6 @@ class AbstractOnSyspathTest(unittest.TestCase):
                 pass
         A()
 
-
 """
 public abstract class ContextAbstract {
     public ContextAbstract() {
@@ -355,33 +303,24 @@ public abstract class ContextAbstract {
 }
 """
 # The following is the correspoding bytecode for ContextAbstract compiled with javac 1.5
-# Needs to be named differently than Abstract above so the class loader
-# won't just use it
+# Needs to be named differently than Abstract above so the class loader won't just use it
 CONTEXT_ABSTRACT = """\
 eJxdTsEOwVAQnK2n1aq2Bz/ghgNxF4lInIQDcX9tX6jQJvWI33IhcfABPkrs69EedjKzM7v7+b7e
 AEaIPAj4HmpoOQgchAR7nOWZnhBq3d6WIGZFqgjhIsvV8nKKVbmR8ZEV+6T0vkgJ3rq4lImaZ0Zt
 z4pcq5uexmddykQPDvIqfdRh+3Bh86I/AyEyluFR5rvhKj6oRIsO/yNgygKZLHeHWY+RGN3+E9R/
 wLozITS4BxwxdsHYgBBkrlVTr9KbP6qaLFc=
 """.decode('base64').decode('zlib')
-
-
 class ContextClassloaderTest(unittest.TestCase):
     '''Classes on the context classloader should be importable and subclassable.
 
     http://bugs.jython.org/issue1216'''
-
     def setUp(self):
         self.orig_context = Thread.currentThread().contextClassLoader
-
         class AbstractLoader(ClassLoader):
             def __init__(self):
                 ClassLoader.__init__(self)
-                c = self.super__defineClass(
-                    "ContextAbstract",
-                    CONTEXT_ABSTRACT,
-                    0,
-                    len(CONTEXT_ABSTRACT),
-                    ClassLoader.protectionDomain)
+                c = self.super__defineClass("ContextAbstract", CONTEXT_ABSTRACT, 0,
+                        len(CONTEXT_ABSTRACT), ClassLoader.protectionDomain)
                 self.super__resolveClass(c)
         Thread.currentThread().contextClassLoader = AbstractLoader()
 
@@ -392,7 +331,6 @@ class ContextClassloaderTest(unittest.TestCase):
         import ContextAbstract
 
         called = []
-
         class A(ContextAbstract):
             def method(self):
                 called.append(True)
@@ -420,7 +358,7 @@ class MetaClassTest(unittest.TestCase):
 
     def test_java_with_metaclass_base(self):
         """Java classes can be mixed with Python bases using metaclasses"""
-
+        
         # Permute mixin order
         class Bar(MetaBase, Callable):
             def __init__(self, x):
@@ -448,7 +386,6 @@ class AbstractMethodTest(unittest.TestCase):
         class C(AbstractList):
             def get(self, index):
                 return index * 2
-
             def size(self):
                 return 7
 
@@ -498,7 +435,7 @@ class AbstractMethodTest(unittest.TestCase):
     def test_interface_method_not_implemented(self):
         class C(Callable):
             pass
-
+        
         msg = r"^'C' object does not implement abstract method 'call' from 'java.util.concurrent.Callable'$"
         with self.assertRaisesRegexp(NotImplementedError, msg):
             C().call()
@@ -510,10 +447,10 @@ class SuperIsSuperTest(unittest.TestCase):
     # - super in Python is really next-method - can be merged with
     # Java's super, which is a conventional super that dispatches up
     # the class inheritance hierarchy
-
+    
     def test_super_dispatches_through_proxy(self):
         # Verify fix for http://bugs.jython.org/issue1540
-
+        
         class MyList(ArrayList):
 
             def get(self, index):
@@ -521,7 +458,7 @@ class SuperIsSuperTest(unittest.TestCase):
 
             def toString(self):
                 return "MyList<<<" + super(MyList, self).toString() + ">>>"
-
+        
         my_list = MyList([0, 1, 2, 3, 4, 5])
         self.assertEqual(my_list.get(5), 5)
         self.assertEqual(
@@ -601,25 +538,19 @@ class HierarchyTest(unittest.TestCase):
         class E(InheritanceD):
             def replicateMe(self):
                 return E()
-
             def replicateParent(self):
                 return InheritanceD()
-
             @staticmethod
             def build():
                 return E()
-
             @staticmethod
             def buildParent():
                 return InheritanceD()
-
             def whoAmI(self):
                 return "E"
-
             @staticmethod
             def staticWhoAmI():
                 return "E"
-
             def everyOther(self):
                 return "E"
 
@@ -644,7 +575,6 @@ class ChooseCorrectToJavaTest(unittest.TestCase):
                 return "yo yo yo"
 
         result = [None]
-
         def f(r):
             r[0] = 47
 
@@ -674,12 +604,12 @@ class ChooseCorrectToJavaTest(unittest.TestCase):
                         # this condition variable is never notified, so will only
                         # succeed if interrupted
                         cv.wait()
-                    except InterruptedException as e:
+                    except InterruptedException, e:
                         break
 
         unfair_condition = threading.Condition()
         threads = [
-            ExtendedThread(
+           ExtendedThread(
                 name="thread #%d" % i,
                 target=wait_until_interrupted,
                 args=(unfair_condition,))
@@ -691,7 +621,7 @@ class ChooseCorrectToJavaTest(unittest.TestCase):
             Thread.interrupt(thread)
         for thread in threads:
             thread.join(5)
-
+        
         # this assertion only succeeds if threads terminated because
         # they were interrupted
         for thread in threads:
@@ -716,7 +646,6 @@ class OldAndNewStyleInitSuperTest(unittest.TestCase):
                 DefaultTreeModel.__init__(self, DefaultMutableTreeNode())
 
         AModel()
-
 
 def test_main():
     test_support.run_unittest(

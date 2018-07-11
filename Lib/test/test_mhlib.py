@@ -3,18 +3,17 @@
    Nick Mathewson
 """
 
-# BUG: This suite doesn't currently test the mime functionality of
-# mhlib.  It should.
+### BUG: This suite doesn't currently test the mime functionality of
+###      mhlib.  It should.
 
 import unittest
 from test.test_support import is_jython, run_unittest, TESTFN, import_module
-import os
-import StringIO
+import os, StringIO
 import sys
 mhlib = import_module('mhlib', deprecated=True)
 
-if (sys.platform.startswith("win") or sys.platform == "riscos" or
-        sys.platform.startswith("atheos") or (is_jython and os._name != 'posix')):
+if (sys.platform.startswith("win") or sys.platform=="riscos" or
+      sys.platform.startswith("atheos") or (is_jython and os._name != 'posix')):
     # mhlib.updateline() renames a file to the name of a file that already
     # exists.  That causes a reasonable OS <wink> to complain in test_sequence
     # here, like the "OSError: [Errno 17] File exists" raised on Windows.
@@ -25,14 +24,12 @@ if (sys.platform.startswith("win") or sys.platform == "riscos" or
     raise unittest.SkipTest("skipped on %s -- " % sys.platform +
                             "too many Unix assumptions")
 
-_mhroot = TESTFN + "_MH"
+_mhroot = TESTFN+"_MH"
 _mhpath = os.path.join(_mhroot, "MH")
 _mhprofile = os.path.join(_mhroot, ".mh_profile")
 
-
 def normF(f):
     return os.path.join(*f.split('/'))
-
 
 def writeFile(fname, contents):
     dir = os.path.split(fname)[0]
@@ -42,58 +39,49 @@ def writeFile(fname, contents):
     f.write(contents)
     f.close()
 
-
 def readFile(fname):
     f = open(fname)
     r = f.read()
     f.close()
     return r
 
-
 def writeProfile(dict):
-    contents = ["%s: %s\n" % (k, v) for k, v in dict.iteritems()]
+    contents = [ "%s: %s\n" % (k, v) for k, v in dict.iteritems() ]
     writeFile(_mhprofile, "".join(contents))
-
 
 def writeContext(folder):
     folder = normF(folder)
     writeFile(os.path.join(_mhpath, "context"),
               "Current-Folder: %s\n" % folder)
 
-
 def writeCurMessage(folder, cur):
     folder = normF(folder)
     writeFile(os.path.join(_mhpath, folder, ".mh_sequences"),
-              "cur: %s\n" % cur)
-
+              "cur: %s\n"%cur)
 
 def writeMessage(folder, n, headers, body):
     folder = normF(folder)
-    headers = "".join(["%s: %s\n" % (k, v) for k, v in headers.iteritems()])
-    contents = "%s\n%s\n" % (headers, body)
+    headers = "".join([ "%s: %s\n" % (k, v) for k, v in headers.iteritems() ])
+    contents = "%s\n%s\n" % (headers,body)
     mkdirs(os.path.join(_mhpath, folder))
     writeFile(os.path.join(_mhpath, folder, str(n)), contents)
-
 
 def getMH():
     return mhlib.MH(os.path.abspath(_mhpath), _mhprofile)
 
-
 def sortLines(s):
     lines = s.split("\n")
-    lines = sorted([line.strip() for line in lines if len(line) >= 2])
+    lines = [ line.strip() for line in lines if len(line) >= 2 ]
+    lines.sort()
     return lines
 
 # These next 2 functions are copied from test_glob.py.
-
-
 def mkdirs(fname):
     if os.path.exists(fname) or fname == '':
         return
     base, file = os.path.split(fname)
     mkdirs(base)
     os.mkdir(fname)
-
 
 def deltree(fname):
     if not os.path.exists(fname):
@@ -105,19 +93,18 @@ def deltree(fname):
         else:
             try:
                 os.unlink(fullname)
-            except BaseException:
+            except:
                 pass
     try:
         os.rmdir(fname)
-    except BaseException:
+    except:
         pass
-
 
 class MhlibTests(unittest.TestCase):
     def setUp(self):
         deltree(_mhroot)
         mkdirs(_mhpath)
-        writeProfile({'Path': os.path.abspath(_mhpath),
+        writeProfile({'Path' : os.path.abspath(_mhpath),
                       'Editor': 'emacs',
                       'ignored-attribute': 'camping holiday'})
         # Note: These headers aren't really conformant to RFC822, but
@@ -134,7 +121,7 @@ class MhlibTests(unittest.TestCase):
                       'Date': '29 July 2001'}, "Hullo, Mrs. Premise!\n")
 
         # A folder with many messages
-        for i in range(5, 101) + range(101, 201, 2):
+        for i in range(5, 101)+range(101, 201, 2):
             writeMessage('wide', i,
                          {'From': 'nowhere', 'Subject': 'message #%s' % i},
                          "This is message number %s\n" % i)
@@ -142,8 +129,8 @@ class MhlibTests(unittest.TestCase):
         # A deeply nested folder
         def deep(folder, n):
             writeMessage(folder, n,
-                         {'Subject': 'Message %s/%s' % (folder, n)},
-                         "This is message number %s in %s\n" % (n, folder))
+                         {'Subject': 'Message %s/%s' % (folder, n) },
+                         "This is message number %s in %s\n" % (n, folder) )
         deep('deep/f1', 1)
         deep('deep/f1', 2)
         deep('deep/f1', 3)
@@ -188,12 +175,15 @@ class MhlibTests(unittest.TestCase):
         mh = getMH()
         eq = self.assertEqual
 
-        folders = sorted(mh.listfolders())
+        folders = mh.listfolders()
+        folders.sort()
         eq(folders, ['deep', 'inbox', 'wide'])
 
-        folders = sorted(mh.listallfolders())
-        tfolders = sorted(map(normF, ['deep', 'deep/f1', 'deep/f2', 'deep/f2/f3',
-                                      'inbox', 'wide']))
+        folders = mh.listallfolders()
+        folders.sort()
+        tfolders = map(normF, ['deep', 'deep/f1', 'deep/f2', 'deep/f2/f3',
+                                'inbox', 'wide'])
+        tfolders.sort()
         eq(folders, tfolders)
 
         folders = mh.listsubfolders('deep')
@@ -215,7 +205,7 @@ class MhlibTests(unittest.TestCase):
 
         f = mh.openfolder('wide')
         all = f.listmessages()
-        eq(all, range(5, 101) + range(101, 201, 2))
+        eq(all, range(5, 101)+range(101, 201, 2))
         eq(f.getcurrent(), 55)
         f.setcurrent(99)
         eq(readFile(os.path.join(_mhpath, 'wide', '.mh_sequences')),
@@ -225,8 +215,8 @@ class MhlibTests(unittest.TestCase):
             eq(f.parsesequence(seq), val)
 
         seqeq('5-55', range(5, 56))
-        seqeq('90-108', range(90, 101) + range(101, 109, 2))
-        seqeq('90-108', range(90, 101) + range(101, 109, 2))
+        seqeq('90-108', range(90, 101)+range(101, 109, 2))
+        seqeq('90-108', range(90, 101)+range(101, 109, 2))
 
         seqeq('10:10', range(10, 20))
         seqeq('10:+10', range(10, 20))
@@ -242,7 +232,7 @@ class MhlibTests(unittest.TestCase):
         seqeq('prev-next', [98, 99, 100])
 
         lowprimes = [5, 7, 11, 13, 17, 19, 23, 29]
-        lowcompos = [x for x in range(5, 31) if x not in lowprimes]
+        lowcompos = [x for x in range(5, 31) if not x in lowprimes ]
         f.putsequences({'cur': [5],
                         'lowprime': lowprimes,
                         'lowcompos': lowcompos})
@@ -257,7 +247,7 @@ class MhlibTests(unittest.TestCase):
         seqeq('lowprime:2', [5, 7])
         seqeq('lowprime:-2', [23, 29])
 
-        # Not supported
+        ## Not supported
         #seqeq('lowprime:first', [5])
         #seqeq('lowprime:last', [29])
         #seqeq('lowprime:prev', [29])
@@ -273,9 +263,8 @@ class MhlibTests(unittest.TestCase):
         self.assertTrue(os.path.exists(path))
 
         f = mh.openfolder('dummy1')
-
         def create(n):
-            msg = "From: foo\nSubject: %s\n\nDummy Message %s\n" % (n, n)
+            msg = "From: foo\nSubject: %s\n\nDummy Message %s\n" % (n,n)
             f.createmessage(n, StringIO.StringIO(msg))
 
         create(7)
@@ -286,11 +275,13 @@ class MhlibTests(unittest.TestCase):
            "From: foo\nSubject: 9\n\nDummy Message 9\n")
 
         eq(f.listmessages(), [7, 8, 9])
-        files = sorted(os.listdir(path))
+        files = os.listdir(path)
+        files.sort()
         eq(files, ['7', '8', '9'])
 
         f.removemessages(['7', '8'])
-        files = sorted(os.listdir(path))
+        files = os.listdir(path)
+        files.sort()
         eq(files, [',7', ',8', '9'])
         eq(f.listmessages(), [9])
         create(10)
@@ -340,7 +331,7 @@ class MhlibTests(unittest.TestCase):
         eq(lines, ["Date: 18 July 2001",
                    "From: Mrs. Premise",
                    "To: Mrs. Conclusion"])
-        lines = sortLines(msg.getheadertext(lambda h: len(h) == 4))
+        lines = sortLines(msg.getheadertext(lambda h: len(h)==4))
         eq(lines, ["Date: 18 July 2001",
                    "From: Mrs. Premise"])
         eq(msg.getbodytext(), "Hullo, Mrs. Conclusion!\n\n")

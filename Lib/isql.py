@@ -1,8 +1,4 @@
-import dbexts
-import cmd
-import sys
-import os
-from functools import reduce
+import dbexts, cmd, sys, os
 
 if sys.platform.startswith("java"):
     import java.lang.String
@@ -12,10 +8,7 @@ Isql works in conjunction with dbexts to provide an interactive environment
 for database work.
 """
 
-
-class IsqlExit(Exception):
-    pass
-
+class IsqlExit(Exception): pass
 
 class Prompt:
     """
@@ -25,10 +18,8 @@ class Prompt:
     figures out the appropriate prompt to display.  I still think, even though this
     is clever, the attribute version of 'prompt' is poor design.
     """
-
     def __init__(self, isql):
         self.isql = isql
-
     def __str__(self):
         prompt = "%s> " % (self.isql.db.dbname)
         if len(self.isql.sqlbuffer) > 0:
@@ -40,12 +31,11 @@ class Prompt:
                 return self.__str__()
             return False
 
-
 class IsqlCmd(cmd.Cmd):
 
     def __init__(self, db=None, delimiter=";", comment=('#', '--')):
         cmd.Cmd.__init__(self, completekey=None)
-        if db is None or isinstance(db, type("")):
+        if db is None or type(db) == type(""):
             self.db = dbexts.dbexts(db)
         else:
             self.db = db
@@ -57,7 +47,7 @@ class IsqlCmd(cmd.Cmd):
 
     def parseline(self, line):
         command, arg, line = cmd.Cmd.parseline(self, line)
-        if command and command != "EOF":
+        if command and command <> "EOF":
             command = command.lower()
         return command, arg, line
 
@@ -73,7 +63,7 @@ class IsqlCmd(cmd.Cmd):
         """\nExecute a python expression.\n"""
         try:
             exec arg.strip() in globals()
-        except BaseException:
+        except:
             print sys.exc_info()[1]
         return False
 
@@ -148,11 +138,9 @@ class IsqlCmd(cmd.Cmd):
                     print a
                 print
             return False
-        d = filter(
-            lambda x: len(x) > 0, map(
-                lambda x: x.strip(), arg.split("=")))
+        d = filter(lambda x: len(x) > 0, map(lambda x: x.strip(), arg.split("=")))
         if len(d) == 1:
-            if d[0] in self.kw:
+            if self.kw.has_key(d[0]):
                 del self.kw[d[0]]
         else:
             self.kw[d[0]] = eval(d[1])
@@ -175,7 +163,7 @@ class IsqlCmd(cmd.Cmd):
             if not token:
                 return False
             comment = [token.startswith(x) for x in self.comment]
-            if reduce(lambda x, y: x or y, comment):
+            if reduce(lambda x,y: x or y, comment):
                 return False
             if token[0] == '\\':
                 token = token[1:]
@@ -200,7 +188,7 @@ class IsqlCmd(cmd.Cmd):
                         return False
             if token:
                 self.sqlbuffer.append(token)
-        except BaseException:
+        except:
             self.sqlbuffer = []
             print
             print sys.exc_info()[1]
@@ -214,24 +202,23 @@ class IsqlCmd(cmd.Cmd):
         raise IsqlExit()
 
     def cmdloop(self, intro=None):
-        while True:
+        while 1:
             try:
                 cmd.Cmd.cmdloop(self, intro)
-            except IsqlExit as e:
+            except IsqlExit, e:
                 break
-            except Exception as e:
+            except Exception, e:
                 print
                 print e
                 print
             intro = None
-
 
 if __name__ == '__main__':
     import getopt
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "b:", [])
-    except getopt.error as msg:
+    except getopt.error, msg:
         print
         print msg
         print "Try `%s --help` for more information." % (sys.argv[0])

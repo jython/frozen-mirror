@@ -20,7 +20,6 @@ from distutils import log
 # following import is for backward compatibility
 from distutils.sysconfig import customize_compiler
 
-
 class CCompiler:
     """Abstract base class to define the interface that must be implemented
     by real compiler classes.  Also has some utility methods used by
@@ -65,6 +64,7 @@ class CCompiler:
     #     think this is useless without the ability to null out the
     #     library search path anyways.
 
+
     # Subclasses that rely on the standard filename generation methods
     # implemented below should override these; see the comment near
     # those methods ('object_filenames()' et. al.) for details:
@@ -82,15 +82,15 @@ class CCompiler:
     # what language to use when mixing source types. For example, if some
     # extension has two files with ".c" extension, and one with ".cpp", it
     # is still linked as c++.
-    language_map = {".c": "c",
-                    ".cc": "c++",
-                    ".cpp": "c++",
-                    ".cxx": "c++",
-                    ".m": "objc",
-                    }
+    language_map = {".c"   : "c",
+                    ".cc"  : "c++",
+                    ".cpp" : "c++",
+                    ".cxx" : "c++",
+                    ".m"   : "objc",
+                   }
     language_order = ["c++", "objc", "c"]
 
-    def __init__(self, verbose=0, dry_run=0, force=0):
+    def __init__ (self, verbose=0, dry_run=0, force=0):
         self.dry_run = dry_run
         self.force = force
         self.verbose = verbose
@@ -154,8 +154,9 @@ class CCompiler:
 
         for key in args.keys():
             if key not in self.executables:
-                raise ValueError("unknown executable '%s' for class %s" %
-                                 (key, self.__class__.__name__))
+                raise ValueError, \
+                      "unknown executable '%s' for class %s" % \
+                      (key, self.__class__.__name__)
             self.set_executable(key, args[key])
 
     def set_executable(self, key, value):
@@ -179,13 +180,15 @@ class CCompiler:
         """
         for defn in definitions:
             if not (isinstance(defn, tuple) and
-                    (len(defn) == 1 or
-                     (len(defn) == 2 and
+                    (len (defn) == 1 or
+                     (len (defn) == 2 and
                       (isinstance(defn[1], str) or defn[1] is None))) and
                     isinstance(defn[0], str)):
-                raise TypeError(("invalid macro definition '%s': " % defn) +
-                                "must be tuple (string,), (string, string), or " +
-                                "(string, None)")
+                raise TypeError, \
+                      ("invalid macro definition '%s': " % defn) + \
+                      "must be tuple (string,), (string, string), or " + \
+                      "(string, None)"
+
 
     # -- Bookkeeping methods -------------------------------------------
 
@@ -198,12 +201,12 @@ class CCompiler:
         """
         # Delete from the list of macro definitions/undefinitions if
         # already there (so that this one will take precedence).
-        i = self._find_macro(name)
+        i = self._find_macro (name)
         if i is not None:
             del self.macros[i]
 
         defn = (name, value)
-        self.macros.append(defn)
+        self.macros.append (defn)
 
     def undefine_macro(self, name):
         """Undefine a preprocessor macro for all compilations driven by
@@ -216,12 +219,12 @@ class CCompiler:
         """
         # Delete from the list of macro definitions/undefinitions if
         # already there (so that this one will take precedence).
-        i = self._find_macro(name)
+        i = self._find_macro (name)
         if i is not None:
             del self.macros[i]
 
         undefn = (name,)
-        self.macros.append(undefn)
+        self.macros.append (undefn)
 
     def add_include_dir(self, dir):
         """Add 'dir' to the list of directories that will be searched for
@@ -229,7 +232,7 @@ class CCompiler:
         the order in which they are supplied by successive calls to
         'add_include_dir()'.
         """
-        self.include_dirs.append(dir)
+        self.include_dirs.append (dir)
 
     def set_include_dirs(self, dirs):
         """Set the list of directories that will be searched to 'dirs' (a
@@ -255,7 +258,7 @@ class CCompiler:
         names; the linker will be instructed to link against libraries as
         many times as they are mentioned.
         """
-        self.libraries.append(libname)
+        self.libraries.append (libname)
 
     def set_libraries(self, libnames):
         """Set the list of libraries to be included in all links driven by
@@ -264,6 +267,7 @@ class CCompiler:
         include by default.
         """
         self.libraries = libnames[:]
+
 
     def add_library_dir(self, dir):
         """Add 'dir' to the list of directories that will be searched for
@@ -310,6 +314,7 @@ class CCompiler:
         """
         self.objects = objects[:]
 
+
     # -- Private utility methods --------------------------------------
     # (here for the convenience of subclasses)
 
@@ -321,22 +326,22 @@ class CCompiler:
         if outdir is None:
             outdir = self.output_dir
         elif not isinstance(outdir, str):
-            raise TypeError("'output_dir' must be a string or None")
+            raise TypeError, "'output_dir' must be a string or None"
 
         if macros is None:
             macros = self.macros
         elif isinstance(macros, list):
             macros = macros + (self.macros or [])
         else:
-            raise TypeError("'macros' (if supplied) must be a list of tuples")
+            raise TypeError, "'macros' (if supplied) must be a list of tuples"
 
         if incdirs is None:
             incdirs = self.include_dirs
         elif isinstance(incdirs, (list, tuple)):
             incdirs = list(incdirs) + (self.include_dirs or [])
         else:
-            raise TypeError(
-                "'include_dirs' (if supplied) must be a list of strings")
+            raise TypeError, \
+                  "'include_dirs' (if supplied) must be a list of strings"
 
         if extra is None:
             extra = []
@@ -381,22 +386,22 @@ class CCompiler:
         if output_dir is None:
             output_dir = self.output_dir
         elif not isinstance(output_dir, str):
-            raise TypeError("'output_dir' must be a string or None")
+            raise TypeError, "'output_dir' must be a string or None"
 
         if macros is None:
             macros = self.macros
         elif isinstance(macros, list):
             macros = macros + (self.macros or [])
         else:
-            raise TypeError("'macros' (if supplied) must be a list of tuples")
+            raise TypeError, "'macros' (if supplied) must be a list of tuples"
 
         if include_dirs is None:
             include_dirs = self.include_dirs
         elif isinstance(include_dirs, (list, tuple)):
-            include_dirs = list(include_dirs) + (self.include_dirs or [])
+            include_dirs = list (include_dirs) + (self.include_dirs or [])
         else:
-            raise TypeError(
-                "'include_dirs' (if supplied) must be a list of strings")
+            raise TypeError, \
+                  "'include_dirs' (if supplied) must be a list of strings"
 
         return output_dir, macros, include_dirs
 
@@ -407,13 +412,14 @@ class CCompiler:
         'objects' and 'output_dir'.
         """
         if not isinstance(objects, (list, tuple)):
-            raise TypeError("'objects' must be a list or tuple of strings")
-        objects = list(objects)
+            raise TypeError, \
+                  "'objects' must be a list or tuple of strings"
+        objects = list (objects)
 
         if output_dir is None:
             output_dir = self.output_dir
         elif not isinstance(output_dir, str):
-            raise TypeError("'output_dir' must be a string or None")
+            raise TypeError, "'output_dir' must be a string or None"
 
         return (objects, output_dir)
 
@@ -427,27 +433,28 @@ class CCompiler:
         if libraries is None:
             libraries = self.libraries
         elif isinstance(libraries, (list, tuple)):
-            libraries = list(libraries) + (self.libraries or [])
+            libraries = list (libraries) + (self.libraries or [])
         else:
-            raise TypeError(
-                "'libraries' (if supplied) must be a list of strings")
+            raise TypeError, \
+                  "'libraries' (if supplied) must be a list of strings"
 
         if library_dirs is None:
             library_dirs = self.library_dirs
         elif isinstance(library_dirs, (list, tuple)):
-            library_dirs = list(library_dirs) + (self.library_dirs or [])
+            library_dirs = list (library_dirs) + (self.library_dirs or [])
         else:
-            raise TypeError(
-                "'library_dirs' (if supplied) must be a list of strings")
+            raise TypeError, \
+                  "'library_dirs' (if supplied) must be a list of strings"
 
         if runtime_library_dirs is None:
             runtime_library_dirs = self.runtime_library_dirs
         elif isinstance(runtime_library_dirs, (list, tuple)):
-            runtime_library_dirs = (list(runtime_library_dirs) +
+            runtime_library_dirs = (list (runtime_library_dirs) +
                                     (self.runtime_library_dirs or []))
         else:
-            raise TypeError("'runtime_library_dirs' (if supplied) " +
-                            "must be a list of strings")
+            raise TypeError, \
+                  "'runtime_library_dirs' (if supplied) " + \
+                  "must be a list of strings"
 
         return (libraries, library_dirs, runtime_library_dirs)
 
@@ -459,9 +466,9 @@ class CCompiler:
             return 1
         else:
             if self.dry_run:
-                newer = newer_group(objects, output_file, missing='newer')
+                newer = newer_group (objects, output_file, missing='newer')
             else:
-                newer = newer_group(objects, output_file)
+                newer = newer_group (objects, output_file)
             return newer
 
     def detect_language(self, sources):
@@ -498,6 +505,7 @@ class CCompiler:
 
         Raises PreprocessError on failure.
         """
+        pass
 
     def compile(self, sources, output_dir=None, macros=None,
                 include_dirs=None, debug=0, extra_preargs=None,
@@ -554,8 +562,8 @@ class CCompiler:
         # entirely or implement _compile().
 
         macros, objects, extra_postargs, pp_opts, build = \
-            self._setup_compile(output_dir, macros, include_dirs, sources,
-                                depends, extra_postargs)
+                self._setup_compile(output_dir, macros, include_dirs, sources,
+                                    depends, extra_postargs)
         cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
 
         for obj in objects:
@@ -573,6 +581,7 @@ class CCompiler:
 
         # A concrete compiler class that does not override compile()
         # should implement _compile().
+        pass
 
     def create_static_lib(self, objects, output_libname, output_dir=None,
                           debug=0, target_lang=None):
@@ -598,6 +607,7 @@ class CCompiler:
 
         Raises LibError on failure.
         """
+        pass
 
     # values for target_desc parameter in link()
     SHARED_OBJECT = "shared_object"
@@ -653,6 +663,7 @@ class CCompiler:
         """
         raise NotImplementedError
 
+
     # Old 'link_*()' methods, rewritten to use the new 'link()' method.
 
     def link_shared_lib(self, objects, output_libname, output_dir=None,
@@ -666,6 +677,7 @@ class CCompiler:
                   libraries, library_dirs, runtime_library_dirs,
                   export_symbols, debug,
                   extra_preargs, extra_postargs, build_temp, target_lang)
+
 
     def link_shared_object(self, objects, output_filename, output_dir=None,
                            libraries=None, library_dirs=None,
@@ -686,6 +698,7 @@ class CCompiler:
                   self.executable_filename(output_progname), output_dir,
                   libraries, library_dirs, runtime_library_dirs, None,
                   debug, extra_preargs, extra_postargs, None, target_lang)
+
 
     # -- Miscellaneous methods -----------------------------------------
     # These are all used by the 'gen_lib_options() function; there is
@@ -754,7 +767,7 @@ main (int argc, char **argv) {
             return False
         return True
 
-    def find_library_file(self, dirs, lib, debug=0):
+    def find_library_file (self, dirs, lib, debug=0):
         """Search the specified list of directories for a static or shared
         library file 'lib' and return the full path to that file.  If
         'debug' true, look for a debugging version (if that makes sense on
@@ -803,12 +816,11 @@ main (int argc, char **argv) {
         obj_names = []
         for src_name in source_filenames:
             base, ext = os.path.splitext(src_name)
-            base = os.path.splitdrive(base)[1]  # Chop off the drive
+            base = os.path.splitdrive(base)[1] # Chop off the drive
             base = base[os.path.isabs(base):]  # If abs, chop off leading /
             if ext not in self.src_extensions:
-                raise UnknownFileError(
-                    "unknown file type '%s' (from '%s')" %
-                    (ext, src_name))
+                raise UnknownFileError, \
+                      "unknown file type '%s' (from '%s')" % (ext, src_name)
             if strip_dir:
                 base = os.path.basename(base)
             obj_names.append(os.path.join(output_dir,
@@ -818,30 +830,30 @@ main (int argc, char **argv) {
     def shared_object_filename(self, basename, strip_dir=0, output_dir=''):
         assert output_dir is not None
         if strip_dir:
-            basename = os.path.basename(basename)
+            basename = os.path.basename (basename)
         return os.path.join(output_dir, basename + self.shared_lib_extension)
 
     def executable_filename(self, basename, strip_dir=0, output_dir=''):
         assert output_dir is not None
         if strip_dir:
-            basename = os.path.basename(basename)
+            basename = os.path.basename (basename)
         return os.path.join(output_dir, basename + (self.exe_extension or ''))
 
     def library_filename(self, libname, lib_type='static',     # or 'shared'
                          strip_dir=0, output_dir=''):
         assert output_dir is not None
         if lib_type not in ("static", "shared", "dylib"):
-            raise ValueError(
-                "'lib_type' must be \"static\", \"shared\" or \"dylib\"")
+            raise ValueError, "'lib_type' must be \"static\", \"shared\" or \"dylib\""
         fmt = getattr(self, lib_type + "_lib_format")
         ext = getattr(self, lib_type + "_lib_extension")
 
-        dir, base = os.path.split(libname)
+        dir, base = os.path.split (libname)
         filename = fmt % (base, ext)
         if strip_dir:
             dir = ''
 
         return os.path.join(output_dir, dir, filename)
+
 
     # -- Utility methods -----------------------------------------------
 
@@ -865,7 +877,7 @@ main (int argc, char **argv) {
     def move_file(self, src, dst):
         return move_file(src, dst, dry_run=self.dry_run)
 
-    def mkpath(self, name, mode=0o777):
+    def mkpath(self, name, mode=0777):
         mkpath(name, mode, dry_run=self.dry_run)
 
 
@@ -890,8 +902,7 @@ _default_compilers = (
     ('posix', 'unix'),
     ('nt', 'msvc'),
 
-)
-
+    )
 
 def get_default_compiler(osname=None, platform=None):
     """ Determine the default compiler to use for the given platform.
@@ -915,26 +926,24 @@ def get_default_compiler(osname=None, platform=None):
     # Default to Unix compiler
     return 'unix'
 
-
 # Map compiler types to (module_name, class_name) pairs -- ie. where to
 # find the code that implements an interface to this compiler.  (The module
 # is assumed to be in the 'distutils' package.)
-compiler_class = {'unix': ('unixccompiler', 'UnixCCompiler',
-                           "standard UNIX-style compiler"),
-                  'msvc': ('msvccompiler', 'MSVCCompiler',
-                           "Microsoft Visual C++"),
-                  'cygwin': ('cygwinccompiler', 'CygwinCCompiler',
-                             "Cygwin port of GNU C Compiler for Win32"),
-                  'mingw32': ('cygwinccompiler', 'Mingw32CCompiler',
-                              "Mingw32 port of GNU C Compiler for Win32"),
-                  'bcpp': ('bcppcompiler', 'BCPPCompiler',
-                           "Borland C++ Compiler"),
-                  'emx': ('emxccompiler', 'EMXCCompiler',
-                          "EMX port of GNU C Compiler for OS/2"),
-                  'jython': ('jythoncompiler', 'JythonCompiler',
-                             "Compiling is not supported on Jython"),
-                  }
-
+compiler_class = { 'unix':    ('unixccompiler', 'UnixCCompiler',
+                               "standard UNIX-style compiler"),
+                   'msvc':    ('msvccompiler', 'MSVCCompiler',
+                               "Microsoft Visual C++"),
+                   'cygwin':  ('cygwinccompiler', 'CygwinCCompiler',
+                               "Cygwin port of GNU C Compiler for Win32"),
+                   'mingw32': ('cygwinccompiler', 'Mingw32CCompiler',
+                               "Mingw32 port of GNU C Compiler for Win32"),
+                   'bcpp':    ('bcppcompiler', 'BCPPCompiler',
+                               "Borland C++ Compiler"),
+                   'emx':     ('emxccompiler', 'EMXCCompiler',
+                               "EMX port of GNU C Compiler for OS/2"),
+                   'jython':  ('jythoncompiler', 'JythonCompiler',
+                               "Compiling is not supported on Jython"),
+                 }
 
 def show_compilers():
     """Print list of available compilers (used by the "--help-compiler"
@@ -946,7 +955,7 @@ def show_compilers():
     from distutils.fancy_getopt import FancyGetopt
     compilers = []
     for compiler in compiler_class.keys():
-        compilers.append(("compiler=" + compiler, None,
+        compilers.append(("compiler="+compiler, None,
                           compiler_class[compiler][2]))
     compilers.sort()
     pretty_printer = FancyGetopt(compilers)
@@ -976,21 +985,21 @@ def new_compiler(plat=None, compiler=None, verbose=0, dry_run=0, force=0):
         msg = "don't know how to compile C/C++ code on platform '%s'" % plat
         if compiler is not None:
             msg = msg + " with '%s' compiler" % compiler
-        raise DistutilsPlatformError(msg)
+        raise DistutilsPlatformError, msg
 
     try:
         module_name = "distutils." + module_name
-        __import__(module_name)
+        __import__ (module_name)
         module = sys.modules[module_name]
         klass = vars(module)[class_name]
     except ImportError:
-        raise DistutilsModuleError(
-            "can't compile C/C++ code: unable to load module '%s'" %
-            module_name)
+        raise DistutilsModuleError, \
+              "can't compile C/C++ code: unable to load module '%s'" % \
+              module_name
     except KeyError:
-        raise DistutilsModuleError(
-            ("can't compile C/C++ code: unable to find class '%s' " + "in module '%s'") %
-            (class_name, module_name))
+        raise DistutilsModuleError, \
+              ("can't compile C/C++ code: unable to find class '%s' " +
+               "in module '%s'") % (class_name, module_name)
 
     # XXX The None is necessary to preserve backwards compatibility
     # with classes that expect verbose to be the first positional
@@ -1024,24 +1033,25 @@ def gen_preprocess_options(macros, include_dirs):
     for macro in macros:
 
         if not (isinstance(macro, tuple) and
-                1 <= len(macro) <= 2):
-            raise TypeError(("bad macro definition '%s': " +
-                             "each element of 'macros' list must be a 1- or 2-tuple") %
-                            macro)
+                1 <= len (macro) <= 2):
+            raise TypeError, \
+                  ("bad macro definition '%s': " +
+                   "each element of 'macros' list must be a 1- or 2-tuple") % \
+                  macro
 
-        if len(macro) == 1:        # undefine this macro
-            pp_opts.append("-U%s" % macro[0])
-        elif len(macro) == 2:
+        if len (macro) == 1:        # undefine this macro
+            pp_opts.append ("-U%s" % macro[0])
+        elif len (macro) == 2:
             if macro[1] is None:    # define with no explicit value
-                pp_opts.append("-D%s" % macro[0])
+                pp_opts.append ("-D%s" % macro[0])
             else:
                 # XXX *don't* need to be clever about quoting the
                 # macro value here, because we're going to avoid the
                 # shell at all costs when we spawn the command!
-                pp_opts.append("-D%s=%s" % macro)
+                pp_opts.append ("-D%s=%s" % macro)
 
     for dir in include_dirs:
-        pp_opts.append("-I%s" % dir)
+        pp_opts.append ("-I%s" % dir)
 
     return pp_opts
 

@@ -862,6 +862,7 @@ class FragmentBuilderNS(Namespaces, FragmentBuilder):
 
 class ParseEscape(Exception):
     """Exception raised to short-circuit parsing in InternalSubsetExtractor."""
+    pass
 
 class InternalSubsetExtractor(ExpatBuilder):
     """XML processor which can rip out the internal document type subset."""

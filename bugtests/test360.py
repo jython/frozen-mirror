@@ -4,7 +4,7 @@
 
 import support
 
-d = {1: 2, 3: 4}
+d = {1:2,3:4}
 l = []
-for i in iter(d):
-    l.append(i)
+for i in iter(d): l.append(i)
+

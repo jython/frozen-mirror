@@ -2,9 +2,9 @@
 
 Made for Jython.
 """
+import sys
 import unittest
 from test import test_support
-
 
 class DictproxyTestCase(unittest.TestCase):
 
@@ -14,7 +14,7 @@ class DictproxyTestCase(unittest.TestCase):
 
         self.assert_(isinstance(first_key, str))
         self.assert_(first_key in proxy)
-        self.assert_(first_key in proxy)
+        self.assert_(proxy.has_key(first_key))
         self.assertEqual(proxy[first_key], proxy.get(first_key))
         self.assertEqual(proxy.get('NOT A KEY', 'foo'), 'foo')
 

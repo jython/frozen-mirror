@@ -1,8 +1,8 @@
 # Cross-platform testing of the Jython launcher (bin/jython or bin/jython.exe) using --print
-# Replaces test_bat_jy, with some test cases directly used with minor
-# adaptation from that test
+# Replaces test_bat_jy, with some test cases directly used with minor adaptation from that test
 
 import os
+import pprint
 import shlex
 import subprocess
 import sys
@@ -30,7 +30,6 @@ def get_launcher(executable):
         # presumably jython.py has been renamed to jython, generally
         # by the installer
         return executable
-
 
 def get_uname():
     _uname = None
@@ -84,20 +83,17 @@ class TestLauncher(unittest.TestCase):
         while it:
             arg = next(it)
             if arg == "-classpath":
-                self.assertEqual(next(it).split(
-                    classpath_delimiter())[-1], some_jar)
+                self.assertEqual(next(it).split(classpath_delimiter())[-1], some_jar)
                 break
 
     def test_classpath(self):
         env = self.get_newenv()
-        args = self.get_cmdline(
-            [launcher, "--print", "-J-cp", some_jar], env=env)
+        args = self.get_cmdline([launcher, "--print", "-J-cp", some_jar], env=env)
         it = iter(args)
         while it:
             arg = next(it)
             if arg == "-classpath":
-                self.assertEqual(next(it).split(
-                    classpath_delimiter())[-1], some_jar)
+                self.assertEqual(next(it).split(classpath_delimiter())[-1], some_jar)
                 break
 
     def test_java_home(self):
@@ -149,8 +145,7 @@ class TestLauncher(unittest.TestCase):
 
     def test_mem_options(self):
         env = self.get_newenv()
-        args = self.get_cmdline(
-            [launcher, "-J-Xss2m", "-J-Xmx4g", "--print"], env)
+        args = self.get_cmdline([launcher, "-J-Xss2m", "-J-Xmx4g", "--print"], env)
         self.assertEqual(args[0], "java")
         self.assertEqual(args[1], "-Xmx4g", args)
         self.assertEqual(args[2], "-Xss2m", args)
@@ -186,15 +181,11 @@ class TestLauncher(unittest.TestCase):
             output)
 
     def test_help(self):
-        self.assertHelp(subprocess.check_output(
-            [launcher, "--help"], stderr=subprocess.STDOUT))
-        self.assertHelp(subprocess.check_output(
-            [launcher, "--print", "--help"], stderr=subprocess.STDOUT))
-        self.assertHelp(subprocess.check_output(
-            [launcher, "--help", "--jdb"], stderr=subprocess.STDOUT))
+        self.assertHelp(subprocess.check_output([launcher, "--help"], stderr=subprocess.STDOUT))
+        self.assertHelp(subprocess.check_output([launcher, "--print", "--help"], stderr=subprocess.STDOUT))
+        self.assertHelp(subprocess.check_output([launcher, "--help", "--jdb"], stderr=subprocess.STDOUT))
         with self.assertRaises(subprocess.CalledProcessError) as cm:
-            subprocess.check_output(
-                [launcher, "--bad-arg"], stderr=subprocess.STDOUT)
+            subprocess.check_output([launcher, "--bad-arg"], stderr=subprocess.STDOUT)
         self.assertHelp(cm.exception.output)
 
     def test_remaining_args(self):
@@ -209,8 +200,7 @@ class TestLauncher(unittest.TestCase):
         self.assertEqual(args[-1], "--help")
 
     def assertCommand(self, command):
-        args = self.get_cmdline(
-            [launcher, "--print"] + command, self.get_newenv())
+        args = self.get_cmdline([launcher, "--print"] + command, self.get_newenv())
         self.assertEqual(args[(len(args) - len(command)):], command)
 
     def test_file(self):
@@ -238,23 +228,13 @@ class TestLauncher(unittest.TestCase):
         self.assertCommand(["my python command.py", "*/*/my ARGS/*.txt"])
 
     def test_exclamationmark(self):
-        self.assertCommand(
-            ['-c', 'import sys; print sys.argv[1:]', 'foo!', 'ba!r', '!baz', '!', '!!'])
+        self.assertCommand(['-c', 'import sys; print sys.argv[1:]', 'foo!', 'ba!r', '!baz', '!', '!!'])
 
     def test_percentsign(self):
-        self.assertCommand(['-c',
-                            'import sys; print sys.argv[1:]',
-                            'foo%1',
-                            'foo%%1',
-                            '%%1bar',
-                            '%%1',
-                            '%1',
-                            '%',
-                            '%%'])
+        self.assertCommand(['-c', 'import sys; print sys.argv[1:]', 'foo%1', 'foo%%1', '%%1bar', '%%1', '%1', '%', '%%'])
 
     def test_colon(self):
-        self.assertCommand(
-            ['-c', 'import sys; print sys.argv[1:]', 'foo:', ':bar'])
+        self.assertCommand(['-c', 'import sys; print sys.argv[1:]', 'foo:', ':bar'])
 
     def test_semicolon(self):
         self.assertCommand(['-c', ';import sys; print sys.argv[1:]', 'foo;'])

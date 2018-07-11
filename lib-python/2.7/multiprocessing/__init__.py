@@ -162,6 +162,7 @@ def allow_connection_pickling():
     '''
     Install support for sending connections and sockets between processes
     '''
+    from multiprocessing import reduction
 
 #
 # Definitions depending on native semaphores

@@ -92,7 +92,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", ctype)
         try:
             fs = os.fstat(f.fileno())
-        except OSError as AttributeError:
+        except OSError, AttributeError:
             # Jython on Windows lands here when f.fileno() is invalid
             fs = os.stat(path)
         self.send_header("Content-Length", str(fs[6]))
@@ -117,9 +117,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         f = StringIO()
         displaypath = cgi.escape(urllib.unquote(self.path))
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
-        f.write(
-            "<html>\n<title>Directory listing for %s</title>\n" %
-            displaypath)
+        f.write("<html>\n<title>Directory listing for %s</title>\n" % displaypath)
         f.write("<body>\n<h2>Directory listing for %s</h2>\n" % displaypath)
         f.write("<hr>\n<ul>\n")
         for name in list:
@@ -140,10 +138,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         if not sys.platform.startswith("java"):
             encoding = sys.getfilesystemencoding()
-            self.send_header(
-                "Content-type",
-                "text/html; charset=%s" %
-                encoding)
+            self.send_header("Content-type", "text/html; charset=%s" % encoding)
         self.send_header("Content-Length", str(length))
         self.end_headers()
         return f
@@ -157,8 +152,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         """
         # abandon query parameters
-        path = path.split('?', 1)[0]
-        path = path.split('#', 1)[0]
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
         path = posixpath.normpath(urllib.unquote(path))
         words = path.split('/')
         words = filter(None, words)
@@ -166,8 +161,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for word in words:
             drive, word = os.path.splitdrive(word)
             head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir):
-                continue
+            if word in (os.curdir, os.pardir): continue
             path = os.path.join(path, word)
         return path
 
@@ -212,18 +206,18 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return self.extensions_map['']
 
     if not mimetypes.inited:
-        mimetypes.init()  # try to read system mime.types
+        mimetypes.init() # try to read system mime.types
     extensions_map = mimetypes.types_map.copy()
     extensions_map.update({
-        '': 'application/octet-stream',  # Default
+        '': 'application/octet-stream', # Default
         '.py': 'text/plain',
         '.c': 'text/plain',
         '.h': 'text/plain',
-    })
+        })
 
 
-def test(HandlerClass=SimpleHTTPRequestHandler,
-         ServerClass=BaseHTTPServer.HTTPServer):
+def test(HandlerClass = SimpleHTTPRequestHandler,
+         ServerClass = BaseHTTPServer.HTTPServer):
     BaseHTTPServer.test(HandlerClass, ServerClass)
 
 

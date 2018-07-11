@@ -1,6 +1,7 @@
 """TestCase for reseting File ID.
 """
 
+import os
 import shutil
 import unittest
 

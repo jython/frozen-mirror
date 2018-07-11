@@ -170,8 +170,10 @@ class BundleBuilder(Defaults):
 
     def preProcess(self):
         """Hook for subclasses."""
+        pass
     def postProcess(self):
         """Hook for subclasses."""
+        pass
 
     def _addMetaFiles(self):
         contents = pathjoin(self.bundlepath, "Contents")

@@ -33,12 +33,9 @@ from java.lang import SecurityException
 try:
     import sun.misc.Signal
 except ImportError:
-    raise ImportError(
-        "signal module requires sun.misc.Signal, which is not available on this platform")
+    raise ImportError("signal module requires sun.misc.Signal, which is not available on this platform")
 except SecurityException, ex:
-    raise ImportError(
-        "signal module requires sun.misc.Signal, which is not allowed by your security profile: %s" %
-        ex)
+    raise ImportError("signal module requires sun.misc.Signal, which is not allowed by your security profile: %s" % ex)
 
 import os
 import sun.misc.SignalHandler
@@ -49,7 +46,6 @@ from java.lang import RuntimeException
 from java.util.concurrent.atomic import AtomicReference
 
 debug = 0
-
 
 def _init_signals():
     # Install signals by checking for standard names, by using
@@ -103,16 +99,13 @@ def _init_signals():
         signal_number = java_signal.getNumber()
         signals[signal_number] = java_signal
         signals_by_name[signal_name] = java_signal
-        # install as a module constant
-        setattr(_module, signal_name, signal_number)
+        setattr(_module, signal_name, signal_number) # install as a module constant
     return signals
-
 
 _signals = _init_signals()
 NSIG = max(_signals.iterkeys()) + 1
-SIG_DFL = sun.misc.SignalHandler.SIG_DFL  # default system handler
-SIG_IGN = sun.misc.SignalHandler.SIG_IGN  # handler to ignore a signal
-
+SIG_DFL = sun.misc.SignalHandler.SIG_DFL # default system handler
+SIG_IGN = sun.misc.SignalHandler.SIG_IGN # handler to ignore a signal
 
 class JythonSignalHandler(sun.misc.SignalHandler):
     def __init__(self, action):
@@ -122,7 +115,6 @@ class JythonSignalHandler(sun.misc.SignalHandler):
         # passing a frame here probably don't make sense in a threaded system,
         # but perhaps revisit
         self.action(signal.getNumber(), None)
-
 
 def signal(sig, action):
     """
@@ -148,8 +140,7 @@ def signal(sig, action):
     elif action in (SIG_IGN, SIG_DFL) or isinstance(action, sun.misc.SignalHandler):
         prev = _register_signal(signal, action)
     else:
-        raise TypeError(
-            "signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object")
+        raise TypeError("signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object")
 
     if isinstance(prev, JythonSignalHandler):
         return prev.action
@@ -183,13 +174,12 @@ def getsignal(sig):
     except KeyError:
         raise ValueError("signal number out of range")
     current = _register_signal(signal, SIG_DFL)
-    _register_signal(signal, current)  # and reinstall
+    _register_signal(signal, current) # and reinstall
 
     if isinstance(current, JythonSignalHandler):
         return current.action
     else:
         return current
-
 
 def default_int_handler(sig, frame):
     """
@@ -200,18 +190,14 @@ def default_int_handler(sig, frame):
     """
     raise KeyboardInterrupt
 
-
 def pause():
     raise NotImplementedError
 
-
 _alarm_timer_holder = AtomicReference()
-
 
 def _alarm_handler(sig, frame):
     print "Alarm clock"
     os._exit(0)
-
 
 # install a default alarm handler, the one we get by default doesn't
 # work terribly well since it throws a bus error (at least on OS X)!
@@ -220,7 +206,6 @@ try:
     signal(SIGALRM, _alarm_handler)
 except NameError:
     pass
-
 
 class _Alarm(object):
     def __init__(self, interval, task):
@@ -240,7 +225,6 @@ class _Alarm(object):
             return self.scheduled - now
         else:
             return 0
-
 
 def alarm(time):
     try:

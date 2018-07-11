@@ -1,5 +1,6 @@
 """Test result object"""
 
+import os
 import sys
 import traceback
 
@@ -124,6 +125,7 @@ class TestResult(object):
 
     def addSuccess(self, test):
         "Called when a test has completed successfully"
+        pass
 
     def addSkip(self, test, reason):
         """Called when a test is skipped."""

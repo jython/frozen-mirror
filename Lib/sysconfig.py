@@ -5,12 +5,10 @@ import sys
 import os
 from os.path import pardir, realpath
 
-
 def fileSystemEncode(path):
     if isinstance(path, unicode):
         return path.encode(sys.getfilesystemencoding())
     return path
-
 
 _INSTALL_SCHEMES = {
     'posix_prefix': {
@@ -22,7 +20,7 @@ _INSTALL_SCHEMES = {
         'platinclude': '{platbase}/include/python{py_version_short}',
         'scripts': '{base}/bin',
         'data': '{base}',
-    },
+        },
     'posix_home': {
         'stdlib': '{base}/lib/python',
         'platstdlib': '{base}/lib/python',
@@ -31,8 +29,8 @@ _INSTALL_SCHEMES = {
         'include': '{base}/include/python',
         'platinclude': '{base}/include/python',
         'scripts': '{base}/bin',
-        'data': '{base}',
-    },
+        'data'   : '{base}',
+        },
     'nt': {
         'stdlib': '{base}/Lib',
         'platstdlib': '{base}/Lib',
@@ -41,8 +39,8 @@ _INSTALL_SCHEMES = {
         'include': '{base}/Include',
         'platinclude': '{base}/Include',
         'scripts': '{base}/Scripts',
-        'data': '{base}',
-    },
+        'data'   : '{base}',
+        },
     'os2': {
         'stdlib': '{base}/Lib',
         'platstdlib': '{base}/Lib',
@@ -51,8 +49,8 @@ _INSTALL_SCHEMES = {
         'include': '{base}/Include',
         'platinclude': '{base}/Include',
         'scripts': '{base}/Scripts',
-        'data': '{base}',
-    },
+        'data'   : '{base}',
+        },
     'os2_home': {
         'stdlib': '{userbase}/lib/python{py_version_short}',
         'platstdlib': '{userbase}/lib/python{py_version_short}',
@@ -60,8 +58,8 @@ _INSTALL_SCHEMES = {
         'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
         'include': '{userbase}/include/python{py_version_short}',
         'scripts': '{userbase}/bin',
-        'data': '{userbase}',
-    },
+        'data'   : '{userbase}',
+        },
     'nt_user': {
         'stdlib': '{userbase}/Python{py_version_nodot}',
         'platstdlib': '{userbase}/Python{py_version_nodot}',
@@ -69,8 +67,8 @@ _INSTALL_SCHEMES = {
         'platlib': '{userbase}/Python{py_version_nodot}/site-packages',
         'include': '{userbase}/Python{py_version_nodot}/Include',
         'scripts': '{userbase}/Scripts',
-        'data': '{userbase}',
-    },
+        'data'   : '{userbase}',
+        },
     'posix_user': {
         'stdlib': '{userbase}/lib/python{py_version_short}',
         'platstdlib': '{userbase}/lib/python{py_version_short}',
@@ -78,8 +76,8 @@ _INSTALL_SCHEMES = {
         'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
         'include': '{userbase}/include/python{py_version_short}',
         'scripts': '{userbase}/bin',
-        'data': '{userbase}',
-    },
+        'data'   : '{userbase}',
+        },
     'osx_framework_user': {
         'stdlib': '{userbase}/lib/python',
         'platstdlib': '{userbase}/lib/python',
@@ -87,8 +85,8 @@ _INSTALL_SCHEMES = {
         'platlib': '{userbase}/lib/python/site-packages',
         'include': '{userbase}/include',
         'scripts': '{userbase}/bin',
-        'data': '{userbase}',
-    },
+        'data'   : '{userbase}',
+        },
     'java': {
         'stdlib': '{base}/lib/jython',
         'platstdlib': '{base}/lib/jython',
@@ -97,8 +95,8 @@ _INSTALL_SCHEMES = {
         'include': '{base}/include/jython',
         'platinclude': '{base}/include/jython',
         'scripts': '{base}/bin',
-        'data': '{base}',
-    },
+        'data'   : '{base}',
+        },
 
     'java_user': {
         'stdlib': '{userbase}/lib/jython{py_version_short}',
@@ -107,9 +105,9 @@ _INSTALL_SCHEMES = {
         'platlib': '{userbase}/lib/jython{py_version_short}/site-packages',
         'include': '{userbase}/include/jython{py_version_short}',
         'scripts': '{userbase}/bin',
-        'data': '{userbase}',
-    },
-}
+        'data'   : '{userbase}',
+        },
+    }
 
 _SCHEME_KEYS = ('stdlib', 'platstdlib', 'purelib', 'platlib', 'include',
                 'scripts', 'data')
@@ -117,11 +115,9 @@ _PY_VERSION = sys.version.split()[0]
 _PY_VERSION_SHORT = sys.version[:3]
 _PY_VERSION_SHORT_NO_DOT = _PY_VERSION[0] + _PY_VERSION[2]
 _PREFIX = os.path.normpath(sys.prefix) if sys.prefix is not None else None
-_EXEC_PREFIX = os.path.normpath(
-    sys.exec_prefix) if sys.exec_prefix is not None else None
+_EXEC_PREFIX = os.path.normpath(sys.exec_prefix) if sys.exec_prefix is not None else None
 _CONFIG_VARS = None
 _USER_BASE = None
-
 
 def _safe_realpath(path):
     try:
@@ -130,7 +126,6 @@ def _safe_realpath(path):
     except OSError:
         return path
 
-
 if sys.executable:
     _PROJECT_BASE = os.path.dirname(_safe_realpath(sys.executable))
 else:
@@ -138,25 +133,21 @@ else:
     # unable to retrieve the real program name
     _PROJECT_BASE = _safe_realpath(os.getcwd())
 
-if os.name != 'java':  # secures against JyNI-monkeypatching
+if os.name != 'java': # secures against JyNI-monkeypatching
     if os.name == "nt" and "pcbuild" in _PROJECT_BASE[-8:].lower():
         _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir))
     # PC/VS7.1
     if os.name == "nt" and "\\pc\\v" in _PROJECT_BASE[-10:].lower():
-        _PROJECT_BASE = _safe_realpath(
-            os.path.join(_PROJECT_BASE, pardir, pardir))
+        _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir, pardir))
     # PC/AMD64
     if os.name == "nt" and "\\pcbuild\\amd64" in _PROJECT_BASE[-14:].lower():
-        _PROJECT_BASE = _safe_realpath(
-            os.path.join(_PROJECT_BASE, pardir, pardir))
-
+        _PROJECT_BASE = _safe_realpath(os.path.join(_PROJECT_BASE, pardir, pardir))
 
 def is_python_build():
     for fn in ("Setup.dist", "Setup.local"):
         if os.path.isfile(os.path.join(_PROJECT_BASE, "Modules", fn)):
             return True
     return False
-
 
 _PYTHON_BUILD = is_python_build()
 
@@ -165,16 +156,14 @@ if _PYTHON_BUILD:
         _INSTALL_SCHEMES[scheme]['include'] = '{projectbase}/Include'
         _INSTALL_SCHEMES[scheme]['platinclude'] = '{srcdir}'
 
-
 def _subst_vars(s, local_vars):
     try:
         return s.format(**local_vars)
     except KeyError:
         try:
             return s.format(**os.environ)
-        except KeyError as var:
+        except KeyError, var:
             raise AttributeError('{%s}' % var)
-
 
 def _extend_dict(target_dict, other_dict):
     target_keys = target_dict.keys()
@@ -182,7 +171,6 @@ def _extend_dict(target_dict, other_dict):
         if key in target_keys:
             continue
         target_dict[key] = value
-
 
 def _expand_vars(scheme, vars):
     res = {}
@@ -201,7 +189,6 @@ def _expand_vars(scheme, vars):
         res[key] = os.path.normpath(_subst_vars(value, vars))
     return res
 
-
 def _get_default_scheme():
     # Check for != 'java' to secure against JyNI-monkeypatching.
     if os.name != 'java' and os.name == 'posix':
@@ -209,10 +196,8 @@ def _get_default_scheme():
         return 'posix_prefix'
     return os.name
 
-
 def _getuserbase():
     env_base = os.environ.get("PYTHONUSERBASE", None)
-
     def joinuser(*args):
         return os.path.expanduser(os.path.join(*args))
 
@@ -227,13 +212,13 @@ def _getuserbase():
             framework = get_config_var("PYTHONFRAMEWORK")
             if framework:
                 return env_base if env_base else \
-                    joinuser("~", "Library", framework, "%d.%d"
-                             % (sys.version_info[:2]))
+                               joinuser("~", "Library", framework, "%d.%d"
+                                            % (sys.version_info[:2]))
     if env_base:
         return env_base
     try:
         return joinuser("~", ".local")
-    except BaseException:
+    except:
         return None  # SecurityManager prevents this for Jython
 
 
@@ -304,8 +289,7 @@ def _parse_makefile(filename, vars=None):
                     if "$" in after:
                         notdone[name] = value
                     else:
-                        try:
-                            value = int(value)
+                        try: value = int(value)
                         except ValueError:
                             done[name] = value.strip()
                         else:
@@ -336,7 +320,7 @@ def _init_posix(vars):
     makefile = _get_makefile_filename()
     try:
         _parse_makefile(makefile, vars)
-    except IOError as e:
+    except IOError, e:
         msg = "invalid Python installation: unable to open %s" % makefile
         if hasattr(e, "strerror"):
             msg = msg + " (%s)" % e.strerror
@@ -347,7 +331,7 @@ def _init_posix(vars):
     try:
         with open(config_h) as f:
             parse_config_h(f, vars)
-    except IOError as e:
+    except IOError, e:
         msg = "invalid Python installation: unable to open %s" % config_h
         if hasattr(e, "strerror"):
             msg = msg + " (%s)" % e.strerror
@@ -358,7 +342,6 @@ def _init_posix(vars):
     # the scripts are in another directory.
     if _PYTHON_BUILD:
         vars['LDSHARED'] = vars['BLDSHARED']
-
 
 def _init_non_posix(vars):
     """Initialize the module as appropriate for NT"""
@@ -396,10 +379,8 @@ def parse_config_h(fp, vars=None):
         m = define_rx.match(line)
         if m:
             n, v = m.group(1, 2)
-            try:
-                v = int(v)
-            except ValueError:
-                pass
+            try: v = int(v)
+            except ValueError: pass
             vars[n] = v
         else:
             m = undef_rx.match(line)
@@ -407,12 +388,10 @@ def parse_config_h(fp, vars=None):
                 vars[m.group(1)] = 0
     return vars
 
-
 def get_config_h_filename():
     """Returns the path of pyconfig.h."""
     if _PYTHON_BUILD:
-        # The additional check for != "java" secures against
-        # JyNI-monkeypatching.
+    # The additional check for != "java" secures against JyNI-monkeypatching.
         if os.name == "nt" and os.name != "java":
             inc_dir = os.path.join(_PROJECT_BASE, "PC")
         else:
@@ -421,17 +400,15 @@ def get_config_h_filename():
         inc_dir = get_path('platinclude')
     return os.path.join(inc_dir, 'pyconfig.h')
 
-
 def get_scheme_names():
     """Returns a tuple containing the schemes names."""
-    schemes = sorted(_INSTALL_SCHEMES.keys())
+    schemes = _INSTALL_SCHEMES.keys()
+    schemes.sort()
     return tuple(schemes)
-
 
 def get_path_names():
     """Returns a tuple containing the paths names."""
     return _SCHEME_KEYS
-
 
 def get_paths(scheme=_get_default_scheme(), vars=None, expand=True):
     """Returns a mapping containing an install scheme.
@@ -444,14 +421,12 @@ def get_paths(scheme=_get_default_scheme(), vars=None, expand=True):
     else:
         return _INSTALL_SCHEMES[scheme]
 
-
 def get_path(name, scheme=_get_default_scheme(), vars=None, expand=True):
     """Returns a path corresponding to the scheme.
 
     ``scheme`` is the install scheme name.
     """
     return get_paths(scheme, vars, expand)[name]
-
 
 def get_config_vars(*args):
     """With no arguments, return a dictionary of all configuration
@@ -479,7 +454,7 @@ def get_config_vars(*args):
         _CONFIG_VARS['platbase'] = _EXEC_PREFIX
         _CONFIG_VARS['projectbase'] = _PROJECT_BASE
 
-        if os.name != 'java':  # this check secures against JyNI-monkeypatching
+        if os.name != 'java': # this check secures against JyNI-monkeypatching
             if os.name in ('nt', 'os2'):
                 _init_non_posix(_CONFIG_VARS)
             if os.name == 'posix':
@@ -497,8 +472,7 @@ def get_config_vars(*args):
         # Normally it is relative to the build directory.  However, during
         # testing, for example, we might be running a non-installed python
         # from a different directory.
-        # The additional check for != "java" secures against
-        # JyNI-monkeypatching.
+        # The additional check for != "java" secures against JyNI-monkeypatching.
         if _PYTHON_BUILD and os.name == "posix" and os.name != "java":
             base = _PROJECT_BASE
             try:
@@ -506,7 +480,7 @@ def get_config_vars(*args):
             except OSError:
                 cwd = None
             if (not os.path.isabs(_CONFIG_VARS['srcdir']) and
-                    base != cwd):
+                base != cwd):
                 # srcdir is relative and we are not in the same directory
                 # as the executable. Assume executable is in the build
                 # directory and make srcdir absolute.
@@ -516,7 +490,7 @@ def get_config_vars(*args):
         # The additional check for not startswith('java') secures against
         # JyNI-monkeypatching.
         if sys.platform == 'darwin' and not sys.platform.startswith('java'):
-            kernel_version = os.uname()[2]  # Kernel version (8.4.3)
+            kernel_version = os.uname()[2] # Kernel version (8.4.3)
             major_version = int(kernel_version.split('.')[0])
 
             if major_version < 8:
@@ -525,9 +499,9 @@ def get_config_vars(*args):
                 # This is needed when building extensions on a 10.3 system
                 # using a universal build of python.
                 for key in ('LDFLAGS', 'BASECFLAGS',
-                            # a number of derived variables. These need to be
-                            # patched up as well.
-                            'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
+                        # a number of derived variables. These need to be
+                        # patched up as well.
+                        'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
                     flags = _CONFIG_VARS[key]
                     flags = re.sub('-arch\s+\w+\s', ' ', flags)
                     flags = re.sub('-isysroot [^ \t]*', ' ', flags)
@@ -541,9 +515,9 @@ def get_config_vars(*args):
                 if 'ARCHFLAGS' in os.environ:
                     arch = os.environ['ARCHFLAGS']
                     for key in ('LDFLAGS', 'BASECFLAGS',
-                                # a number of derived variables. These need to be
-                                # patched up as well.
-                                'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
+                        # a number of derived variables. These need to be
+                        # patched up as well.
+                        'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
 
                         flags = _CONFIG_VARS[key]
                         flags = re.sub('-arch\s+\w+\s', ' ', flags)
@@ -566,9 +540,9 @@ def get_config_vars(*args):
                     sdk = m.group(1)
                     if not os.path.exists(sdk):
                         for key in ('LDFLAGS', 'BASECFLAGS',
-                                    # a number of derived variables. These need to be
-                                    # patched up as well.
-                                    'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
+                             # a number of derived variables. These need to be
+                             # patched up as well.
+                            'CFLAGS', 'PY_CFLAGS', 'BLDSHARED'):
 
                             flags = _CONFIG_VARS[key]
                             flags = re.sub('-isysroot\s+\S+(\s|$)', ' ', flags)
@@ -582,7 +556,6 @@ def get_config_vars(*args):
     else:
         return _CONFIG_VARS
 
-
 def get_config_var(name):
     """Return the value of a single variable using the dictionary returned by
     'get_config_vars()'.
@@ -590,7 +563,6 @@ def get_config_var(name):
     Equivalent to get_config_vars().get(name)
     """
     return get_config_vars().get(name)
-
 
 def get_platform():
     """Return a string that identifies the current platform.
@@ -626,7 +598,7 @@ def get_platform():
         if i == -1:
             return sys.platform
         j = sys.version.find(")", i)
-        look = sys.version[i + len(prefix):j].lower()
+        look = sys.version[i+len(prefix):j].lower()
         if look == 'amd64':
             return 'win-amd64'
         if look == 'itanium':
@@ -652,7 +624,7 @@ def get_platform():
         # At least on Linux/Intel, 'machine' is the processor --
         # i386, etc.
         # XXX what about Alpha, SPARC, etc?
-        return "%s-%s" % (osname, machine)
+        return  "%s-%s" % (osname, machine)
     elif osname[:5] == "sunos":
         if release[0] >= "5":           # SunOS 5 == Solaris 2
             osname = "solaris"
@@ -660,8 +632,8 @@ def get_platform():
             # We can't use "platform.architecture()[0]" because a
             # bootstrap problem. We use a dict to get an error
             # if some suspicious happens.
-            bitness = {2147483647: "32bit", 9223372036854775807: "64bit"}
-            machine += ".%s" % bitness[sys.maxsize]
+            bitness = {2147483647:"32bit", 9223372036854775807:"64bit"}
+            machine += ".%s" % bitness[sys.maxint]
         # fall through to standard osname-release-machine representation
     elif osname[:4] == "irix":              # could be "irix64"!
         return "%s-%s" % (osname, release)
@@ -669,7 +641,7 @@ def get_platform():
         return "%s-%s.%s" % (osname, version, release)
     elif osname[:6] == "cygwin":
         osname = "cygwin"
-        rel_re = re.compile(r'[\d.]+')
+        rel_re = re.compile (r'[\d.]+')
         m = rel_re.match(release)
         if m:
             release = m.group()
@@ -700,8 +672,8 @@ def get_platform():
             else:
                 try:
                     m = re.search(
-                        r'<key>ProductUserVisibleVersion</key>\s*' +
-                        r'<string>(.*?)</string>', f.read())
+                            r'<key>ProductUserVisibleVersion</key>\s*' +
+                            r'<string>(.*?)</string>', f.read())
                     if m is not None:
                         macrelease = '.'.join(m.group(1).split('.')[:2])
                     # else: fall back to the default behaviour
@@ -743,19 +715,19 @@ def get_platform():
                     machine = 'universal'
                 else:
                     raise ValueError(
-                        "Don't know machine value for archs=%r" % (archs,))
+                       "Don't know machine value for archs=%r"%(archs,))
 
             elif machine == 'i386':
                 # On OSX the machine type returned by uname is always the
                 # 32-bit variant, even if the executable architecture is
                 # the 64-bit variant
-                if sys.maxsize >= 2**32:
+                if sys.maxint >= 2**32:
                     machine = 'x86_64'
 
             elif machine in ('PowerPC', 'Power_Macintosh'):
                 # Pick a sane name for the PPC architecture.
                 # See 'i386' case
-                if sys.maxsize >= 2**32:
+                if sys.maxint >= 2**32:
                     machine = 'ppc64'
                 else:
                     machine = 'ppc'

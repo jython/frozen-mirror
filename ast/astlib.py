@@ -14,19 +14,16 @@ import _ast
 import os
 import globwalk
 
-
 def lispify_ast(node):
     return tuple(lispify_ast2(node))
-
 
 def lispify_ast2(node):
     yield node.__class__.__name__
     try:
         for field in node._fields:
             yield tuple(lispify_field(field, getattr(node, field)))
-    except BaseException:
+    except:
         pass
-
 
 def lispify_field(field, child):
     yield field
@@ -40,8 +37,8 @@ def lispify_field(field, child):
             yield lispify_ast(node)
         else:
             if isinstance(node, float):
-                # XXX: stringify floats so they match Java's float representation better
-                # This may mask problems for very small numbers.
+                #XXX: stringify floats so they match Java's float representation better
+                #This may mask problems for very small numbers.
                 if .0001 < node < 10000:
                     yield "%5.5f" % node
                 else:
@@ -49,15 +46,7 @@ def lispify_field(field, child):
             else:
                 yield node
 
-
-def main(
-        code_path,
-        jy_exe="jython",
-        testfile=False,
-        print_diff=True,
-        print_fail=False,
-        print_success=False,
-        print_diff_lines=False):
+def main(code_path, jy_exe="jython", testfile=False, print_diff=True, print_fail=False, print_success=False, print_diff_lines=False):
     from pprint import pprint
     from popen2 import popen2
     from StringIO import StringIO
@@ -109,7 +98,6 @@ def main(
             print "---------- DIFF -------------"
             print "".join(diffstr)
 
-
 if __name__ == '__main__':
     import sys
     import getopt
@@ -134,7 +122,7 @@ Usage: python %s [-j jython_exe_name] [-t testfile] [-s -f -d -n] code_path
     print_success = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'j:tsfdhn')
-    except BaseException:
+    except:
         print usage
         sys.exit(1)
     for o, v in opts:
@@ -157,11 +145,4 @@ Usage: python %s [-j jython_exe_name] [-t testfile] [-s -f -d -n] code_path
         print usage
         sys.exit(1)
 
-    main(
-        args[0],
-        jy_exe,
-        testfile,
-        print_diff,
-        print_fail,
-        print_success,
-        print_diff_lines)
+    main(args[0], jy_exe, testfile, print_diff, print_fail, print_success, print_diff_lines)

@@ -13,6 +13,7 @@ __revision__ = "$Id$"
 
 import os
 import re
+import string
 import sys
 from org.python.core import Py
 
@@ -28,11 +29,10 @@ EXEC_PREFIX = os.path.normpath(sys.exec_prefix)
 
 
 def getJythonBinDir():
-    if sys.executable is not None:
+    if not sys.executable is None:
         return os.path.dirname(os.path.realpath(sys.executable))
     else:
         return Py.getDefaultBinDir()
-
 
 project_base = getJythonBinDir()
 if os.name == "nt" and "pcbuild" in project_base[-8:].lower():
@@ -56,15 +56,11 @@ if "_PYTHON_PROJECT_BASE" in os.environ:
 # different (hard-wired) directories.
 # Setup.local is available for Makefile builds including VPATH builds,
 # Setup.dist is available on Windows
-
-
 def _python_build():
     for fn in ("Setup.dist", "Setup.local"):
         if os.path.isfile(os.path.join(project_base, "Modules", fn)):
             return True
     return False
-
-
 python_build = _python_build()
 
 
@@ -98,8 +94,8 @@ def get_python_inc(plat_specific=0, prefix=None):
                 inc_dir = buildir
             else:
                 # the source dir is relative to the buildir
-                srcdir = os.path.abspath(os.path.join(
-                    buildir, get_config_var('srcdir')))
+                srcdir = os.path.abspath(os.path.join(buildir,
+                                         get_config_var('srcdir')))
                 # Include is located in the srcdir
                 inc_dir = os.path.join(srcdir, "Include")
             return inc_dir
@@ -160,6 +156,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
             "on platform '%s'" % os.name)
 
 
+
 def customize_compiler(compiler):
     """Do any platform-specific customization of a CCompiler instance.
 
@@ -190,9 +187,9 @@ def customize_compiler(compiler):
 
         if 'CC' in os.environ:
             newcc = os.environ['CC']
-            if (sys.platform == 'darwin' and
-                'LDSHARED' not in os.environ and
-                    ldshared.startswith(cc)):
+            if (sys.platform == 'darwin'
+                    and 'LDSHARED' not in os.environ
+                    and ldshared.startswith(cc)):
                 # On OS X, if CC is overridden, use that as the default
                 #       command for LDSHARED as well
                 ldshared = newcc + ldshared[len(cc):]
@@ -271,17 +268,15 @@ def parse_config_h(fp, g=None):
     define_rx = re.compile("#define ([A-Z][A-Za-z0-9_]+) (.*)\n")
     undef_rx = re.compile("/[*] #undef ([A-Z][A-Za-z0-9_]+) [*]/\n")
     #
-    while True:
+    while 1:
         line = fp.readline()
         if not line:
             break
         m = define_rx.match(line)
         if m:
             n, v = m.group(1, 2)
-            try:
-                v = int(v)
-            except ValueError:
-                pass
+            try: v = int(v)
+            except ValueError: pass
             g[n] = v
         else:
             m = undef_rx.match(line)
@@ -295,7 +290,6 @@ def parse_config_h(fp, g=None):
 _variable_rx = re.compile("([a-zA-Z][a-zA-Z0-9_]+)\s*=\s*(.*)")
 _findvar1_rx = re.compile(r"\$\(([A-Za-z][A-Za-z0-9_]*)\)")
 _findvar2_rx = re.compile(r"\${([A-Za-z][A-Za-z0-9_]*)}")
-
 
 def parse_makefile(fn, g=None):
     """Parse a Makefile-style file.
@@ -312,7 +306,7 @@ def parse_makefile(fn, g=None):
     done = {}
     notdone = {}
 
-    while True:
+    while 1:
         line = fp.readline()
         if line is None:  # eof
             break
@@ -358,8 +352,7 @@ def parse_makefile(fn, g=None):
                     if "$" in after:
                         notdone[name] = value
                     else:
-                        try:
-                            value = int(value)
+                        try: value = int(value)
                         except ValueError:
                             done[name] = value.strip()
                         else:
@@ -396,7 +389,7 @@ def expand_makefile_vars(s, vars):
     # 'parse_makefile()', which takes care of such expansions eagerly,
     # according to make's variable expansion semantics.
 
-    while True:
+    while 1:
         m = _findvar1_rx.search(s) or _findvar2_rx.search(s)
         if m:
             (beg, end) = m.span()
@@ -407,7 +400,6 @@ def expand_makefile_vars(s, vars):
 
 
 _config_vars = None
-
 
 def _init_posix():
     """Initialize the module as appropriate for POSIX systems."""
@@ -503,7 +495,6 @@ def get_config_vars(*args):
         return vals
     else:
         return _config_vars
-
 
 def get_config_var(name):
     """Return the value of a single variable using the dictionary

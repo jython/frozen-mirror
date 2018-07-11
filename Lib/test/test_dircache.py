@@ -4,12 +4,8 @@
 """
 
 import unittest
-from test.test_support import is_jython, run_unittest
-import dircache
-import os
-import time
-import sys
-import tempfile
+from test.test_support import is_jython, run_unittest, TESTFN
+import dircache, os, time, sys, tempfile
 
 
 class DircacheTests(unittest.TestCase):
@@ -36,7 +32,7 @@ class DircacheTests(unittest.TestCase):
             os.unlink(fname)
 
     def test_listdir(self):
-        # SUCCESSFUL CASES
+        ## SUCCESSFUL CASES
         entries = dircache.listdir(self.tempdir)
         self.assertEquals(entries, [])
 
@@ -49,7 +45,7 @@ class DircacheTests(unittest.TestCase):
         # is only good for capturing a one-shot snapshot there.
 
         if (sys.platform[:3] not in ('win', 'os2') and
-                (not is_jython or os._name != 'nt')):
+            (not is_jython or os._name != 'nt')):
             # Sadly, dircache has the same granularity as stat.mtime, and so
             # can't notice any changes that occurred within 1 sec of the last
             # time it examined a directory.
@@ -59,12 +55,8 @@ class DircacheTests(unittest.TestCase):
             self.assertEquals(entries, ['test1'])
             self.assert_(dircache.listdir(self.tempdir) is entries)
 
-        # UNSUCCESSFUL CASES
-        self.assertRaises(
-            OSError,
-            dircache.listdir,
-            self.tempdir +
-            "_nonexistent")
+        ## UNSUCCESSFUL CASES
+        self.assertRaises(OSError, dircache.listdir, self.tempdir+"_nonexistent")
 
     def test_annotate(self):
         self.writeTemp("test2")

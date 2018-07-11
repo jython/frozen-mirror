@@ -13,9 +13,10 @@ from shutil import (_make_tarball, _make_zipfile, make_archive,
                     register_archive_format, unregister_archive_format,
                     get_archive_formats)
 import tarfile
+import warnings
 
 from test import test_support
-from test.test_support import TESTFN, captured_stdout
+from test.test_support import TESTFN, check_warnings, captured_stdout
 
 TESTFN2 = TESTFN + "2"
 
@@ -32,10 +33,10 @@ except ImportError:
     zlib = None
 
 try:
+    import zipfile
     ZIP_SUPPORT = True
 except ImportError:
     ZIP_SUPPORT = find_executable('zip')
-
 
 class TestShutil(unittest.TestCase):
 
@@ -71,7 +72,6 @@ class TestShutil(unittest.TestCase):
         d = tempfile.mkdtemp()
         self.tempdirs.append(d)
         return d
-
     def test_rmtree_errors(self):
         # filename is guaranteed not to exist
         filename = tempfile.mktemp()
@@ -81,9 +81,9 @@ class TestShutil(unittest.TestCase):
     # and bug #1076467 for why we don't run this as root.
     # XXX: Fails on Jython because Java resets the S_IREAD permission
     # when removing the file
-    if (hasattr(os, 'chmod') and sys.platform[:6] != 'cygwin' and
-        not (hasattr(os, 'geteuid') and os.geteuid() == 0) and
-            (not test_support.is_jython or os._name != 'nt')):
+    if (hasattr(os, 'chmod') and sys.platform[:6] != 'cygwin'
+        and not (hasattr(os, 'geteuid') and os.geteuid() == 0)
+        and (not test_support.is_jython or os._name != 'nt')):
         def test_on_error(self):
             self.errorState = 0
             os.mkdir(TESTFN)
@@ -98,10 +98,8 @@ class TestShutil(unittest.TestCase):
 
             shutil.rmtree(TESTFN, onerror=self.check_args_to_onerror)
             # Test whether onerror has actually been called.
-            self.assertEqual(
-                self.errorState,
-                2,
-                "Expected call to onerror function did not happen.")
+            self.assertEqual(self.errorState, 2,
+                             "Expected call to onerror function did not happen.")
 
             # Make writable again.
             os.chmod(TESTFN, old_dir_mode)
@@ -175,16 +173,16 @@ class TestShutil(unittest.TestCase):
             self.assertEqual(actual, '456')
         finally:
             for path in (
-                os.path.join(src_dir, 'test.txt'),
-                os.path.join(dst_dir, 'test.txt'),
-                os.path.join(src_dir, 'test_dir', 'test.txt'),
-                os.path.join(dst_dir, 'test_dir', 'test.txt'),
-            ):
+                    os.path.join(src_dir, 'test.txt'),
+                    os.path.join(dst_dir, 'test.txt'),
+                    os.path.join(src_dir, 'test_dir', 'test.txt'),
+                    os.path.join(dst_dir, 'test_dir', 'test.txt'),
+                ):
                 if os.path.exists(path):
                     os.remove(path)
             for path in (src_dir,
-                         os.path.dirname(dst_dir)
-                         ):
+                    os.path.dirname(dst_dir)
+                ):
                 if os.path.exists(path):
                     shutil.rmtree(path)
 
@@ -218,6 +216,7 @@ class TestShutil(unittest.TestCase):
             write_data(join(src_dir, 'test_dir2', 'subdir', 'test.txt'), '456')
             write_data(join(src_dir, 'test_dir2', 'subdir2', 'test.py'), '456')
 
+
             # testing glob-like patterns
             try:
                 patterns = shutil.ignore_patterns('*.tmp', 'test_dir2')
@@ -234,18 +233,8 @@ class TestShutil(unittest.TestCase):
                 shutil.copytree(src_dir, dst_dir, ignore=patterns)
                 # checking the result: some elements should not be copied
                 self.assertTrue(not exists(join(dst_dir, 'test.tmp')))
-                self.assertTrue(
-                    not exists(
-                        join(
-                            dst_dir,
-                            'test_dir2',
-                            'subdir2')))
-                self.assertTrue(
-                    not exists(
-                        join(
-                            dst_dir,
-                            'test_dir2',
-                            'subdir')))
+                self.assertTrue(not exists(join(dst_dir, 'test_dir2', 'subdir2')))
+                self.assertTrue(not exists(join(dst_dir, 'test_dir2', 'subdir')))
             finally:
                 if os.path.exists(dst_dir):
                     shutil.rmtree(dst_dir)
@@ -258,7 +247,7 @@ class TestShutil(unittest.TestCase):
                         path = os.path.join(src, name)
 
                         if (os.path.isdir(path) and
-                                path.split()[-1] == 'subdir'):
+                            path.split()[-1] == 'subdir'):
                             res.append(name)
                         elif os.path.splitext(path)[-1] in ('.py'):
                             res.append(name)
@@ -267,19 +256,9 @@ class TestShutil(unittest.TestCase):
                 shutil.copytree(src_dir, dst_dir, ignore=_filter)
 
                 # checking the result: some elements should not be copied
-                self.assertTrue(
-                    not exists(
-                        join(
-                            dst_dir,
-                            'test_dir2',
-                            'subdir2',
-                            'test.py')))
-                self.assertTrue(
-                    not exists(
-                        join(
-                            dst_dir,
-                            'test_dir2',
-                            'subdir')))
+                self.assertTrue(not exists(join(dst_dir, 'test_dir2', 'subdir2',
+                                        'test.py')))
+                self.assertTrue(not exists(join(dst_dir, 'test_dir2', 'subdir')))
 
             finally:
                 if os.path.exists(dst_dir):
@@ -404,7 +383,8 @@ class TestShutil(unittest.TestCase):
     def _tarinfo(self, path):
         tar = tarfile.open(path)
         try:
-            names = sorted(tar.getnames())
+            names = tar.getnames()
+            names.sort()
             return tuple(names)
         finally:
             tar.close()
@@ -427,7 +407,7 @@ class TestShutil(unittest.TestCase):
     @unittest.skipUnless(find_executable('tar') and find_executable('gzip'),
                          'Need the tar command to run')
     def test_tarfile_vs_tar(self):
-        tmpdir, tmpdir2, base_name = self._create_files()
+        tmpdir, tmpdir2, base_name =  self._create_files()
         old_dir = os.getcwd()
         os.chdir(tmpdir)
         try:
@@ -494,6 +474,7 @@ class TestShutil(unittest.TestCase):
         tarball = base_name + '.zip'
         self.assertTrue(os.path.exists(tarball))
 
+
     def test_make_archive(self):
         tmpdir = self.mkdtemp()
         base_name = os.path.join(tmpdir, 'archive')
@@ -509,8 +490,8 @@ class TestShutil(unittest.TestCase):
         else:
             group = owner = 'root'
 
-        base_dir, root_dir, base_name = self._create_files()
-        base_name = os.path.join(self.mkdtemp(), 'archive')
+        base_dir, root_dir, base_name =  self._create_files()
+        base_name = os.path.join(self.mkdtemp() , 'archive')
         res = make_archive(base_name, 'zip', root_dir, base_dir, owner=owner,
                            group=group)
         self.assertTrue(os.path.exists(res))
@@ -529,7 +510,7 @@ class TestShutil(unittest.TestCase):
     @unittest.skipUnless(zlib, "Requires zlib")
     @unittest.skipUnless(UID_GID_SUPPORT, "Requires grp and pwd support")
     def test_tarfile_root_owner(self):
-        tmpdir, tmpdir2, base_name = self._create_files()
+        tmpdir, tmpdir2, base_name =  self._create_files()
         old_dir = os.getcwd()
         os.chdir(tmpdir)
         group = grp.getgrgid(0)[0]
@@ -554,7 +535,6 @@ class TestShutil(unittest.TestCase):
 
     def test_make_archive_cwd(self):
         current_dir = os.getcwd()
-
         def _breaks(*args, **kw):
             raise RuntimeError()
 
@@ -599,7 +579,7 @@ class TestMove(unittest.TestCase):
             self.dir_other_fs = tempfile.mkdtemp(
                 dir=os.path.dirname(__file__))
             self.file_other_fs = os.path.join(self.dir_other_fs,
-                                              filename)
+                filename)
         except OSError:
             self.dir_other_fs = None
         with open(self.src_file, "wb") as f:
@@ -610,7 +590,7 @@ class TestMove(unittest.TestCase):
             try:
                 if d:
                     shutil.rmtree(d)
-            except BaseException:
+            except:
                 pass
 
     def _check_move_file(self, src, dst, real_dst):
@@ -641,7 +621,7 @@ class TestMove(unittest.TestCase):
             # skip
             return
         self._check_move_file(self.src_file, self.file_other_fs,
-                              self.file_other_fs)
+            self.file_other_fs)
 
     def test_move_file_to_dir_other_fs(self):
         # Move a file to another location on another filesystem.
@@ -649,7 +629,7 @@ class TestMove(unittest.TestCase):
             # skip
             return
         self._check_move_file(self.src_file, self.dir_other_fs,
-                              self.file_other_fs)
+            self.file_other_fs)
 
     def test_move_dir(self):
         # Move a dir to another location on the same filesystem.
@@ -659,7 +639,7 @@ class TestMove(unittest.TestCase):
         finally:
             try:
                 shutil.rmtree(dst_dir)
-            except BaseException:
+            except:
                 pass
 
     def test_move_dir_other_fs(self):
@@ -673,41 +653,27 @@ class TestMove(unittest.TestCase):
         finally:
             try:
                 shutil.rmtree(dst_dir)
-            except BaseException:
+            except:
                 pass
 
     def test_move_dir_to_dir(self):
         # Move a dir inside an existing dir on the same filesystem.
-        self._check_move_dir(
-            self.src_dir,
-            self.dst_dir,
-            os.path.join(
-                self.dst_dir,
-                os.path.basename(
-                    self.src_dir)))
+        self._check_move_dir(self.src_dir, self.dst_dir,
+            os.path.join(self.dst_dir, os.path.basename(self.src_dir)))
 
     def test_move_dir_to_dir_other_fs(self):
         # Move a dir inside an existing dir on another filesystem.
         if not self.dir_other_fs:
             # skip
             return
-        self._check_move_dir(
-            self.src_dir,
-            self.dir_other_fs,
-            os.path.join(
-                self.dir_other_fs,
-                os.path.basename(
-                    self.src_dir)))
+        self._check_move_dir(self.src_dir, self.dir_other_fs,
+            os.path.join(self.dir_other_fs, os.path.basename(self.src_dir)))
 
     def test_existing_file_inside_dest_dir(self):
         # A file with the same name inside the destination dir already exists.
         with open(self.dst_file, "wb"):
             pass
-        self.assertRaises(
-            shutil.Error,
-            shutil.move,
-            self.src_file,
-            self.dst_dir)
+        self.assertRaises(shutil.Error, shutil.move, self.src_file, self.dst_dir)
 
     def test_dont_move_dir_in_itself(self):
         # Moving a dir inside itself raises an Error.
@@ -721,8 +687,8 @@ class TestMove(unittest.TestCase):
                 src = os.path.join(TESTFN, src)
                 dst = os.path.join(TESTFN, dst)
                 self.assertTrue(shutil._destinsrc(src, dst),
-                                msg='_destinsrc() wrongly concluded that '
-                                'dst (%s) is not in src (%s)' % (dst, src))
+                             msg='_destinsrc() wrongly concluded that '
+                             'dst (%s) is not in src (%s)' % (dst, src))
         finally:
             shutil.rmtree(TESTFN, ignore_errors=True)
 
@@ -733,8 +699,8 @@ class TestMove(unittest.TestCase):
                 src = os.path.join(TESTFN, src)
                 dst = os.path.join(TESTFN, dst)
                 self.assertFalse(shutil._destinsrc(src, dst),
-                                 msg='_destinsrc() wrongly concluded that '
-                                 'dst (%s) is in src (%s)' % (dst, src))
+                            msg='_destinsrc() wrongly concluded that '
+                            'dst (%s) is in src (%s)' % (dst, src))
         finally:
             shutil.rmtree(TESTFN, ignore_errors=True)
 
@@ -747,17 +713,13 @@ class TestCopyFile(unittest.TestCase):
         _entered = False
         _exited_with = None
         _raised = False
-
         def __init__(self, raise_in_exit=False, suppress_at_exit=True):
             self._raise_in_exit = raise_in_exit
             self._suppress_at_exit = suppress_at_exit
-
         def read(self, *args):
             return ''
-
         def __enter__(self):
             self._entered = True
-
         def __exit__(self, exc_type, exc_val, exc_tb):
             self._exited_with = exc_type, exc_val, exc_tb
             if self._raise_in_exit:
@@ -849,7 +811,6 @@ class TestCopyFile(unittest.TestCase):
 
 def test_main():
     test_support.run_unittest(TestShutil, TestMove, TestCopyFile)
-
 
 if __name__ == '__main__':
     test_main()

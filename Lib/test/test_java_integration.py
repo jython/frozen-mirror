@@ -16,29 +16,13 @@ from test import test_support
 from distutils.spawn import find_executable
 
 from java.lang import (
-    ClassCastException,
-    ExceptionInInitializerError,
-    UnsupportedOperationException,
-    String,
-    Runnable,
-    System,
-    Runtime,
-    Math,
-    Byte)
+    ClassCastException, ExceptionInInitializerError, UnsupportedOperationException,
+    String, Runnable, System, Runtime, Math, Byte)
 from java.math import BigDecimal, BigInteger
 from java.net import URI
-from java.io import (
-    ByteArrayInputStream,
-    ByteArrayOutputStream,
-    File,
-    FileInputStream,
-    FileNotFoundException,
-    FileOutputStream,
-    FileWriter,
-    ObjectInputStream,
-    ObjectOutputStream,
-    OutputStreamWriter,
-    UnsupportedEncodingException)
+from java.io import (ByteArrayInputStream, ByteArrayOutputStream, File, FileInputStream,
+                     FileNotFoundException, FileOutputStream, FileWriter, ObjectInputStream,
+                     ObjectOutputStream, OutputStreamWriter, UnsupportedEncodingException)
 from java.util import ArrayList, Date, HashMap, Hashtable, StringTokenizer, Vector
 from java.util.concurrent import Executors
 
@@ -51,10 +35,7 @@ from org.python.core.util import FileUtil
 from org.python.compiler import CustomMaker
 from org.python.tests import (BeanImplementation, Child, Child2,
                               CustomizableMapHolder, Listenable, ToUnicode)
-from org.python.tests.mro import (
-    ConfusedOnGetitemAdd,
-    FirstPredefinedGetitem,
-    GetitemAdder)
+from org.python.tests.mro import (ConfusedOnGetitemAdd, FirstPredefinedGetitem, GetitemAdder)
 from org.python.util import PythonInterpreter
 
 import java
@@ -64,6 +45,7 @@ from javatests import Issue1833
 from javatests.ProxyTests import NullToString, Person
 
 from clamp import SerializableProxies
+
 
 
 class InstantiationTest(unittest.TestCase):
@@ -89,13 +71,12 @@ class InstantiationTest(unittest.TestCase):
 class BeanTest(unittest.TestCase):
     def test_shared_names(self):
         self.failUnless(callable(Vector.size),
-                        'size method should be preferred to writeonly field')
+                'size method should be preferred to writeonly field')
 
     def test_multiple_listeners(self):
         '''Check that multiple BEP can be assigned to a single cast listener'''
         m = Listenable()
         called = []
-
         def f(evt, called=called):
             called.append(0)
 
@@ -112,7 +93,6 @@ class BeanTest(unittest.TestCase):
         self.assertEquals("name", b.getName())
         self.assertEquals("name", b.name)
         # Tests for #610576
-
         class SubBean(BeanImplementation):
             def __init__(bself):
                 self.assertEquals("name", bself.getName())
@@ -136,12 +116,10 @@ class BeanTest(unittest.TestCase):
 
     def test_awt_hack(self):
         # We ignore several deprecated methods in java.awt.* in favor of bean properties that were
-        # addded in Java 1.1.  This tests that one of those bean properties is
-        # visible.
+        # addded in Java 1.1.  This tests that one of those bean properties is visible.
         c = Container()
         c.size = 400, 300
         self.assertEquals(Dimension(400, 300), c.size)
-
 
 class SysIntegrationTest(unittest.TestCase):
     def setUp(self):
@@ -159,16 +137,11 @@ class SysIntegrationTest(unittest.TestCase):
         self.assertEquals('hello', f.read())
         f.close()
 
-
 class IOTest(unittest.TestCase):
 
     def test_io_errors(self):
         "Check that IOException isn't mangled into an IOError"
-        self.assertRaises(
-            UnsupportedEncodingException,
-            OutputStreamWriter,
-            System.out,
-            "garbage")
+        self.assertRaises(UnsupportedEncodingException, OutputStreamWriter, System.out, "garbage")
 
     def test_fileio_error(self):
         self.assertRaises(FileNotFoundException, FileInputStream, "garbage")
@@ -227,10 +200,8 @@ class JavaReservedNamesTest(unittest.TestCase):
         b = Byte(10)
         self.assert_("java.lang.Byte" in str(b.class))
 
-
 class Keywords(object):
     pass
-
 
 Keywords.in = lambda self: "in"
 Keywords.exec = lambda self: "exec"
@@ -262,7 +233,6 @@ Keywords.try = lambda self: "try"
 Keywords.while = lambda self: "while"
 Keywords.with = lambda self: "with"
 Keywords.yield = lambda self: "yield"
-
 
 class PyReservedNamesTest(unittest.TestCase):
     "Access to reserved words"
@@ -360,17 +330,12 @@ class PyReservedNamesTest(unittest.TestCase):
     def test_yield(self):
         self.assertEquals(self.kws.yield(), "yield")
 
-
 class ImportTest(unittest.TestCase):
     def test_bad_input_exception(self):
         self.assertRaises(ValueError, __import__, '')
 
     def test_broken_static_initializer(self):
-        self.assertRaises(
-            ExceptionInInitializerError,
-            __import__,
-            "org.python.tests.BadStaticInitializer")
-
+        self.assertRaises(ExceptionInInitializerError, __import__, "org.python.tests.BadStaticInitializer")
 
 class ColorTest(unittest.TestCase):
     def test_assigning_over_method(self):
@@ -388,18 +353,11 @@ class ColorTest(unittest.TestCase):
         self.assert_(red is red)
         self.assert_(red is Color.red)
 
-
 class TreePathTest(unittest.TestCase):
     def test_overloading(self):
-        treePath = TreePath([1, 2, 3])
-        self.assertEquals(len(treePath.path), 3,
-                          "Object[] not passed correctly")
-        self.assertEquals(
-            TreePath(
-                treePath.path).path,
-            treePath.path,
-            "Object[] not passed and returned correctly")
-
+        treePath = TreePath([1,2,3])
+        self.assertEquals(len(treePath.path), 3, "Object[] not passed correctly")
+        self.assertEquals(TreePath(treePath.path).path, treePath.path, "Object[] not passed and returned correctly")
 
 class BigNumberTest(unittest.TestCase):
     def test_coerced_bigdecimal(self):
@@ -408,20 +366,17 @@ class BigNumberTest(unittest.TestCase):
         y = BigDecimalTest().asBigDecimal()
 
         self.assertEqual(type(x), type(y), "BigDecimal coerced")
-        self.assertEqual(
-            x, y, "coerced BigDecimal not equal to directly created version")
+        self.assertEqual(x, y, "coerced BigDecimal not equal to directly created version")
 
     def test_biginteger_in_long(self):
         '''Checks for #608628, that long can take a BigInteger in its constructor'''
         ns = '10000000000'
         self.assertEquals(ns, str(long(BigInteger(ns))))
 
-
 class JavaStringTest(unittest.TestCase):
     def test_string_not_iterable(self):
         x = String('test')
         self.assertRaises(TypeError, list, x)
-
 
 class JavaDelegationTest(unittest.TestCase):
     def test_list_delegation(self):
@@ -463,16 +418,14 @@ class JavaDelegationTest(unittest.TestCase):
             pass
         v = Vector()
         v.addElement(1)
-        # Compares the Java object in the vector to a Python subclass
-        v.indexOf(X())
+        v.indexOf(X())# Compares the Java object in the vector to a Python subclass
         for i in v:
             pass
 
     def test_comparable_delegation(self):
         first_file = File("a")
         first_date = Date(100)
-        for a, b, c in [(first_file, File("b"), File("c")),
-                        (first_date, Date(1000), Date())]:
+        for a, b, c in [(first_file, File("b"), File("c")), (first_date, Date(1000), Date())]:
             self.assertTrue(a.compareTo(b) < 0)
             self.assertEquals(-1, cmp(a, b))
             self.assertTrue(a.compareTo(c) < 0)
@@ -523,7 +476,6 @@ class JavaDelegationTest(unittest.TestCase):
         self.assertNotEquals(x, z)
         self.assertTrue(not (x == z))
 
-
 class SecurityManagerTest(unittest.TestCase):
 
     def test_nonexistent_import_with_security(self):
@@ -564,8 +516,7 @@ class JavaWrapperCustomizationTest(unittest.TestCase):
         self.assertRaises(TypeError, operator.getitem, m, "initial")
         CustomizableMapHolder.addGetitem()
         self.assertEquals(m.held["initial"], m["initial"])
-        # dict would throw a KeyError here, but Map returns null for a missing
-        # key
+        # dict would throw a KeyError here, but Map returns null for a missing key
         self.assertEquals(None, m["nonexistent"])
         self.assertRaises(TypeError, operator.setitem, m, "initial")
         CustomizableMapHolder.addSetitem()
@@ -576,19 +527,12 @@ class JavaWrapperCustomizationTest(unittest.TestCase):
         m = CustomizableMapHolder()
         self.assertRaises(AttributeError, getattr, m, "initial")
         CustomizableMapHolder.addGetattribute()
-        self.assertEquals(
-            7,
-            m.held["initial"],
-            "Existing fields should still be accessible")
+        self.assertEquals(7, m.held["initial"], "Existing fields should still be accessible")
         self.assertEquals(7, m.initial)
-        self.assertEquals(
-            None,
-            m.nonexistent,
-            "Nonexistent fields should be passed on to the Map")
+        self.assertEquals(None, m.nonexistent, "Nonexistent fields should be passed on to the Map")
 
     def test_adding_on_interface(self):
         GetitemAdder.addPredefined()
-
         class UsesInterfaceMethod(FirstPredefinedGetitem):
             pass
         self.assertEquals("key", UsesInterfaceMethod()["key"])
@@ -596,10 +540,7 @@ class JavaWrapperCustomizationTest(unittest.TestCase):
     def test_add_on_mro_conflict(self):
         """Adding same-named methods to Java classes with MRO conflicts produces TypeError"""
         GetitemAdder.addPredefined()
-        self.assertRaises(
-            TypeError,
-            __import__,
-            "org.python.tests.mro.ConfusedOnImport")
+        self.assertRaises(TypeError, __import__, "org.python.tests.mro.ConfusedOnImport")
         self.assertRaises(TypeError, GetitemAdder.addPostdefined)
 
     def test_null_tostring(self):
@@ -612,8 +553,7 @@ class JavaWrapperCustomizationTest(unittest.TestCase):
     def test_diamond_inheritance_of_iterable_and_map(self):
         """Test deeply nested diamond inheritance of Iterable and Map, as see in some Clojure classes"""
         # http://bugs.jython.org/issue1878
-        # this will raise a TypeError re MRO conflict without the fix
-        from javatests import DiamondIterableMapMRO
+        from javatests import DiamondIterableMapMRO  # this will raise a TypeError re MRO conflict without the fix
         # Verify the correct MRO is generated - order is of course *important*;
         # the following used types are implemented as empty interfaces/abstract classes, but match the inheritance graph
         # and naming of Clojure/Storm.
@@ -630,10 +570,9 @@ class JavaWrapperCustomizationTest(unittest.TestCase):
         self.assertEqual(set(m), set(["abc", "xyz"]))
         self.assertEqual(m["abc"], 42)
 
-
 def roundtrip_serialization(obj):
     """Returns a deep copy of an object, via serializing it
-
+ 
     see http://weblogs.java.net/blog/emcmanus/archive/2007/04/cloning_java_ob.html
     """
     output = ByteArrayOutputStream()
@@ -641,10 +580,8 @@ def roundtrip_serialization(obj):
     serializer.writeObject(obj)
     serializer.close()
     input = ByteArrayInputStream(output.toByteArray())
-    # to get the list of classes seen, in order
-    unserializer = CloneInput(input, serializer)
+    unserializer = CloneInput(input, serializer) # to get the list of classes seen, in order
     return unserializer.readObject()
-
 
 class CloneOutput(ObjectOutputStream):
     def __init__(self, output):
@@ -656,7 +593,6 @@ class CloneOutput(ObjectOutputStream):
 
     def annotateProxyClass(self, c):
         self.classQueue.append(c)
-
 
 class CloneInput(ObjectInputStream):
 
@@ -693,13 +629,8 @@ class JavaSource(SimpleJavaFileObject):
         self._name = name
         self._source = source
         SimpleJavaFileObject.__init__(
-            self,
-            URI.create(
-                "string:///" +
-                name.replace(
-                    ".",
-                    "/") +
-                JavaFileObject.Kind.SOURCE.extension),
+            self, 
+            URI.create("string:///" + name.replace(".", "/") + JavaFileObject.Kind.SOURCE.extension),
             JavaFileObject.Kind.SOURCE)
 
     def getName(self):
@@ -710,10 +641,10 @@ class JavaSource(SimpleJavaFileObject):
 
 
 @unittest.skipIf(ToolProvider.getSystemJavaCompiler() is None,
-                 "No Java compiler available. Is JAVA_HOME pointing to a JDK?")
+        "No Java compiler available. Is JAVA_HOME pointing to a JDK?")
 def compile_java_source(options, class_name, source):
     """Compiles a single java source "file" contained in the string source
-
+    
     Use options, specifically -d DESTDIR, to control where the class
     file is emitted. Note that we could use forwarding managers to
     avoid tempdirs, but this is overkill here given that we still need
@@ -745,7 +676,6 @@ class SerializationTest(unittest.TestCase):
         # vulnerabilities. Users can always subclass from PyFunction
         # for specific cases, as seen in PyCascading
         import new
-
         def f():
             return 6 * 7 + max(0, 1, 2)
         # However, using the new module, it's possible to create a
@@ -777,11 +707,10 @@ class SerializationTest(unittest.TestCase):
             cat = Cat()
             self.assertEqual(cat.whoami(), "Socks")
 
-            # Create a jar file containing the Cat proxy; could use Java to do
-            # this; do it the easy way for now
+            # Create a jar file containing the Cat proxy; could use Java to do this; do it the easy way for now
             proxies_jar_path = os.path.join(tempdir, "proxies.jar")
             subprocess.check_call(["jar", "cf", proxies_jar_path, "-C", tempdir,
-                                   "org" + os.path.sep])
+                                    "org" + os.path.sep])
 
             # Serialize our cat
             output = ByteArrayOutputStream()
@@ -801,21 +730,12 @@ class SerializationTest(unittest.TestCase):
             classpath = os.pathsep.join(jars)
             env = dict(os.environ)
             env.update(JYTHONPATH=os.path.dirname(__file__))
-            cmd = [
-                os.path.join(
-                    System.getProperty("java.home"),
-                    "bin",
-                    "java"),
-                "-classpath",
-                classpath,
-                "javatests.ProxyDeserialization",
-                cat_path]
-            self.assertEqual(
-                subprocess.check_output(
-                    cmd,
-                    env=env,
-                    universal_newlines=True),
-                "meow\n")
+            cmd = [os.path.join(System.getProperty("java.home"), "bin", "java"),
+                    "-classpath", classpath,
+                    "javatests.ProxyDeserialization",
+                    cat_path]
+            self.assertEqual(subprocess.check_output(cmd, env=env, universal_newlines=True),
+                             "meow\n")
         finally:
             org.python.core.Options.proxyDebugDirectory = old_proxy_debug_dir
             shutil.rmtree(tempdir)
@@ -837,7 +757,7 @@ class SerializationTest(unittest.TestCase):
             # Create a jar file containing the org.python.test.Dog proxy
             proxies_jar_path = os.path.join(tempdir, "proxies.jar")
             subprocess.check_call(["jar", "cf", proxies_jar_path, "-C", tempdir,
-                                   "org" + os.path.sep])
+                                    "org" + os.path.sep])
 
             # Build a Java class importing Dog
             source = """
@@ -871,28 +791,19 @@ public class BarkTheDog {
             # PySystemState (and Jython runtime) is initialized for
             # the proxy
             classpath += os.pathsep + tempdir
-            cmd = [
-                os.path.join(
-                    System.getProperty("java.home"),
-                    "bin",
-                    "java"),
-                "-classpath",
-                classpath,
-                "BarkTheDog"]
+            cmd = [os.path.join(System.getProperty("java.home"), "bin", "java"),
+                   "-classpath", classpath, "BarkTheDog"]
             env = dict(os.environ)
             env.update(JYTHONPATH=os.path.dirname(__file__))
             self.assertRegexpMatches(
-                subprocess.check_output(
-                    cmd,
-                    env=env,
-                    universal_newlines=True,
-                    stderr=subprocess.STDOUT),
+                subprocess.check_output(cmd, env=env, universal_newlines=True,
+                                        stderr=subprocess.STDOUT),
                 r"^Class defined on CLASSPATH <type 'org.python.test.bark.Dog'>\n"
-                "Rover barks 42 times$")
+                                        "Rover barks 42 times$")
         finally:
             pass
             # print "Will not remove", tempdir
-            # shutil.rmtree(tempdir)
+            #shutil.rmtree(tempdir)
 
 
 class CopyTest(unittest.TestCase):
@@ -955,7 +866,6 @@ class BeanPropertyTest(unittest.TestCase):
         class TargetClass(object):
             def _getattribute(self):
                 return self.__attribute
-
             def _setattribute(self, value):
                 self.__attribute = value
             attribute = property(_getattribute, _setattribute)
@@ -970,7 +880,6 @@ class BeanPropertyTest(unittest.TestCase):
 class WrappedUp(object):
     def __init__(self):
         self.data = list()
-
     def doit(self):
         self.data.append(42)
 
@@ -978,7 +887,6 @@ class WrappedUp(object):
 class CallableObject(object):
     def __init__(self):
         self.data = list()
-
     def __call__(self):
         self.data.append(42)
 
@@ -993,7 +901,6 @@ class SingleMethodInterfaceTest(unittest.TestCase):
 
     def test_function(self):
         x = list()
-
         def f():
             x.append(42)
         future = self.executor.submit(f)
@@ -1050,8 +957,7 @@ def test_main():
         TreePathTest,
         UnicodeTest,
         SingleMethodInterfaceTest,
-    )
-
+        )
 
 if __name__ == "__main__":
     test_main()

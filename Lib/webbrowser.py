@@ -9,13 +9,11 @@ from java.net import URI
 
 __all__ = ["Error", "open", "open_new", "open_new_tab", "get", "register"]
 
-
 class Error(Exception):
     pass
 
-
 class AWTBrowser(object):
-    def open(self, url, new=0, autoraise=1):
+    def open(self, url, new=0, autoraise=1):    
         if not Desktop.isDesktopSupported():
             raise Error("webbrowswer.py not supported in your environment")
         try:
@@ -23,7 +21,7 @@ class AWTBrowser(object):
             return True
         except IOError as e:
             raise Error(e)
-
+  
     def open_new(self, url):
         return self.open(url, 1)
 
@@ -45,7 +43,6 @@ def register(name, klass, instance=None, update_tryorder=1):
     """Register a browser connector and, optionally, connection."""
     pass  # ignored on Jython
 
-
 open = AWTBrowser.open
 open_new = AWTBrowser.open_new
 open_new_tab = AWTBrowser.open_new_tab
@@ -58,27 +55,24 @@ def main():
     -t: open new tab""" % sys.argv[0]
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'ntd')
-    except getopt.error as msg:
+    except getopt.error, msg:
         print >>sys.stderr, msg
         print >>sys.stderr, usage
         sys.exit(1)
     new_win = 0
     for o, a in opts:
-        if o == '-n':
-            new_win = 1
-        elif o == '-t':
-            new_win = 2
-    if len(args) != 1:
+        if o == '-n': new_win = 1
+        elif o == '-t': new_win = 2
+    if len(args) <> 1:
         print >>sys.stderr, usage
         sys.exit(1)
 
     url = args[0]
 
     open(url, new_win)
-    print('opened')
+    print ('opened')
 
     print "\a"
-
 
 if __name__ == "__main__":
     main()

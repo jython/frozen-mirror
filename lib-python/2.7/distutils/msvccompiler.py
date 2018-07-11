@@ -48,6 +48,7 @@ except ImportError:
                  "necessary compiler setting\n"
                  "Make sure that Python modules _winreg, "
                  "win32api or win32con are installed.")
+        pass
 
 if _can_read_reg:
     HKEYS = (hkey_mod.HKEY_USERS,

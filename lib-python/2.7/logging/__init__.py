@@ -764,6 +764,7 @@ class Handler(Filterer):
         This version does nothing and is intended to be implemented by
         subclasses.
         """
+        pass
 
     def close(self):
         """

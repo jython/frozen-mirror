@@ -16,10 +16,8 @@ import globwalk
 import org.python.antlr.PythonTree as AST
 import org.python.antlr.Main as parser
 
-
 def lispify_ast(node):
     return tuple(lispify_ast2(node))
-
 
 def lispify_ast2(node):
     s = node.__class__.__name__
@@ -30,9 +28,8 @@ def lispify_ast2(node):
     try:
         for field in node._fields:
             yield tuple(lispify_field(field, getattr(node, field)))
-    except BaseException:
+    except:
         pass
-
 
 def lispify_field(field, child):
     fname = field
@@ -54,20 +51,13 @@ def lispify_field(field, child):
                         yield str(node)
                     else:
                         yield node
-                except Exception as why:
+                except Exception, why:
                     print "crap: %s" % why
-
+                    
             else:
                 yield node
 
-
-def main(
-        code_path,
-        jy_exe="jython",
-        print_diff=True,
-        print_fail=False,
-        print_success=False,
-        print_diff_lines=False):
+def main(code_path, jy_exe="jython", print_diff=True, print_fail=False, print_success=False, print_diff_lines=False):
     from pprint import pprint
     from popen2 import popen2
     from StringIO import StringIO
@@ -117,7 +107,6 @@ def main(
             print "---------- DIFF -------------"
             print "".join(diffstr)
 
-
 if __name__ == '__main__':
     import sys
     import getopt
@@ -139,7 +128,7 @@ Usage: python %s [-j jython_exe_name] [-s -f -d -n] code_path
     print_success = False
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'j:sfdhn')
-    except BaseException:
+    except:
         print usage
         sys.exit(1)
     for o, v in opts:
@@ -160,10 +149,4 @@ Usage: python %s [-j jython_exe_name] [-s -f -d -n] code_path
         print usage
         sys.exit(1)
 
-    main(
-        args[0],
-        jy_exe,
-        print_diff,
-        print_fail,
-        print_success,
-        print_diff_lines)
+    main(args[0], jy_exe, print_diff, print_fail, print_success, print_diff_lines)

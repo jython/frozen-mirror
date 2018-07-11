@@ -5,9 +5,6 @@
 
 import support
 
-support.compileJPythonc(
-    "test339c.py",
-    package="test339p",
-    output="test339.err")
+support.compileJPythonc("test339c.py", package="test339p", output="test339.err")
 
-# raise support.TestError("" + `x`)
+#raise support.TestError("" + `x`)

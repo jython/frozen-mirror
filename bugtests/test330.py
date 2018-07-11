@@ -16,3 +16,4 @@ if os.stat("test330.out")[8] != 0:
 os.utime("test330.out", (m, m))
 if os.stat("test330.out")[8] != m:
     raise support.TestError("Modification time not changed #2")
+

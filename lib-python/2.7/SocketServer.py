@@ -216,6 +216,7 @@ class BaseServer:
         May be overridden.
 
         """
+        pass
 
     def serve_forever(self, poll_interval=0.5):
         """Handle one request at a time until shutdown.
@@ -301,6 +302,7 @@ class BaseServer:
 
         Overridden by ForkingMixIn.
         """
+        pass
 
     def verify_request(self, request, client_address):
         """Verify the request.  May be overridden.
@@ -325,6 +327,7 @@ class BaseServer:
         May be overridden.
 
         """
+        pass
 
     def finish_request(self, request, client_address):
         """Finish one request by instantiating RequestHandlerClass."""
@@ -336,6 +339,7 @@ class BaseServer:
 
     def close_request(self, request):
         """Called to clean up an individual request."""
+        pass
 
     def handle_error(self, request, client_address):
         """Handle an error gracefully.  May be overridden.

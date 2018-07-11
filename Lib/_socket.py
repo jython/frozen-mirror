@@ -27,15 +27,9 @@ from java.nio.channels import ClosedChannelException
 from java.security.cert import CertificateException
 from java.util import NoSuchElementException
 from java.util.concurrent import (
-    ArrayBlockingQueue,
-    CopyOnWriteArrayList,
-    CountDownLatch,
-    LinkedBlockingQueue,
-    ExecutionException,
-    RejectedExecutionException,
-    ThreadFactory,
-    TimeoutException,
-    TimeUnit)
+    ArrayBlockingQueue, CopyOnWriteArrayList, CountDownLatch, LinkedBlockingQueue,
+    ExecutionException, RejectedExecutionException, ThreadFactory,
+    TimeoutException, TimeUnit)
 from java.util.concurrent.atomic import AtomicBoolean, AtomicLong
 from javax.net.ssl import SSLPeerUnverifiedException, SSLException, SSLHandshakeException
 
@@ -76,7 +70,7 @@ def _debug():
 # Constants
 ###########
 
-has_ipv6 = True  # IPV6 FTW!
+has_ipv6 = True # IPV6 FTW!
 _GLOBAL_DEFAULT_TIMEOUT = object()
 _EPHEMERAL_ADDRESS = InetSocketAddress(0)
 _BOUND_EPHEMERAL_ADDRESS = object()
@@ -85,104 +79,104 @@ _BOUND_EPHEMERAL_ADDRESS = object()
 # arbitrary for the implementation of socket/ssl/select purposes, but
 # some misbehaved code may want to use the arbitrary numbers
 
-SHUT_RD = 0
-SHUT_WR = 1
+SHUT_RD   = 0
+SHUT_WR   = 1
 SHUT_RDWR = 2
 
 AF_UNSPEC = 0
-AF_INET = 2
-AF_INET6 = 23
+AF_INET   = 2
+AF_INET6  = 23
 
-AI_PASSIVE = 1
-AI_CANONNAME = 2
+AI_PASSIVE     = 1
+AI_CANONNAME   = 2
 AI_NUMERICHOST = 4
-AI_V4MAPPED = 8
-AI_ALL = 16
-AI_ADDRCONFIG = 32
+AI_V4MAPPED    = 8
+AI_ALL         = 16
+AI_ADDRCONFIG  = 32
 AI_NUMERICSERV = 1024
 
-EAI_NONAME = -2
-EAI_SERVICE = -8
+EAI_NONAME     = -2
+EAI_SERVICE    = -8
 EAI_ADDRFAMILY = -9
 
-NI_NUMERICHOST = 1
-NI_NUMERICSERV = 2
-NI_NOFQDN = 4
-NI_NAMEREQD = 8
-NI_DGRAM = 16
-NI_MAXSERV = 32
-NI_IDN = 64
-NI_IDN_ALLOW_UNASSIGNED = 128
+NI_NUMERICHOST              = 1
+NI_NUMERICSERV              = 2
+NI_NOFQDN                   = 4
+NI_NAMEREQD                 = 8
+NI_DGRAM                    = 16
+NI_MAXSERV                  = 32
+NI_IDN                      = 64
+NI_IDN_ALLOW_UNASSIGNED     = 128
 NI_IDN_USE_STD3_ASCII_RULES = 256
-NI_MAXHOST = 1025
+NI_MAXHOST                  = 1025
 
-SOCK_DGRAM = 1
-SOCK_STREAM = 2
-SOCK_RAW = 3  # not supported
-SOCK_RDM = 4  # not supported
-SOCK_SEQPACKET = 5  # not supported
+SOCK_DGRAM     = 1
+SOCK_STREAM    = 2
+SOCK_RAW       = 3 # not supported
+SOCK_RDM       = 4 # not supported
+SOCK_SEQPACKET = 5 # not supported
 
 SOL_SOCKET = 0xFFFF
 
-IPPROTO_AH = 51  # not supported
-IPPROTO_DSTOPTS = 60  # not supported
-IPPROTO_ESP = 50  # not supported
-IPPROTO_FRAGMENT = 44  # not supported
-IPPROTO_GGP = 3  # not supported
-IPPROTO_HOPOPTS = 0  # not supported
-IPPROTO_ICMP = 1  # not supported
-IPPROTO_ICMPV6 = 58  # not supported
-IPPROTO_IDP = 22  # not supported
-IPPROTO_IGMP = 2  # not supported
-IPPROTO_IP = 0
-IPPROTO_IPV4 = 4  # not supported
-IPPROTO_IPV6 = 41  # not supported
-IPPROTO_MAX = 256  # not supported
-IPPROTO_ND = 77  # not supported
-IPPROTO_NONE = 59  # not supported
-IPPROTO_PUP = 12  # not supported
-IPPROTO_RAW = 255  # not supported
-IPPROTO_ROUTING = 43  # not supported
+IPPROTO_AH       =  51 # not supported
+IPPROTO_DSTOPTS  =  60 # not supported
+IPPROTO_ESP      =  50 # not supported
+IPPROTO_FRAGMENT =  44 # not supported
+IPPROTO_GGP      =   3 # not supported
+IPPROTO_HOPOPTS  =   0 # not supported
+IPPROTO_ICMP     =   1 # not supported
+IPPROTO_ICMPV6   =  58 # not supported
+IPPROTO_IDP      =  22 # not supported
+IPPROTO_IGMP     =   2 # not supported
+IPPROTO_IP       =   0
+IPPROTO_IPV4     =   4 # not supported
+IPPROTO_IPV6     =  41 # not supported
+IPPROTO_MAX      = 256 # not supported
+IPPROTO_ND       =  77 # not supported
+IPPROTO_NONE     =  59 # not supported
+IPPROTO_PUP      =  12 # not supported
+IPPROTO_RAW      = 255 # not supported
+IPPROTO_ROUTING  =  43 # not supported
 SOL_TCP = IPPROTO_TCP = 6
-IPPROTO_UDP = 17
+IPPROTO_UDP      =  17
 
-SO_ACCEPTCONN = 1
-SO_BROADCAST = 2
-SO_ERROR = 4
-SO_KEEPALIVE = 8
-SO_LINGER = 16
-SO_OOBINLINE = 32
-SO_RCVBUF = 64
-SO_REUSEADDR = 128
-SO_SNDBUF = 256
-SO_TIMEOUT = 512
-SO_TYPE = 1024
+SO_ACCEPTCONN  = 1
+SO_BROADCAST   = 2
+SO_ERROR       = 4
+SO_KEEPALIVE   = 8
+SO_LINGER      = 16
+SO_OOBINLINE   = 32
+SO_RCVBUF      = 64
+SO_REUSEADDR   = 128
+SO_SNDBUF      = 256
+SO_TIMEOUT     = 512
+SO_TYPE        = 1024
 
 # Options with negative constants are not supported
 # They are being added here so that code that refers to them
 # will not break with an AttributeError
 
-SO_DEBUG = -1
-SO_DONTROUTE = -1
-SO_RCVLOWAT = -16
-SO_RCVTIMEO = -32
-SO_REUSEPORT = -64
-SO_SNDLOWAT = -128
-SO_SNDTIMEO = -256
-SO_USELOOPBACK = -512
+SO_DEBUG            = -1
+SO_DONTROUTE        = -1
+SO_RCVLOWAT         = -16
+SO_RCVTIMEO         = -32
+SO_REUSEPORT        = -64
+SO_SNDLOWAT         = -128
+SO_SNDTIMEO         = -256
+SO_USELOOPBACK      = -512
 
-TCP_NODELAY = 2048
+TCP_NODELAY    = 2048
 
 INADDR_ANY = "0.0.0.0"
 INADDR_BROADCAST = "255.255.255.255"
 
 IN6ADDR_ANY_INIT = "::"
 
-POLLIN = 1
-POLLOUT = 2
-POLLPRI = 4   # Ignored - not supportable on Java
-POLLERR = 8
-POLLHUP = 16
+POLLIN   = 1
+POLLOUT  = 2
+POLLPRI  = 4   # Ignored - not supportable on Java
+POLLERR  = 8
+POLLHUP  = 16
 POLLNVAL = 32  # Polled when not open - no Netty channel
 
 
@@ -220,8 +214,7 @@ class DaemonThreadFactory(ThreadFactory):
         return t
 
 
-NIO_GROUP = NioEventLoopGroup(_NUM_THREADS,
-                              DaemonThreadFactory("Jython-Netty-Client-%s"))
+NIO_GROUP = NioEventLoopGroup(_NUM_THREADS, DaemonThreadFactory("Jython-Netty-Client-%s"))
 
 
 def _check_threadpool_for_pending_threads(group):
@@ -230,11 +223,7 @@ def _check_threadpool_for_pending_threads(group):
         pending_count = t.pendingTasks()
         if pending_count > 0:
             pending_threads.append((t, pending_count))
-    log.debug(
-        "Pending threads in Netty pool: %s",
-        pprint.pformat(pending_threads),
-        extra={
-            "sock": "*"})
+    log.debug("Pending threads in Netty pool: %s", pprint.pformat(pending_threads),  extra={"sock": "*"})
     return pending_threads
 
 
@@ -251,32 +240,17 @@ def _shutdown_threadpool():
 # Ensure deallocation of thread pool if PySystemState.cleanup is
 # called; this includes in the event of sigterm
 
-
 sys.registerCloser(_shutdown_threadpool)
 
 
 # Error management
 ##################
 
-class error(IOError):
-    pass
-
-
-class herror(error):
-    pass
-
-
-class gaierror(error):
-    pass
-
-
-class timeout(error):
-    pass
-
-
-class SSLError(error):
-    pass   # FIXME import from ssl, solving the usual mutual import schema
-
+class error(IOError): pass
+class herror(error): pass
+class gaierror(error): pass
+class timeout(error): pass
+class SSLError(error): pass   # FIXME import from ssl, solving the usual mutual import schema
 
 SSL_ERROR_SSL = 1
 SSL_ERROR_WANT_READ = 2
@@ -301,12 +275,10 @@ def _unmapped_exception(exc):
 
 
 def java_net_socketexception_handler(exc):
-    if exc.message.startswith(
-            "Address family not supported by protocol family"):
+    if exc.message.startswith("Address family not supported by protocol family"):
         return _add_exception_attrs(
-            error(
-                errno.EAFNOSUPPORT,
-                'Address family not supported by protocol family: See http://wiki.python.org/jython/NewSocketModule#IPV6_address_support'))
+            error(errno.EAFNOSUPPORT,
+                  'Address family not supported by protocol family: See http://wiki.python.org/jython/NewSocketModule#IPV6_address_support'))
     if exc.message.startswith('Address already in use'):
         return error(errno.EADDRINUSE, 'Address already in use')
     return _unmapped_exception(exc)
@@ -314,53 +286,49 @@ def java_net_socketexception_handler(exc):
 
 def would_block_error(exc=None):
     return _add_exception_attrs(
-        error(
-            errno.EWOULDBLOCK,
-            'The socket operation could not complete without blocking'))
+        error(errno.EWOULDBLOCK, 'The socket operation could not complete without blocking'))
 
 
 _exception_map = {
 
-    # javaexception : callable that raises the python equivalent exception, or
-    # None to stub out as unmapped
+    # javaexception : callable that raises the python equivalent exception, or None to stub out as unmapped
 
-    IOException: lambda x: error(errno.ECONNRESET, 'Software caused connection abort'),
-    InterruptedIOException: lambda x: timeout(errno.ETIMEDOUT, 'timed out'),
-    IllegalStateException: lambda x: error(errno.EPIPE, 'Illegal state exception'),
+    IOException            : lambda x: error(errno.ECONNRESET, 'Software caused connection abort'),
+    InterruptedIOException : lambda x: timeout(errno.ETIMEDOUT, 'timed out'),
+    IllegalStateException  : lambda x: error(errno.EPIPE, 'Illegal state exception'),
 
-    java.net.BindException: lambda x: error(errno.EADDRINUSE, 'Address already in use'),
-    java.net.ConnectException: lambda x: error(errno.ECONNREFUSED, 'Connection refused'),
-    java.net.NoRouteToHostException: lambda x: error(errno.EHOSTUNREACH, 'No route to host'),
-    java.net.PortUnreachableException: None,
-    java.net.ProtocolException: None,
-    java.net.SocketException: java_net_socketexception_handler,
-    java.net.SocketTimeoutException: lambda x: timeout(errno.ETIMEDOUT, 'timed out'),
-    java.net.UnknownHostException: lambda x: gaierror(errno.EGETADDRINFOFAILED, 'getaddrinfo failed'),
+    java.net.BindException            : lambda x: error(errno.EADDRINUSE, 'Address already in use'),
+    java.net.ConnectException         : lambda x: error(errno.ECONNREFUSED, 'Connection refused'),
+    java.net.NoRouteToHostException   : lambda x: error(errno.EHOSTUNREACH, 'No route to host'),
+    java.net.PortUnreachableException : None,
+    java.net.ProtocolException        : None,
+    java.net.SocketException          : java_net_socketexception_handler,
+    java.net.SocketTimeoutException   : lambda x: timeout(errno.ETIMEDOUT, 'timed out'),
+    java.net.UnknownHostException     : lambda x: gaierror(errno.EGETADDRINFOFAILED, 'getaddrinfo failed'),
 
-    java.nio.channels.AlreadyConnectedException: lambda x: error(errno.EISCONN, 'Socket is already connected'),
-    java.nio.channels.AsynchronousCloseException: None,
-    java.nio.channels.CancelledKeyException: None,
-    java.nio.channels.ClosedByInterruptException: None,
-    java.nio.channels.ClosedChannelException: lambda x: error(errno.ECONNRESET, 'Socket closed'),
-    java.nio.channels.ClosedSelectorException: None,
-    java.nio.channels.ConnectionPendingException: None,
-    java.nio.channels.IllegalBlockingModeException: None,
-    java.nio.channels.IllegalSelectorException: None,
-    java.nio.channels.NoConnectionPendingException: None,
-    java.nio.channels.NonReadableChannelException: None,
-    java.nio.channels.NonWritableChannelException: None,
-    java.nio.channels.NotYetBoundException: None,
-    java.nio.channels.NotYetConnectedException: None,
-    java.nio.channels.UnresolvedAddressException: lambda x: gaierror(errno.EGETADDRINFOFAILED, 'getaddrinfo failed'),
-    java.nio.channels.UnsupportedAddressTypeException: None,
+    java.nio.channels.AlreadyConnectedException       : lambda x: error(errno.EISCONN, 'Socket is already connected'),
+    java.nio.channels.AsynchronousCloseException      : None,
+    java.nio.channels.CancelledKeyException           : None,
+    java.nio.channels.ClosedByInterruptException      : None,
+    java.nio.channels.ClosedChannelException          : lambda x: error(errno.ECONNRESET, 'Socket closed'),
+    java.nio.channels.ClosedSelectorException         : None,
+    java.nio.channels.ConnectionPendingException      : None,
+    java.nio.channels.IllegalBlockingModeException    : None,
+    java.nio.channels.IllegalSelectorException        : None,
+    java.nio.channels.NoConnectionPendingException    : None,
+    java.nio.channels.NonReadableChannelException     : None,
+    java.nio.channels.NonWritableChannelException     : None,
+    java.nio.channels.NotYetBoundException            : None,
+    java.nio.channels.NotYetConnectedException        : None,
+    java.nio.channels.UnresolvedAddressException      : lambda x: gaierror(errno.EGETADDRINFOFAILED, 'getaddrinfo failed'),
+    java.nio.channels.UnsupportedAddressTypeException : None,
 
     SSLPeerUnverifiedException: lambda x: SSLError(SSL_ERROR_SSL, x.message),
     # FIXME
     # CPython wraps with a message like so:
     #   ssl.SSLError: [SSL: UNKNOWN_PROTOCOL] unknown protocol (_ssl.c:590)
     # Currently this error handler produces this message:
-    # _socket.SSLError: [Errno 1] not an SSL/TLS record:
-    # 48692c2049276d206120636c69656e7421
+    #   _socket.SSLError: [Errno 1] not an SSL/TLS record: 48692c2049276d206120636c69656e7421
     NotSslRecordException: lambda x: SSLError(SSL_UNKNOWN_PROTOCOL, x.message),
 }
 
@@ -368,16 +336,11 @@ _exception_map = {
 def _map_exception(java_exception):
     if isinstance(java_exception, NettyChannelException):
         java_exception = java_exception.cause  # unwrap
-    if isinstance(
-            java_exception,
-            SSLException) or isinstance(
-            java_exception,
-            CertificateException):
+    if isinstance(java_exception, SSLException) or isinstance(java_exception, CertificateException):
         cause = java_exception.cause
         if cause:
             # netty is freaking backwards here. The original exception may be CertificateException
-            # but netty wraps it in SSLHandshakeException, we need to unwrap to
-            # present the right message
+            # but netty wraps it in SSLHandshakeException, we need to unwrap to present the right message
             if isinstance(cause, SSLHandshakeException):
                 if isinstance(cause.cause, CertificateException):
                     java_exception = cause.cause
@@ -395,8 +358,7 @@ def _map_exception(java_exception):
         # Netty AnnotatedNoRouteToHostException extends NoRouteToHostException
         # so also needs work around.
         elif isinstance(java_exception, java.net.NoRouteToHostException):
-            mapped_exception = _exception_map.get(
-                java.net.NoRouteToHostException)
+            mapped_exception = _exception_map.get(java.net.NoRouteToHostException)
         else:
             mapped_exception = _exception_map.get(java_exception.__class__)
         if mapped_exception:
@@ -418,9 +380,9 @@ def raises_java_exception(method_or_function):
         try:
             try:
                 return method_or_function(*args, **kwargs)
-            except java.lang.Exception as jlx:
+            except java.lang.Exception, jlx:
                 raise _map_exception(jlx)
-        except error as e:
+        except error, e:
             if is_socket:
                 args[0]._last_error = e[0]
             raise
@@ -429,7 +391,6 @@ def raises_java_exception(method_or_function):
                 args[0]._last_error = 0
     return handle_exception
 
-
 def _fsencode(name):
     """Ensure that a name that may be given as a unicode object (e.g. returned
     from Java) is converted to the expected bytes representation using the
@@ -437,7 +398,6 @@ def _fsencode(name):
     if isinstance(name, unicode):
         return name.encode(sys.getfilesystemencoding())
     return name
-
 
 def _fsdecode(name):
     """Ensure that a name that may be given as a bytes object (normal for
@@ -476,11 +436,7 @@ class _Select(object):
             self.cv.notify()
 
     def __str__(self):
-        return "_Select(r={},w={},x={})".format(
-            list(
-                self.rlist), list(
-                self.wlist), list(
-                self.xlist))
+        return "_Select(r={},w={},x={})".format(list(self.rlist), list(self.wlist), list(self.xlist))
 
     @contextmanager
     def _register_sockets(self, socks):
@@ -497,10 +453,8 @@ class _Select(object):
             while True:
                 # Checking if sockets are ready (readable OR writable)
                 # converts selection from detecting edges to detecting levels
-                selected_rlist = set(
-                    sock for sock in self.rlist if sock.fileno()._readable())
-                selected_wlist = set(
-                    sock for sock in self.wlist if sock.fileno()._writable())
+                selected_rlist = set(sock for sock in self.rlist if sock.fileno()._readable())
+                selected_wlist = set(sock for sock in self.wlist if sock.fileno()._writable())
                 # FIXME add support for exceptions
                 selected_xlist = []
 
@@ -509,13 +463,8 @@ class _Select(object):
                 # shortcircuiting if the socket was in fact ready for
                 # reading/writing/exception before the select call
                 if selected_rlist or selected_wlist:
-                    completed = sorted(selected_rlist), sorted(
-                        selected_wlist), sorted(selected_xlist)
-                    log.debug(
-                        "Completed select %s",
-                        completed,
-                        extra={
-                            "sock": "*"})
+                    completed = sorted(selected_rlist), sorted(selected_wlist), sorted(selected_xlist)
+                    log.debug("Completed select %s", completed, extra={"sock": "*"})
                     return completed
                 elif timeout is not None and time.time() - started >= timeout:
                     return [], [], []
@@ -528,9 +477,7 @@ class _Select(object):
 _PollNotification = namedtuple(
     "_PollNotification",
     ["sock",  # the real socket
-     # could be the real socket (as returned by fileno) or a wrapping socket
-     # object
-     "fd",
+     "fd",    # could be the real socket (as returned by fileno) or a wrapping socket object
      "exception",
      "hangup"])
 
@@ -540,8 +487,7 @@ class poll(object):
     def __init__(self):
         self.queue = LinkedBlockingQueue()
         self.registered = dict()  # fd -> eventmask
-        self.socks2fd = dict_builder(
-            MapMaker().weakKeys().makeMap)()  # sock -> fd
+        self.socks2fd = dict_builder(MapMaker().weakKeys().makeMap)()  # sock -> fd
 
     def notify(self, sock, exception=None, hangup=False):
         notification = _PollNotification(
@@ -553,16 +499,11 @@ class poll(object):
 
         self.queue.put(notification)
 
-    def register(self, fd, eventmask=POLLIN | POLLPRI | POLLOUT):
+    def register(self, fd, eventmask=POLLIN|POLLPRI|POLLOUT):
         if not hasattr(fd, "fileno"):
             raise TypeError("argument must have a fileno() method")
         sock = fd.fileno()
-        log.debug(
-            "Register fd=%s eventmask=%s",
-            fd,
-            eventmask,
-            extra={
-                "sock": sock})
+        log.debug("Register fd=%s eventmask=%s", fd, eventmask, extra={"sock": sock})
         self.registered[fd] = eventmask
         self.socks2fd[sock] = fd
         sock._register_selector(self)
@@ -588,14 +529,8 @@ class poll(object):
         # edges around errors and hangup
         if notification is None:
             return None, 0
-        # handle if concurrently removed, by simply ignoring
-        mask = self.registered.get(notification.fd, 0)
-        log.debug(
-            "Testing notification=%s mask=%s",
-            notification,
-            mask,
-            extra={
-                "sock": "*"})
+        mask = self.registered.get(notification.fd, 0)   # handle if concurrently removed, by simply ignoring
+        log.debug("Testing notification=%s mask=%s", notification, mask, extra={"sock": "*"})
         event = 0
         if mask & POLLIN and notification.sock._readable():
             event |= POLLIN
@@ -603,17 +538,11 @@ class poll(object):
             event |= POLLOUT
         if mask & POLLERR and notification.exception:
             event |= POLLERR
-        if mask & POLLHUP and (
-                notification.hangup or not notification.sock.channel):
+        if mask & POLLHUP and (notification.hangup or not notification.sock.channel):
             event |= POLLHUP
         if mask & POLLNVAL and not notification.sock.peer_closed:
             event |= POLLNVAL
-        log.debug(
-            "Tested notification=%s event=%s",
-            notification,
-            event,
-            extra={
-                "sock": "*"})
+        log.debug("Tested notification=%s event=%s", notification, event, extra={"sock": "*"})
         return notification.fd, event
 
     def _handle_poll(self, poller):
@@ -625,11 +554,7 @@ class poll(object):
         # of the queue
         notifications = [notification]
         self.queue.drainTo(notifications)
-        log.debug(
-            "Got notification(s) %s",
-            notifications,
-            extra={
-                "sock": "MODULE"})
+        log.debug("Got notification(s) %s", notifications, extra={"sock": "MODULE"})
         result = []
         socks = set()
 
@@ -651,9 +576,7 @@ class poll(object):
 
     def poll(self, timeout=None):
         if not (timeout is None or isinstance(timeout, numbers.Real)):
-            raise TypeError(
-                "timeout must be a number or None, got %r" %
-                (timeout,))
+            raise TypeError("timeout must be a number or None, got %r" % (timeout,))
         if timeout < 0:
             timeout = None
         log.debug("Polling timeout=%s", timeout, extra={"sock": "*"})
@@ -662,24 +585,15 @@ class poll(object):
         elif timeout == 0:
             return self._handle_poll(self.queue.poll)
         else:
-            timeout = float(timeout) / \
-                1000.  # convert from milliseconds to seconds
+            timeout = float(timeout) / 1000.  # convert from milliseconds to seconds
             while timeout > 0:
                 started = time.time()
                 timeout_in_ns = int(timeout * _TO_NANOSECONDS)
-                result = self._handle_poll(
-                    partial(
-                        self.queue.poll,
-                        timeout_in_ns,
-                        TimeUnit.NANOSECONDS))
+                result = self._handle_poll(partial(self.queue.poll, timeout_in_ns, TimeUnit.NANOSECONDS))
                 if result:
                     return result
                 timeout -= time.time() - started
-                log.debug(
-                    "Spurious wakeup, retrying with timeout=%s",
-                    timeout,
-                    extra={
-                        "sock": "*"})
+                log.debug("Spurious wakeup, retrying with timeout=%s", timeout, extra={"sock": "*"})
             return []
 
 
@@ -710,11 +624,7 @@ class PythonInboundHandler(ChannelInboundHandlerAdapter):
         ctx.fireChannelWritabilityChanged()
 
     def exceptionCaught(self, ctx, cause):
-        log.debug(
-            "Channel caught exception %s",
-            cause,
-            extra={
-                "sock": self.sock})
+        log.debug("Channel caught exception %s", cause, extra={"sock": self.sock})
         self.sock._notify_selectors(exception=cause)
 
 
@@ -725,9 +635,7 @@ class ChildSocketHandler(ChannelInitializer):
 
     def initChannel(self, child_channel):
         child = ChildSocket(self.parent_socket)
-        log.debug(
-            "Initializing child %s", child, extra={
-                "sock": self.parent_socket})
+        log.debug("Initializing child %s", child, extra={"sock": self.parent_socket})
 
         child.proto = IPPROTO_TCP
         child._init_client_mode(child_channel)
@@ -737,14 +645,9 @@ class ChildSocketHandler(ChannelInitializer):
         #
         # It's OK that this copy could occur without a mutex, given
         # that such iteration is guaranteed to be weakly consistent
-        child.options = dict(
-            ((option, value) for option, value in self.parent_socket.options.iteritems()))
+        child.options = dict(((option, value) for option, value in self.parent_socket.options.iteritems()))
         if child.options:
-            log.debug(
-                "Setting inherited options %s",
-                child.options,
-                extra={
-                    "sock": child})
+            log.debug("Setting inherited options %s", child.options, extra={"sock": child})
             config = child_channel.config()
             for option, value in child.options.iteritems():
                 _set_option(config.setOption, option, value)
@@ -757,25 +660,15 @@ class ChildSocketHandler(ChannelInitializer):
         # Parent socket is wrapping, so we know intent and we can
         # return as soon as handshaking is completed, if any
         if hasattr(self.parent_socket, "ssl_wrap_child_socket"):
-            log.debug(
-                "Wrapping child socket for a wrapped parent=%s",
-                self.parent_socket,
-                extra={
-                    "sock": self})
-            child._wrapper_socket = self.parent_socket.ssl_wrap_child_socket(
-                child)
+            log.debug("Wrapping child socket for a wrapped parent=%s", self.parent_socket, extra={"sock": self})
+            child._wrapper_socket = self.parent_socket.ssl_wrap_child_socket(child)
             child._handshake_future.sync()
             child._post_connect()
             self.parent_socket.child_queue.put(child)
-            log.debug("Notifing listeners of parent socket %s",
-                      self.parent_socket, extra={"sock": child})
+            log.debug("Notifing listeners of parent socket %s", self.parent_socket, extra={"sock": child})
             self.parent_socket._notify_selectors()
-            log.debug(
-                "Notified listeners of parent socket %s with queue %s",
-                self.parent_socket,
-                self.parent_socket.child_queue,
-                extra={
-                    "sock": child})
+            log.debug("Notified listeners of parent socket %s with queue %s",
+                      self.parent_socket, self.parent_socket.child_queue, extra={"sock": child})
             return
 
         # Otherwise, must wait on this barrier until the child socket
@@ -788,36 +681,20 @@ class ChildSocketHandler(ChannelInitializer):
             def wait_for_barrier():
                 with child._activation_cv:
                     self.parent_socket.child_queue.put(child)
-                    log.debug(
-                        "Notifing listeners of parent socket %s",
-                        self.parent_socket,
-                        extra={
-                            "sock": child})
+                    log.debug("Notifing listeners of parent socket %s", self.parent_socket, extra={"sock": child})
                     self.parent_socket._notify_selectors()
-                    log.debug(
-                        "Notified listeners of parent socket %s with queue %s",
-                        self.parent_socket,
-                        self.parent_socket.child_queue,
-                        extra={
-                            "sock": child})
+                    log.debug("Notified listeners of parent socket %s with queue %s",
+                          self.parent_socket, self.parent_socket.child_queue, extra={"sock": child})
             self.parent_socket.parent_group.submit(wait_for_barrier)
             while not child._activated:
-                log.debug(
-                    "Waiting for optional wrapping", extra={
-                        "sock": child})
+                log.debug("Waiting for optional wrapping", extra={"sock": child})
                 child._activation_cv.wait()
 
-        log.debug(
-            "Completed waiting for optional wrapping",
-            extra={
-                "sock": child})
+        log.debug("Completed waiting for optional wrapping", extra={"sock": child})
         if hasattr(child, "ssl_wrap_self"):
             log.debug("Wrapping self", extra={"sock": child})
             child.ssl_wrap_self()
-        log.debug(
-            "Activating child socket by adding inbound handler",
-            extra={
-                "sock": child})
+        log.debug("Activating child socket by adding inbound handler", extra={"sock": child})
         child._post_connect()
         child._channel_is_initialized = True
 
@@ -825,9 +702,9 @@ class ChildSocketHandler(ChannelInitializer):
 # FIXME raise exceptions for ops not permitted on client socket, server socket
 UNKNOWN_SOCKET, CLIENT_SOCKET, SERVER_SOCKET, DATAGRAM_SOCKET = range(4)
 _socket_types = {
-    UNKNOWN_SOCKET: "unknown",
-    CLIENT_SOCKET: "client",
-    SERVER_SOCKET: "server",
+    UNKNOWN_SOCKET:  "unknown",
+    CLIENT_SOCKET:   "client",
+    SERVER_SOCKET:   "server",
     DATAGRAM_SOCKET: "datagram"
 }
 
@@ -853,28 +730,26 @@ def _set_option(setter, option, value):
         setter(option, value)
 
 
-# These are the only socket protocols we currently support, so it's easy
-# to map as follows:
+# These are the only socket protocols we currently support, so it's easy to map as follows:
 
 _socket_options = {
     IPPROTO_TCP: {
-        (SOL_SOCKET, SO_KEEPALIVE): (ChannelOption.SO_KEEPALIVE, bool),
-        (SOL_SOCKET, SO_LINGER): (ChannelOption.SO_LINGER, _identity),
-        (SOL_SOCKET, SO_RCVBUF): (ChannelOption.SO_RCVBUF, int),
-        (SOL_SOCKET, SO_REUSEADDR): (ChannelOption.SO_REUSEADDR, bool),
-        (SOL_SOCKET, SO_SNDBUF): (ChannelOption.SO_SNDBUF, int),
-        (SOL_SOCKET, SO_TIMEOUT): (ChannelOption.SO_TIMEOUT, int),
-        (IPPROTO_TCP, TCP_NODELAY): (ChannelOption.TCP_NODELAY, bool),
+        (SOL_SOCKET,  SO_KEEPALIVE):   (ChannelOption.SO_KEEPALIVE, bool),
+        (SOL_SOCKET,  SO_LINGER):      (ChannelOption.SO_LINGER, _identity),
+        (SOL_SOCKET,  SO_RCVBUF):      (ChannelOption.SO_RCVBUF, int),
+        (SOL_SOCKET,  SO_REUSEADDR):   (ChannelOption.SO_REUSEADDR, bool),
+        (SOL_SOCKET,  SO_SNDBUF):      (ChannelOption.SO_SNDBUF, int),
+        (SOL_SOCKET,  SO_TIMEOUT):     (ChannelOption.SO_TIMEOUT, int),
+        (IPPROTO_TCP, TCP_NODELAY):    (ChannelOption.TCP_NODELAY, bool),
     },
     IPPROTO_UDP: {
-        (SOL_SOCKET, SO_BROADCAST): (ChannelOption.SO_BROADCAST, bool),
-        (SOL_SOCKET, SO_RCVBUF): (ChannelOption.SO_RCVBUF, int),
-        (SOL_SOCKET, SO_REUSEADDR): (ChannelOption.SO_REUSEADDR, bool),
-        (SOL_SOCKET, SO_SNDBUF): (ChannelOption.SO_SNDBUF, int),
-        (SOL_SOCKET, SO_TIMEOUT): (ChannelOption.SO_TIMEOUT, int),
+        (SOL_SOCKET,  SO_BROADCAST):   (ChannelOption.SO_BROADCAST, bool),
+        (SOL_SOCKET,  SO_RCVBUF):      (ChannelOption.SO_RCVBUF, int),
+        (SOL_SOCKET,  SO_REUSEADDR):   (ChannelOption.SO_REUSEADDR, bool),
+        (SOL_SOCKET,  SO_SNDBUF):      (ChannelOption.SO_SNDBUF, int),
+        (SOL_SOCKET,  SO_TIMEOUT):     (ChannelOption.SO_TIMEOUT, int),
     }
 }
-
 
 def _socktuple(addr):
     port = addr.getPort()
@@ -886,7 +761,6 @@ def _socktuple(addr):
 
 # actual socket support
 #######################
-
 
 class _realsocket(object):
 
@@ -933,9 +807,7 @@ class _realsocket(object):
         pass
 
     def _register_selector(self, selector):
-        # attempting to poll/select on a socket means waiting for wrap intent
-        # is done
-        self._make_active()
+        self._make_active()  # attempting to poll/select on a socket means waiting for wrap intent is done
         self.selectors.addIfAbsent(selector)
 
     def _unregister_selector(self, selector):
@@ -955,26 +827,15 @@ class _realsocket(object):
         # All differences between nonblocking vs blocking with optional timeouts
         # is managed by this method.
         #
-        # All sockets can be selected on, regardless of blocking/nonblocking
-        # state.
+        # All sockets can be selected on, regardless of blocking/nonblocking state.
         future.addListener(self._notify_selectors)
         if self.timeout is None:
-            log.debug(
-                "Syncing on future %s for %s",
-                future,
-                reason,
-                extra={
-                    "sock": self})
+            log.debug("Syncing on future %s for %s", future, reason, extra={"sock": self})
             return future.sync()
         elif self.timeout:
             self._handle_timeout(future.await, reason)
             if not future.isSuccess():
-                log.debug(
-                    "Got this failure %s during %s",
-                    future.cause(),
-                    reason,
-                    extra={
-                        "sock": self})
+                log.debug("Got this failure %s during %s", future.cause(), reason, extra={"sock": self})
                 raise future.cause()
             return future
         else:
@@ -994,19 +855,10 @@ class _realsocket(object):
 
     def _handle_timeout(self, waiter, reason):
         timeout_in_ns = int(self.timeout * _TO_NANOSECONDS)
-        log.debug(
-            "Waiting for up to %.2fs for %s",
-            self.timeout,
-            reason,
-            extra={
-                "sock": self})
+        log.debug("Waiting for up to %.2fs for %s", self.timeout, reason, extra={"sock": self})
         started = time.time()
         result = waiter(timeout_in_ns, TimeUnit.NANOSECONDS)
-        log.debug(
-            "Completed in %.2fs",
-            time.time() - started,
-            extra={
-                "sock": self})
+        log.debug("Completed in %.2fs",  time.time() - started, extra={"sock": self})
         if not result:
             # above predicate handles either the case the waiter is
             # returning a value or in the case ChannelFuture#await,
@@ -1021,8 +873,7 @@ class _realsocket(object):
     def bind(self, address):
         # Netty 4 supports binding a socket to multiple addresses;
         # apparently this is the not the case for C API sockets
-        self.bind_addr = _get_jsockaddr(
-            address, self.family, self.type, self.proto, AI_PASSIVE)
+        self.bind_addr = _get_jsockaddr(address, self.family, self.type, self.proto, AI_PASSIVE)
         self._datagram_connect()  # as necessary
 
     # CLIENT METHODS
@@ -1064,12 +915,7 @@ class _realsocket(object):
             bootstrap.handler(self.python_inbound_handler)
 
         if self.bind_addr:
-            log.debug(
-                "Connect %s to %s",
-                self.bind_addr,
-                addr,
-                extra={
-                    "sock": self})
+            log.debug("Connect %s to %s", self.bind_addr, addr, extra={"sock": self})
             bind_future = bootstrap.bind(self.bind_addr).sync()
             self._handle_channel_future(bind_future, "local bind")
             self.channel = bind_future.channel()
@@ -1093,18 +939,14 @@ class _realsocket(object):
             self.incoming.put(_PEER_CLOSED)
             self._notify_selectors(hangup=True)
 
-        log.debug("Add _peer_closed to channel close", extra={"sock": self})
+        log.debug("Add _peer_closed to channel close", extra={"sock": self}) 
         self.channel.closeFuture().addListener(_peer_closed)
 
     def connect(self, addr):
         # Unwrapped sockets can immediately perform the post-connect step
         if self.socket_type == DATAGRAM_SOCKET:
             self._datagram_connect(addr)
-            log.debug(
-                "Completed datagram connection to %s",
-                addr,
-                extra={
-                    "sock": self})
+            log.debug("Completed datagram connection to %s", addr, extra={"sock": self})
         else:
             self._connect(addr)
             self._post_connect()
@@ -1112,7 +954,7 @@ class _realsocket(object):
 
     def connect_ex(self, addr):
         was_connecting = self.connected  # actually means self.connecting if
-        # not blocking
+                                         # not blocking
         if not self.connected:
             try:
                 self.connect(addr)
@@ -1159,14 +1001,10 @@ class _realsocket(object):
 
         b = ServerBootstrap()
         try:
-            self.parent_group = NioEventLoopGroup(
-                _NUM_THREADS, DaemonThreadFactory("Jython-Netty-Parent-%s"))
-            self.child_group = NioEventLoopGroup(
-                _NUM_THREADS, DaemonThreadFactory("Jython-Netty-Child-%s"))
+            self.parent_group = NioEventLoopGroup(_NUM_THREADS, DaemonThreadFactory("Jython-Netty-Parent-%s"))
+            self.child_group = NioEventLoopGroup(_NUM_THREADS, DaemonThreadFactory("Jython-Netty-Child-%s"))
         except IllegalStateException:
-            raise error(
-                errno.EMFILE,
-                "Cannot allocate thread pool for server socket")
+            raise error(errno.EMFILE, "Cannot allocate thread pool for server socket")
         b.group(self.parent_group, self.child_group)
         b.channel(NioServerSocketChannel)
         b.option(ChannelOption.SO_BACKLOG, backlog)
@@ -1179,47 +1017,25 @@ class _realsocket(object):
         self.child_handler = ChildSocketHandler(self)
         b.childHandler(self.child_handler)
 
-        self.bind_future = b.bind(
-            self.bind_addr.getAddress(),
-            self.bind_addr.getPort())
+        self.bind_future = b.bind(self.bind_addr.getAddress(), self.bind_addr.getPort())
         self._handle_channel_future(self.bind_future, "listen")
         self.channel = self.bind_future.channel()
-        log.debug(
-            "Bound server socket to %s",
-            self.bind_addr,
-            extra={
-                "sock": self})
+        log.debug("Bound server socket to %s", self.bind_addr, extra={"sock": self})
 
     def accept(self):
         if self.timeout is None:
-            log.debug("Blocking indefinitely for child on queue %s",
-                      self.child_queue, extra={"sock": self})
+            log.debug("Blocking indefinitely for child on queue %s", self.child_queue, extra={"sock": self})
             child = self.child_queue.take()
         elif self.timeout:
-            log.debug(
-                "Timed wait for child on queue %s",
-                self.child_queue,
-                extra={
-                    "sock": self})
+            log.debug("Timed wait for child on queue %s", self.child_queue, extra={"sock": self})
             child = self._handle_timeout(self.child_queue.poll, "accept")
         else:
-            log.debug(
-                "Polling for child on queue %s",
-                self.child_queue,
-                extra={
-                    "sock": self})
+            log.debug("Polling for child on queue %s", self.child_queue, extra={"sock": self})
             child = self.child_queue.poll()
             if child is None:
-                raise error(
-                    errno.EWOULDBLOCK,
-                    "Resource temporarily unavailable")
+                raise error(errno.EWOULDBLOCK, "Resource temporarily unavailable")
         peername = child.getpeername() if child else None
-        log.debug(
-            "Got child %s connected to %s",
-            child,
-            peername,
-            extra={
-                "sock": self})
+        log.debug("Got child %s connected to %s", child, peername, extra={"sock": self})
         child.accepted = True
         with self.open_lock:
             self.accepted_children += 1
@@ -1233,11 +1049,7 @@ class _realsocket(object):
             addr = _get_jsockaddr(addr, self.family, self.type, self.proto, 0)
 
         if not self.connected and self.socket_type == DATAGRAM_SOCKET:
-            log.debug(
-                "Binding datagram socket to %s",
-                self.bind_addr,
-                extra={
-                    "sock": self})
+            log.debug("Binding datagram socket to %s", self.bind_addr, extra={"sock": self})
             self.connected = True
             self.python_inbound_handler = PythonInboundHandler(self)
             bootstrap = Bootstrap().group(NIO_GROUP).channel(NioDatagramChannel)
@@ -1248,19 +1060,13 @@ class _realsocket(object):
             future = bootstrap.register()
             self._handle_channel_future(future, "register")
             self.channel = future.channel()
-            self._handle_channel_future(
-                self.channel.bind(
-                    self.bind_addr), "bind")
+            self._handle_channel_future(self.channel.bind(self.bind_addr), "bind")
 
         if addr is not None:
             # Handles the relatively rare case that this is a
             # CONNECTED datagram socket, which Netty does not
             # support in its bootstrap setup.
-            log.debug(
-                "Connecting datagram socket to %s",
-                addr,
-                extra={
-                    "sock": self})
+            log.debug("Connecting datagram socket to %s", addr, extra={"sock": self})
             future = self.channel.connect(addr)
             self._handle_channel_future(future, "connect")
 
@@ -1273,11 +1079,9 @@ class _realsocket(object):
             flags = None
             address = arg1
 
-        address = _get_jsockaddr(
-            address, self.family, self.type, self.proto, 0)
+        address =  _get_jsockaddr(address, self.family, self.type, self.proto, 0)
 
-        log.debug("Sending datagram to %s <<<{!r:.20}>>>".format(
-            string), address, extra={"sock": self})
+        log.debug("Sending datagram to %s <<<{!r:.20}>>>".format(string), address, extra={"sock": self})
         self._datagram_connect()
         packet = DatagramPacket(Unpooled.wrappedBuffer(string), address)
         future = self.channel.writeAndFlush(packet)
@@ -1304,10 +1108,7 @@ class _realsocket(object):
         with self.open_lock:
             self.open_count -= 1
             if self.open_count > 0:
-                log.debug(
-                    "Open count > 0, so not closing underlying socket",
-                    extra={
-                        "sock": self})
+                log.debug("Open count > 0, so not closing underlying socket", extra={"sock": self})
                 return
 
             if self.channel is None:
@@ -1318,21 +1119,14 @@ class _realsocket(object):
 
     def _finish_closing(self, _):
         if self.socket_type == SERVER_SOCKET:
-            log.debug(
-                "Shutting down server socket parent group",
-                extra={
-                    "sock": self})
+            log.debug("Shutting down server socket parent group", extra={"sock": self})
             self.parent_group.shutdownGracefully(0, 100, TimeUnit.MILLISECONDS)
             self.accepted_children -= 1
             while True:
                 child = self.child_queue.poll()
                 if child is None:
                     break
-                log.debug(
-                    "Closed child socket %s not yet accepted",
-                    child,
-                    extra={
-                        "sock": self})
+                log.debug("Closed child socket %s not yet accepted", child, extra={"sock": self})
                 child.close()
         else:
             msgs = []
@@ -1344,11 +1138,7 @@ class _realsocket(object):
         log.debug("Closed socket", extra={"sock": self})
 
     def shutdown(self, how):
-        log.debug(
-            "Got request to shutdown socket how=%s",
-            how,
-            extra={
-                "sock": self})
+        log.debug("Got request to shutdown socket how=%s", how, extra={"sock": self})
         self._verify_channel()
         if how & SHUT_RD or how & SHUT_RDWR:
             try:
@@ -1362,12 +1152,7 @@ class _realsocket(object):
 
     def _readable(self):
         if self.socket_type == CLIENT_SOCKET or self.socket_type == DATAGRAM_SOCKET:
-            log.debug(
-                "Incoming head=%s queue=%s",
-                self.incoming_head,
-                self.incoming,
-                extra={
-                    "sock": self})
+            log.debug("Incoming head=%s queue=%s", self.incoming_head, self.incoming, extra={"sock": self})
             return bool(
                 (self.incoming_head is not None and self.incoming_head.readableBytes()) or
                 self.incoming.peek())
@@ -1394,17 +1179,13 @@ class _realsocket(object):
         return 0
 
     def _writable(self):
-        return self.channel_closed or (
-            self.channel and self.channel.isActive() and self.channel.isWritable())
+        return self.channel_closed or (self.channel and self.channel.isActive() and self.channel.isWritable())
 
     can_write = _writable
 
     def _verify_channel(self):
         if self.channel is None:
-            log.debug(
-                "Channel is not connected or setup",
-                extra={
-                    "sock": self})
+            log.debug("Channel is not connected or setup", extra={"sock": self})
             raise error(errno.ENOTCONN, "Socket is not connected")
 
     @raises_java_exception
@@ -1414,15 +1195,10 @@ class _realsocket(object):
         if isinstance(data, memoryview):
             data = data.tobytes()
         data = str(data)  # FIXME temporary fix if data is of type buffer
-        log.debug(
-            "Sending data <<<{!r:.20}>>>".format(data),
-            extra={
-                "sock": self})
+        log.debug("Sending data <<<{!r:.20}>>>".format(data), extra={"sock": self})
 
         if self.socket_type == DATAGRAM_SOCKET:
-            packet = DatagramPacket(
-                Unpooled.wrappedBuffer(data),
-                self.channel.remoteAddress())
+            packet = DatagramPacket(Unpooled.wrappedBuffer(data), self.channel.remoteAddress())
             future = self.channel.writeAndFlush(packet)
             self._handle_channel_future(future, "send")
             return len(data)
@@ -1438,18 +1214,14 @@ class _realsocket(object):
 
         future = self.channel.writeAndFlush(Unpooled.wrappedBuffer(sent_data))
         self._handle_channel_future(future, "send")
-        log.debug("Sent data <<<{!r:.20}>>>".format(
-            sent_data), extra={"sock": self})
+        log.debug("Sent data <<<{!r:.20}>>>".format(sent_data), extra={"sock": self})
 
         return len(sent_data)
 
     sendall = send   # FIXME see note above!
 
     def _get_incoming_msg(self, reason):
-        log.debug(
-            "head=%s incoming=%s" %
-            (self.incoming_head, self.incoming), extra={
-                "sock": self})
+        log.debug("head=%s incoming=%s" % (self.incoming_head, self.incoming), extra={"sock": self})
         if self.incoming_head is None:
             if self.timeout is None:
                 if self.peer_closed:
@@ -1458,17 +1230,13 @@ class _realsocket(object):
             elif self.timeout:
                 if self.peer_closed:
                     return None
-                self.incoming_head = self._handle_timeout(
-                    self.incoming.poll, reason)
+                self.incoming_head = self._handle_timeout(self.incoming.poll, reason)
             else:
                 self.incoming_head = self.incoming.poll()  # Could be None
                 if self.incoming_head is None:
-                    # FIXME FIXME C socket semantics return a '' after the
-                    # first EAGAIN (not certain if this gets reset or not)
+                    # FIXME FIXME C socket semantics return a '' after the first EAGAIN (not certain if this gets reset or not)
                     log.debug("No data yet for socket", extra={"sock": self})
-                    raise error(
-                        errno.EAGAIN,
-                        "Resource temporarily unavailable")
+                    raise error(errno.EAGAIN, "Resource temporarily unavailable")
 
         msg = self.incoming_head
         if msg is _PEER_CLOSED:
@@ -1523,8 +1291,7 @@ class _realsocket(object):
         self._verify_channel()
         data, sender = self._get_message(bufsize, "recvfrom")
         remote_addr = sender.getHostString(), sender.getPort()
-        log.debug("Received from sender %s <<<{!r:20}>>>".format(
-            data), remote_addr, extra={"sock": self})
+        log.debug("Received from sender %s <<<{!r:20}>>>".format(data), remote_addr, extra={"sock": self})
         return data, remote_addr
 
     def fileno(self):
@@ -1539,12 +1306,7 @@ class _realsocket(object):
 
         cast_value = cast(value)
         self.options[option] = cast_value
-        log.debug(
-            "Setting option %s to %s",
-            optname,
-            value,
-            extra={
-                "sock": self})
+        log.debug("Setting option %s to %s", optname, value, extra={"sock": self})
         if self.channel:
             _set_option(self.channel.config().setOption, option, cast_value)
 
@@ -1571,11 +1333,7 @@ class _realsocket(object):
             option, _ = _socket_options[self.proto][(level, optname)]
         except KeyError:
             raise error(errno.ENOPROTOOPT, "Protocol not available")
-        log.debug(
-            "Shadow option settings %s",
-            self.options,
-            extra={
-                "sock": self})
+        log.debug("Shadow option settings %s", self.options, extra={"sock": self})
         return self.options.get(option, 0)
 
     def getsockname(self):
@@ -1592,9 +1350,7 @@ class _realsocket(object):
             # channel even if it was originally bound to an IPv4 "any"
             # address so, as a workaround, let's construct a new "any"
             # address using the port information gathered above
-            if not isinstance(
-                self.bind_addr.getAddress(), type(
-                    local_addr.getAddress())):
+            if type(self.bind_addr.getAddress()) != type(local_addr.getAddress()):
                 return _socktuple(java.net.InetSocketAddress(
                     self.bind_addr.getAddress(), local_addr.getPort()))
         return _socktuple(local_addr)
@@ -1622,7 +1378,6 @@ _delegate_methods = (
     "recv", "recvfrom", "recv_into", "recvfrom_into",
     "send", "sendto", "fileno")
 
-
 class _closedsocket(object):
 
     def close(self):
@@ -1645,12 +1400,7 @@ class _socketobject(object):
 
     __doc__ = _realsocket.__doc__
 
-    def __init__(
-            self,
-            family=AF_INET,
-            type=SOCK_STREAM,
-            proto=None,
-            _sock=None):
+    def __init__(self, family=AF_INET, type=SOCK_STREAM, proto=None, _sock=None):
         if _sock is None:
             _sock = _realsocket(family, type, proto)
         self._sock = _sock
@@ -1703,23 +1453,22 @@ class _socketobject(object):
     proto = property(lambda self: self._sock.proto, doc="the socket protocol")
 
 
-def meth(name, self, *args):
-    return getattr(self._sock, name)(*args)
+def meth(name,self,*args):
+    return getattr(self._sock,name)(*args)
 
 
 for _m in _socketmethods:
-    p = partial(meth, _m)
+    p = partial(meth,_m)
     p.__name__ = _m
-    p.__doc__ = getattr(_realsocket, _m).__doc__
-    m = MethodType(p, None, _socketobject)
-    setattr(_socketobject, _m, m)
+    p.__doc__ = getattr(_realsocket,_m).__doc__
+    m = MethodType(p,None,_socketobject)
+    setattr(_socketobject,_m,m)
 
 
 socket = SocketType = _socketobject
 
 
-# FIXME handshake_future - gates all requests. should be cheap (comparable
-# to the old self.active)
+# FIXME handshake_future - gates all requests. should be cheap (comparable to the old self.active)
 
 class ChildSocket(_realsocket):
 
@@ -1773,14 +1522,9 @@ class ChildSocket(_realsocket):
             with self.parent_socket.open_lock:
                 self.parent_socket.accepted_children -= 1
                 if self.parent_socket.open_count == 0 and self.parent_socket.accepted_children == 0:
-                    log.debug(
-                        "Shutting down child group for parent socket=%s accepted_children=%s",
-                        self.parent_socket,
-                        self.parent_socket.accepted_children,
-                        extra={
-                            "sock": self})
-                    self.parent_socket.child_group.shutdownGracefully(
-                        0, 100, TimeUnit.MILLISECONDS)
+                    log.debug("Shutting down child group for parent socket=%s accepted_children=%s",
+                              self.parent_socket, self.parent_socket.accepted_children, extra={"sock": self})
+                    self.parent_socket.child_group.shutdownGracefully(0, 100, TimeUnit.MILLISECONDS)
 
     def shutdown(self, how):
         self._make_active()
@@ -1852,22 +1596,19 @@ def create_connection(address, timeout=_GLOBAL_DEFAULT_TIMEOUT,
 
 _defaulttimeout = None
 
-
 def _calctimeoutvalue(value):
     if value is None:
         return None
     try:
         floatvalue = float(value)
-    except BaseException:
+    except:
         raise TypeError('Socket timeout value must be a number or None')
     if floatvalue < 0.0:
         raise ValueError("Socket timeout value cannot be negative")
     return floatvalue
 
-
 def getdefaulttimeout():
     return _defaulttimeout
-
 
 def setdefaulttimeout(timeout):
     global _defaulttimeout
@@ -1888,7 +1629,6 @@ class _ipv4_address_t(_ip_address_t):
         ntup = tuple.__new__(cls, (sockaddr, port))
         ntup.jaddress = jaddress
         return ntup
-
 
 class _ipv6_address_t(_ip_address_t):
 
@@ -1911,26 +1651,22 @@ def _get_jsockaddr(address_object, family, sock_type, proto, flags):
     log.debug("Address %s for %s", addr, address_object, extra={"sock": "*"})
     return addr
 
-
 def _get_jsockaddr2(address_object, family, sock_type, proto, flags):
-    # Is this an object that was returned from getaddrinfo? If so, it already
-    # contains an InetAddress
+    # Is this an object that was returned from getaddrinfo? If so, it already contains an InetAddress
     if isinstance(address_object, _ip_address_t):
-        return java.net.InetSocketAddress(
-            address_object.jaddress, address_object[1])
+        return java.net.InetSocketAddress(address_object.jaddress, address_object[1])
     # The user passed an address tuple, not an object returned from getaddrinfo
     # So we must call getaddrinfo, after some translations and checking
     if address_object is None:
         address_object = ("", 0)
     error_message = "Address must be a 2-tuple (ipv4: (host, port)) or a 4-tuple (ipv6: (host, port, flow, scope))"
     if not isinstance(address_object, tuple) or \
-       ((family == AF_INET and len(address_object) != 2) or
-        (family == AF_INET6 and len(address_object) not in [2, 4])) or \
+       ((family == AF_INET and len(address_object) != 2) or \
+        (family == AF_INET6 and len(address_object) not in [2,4] )) or \
        not isinstance(address_object[0], (basestring, NoneType)) or \
        not isinstance(address_object[1], (int, long)):
         raise TypeError(error_message)
-    if len(address_object) == 4 and not isinstance(
-            address_object[3], (int, long)):
+    if len(address_object) == 4 and not isinstance(address_object[3], (int, long)):
         raise TypeError(error_message)
     hostname = address_object[0]
     if hostname is not None:
@@ -1940,9 +1676,7 @@ def _get_jsockaddr2(address_object, family, sock_type, proto, flags):
         hostname = INADDR_BROADCAST
     if hostname in ["", None]:
         if flags & AI_PASSIVE:
-            hostname = {
-                AF_INET: INADDR_ANY,
-                AF_INET6: IN6ADDR_ANY_INIT}[family]
+            hostname = {AF_INET: INADDR_ANY, AF_INET6: IN6ADDR_ANY_INIT}[family]
         else:
             hostname = "localhost"
     if isinstance(hostname, unicode):
@@ -1978,7 +1712,6 @@ def is_ip_address(addr):
 
 _ipv4_addresses_only = False
 
-
 def _use_ipv4_addresses_only(value):
     global _ipv4_addresses_only
     _ipv4_addresses_only = value
@@ -1991,13 +1724,9 @@ def _getaddrinfo_get_host(host, family, flags):
         if not is_ip_address(host):
             raise gaierror(EAI_NONAME, "Name or service not known")
         if family == AF_INET and not is_ipv4_address(host):
-            raise gaierror(
-                EAI_ADDRFAMILY,
-                "Address family for hostname not supported")
+            raise gaierror(EAI_ADDRFAMILY, "Address family for hostname not supported")
         if family == AF_INET6 and not is_ipv6_address(host):
-            raise gaierror(
-                EAI_ADDRFAMILY,
-                "Address family for hostname not supported")
+            raise gaierror(EAI_ADDRFAMILY, "Address family for hostname not supported")
     if isinstance(host, unicode):
         host = encodings.idna.ToASCII(host)
     return host
@@ -2014,8 +1743,7 @@ def _getaddrinfo_get_port(port, flags):
             try:
                 int_port = getservbyname(port)
             except error:
-                raise gaierror(EAI_SERVICE,
-                               "Servname not supported for ai_socktype")
+                raise gaierror(EAI_SERVICE, "Servname not supported for ai_socktype")
     elif port is None:
         int_port = 0
     elif not isinstance(port, (int, long)):
@@ -2031,7 +1759,7 @@ def getaddrinfo(host, port, family=AF_UNSPEC, socktype=0, proto=0, flags=0):
         family = AF_UNSPEC
     if socktype is None:
         socktype = 0
-    if family not in [AF_INET, AF_INET6, AF_UNSPEC]:
+    if not family in [AF_INET, AF_INET6, AF_UNSPEC]:
         raise gaierror(errno.EIO, 'ai_family not supported')
     host = _getaddrinfo_get_host(host, family, flags)
     port = _getaddrinfo_get_port(port, flags)
@@ -2039,20 +1767,15 @@ def getaddrinfo(host, port, family=AF_UNSPEC, socktype=0, proto=0, flags=0):
         raise error(errno.ESOCKTNOSUPPORT, "Socket type is not supported")
     filter_fns = []
     filter_fns.append({
-        AF_INET: lambda x: isinstance(x, java.net.Inet4Address),
-        AF_INET6: lambda x: isinstance(x, java.net.Inet6Address),
+        AF_INET:   lambda x: isinstance(x, java.net.Inet4Address),
+        AF_INET6:  lambda x: isinstance(x, java.net.Inet6Address),
         AF_UNSPEC: lambda x: isinstance(x, java.net.InetAddress),
     }[family])
     if host in [None, ""]:
         if flags & AI_PASSIVE:
-            hosts = {
-                AF_INET: [INADDR_ANY],
-                AF_INET6: [IN6ADDR_ANY_INIT],
-                AF_UNSPEC: [
-                    INADDR_ANY,
-                    IN6ADDR_ANY_INIT]}[family]
+             hosts = {AF_INET: [INADDR_ANY], AF_INET6: [IN6ADDR_ANY_INIT], AF_UNSPEC: [INADDR_ANY, IN6ADDR_ANY_INIT]}[family]
         else:
-            hosts = ["localhost"]
+             hosts = ["localhost"]
     else:
         hosts = [host]
     results = []
@@ -2060,61 +1783,36 @@ def getaddrinfo(host, port, family=AF_UNSPEC, socktype=0, proto=0, flags=0):
         try:
             all_by_name = java.net.InetAddress.getAllByName(h)
         except java.net.UnknownHostException:
-            raise gaierror(
-                errno.ENOEXEC,
-                'nodename nor servname provided, or not known')
+            raise gaierror(errno.ENOEXEC, 'nodename nor servname provided, or not known')
 
         for a in all_by_name:
             if len([f for f in filter_fns if f(a)]):
-                family = {
-                    java.net.Inet4Address: AF_INET,
-                    java.net.Inet6Address: AF_INET6}[
-                    a.getClass()]
+                family = {java.net.Inet4Address: AF_INET, java.net.Inet6Address: AF_INET6}[a.getClass()]
                 if flags & AI_CANONNAME:
                     canonname = str(a.getCanonicalHostName())
                 else:
                     canonname = ""
                 sockaddr = str(a.getHostAddress())
-                # TODO: Include flowinfo and scopeid in a 4-tuple for IPv6
-                # addresses
-                sock_tuple = {
-                    AF_INET: _ipv4_address_t,
-                    AF_INET6: _ipv6_address_t}[family](
-                    sockaddr,
-                    port,
-                    a)
+                # TODO: Include flowinfo and scopeid in a 4-tuple for IPv6 addresses
+                sock_tuple = {AF_INET : _ipv4_address_t, AF_INET6 : _ipv6_address_t}[family](sockaddr, port, a)
                 if socktype == 0:
                     socktypes = [SOCK_DGRAM, SOCK_STREAM]
                 else:
                     socktypes = [socktype]
                 for result_socktype in socktypes:
-                    result_proto = {
-                        SOCK_DGRAM: IPPROTO_UDP,
-                        SOCK_STREAM: IPPROTO_TCP}[result_socktype]
+                    result_proto = {SOCK_DGRAM: IPPROTO_UDP, SOCK_STREAM: IPPROTO_TCP}[result_socktype]
                     if proto in [0, result_proto]:
                         # The returned socket will only support the result_proto
-                        # If this does not match the requested proto, don't
-                        # return it
-                        results.append(
-                            (family, result_socktype, result_proto, canonname, sock_tuple))
+                        # If this does not match the requested proto, don't return it
+                        results.append((family, result_socktype, result_proto, canonname, sock_tuple))
     return results
 
 
-def htons(x):
-    return x
 
-
-def htonl(x):
-    return x
-
-
-def ntohs(x):
-    return x
-
-
-def ntohl(x):
-    return x
-
+def htons(x): return x
+def htonl(x): return x
+def ntohs(x): return x
+def ntohl(x): return x
 
 @raises_java_exception
 def inet_pton(family, ip_string):
@@ -2125,18 +1823,15 @@ def inet_pton(family, ip_string):
         if not is_ipv6_address(ip_string):
             raise error("illegal IP address string passed to inet_pton")
     else:
-        raise error(
-            errno.EAFNOSUPPORT,
-            "Address family not supported by protocol")
+        raise error(errno.EAFNOSUPPORT, "Address family not supported by protocol")
     ia = java.net.InetAddress.getByName(ip_string)
     bytes = []
     for byte in ia.getAddress():
         if byte < 0:
-            bytes.append(byte + 256)
+            bytes.append(byte+256)
         else:
             bytes.append(byte)
     return "".join([chr(byte) for byte in bytes])
-
 
 @raises_java_exception
 def inet_ntop(family, packed_ip):
@@ -2152,13 +1847,12 @@ def inet_ntop(family, packed_ip):
     ia = java.net.InetAddress.getByAddress(jByteArray)
     return ia.getHostAddress()
 
-
 def inet_aton(ip_string):
     return inet_pton(AF_INET, ip_string)
 
-
 def inet_ntoa(packed_ip):
     return inet_ntop(AF_INET, packed_ip)
+
 
 
 # Various toplevel functions for the socket module
@@ -2173,7 +1867,6 @@ def _gethostbyaddr(name):
         names.append(str(addr.getHostName()))
         addrs.append(str(addr.getHostAddress()))
     return names, addrs
-
 
 @raises_java_exception
 def getfqdn(name=None):
@@ -2193,12 +1886,10 @@ def getfqdn(name=None):
             return a
     return name
 
-
 @raises_java_exception
 def gethostname():
     """Return FS-encoded local host name."""
     return _fsencode(InetAddress.getLocalHost().getHostName())
-
 
 @raises_java_exception
 def gethostbyname(name):
@@ -2210,11 +1901,9 @@ def gethostbyname(name):
 # Needed because urllib2 refers to it
 #
 
-
 @raises_java_exception
 def gethostbyname_ex(name):
     return name, [], gethostbyname(name)
-
 
 @raises_java_exception
 def gethostbyaddr(name):
@@ -2271,7 +1960,6 @@ def _getnameinfo_get_host(address, flags):
         result = encodings.idna.ToASCII(result)
     return result
 
-
 def _getnameinfo_get_port(port, flags):
     if not isinstance(port, (int, long)):
         raise TypeError("getnameinfo() port number must be an integer")
@@ -2282,7 +1970,6 @@ def _getnameinfo_get_port(port, flags):
         proto = "udp"
     return getservbyport(port, proto)
 
-
 @raises_java_exception
 def getnameinfo(sock_addr, flags):
     if not isinstance(sock_addr, tuple) or len(sock_addr) < 2:
@@ -2290,6 +1977,7 @@ def getnameinfo(sock_addr, flags):
     host = _getnameinfo_get_host(sock_addr[0], flags)
     port = _getnameinfo_get_port(sock_addr[1], flags)
     return (host, port)
+
 
 
 class _fileobject(object):
@@ -2305,7 +1993,7 @@ class _fileobject(object):
 
     def __init__(self, sock, mode='rb', bufsize=-1, close=False):
         self._sock = sock
-        self.mode = mode  # Not actually used in this version
+        self.mode = mode # Not actually used in this version
         if bufsize < 0:
             bufsize = self.default_bufsize
         self.bufsize = bufsize
@@ -2325,7 +2013,7 @@ class _fileobject(object):
         # fragment the heap due to how they are malloc()ed and often
         # realloc()ed down much smaller than their original allocation.
         self._rbuf = StringIO()
-        self._wbuf = []  # A list of strings
+        self._wbuf = [] # A list of strings
         self._wbuf_len = 0
         self._close = close
 
@@ -2345,7 +2033,7 @@ class _fileobject(object):
     def __del__(self):
         try:
             self.close()
-        except BaseException:
+        except:
             # close() may fail if __init__ didn't complete
             pass
 
@@ -2359,10 +2047,10 @@ class _fileobject(object):
             write_offset = 0
             # FIXME apparently this doesn't yet work on jython,
             # despite our work on memoryview/buffer support
-            view = data  # memoryview(data)
+            view = data # memoryview(data)
             try:
                 while write_offset < data_size:
-                    chunk = view[write_offset:write_offset + buffer_size]
+                    chunk = view[write_offset:write_offset+buffer_size]
                     self._sock.sendall(chunk)
                     write_offset += buffer_size
             finally:
@@ -2376,14 +2064,14 @@ class _fileobject(object):
         return self._sock.fileno()
 
     def write(self, data):
-        data = str(data)  # XXX Should really reject non-byte non-buffers
+        data = str(data) # XXX Should really reject non-byte non-buffers
         if not data:
             return
         self._wbuf.append(data)
         self._wbuf_len += len(data)
         if (self._wbufsize == 0 or
             (self._wbufsize == 1 and '\n' in data) or
-                (self._wbufsize > 1 and self._wbuf_len >= self._wbufsize)):
+            (self._wbufsize > 1 and self._wbuf_len >= self._wbufsize)):
             self.flush()
 
     def writelines(self, list):
@@ -2393,7 +2081,7 @@ class _fileobject(object):
         self._wbuf_len += sum(map(len, lines))
         self._wbuf.extend(lines)
         if (self._wbufsize <= 1 or
-                self._wbuf_len >= self._wbufsize):
+            self._wbuf_len >= self._wbufsize):
             self.flush()
 
     def read(self, size=-1):
@@ -2412,7 +2100,7 @@ class _fileobject(object):
             while True:
                 try:
                     data = self._sock.recv(rbufsize)
-                except error as e:
+                except error, e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
@@ -2441,7 +2129,7 @@ class _fileobject(object):
                 # fragmentation issues on many platforms.
                 try:
                     data = self._sock.recv(left)
-                except error as e:
+                except error, e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
@@ -2494,7 +2182,7 @@ class _fileobject(object):
                             if not data:
                                 break
                             buffers.append(data)
-                    except error as e:
+                    except error, e:
                         # The try..except to catch EINTR was moved outside the
                         # recv loop to avoid the per byte overhead.
                         if e.args[0] == errno.EINTR:
@@ -2508,7 +2196,7 @@ class _fileobject(object):
             while True:
                 try:
                     data = self._sock.recv(self._rbufsize)
-                except error as e:
+                except error, e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
@@ -2537,7 +2225,7 @@ class _fileobject(object):
             while True:
                 try:
                     data = self._sock.recv(self._rbufsize)
-                except error as e:
+                except error, e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise

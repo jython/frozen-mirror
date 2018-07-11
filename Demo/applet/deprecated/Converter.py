@@ -21,7 +21,7 @@ basicUnits = [['Metric System', [('Centimeters', 0.01),
 
 class SimpleBorder:
     def paint(self, g):
-        g.drawRect(0, 0, self.size.width - 1, self.size.height - 1)
+        g.drawRect(0, 0, self.size.width-1, self.size.height-1)
 
     def getInsets(self):
         return awt.Insets(5, 5, 5, 5)
@@ -42,7 +42,7 @@ class Converter(Applet, SimpleBorder):
 
         for panel in self.panels:
             if panel is not master:
-                panel.setValue(multiplier / panel.getMultiplier() * value)
+                panel.setValue(multiplier/panel.getMultiplier()*value)
 
 
 class ConversionPanel(awt.Panel, SimpleBorder,
@@ -67,7 +67,7 @@ class ConversionPanel(awt.Panel, SimpleBorder,
         bag.addRow(self.chooser)
 
         self.slider = awt.Scrollbar(awt.Scrollbar.HORIZONTAL,
-                                    maximum=self.max + 10,
+                                    maximum=self.max+10,
                                     blockIncrement=self.block,
                                     adjustmentListener=self)
         bag.add(self.slider)
@@ -78,7 +78,7 @@ class ConversionPanel(awt.Panel, SimpleBorder,
     def getValue(self):
         try:
             return float(self.text.getText())
-        except BaseException:
+        except:
             return 0.0
 
     def actionPerformed(self, e):

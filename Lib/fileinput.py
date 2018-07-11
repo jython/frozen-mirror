@@ -79,16 +79,14 @@ XXX Possible additions:
 
 """
 
-import sys
-import os
+import sys, os
 
-__all__ = ["input", "close", "nextfile", "filename", "lineno", "filelineno",
-           "isfirstline", "isstdin", "FileInput"]
+__all__ = ["input","close","nextfile","filename","lineno","filelineno",
+           "isfirstline","isstdin","FileInput"]
 
 _state = None
 
-DEFAULT_BUFSIZE = 8 * 1024
-
+DEFAULT_BUFSIZE = 8*1024
 
 def input(files=None, inplace=0, backup="", bufsize=0,
           mode="r", openhook=None):
@@ -101,10 +99,9 @@ def input(files=None, inplace=0, backup="", bufsize=0,
     """
     global _state
     if _state and _state._file:
-        raise RuntimeError("input() already active")
+        raise RuntimeError, "input() already active"
     _state = FileInput(files, inplace, backup, bufsize, mode, openhook)
     return _state
-
 
 def close():
     """Close the sequence."""
@@ -113,7 +110,6 @@ def close():
     _state = None
     if state:
         state.close()
-
 
 def nextfile():
     """
@@ -126,9 +122,8 @@ def nextfile():
     last file has been read, this function has no effect.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.nextfile()
-
 
 def filename():
     """
@@ -136,9 +131,8 @@ def filename():
     Before the first line has been read, returns None.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.filename()
-
 
 def lineno():
     """
@@ -147,9 +141,8 @@ def lineno():
     of the last file has been read, returns the line number of that line.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.lineno()
-
 
 def filelineno():
     """
@@ -158,9 +151,8 @@ def filelineno():
     been read, returns the line number of that line within the file.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.filelineno()
-
 
 def fileno():
     """
@@ -168,9 +160,8 @@ def fileno():
     opened, returns -1.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.fileno()
-
 
 def isfirstline():
     """
@@ -178,9 +169,8 @@ def isfirstline():
     otherwise returns false.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.isfirstline()
-
 
 def isstdin():
     """
@@ -188,9 +178,8 @@ def isstdin():
     otherwise returns false.
     """
     if not _state:
-        raise RuntimeError("no active input()")
+        raise RuntimeError, "no active input()"
     return _state.isstdin()
-
 
 class FileInput:
     """class FileInput([files[, inplace[, backup[, mode[, openhook]]]]])
@@ -236,8 +225,7 @@ class FileInput:
                              "'r', 'rU', 'U' and 'rb'")
         self._mode = mode
         if inplace and openhook:
-            raise ValueError(
-                "FileInput cannot use an opening hook in inplace mode")
+            raise ValueError("FileInput cannot use an opening hook in inplace mode")
         elif openhook and not hasattr(openhook, '__call__'):
             raise ValueError("FileInput openhook must be callable")
         self._openhook = openhook
@@ -269,11 +257,11 @@ class FileInput:
 
     def __getitem__(self, i):
         if i != self._lineno:
-            raise RuntimeError("accessing lines out of order")
+            raise RuntimeError, "accessing lines out of order"
         try:
             return self.next()
         except StopIteration:
-            raise IndexError("end of input reached")
+            raise IndexError, "end of input reached"
 
     def nextfile(self):
         savestdout = self._savestdout
@@ -294,10 +282,8 @@ class FileInput:
         backupfilename = self._backupfilename
         self._backupfilename = 0
         if backupfilename and not self._backup:
-            try:
-                os.unlink(backupfilename)
-            except OSError:
-                pass
+            try: os.unlink(backupfilename)
+            except OSError: pass
 
         self._isstdin = False
         self._buffer = []
@@ -329,11 +315,9 @@ class FileInput:
             else:
                 if self._inplace:
                     self._backupfilename = (
-                        self._filename + (self._backup or os.extsep + "bak"))
-                    try:
-                        os.unlink(self._backupfilename)
-                    except os.error:
-                        pass
+                        self._filename + (self._backup or os.extsep+"bak"))
+                    try: os.unlink(self._backupfilename)
+                    except os.error: pass
                     # The next few lines may raise IOError
                     os.rename(self._filename, self._backupfilename)
                     self._file = open(self._backupfilename, self._mode)
@@ -407,7 +391,6 @@ def hook_compressed(filename, mode):
 
 def hook_encoded(encoding):
     import codecs
-
     def openhook(filename, mode):
         return codecs.open(filename, mode, encoding)
     return openhook
@@ -419,19 +402,14 @@ def _test():
     backup = 0
     opts, args = getopt.getopt(sys.argv[1:], "ib:")
     for o, a in opts:
-        if o == '-i':
-            inplace = 1
-        if o == '-b':
-            backup = a
+        if o == '-i': inplace = 1
+        if o == '-b': backup = a
     for line in input(args, inplace=inplace, backup=backup):
-        if line[-1:] == '\n':
-            line = line[:-1]
-        if line[-1:] == '\r':
-            line = line[:-1]
+        if line[-1:] == '\n': line = line[:-1]
+        if line[-1:] == '\r': line = line[:-1]
         print "%d: %s[%d]%s %s" % (lineno(), filename(), filelineno(),
                                    isfirstline() and "*" or "", line)
     print "%d: %s[%d]" % (lineno(), filename(), filelineno())
-
 
 if __name__ == '__main__':
     _test()

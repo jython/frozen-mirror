@@ -7,7 +7,6 @@ import unittest
 from test import test_support
 from java.lang import System
 
-
 class FileTestCase(unittest.TestCase):
 
     def tearDown(self):
@@ -38,23 +37,18 @@ class FileTestCase(unittest.TestCase):
         testfnu = unicode(test_support.TESTFN)
         try:
             open(testfnu)
-        except IOError as e:
+        except IOError, e:
             self.assertTrue(isinstance(e.filename, unicode))
             self.assertEqual(e.filename, testfnu)
         else:
             self.assertTrue(False)
 
-    @unittest.skipUnless(
-        hasattr(
-            os,
-            'chmod'),
-        'chmod() support required for this test')
+    @unittest.skipUnless(hasattr(os, 'chmod'), 'chmod() support required for this test')
     def test_issue2081(self):
         with open(test_support.TESTFN, 'wb'):
             pass
         os.chmod(test_support.TESTFN, 200)      # write-only
-        # should succeed, raised IOError (permission denied) prior to fix
-        with open(test_support.TESTFN, 'w'):
+        with open(test_support.TESTFN, 'w'):    # should succeed, raised IOError (permission denied) prior to fix
             pass
 
     # http://bugs.jython.org/issue2358
@@ -65,8 +59,7 @@ class FileTestCase(unittest.TestCase):
             self.assertEqual(f.read(), '')
 
     # http://bugs.jython.org/issue2358
-    @unittest.skipUnless(System.getProperty('os.name') ==
-                         u'Linux', 'Linux required')
+    @unittest.skipUnless(System.getProperty('os.name') == u'Linux', 'Linux required')
     def test_can_read_proc_filesystem(self):
         with open('/proc/{}/cmdline'.format(os.getpid())) as f:
             self.assertIn('jython', f.read())

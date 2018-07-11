@@ -10,6 +10,7 @@
 
 from test.support import run_unittest, check_syntax_error
 import unittest
+import sys
 # testing import *
 from sys import *
 
@@ -467,7 +468,8 @@ class GrammarTests(unittest.TestCase):
 
     def testImport(self):
         # 'import' dotted_as_names
-        import time
+        import sys
+        import time, sys
         # 'from' dotted_name 'import' ('*' | '(' import_as_names ')' | import_as_names)
         from time import time
         from time import (time)
@@ -596,7 +598,9 @@ class GrammarTests(unittest.TestCase):
             #
             #
             pass
+            pass
             #
+            pass
             #
 
     def testTest(self):

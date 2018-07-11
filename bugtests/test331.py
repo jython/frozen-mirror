@@ -12,3 +12,4 @@ if s[8] != os.path.getmtime("test331.py"):
 
 if s[7] != os.path.getatime("test331.py"):
     raise support.TestWarning("Access time was wrong")
+

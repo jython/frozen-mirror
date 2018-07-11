@@ -37,12 +37,14 @@ __all__ = [
     ]
 
 import threading
+import os
 import sys
 
+from time import time as _time, sleep as _sleep
 
 import _multiprocessing
 from multiprocessing.process import current_process
-from multiprocessing.util import debug, register_after_fork
+from multiprocessing.util import Finalize, register_after_fork, debug
 from multiprocessing.forking import assert_spawning, Popen
 
 # Try to import the mp.synchronize module cleanly, if it fails

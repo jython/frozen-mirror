@@ -1,4 +1,5 @@
 import unittest
+import os, glob
 
 from test_all import db, test_support, get_new_environment_path, \
         get_new_database_path

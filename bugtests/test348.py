@@ -4,11 +4,10 @@
 
 import support
 
+class Z: 
+    def __le__(self,o): 
+        return NotImplemented 
 
-class Z:
-    def __le__(self, o):
-        return NotImplemented
+z=Z() 
+assert z<="a" 
 
-
-z = Z()
-assert z <= "a"

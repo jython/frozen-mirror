@@ -7,10 +7,12 @@ from __future__ import with_statement
 import sys
 import os
 import codecs
+import operator
 import StringIO
 import tempfile
 import shutil
 import unittest
+import warnings
 
 from lib2to3 import refactor, pygram, fixer_base
 from lib2to3.pgen2 import token

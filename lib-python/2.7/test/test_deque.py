@@ -407,6 +407,7 @@ class TestBasic(unittest.TestCase):
             self.assertEqual(list(reversed(list(d))), range(BIG-size, BIG))
 
     def test_big_queue_popleft(self):
+        pass
         d = deque()
         append, pop = d.append, d.popleft
         for i in xrange(BIG):

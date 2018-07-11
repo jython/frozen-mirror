@@ -16,6 +16,7 @@ import glob
 import inspect
 import os
 import os.path
+import pipes
 import shlex
 import subprocess
 import sys

@@ -127,6 +127,7 @@ class TestSpecifics(unittest.TestCase):
 
         class A:
             "Non-mapping"
+            pass
         m = A()
         try:
             exec 'z = a' in g, m

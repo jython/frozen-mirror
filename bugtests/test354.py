@@ -10,3 +10,4 @@ s.read(3)
 s.reset()
 support.compare(s.read(3), "abc")
 support.compare(s.read(3), "def")
+

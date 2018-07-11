@@ -8,7 +8,7 @@ class TempConverter(java.lang.Object):
     def setFahrenheit(self, degrees):
         "@sig public void setFahrenheit(double degrees)"
         self.f = degrees
-        self.c = (degrees - 32.) / 1.8
+        self.c = (degrees-32.)/1.8
 
     def getFahrenheit(self):
         "@sig public double getFahrenheit()"
@@ -17,7 +17,7 @@ class TempConverter(java.lang.Object):
     def setCelsius(self, degrees):
         "@sig public void setCelsius(double degrees)"
         self.c = degrees
-        self.f = degrees * 1.8 + 32.
+        self.f = degrees*1.8+32.
 
     def getCelsius(self):
         "@sig public double getCelsius()"

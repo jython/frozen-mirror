@@ -5,7 +5,6 @@ from test.test_support import run_unittest, gc_collect
 import StringIO  # Jython: sub this for sys, given the special status of PySystemState
 ModuleType = type(StringIO)
 
-
 class ModuleTests(unittest.TestCase):
     def test_uninitialized(self):
         # An uninitialized module has no __dict__ or __name__,
@@ -55,7 +54,7 @@ class ModuleTests(unittest.TestCase):
         self.assertEqual(foo.__doc__, "foodoc")
         self.assertEqual(foo.bar, 42)
         self.assertEqual(foo.__dict__,
-                         {"__name__": "foo", "__doc__": "foodoc", "bar": 42})
+              {"__name__": "foo", "__doc__": "foodoc", "bar": 42})
         self.assertTrue(foo.__dict__ is d)
 
     # @unittest.expectedFailure - works fine on Jython!
@@ -81,10 +80,8 @@ a = A()"""
         gc_collect()
         self.assertEqual(destroyed, [1])
 
-
 def test_main():
     run_unittest(ModuleTests)
-
 
 if __name__ == '__main__':
     test_main()

@@ -6,6 +6,7 @@ module as os.path.
 """
 
 import os
+import stat
 from genericpath import *
 from ntpath import (expanduser, expandvars, isabs, islink, splitdrive,
                     splitext, split, walk)

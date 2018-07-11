@@ -14,7 +14,7 @@ Note: As of this writing, a CPython 2.7 bytecode-file (.pyc)
 """
 
 import unittest
-
+from test import test_support
 
 class large_method_tests(unittest.TestCase):
     '''Tests some oversized functions and methods.
@@ -44,16 +44,13 @@ class large_method_tests(unittest.TestCase):
         exceeds maximal String-literal length. It is automatically split up
         into several literals.
         '''
-        self.assertEqual(
-            large_methods.very_large_function(),
-            'very large 58900')
+        self.assertEqual(large_methods.very_large_function(), 'very large 58900')
 
     def test_small_func(self):
         '''We assert that ordinary-sized, i.e. JVM-bytecode methods still work
         in context of PyBytecode.
         '''
         self.assertEqual(large_methods.small_function(), 'small 10')
-
 
 class large_module_tests(unittest.TestCase):
     '''Tests a module with oversized main-code.
@@ -80,13 +77,11 @@ class large_module_tests(unittest.TestCase):
         self.assertEqual(large_module.large_function(), 'large 2300')
 
     def test_large_module_very_large_func(self):
-        self.assertEqual(
-            large_module.very_large_function(),
-            'very large 58900')
+        self.assertEqual(large_module.very_large_function(), 'very large 58900')
 
     def test_large_module_small_func(self):
         self.assertEqual(large_module.small_function(), 'small 10')
 
-
 if __name__ == "__main__":
     unittest.main()
+

@@ -2,8 +2,7 @@
 
 import unittest
 from test.test_support import run_unittest, TESTFN, unlink, have_unicode, \
-    check_py3k_warnings
-from functools import reduce
+                              check_py3k_warnings
 
 # Test result of triple loop (too big to inline)
 TRIPLETS = [(0, 0, 0), (0, 0, 1), (0, 0, 2),
@@ -20,12 +19,10 @@ TRIPLETS = [(0, 0, 0), (0, 0, 1), (0, 0, 2),
 
 # Helper classes
 
-
 class BasicIterClass:
     def __init__(self, n):
         self.n = n
         self.i = 0
-
     def next(self):
         res = self.i
         if res >= self.n:
@@ -33,19 +30,15 @@ class BasicIterClass:
         self.i = res + 1
         return res
 
-
 class IteratingSequenceClass:
     def __init__(self, n):
         self.n = n
-
     def __iter__(self):
         return BasicIterClass(self.n)
-
 
 class SequenceClass:
     def __init__(self, n):
         self.n = n
-
     def __getitem__(self, i):
         if 0 <= i < self.n:
             return i
@@ -54,13 +47,12 @@ class SequenceClass:
 
 # Main test suite
 
-
 class TestCase(unittest.TestCase):
 
     # Helper to check that an iterator returns a given sequence
     def check_iterator(self, it, seq):
         res = []
-        while True:
+        while 1:
             try:
                 val = it.next()
             except StopIteration:
@@ -134,12 +126,11 @@ class TestCase(unittest.TestCase):
         class C:
             def __init__(self):
                 self.i = 0
-
             def __call__(self):
                 i = self.i
                 self.i = i + 1
                 if i > 100:
-                    raise IndexError  # Emergency stop
+                    raise IndexError # Emergency stop
                 return i
         self.check_iterator(iter(C(), 10), range(10))
 
@@ -147,7 +138,7 @@ class TestCase(unittest.TestCase):
     def test_iter_function(self):
         def spam(state=[0]):
             i = state[0]
-            state[0] = i + 1
+            state[0] = i+1
             return i
         self.check_iterator(iter(spam, 10), range(10))
 
@@ -157,7 +148,7 @@ class TestCase(unittest.TestCase):
             i = state[0]
             if i == 10:
                 raise StopIteration
-            state[0] = i + 1
+            state[0] = i+1
             return i
         self.check_iterator(iter(spam, 20), range(10))
 
@@ -165,7 +156,7 @@ class TestCase(unittest.TestCase):
     def test_exception_function(self):
         def spam(state=[0]):
             i = state[0]
-            state[0] = i + 1
+            state[0] = i+1
             if i == 10:
                 raise RuntimeError
             return i
@@ -213,7 +204,7 @@ class TestCase(unittest.TestCase):
 
     # Test a tuple
     def test_iter_tuple(self):
-        self.check_for_loop(iter((0, 1, 2, 3, 4, 5, 6, 7, 8, 9)), range(10))
+        self.check_for_loop(iter((0,1,2,3,4,5,6,7,8,9)), range(10))
 
     # Test an xrange
     def test_iter_xrange(self):
@@ -337,7 +328,6 @@ class TestCase(unittest.TestCase):
         class Boolean:
             def __init__(self, truth):
                 self.truth = truth
-
             def __nonzero__(self):
                 return self.truth
         bTrue = Boolean(1)
@@ -346,16 +336,13 @@ class TestCase(unittest.TestCase):
         class Seq:
             def __init__(self, *args):
                 self.vals = args
-
             def __iter__(self):
                 class SeqIter:
                     def __init__(self, vals):
                         self.vals = vals
                         self.i = 0
-
                     def __iter__(self):
                         return self
-
                     def next(self):
                         i = self.i
                         self.i = i + 1
@@ -366,8 +353,8 @@ class TestCase(unittest.TestCase):
                 return SeqIter(self.vals)
 
         seq = Seq(*([bTrue, bFalse] * 25))
-        self.assertEqual(filter(lambda x: not x, seq), [bFalse] * 25)
-        self.assertEqual(filter(lambda x: not x, iter(seq)), [bFalse] * 25)
+        self.assertEqual(filter(lambda x: not x, seq), [bFalse]*25)
+        self.assertEqual(filter(lambda x: not x, iter(seq)), [bFalse]*25)
 
     # Test max() and min()'s use of iterators.
     def test_builtin_max_min(self):
@@ -403,7 +390,7 @@ class TestCase(unittest.TestCase):
 
     # Test map()'s use of iterators.
     def test_builtin_map(self):
-        self.assertEqual(map(lambda x: x + 1, SequenceClass(5)), range(1, 6))
+        self.assertEqual(map(lambda x: x+1, SequenceClass(5)), range(1, 6))
 
         d = {"one": 1, "two": 2, "three": 3}
         self.assertEqual(map(lambda k, d=d: (k, d[k]), d), d.items())
@@ -418,14 +405,14 @@ class TestCase(unittest.TestCase):
             self.assertEqual(map(None, SequenceClass(5)), range(5))
             self.assertEqual(map(None, d), d.keys())
             self.assertEqual(map(None, d,
-                                 SequenceClass(5),
-                                 iter(d.iterkeys())),
+                                       SequenceClass(5),
+                                       iter(d.iterkeys())),
                              expected)
 
         f = open(TESTFN, "w")
         try:
             for i in range(10):
-                f.write("xy" * i + "\n")  # line i has len 2*i+1
+                f.write("xy" * i + "\n") # line i has len 2*i+1
         finally:
             f.close()
         f = open(TESTFN, "r")
@@ -466,7 +453,7 @@ class TestCase(unittest.TestCase):
 
             def next(self):
                 i = self.i
-                self.i = i + 1
+                self.i = i+1
                 return i
 
         f = open(TESTFN, "w")
@@ -547,7 +534,7 @@ class TestCase(unittest.TestCase):
 
             def next(self):
                 i = self.i
-                self.i = i + 1
+                self.i = i+1
                 if i == 2:
                     return unicode("fooled you!")
                 return self.it.next()
@@ -581,7 +568,7 @@ class TestCase(unittest.TestCase):
         for sc5 in IteratingSequenceClass(5), SequenceClass(5):
             for i in range(5):
                 self.assert_(i in sc5)
-            for i in "abc", -1, 5, 42.42, (3, 4), [], {1: 1}, 3 - 12j, sc5:
+            for i in "abc", -1, 5, 42.42, (3, 4), [], {1: 1}, 3-12j, sc5:
                 self.assert_(i not in sc5)
 
         self.assertRaises(TypeError, lambda: 3 in 12)
@@ -620,8 +607,8 @@ class TestCase(unittest.TestCase):
     # Test iterators with operator.countOf (PySequence_Count).
     def test_countOf(self):
         from operator import countOf
-        self.assertEqual(countOf([1, 2, 2, 3, 2, 5], 2), 3)
-        self.assertEqual(countOf((1, 2, 2, 3, 2, 5), 2), 3)
+        self.assertEqual(countOf([1,2,2,3,2,5], 2), 3)
+        self.assertEqual(countOf((1,2,2,3,2,5), 2), 3)
         self.assertEqual(countOf("122325", "2"), 3)
         self.assertEqual(countOf("122325", "6"), 0)
 
@@ -655,12 +642,12 @@ class TestCase(unittest.TestCase):
     # Test iterators with operator.indexOf (PySequence_Index).
     def test_indexOf(self):
         from operator import indexOf
-        self.assertEqual(indexOf([1, 2, 2, 3, 2, 5], 1), 0)
-        self.assertEqual(indexOf((1, 2, 2, 3, 2, 5), 2), 1)
-        self.assertEqual(indexOf((1, 2, 2, 3, 2, 5), 3), 3)
-        self.assertEqual(indexOf((1, 2, 2, 3, 2, 5), 5), 5)
-        self.assertRaises(ValueError, indexOf, (1, 2, 2, 3, 2, 5), 0)
-        self.assertRaises(ValueError, indexOf, (1, 2, 2, 3, 2, 5), 6)
+        self.assertEqual(indexOf([1,2,2,3,2,5], 1), 0)
+        self.assertEqual(indexOf((1,2,2,3,2,5), 2), 1)
+        self.assertEqual(indexOf((1,2,2,3,2,5), 3), 3)
+        self.assertEqual(indexOf((1,2,2,3,2,5), 5), 5)
+        self.assertRaises(ValueError, indexOf, (1,2,2,3,2,5), 0)
+        self.assertRaises(ValueError, indexOf, (1,2,2,3,2,5), 6)
 
         self.assertEqual(indexOf("122325", "2"), 1)
         self.assertEqual(indexOf("122325", "5"), 5)
@@ -731,7 +718,7 @@ class TestCase(unittest.TestCase):
                 def __iter__(self):
                     return Iterator(self.start, self.finish)
 
-            f.writelines(Whatever(6, 6 + 2000))
+            f.writelines(Whatever(6, 6+2000))
             f.close()
 
             f = file(TESTFN)
@@ -744,6 +731,7 @@ class TestCase(unittest.TestCase):
                 unlink(TESTFN)
             except OSError:
                 pass
+
 
     # Test iterators on RHS of unpacking assignments.
     def test_unpack_iter(self):
@@ -802,17 +790,14 @@ class TestCase(unittest.TestCase):
 
         # XXX: Jython new style objects don't support __del__ yet
         from test_weakref import extra_collect
-        # class C(object):
-
+        #class C(object):
         class C:
             count = 0
-            # def __new__(cls):
-
+            #def __new__(cls):
             def __init__(self):
                 cls = C
                 cls.count += 1
-                # return object.__new__(cls)
-
+                #return object.__new__(cls)
             def __del__(self):
                 cls = self.__class__
                 assert cls.count > 0
@@ -831,6 +816,7 @@ class TestCase(unittest.TestCase):
         del l
         extra_collect()
         self.assertEqual(C.count, 0)
+
 
     # Make sure StopIteration is a "sink state".
     # This tests various things that weren't sink states in Python 2.2.1,
@@ -868,9 +854,9 @@ class TestCase(unittest.TestCase):
         # This used to fail
         def spam(state=[0]):
             i = state[0]
-            state[0] = i + 1
+            state[0] = i+1
             if i == 10:
-                raise AssertionError("shouldn't have gotten this far")
+                raise AssertionError, "shouldn't have gotten this far"
             return i
         b = iter(spam, 5)
         self.assertEqual(list(b), range(5))
@@ -879,7 +865,7 @@ class TestCase(unittest.TestCase):
     def test_sinkstate_dict(self):
         # XXX For a more thorough test, see towards the end of:
         # http://mail.python.org/pipermail/python-dev/2002-July/026512.html
-        a = {1: 1, 2: 2, 0: 0, 4: 4, 3: 3}
+        a = {1:1, 2:2, 0:0, 4:4, 3:3}
         for b in iter(a), a.iterkeys(), a.iteritems(), a.itervalues():
             b = iter(a)
             self.assertEqual(len(list(b)), 5)

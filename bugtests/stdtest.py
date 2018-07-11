@@ -2,8 +2,8 @@
 
 import test.regrtest
 
-import os
-import sys
+import os, sys
+
 
 
 skipped = [
@@ -23,16 +23,16 @@ skipped = [
     'test_curses',
     'test_dbm',
     'test_dl',
-    'test_email_codecs',  # Needs asian codecs.
+    'test_email_codecs', # Needs asian codecs.
     'test_fcntl',
     'test_fork1',
     'test_frozen',
-    'test_future1',  # called as part of test_future
-    'test_future2',  # called as part of test_future
-    'test_future3',  # called as part of test_future
+    'test_future1', # called as part of test_future
+    'test_future2', # called as part of test_future
+    'test_future3', # called as part of test_future
     'test_gc',
     'test_gettext',
-    'test_getargs',  # Test a python bug, this throws a different exc in jy.
+    'test_getargs', # Test a python bug, this throws a different exc in jy.
     'test_gdbm',
     'test_gl',
     'test_grp',
@@ -127,6 +127,8 @@ failures = [
 ]
 
 
+
+
 def usage():
     print "jython stdtest.py [options] [tests]"
     print "  -h, --help     : print this help"
@@ -135,19 +137,19 @@ def usage():
     print "  -f, --failures : Run the tests that normally fails"
     print "  -t, --test     : Run the tests listed as arguments"
 
-
 def main():
     import getopt
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hvsft:", [
-            "help", "verbose", "skipped", "failures", "test="])
+                    "help", "verbose", "skipped", "failures", "test="])
     except getopt.GetoptError:
         # print help information and exit:
         usage()
         sys.exit(2)
 
-    alltests = [f[:-3] for f in os.listdir("../dist/Lib/test")
-                if f.startswith("test_") and f.endswith(".py")]
+
+    alltests = [ f[:-3] for f in os.listdir("../dist/Lib/test")
+                     if f.startswith("test_") and f.endswith(".py") ]
     tests = [s for s in alltests if s not in failures and s not in skipped]
     verbose = 0
 
@@ -170,7 +172,7 @@ def main():
         tests.remove("test_largefile")
 
     test.regrtest.main(tests, verbose=verbose)
-
+    
 
 if __name__ == "__main__":
     main()

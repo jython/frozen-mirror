@@ -2,7 +2,6 @@ import unittest
 from test import test_support
 import SocketServer
 
-
 class TestSocketServer(unittest.TestCase):
 
     def testEphemeralPort(self):
@@ -10,12 +9,9 @@ class TestSocketServer(unittest.TestCase):
         # If we specify 0, system should pick an emphemeral port
         host, port = "localhost", 0
         # Request handler never instantiated
-        server = SocketServer.TCPServer((host, port), None)
+        server = SocketServer.TCPServer( (host, port), None)
         server_host, server_port = server.server_address
-        self.failIfEqual(
-            server_port,
-            0,
-            "System assigned ephemeral port should not be zero")
+        self.failIfEqual(server_port, 0, "System assigned ephemeral port should not be zero")
 
 
 def test_main():

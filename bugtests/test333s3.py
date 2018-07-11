@@ -1,11 +1,8 @@
 
 import sys
-import atexit
-
 
 def myfunc():
     print "myfunc"
 
-
-atexit.register(myfunc)
+sys.exitfunc = myfunc
 raise "Exc"

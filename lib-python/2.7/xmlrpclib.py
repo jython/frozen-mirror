@@ -255,6 +255,7 @@ class ProtocolError(Error):
 
 class ResponseError(Error):
     """Indicates a broken response package."""
+    pass
 
 ##
 # Indicates an XML-RPC fault response package.  This exception is

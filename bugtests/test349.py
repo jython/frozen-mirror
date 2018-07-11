@@ -3,16 +3,11 @@
 """
 
 import support
-import java
-import time
-import sys
-import cStringIO
-
+import java, time, sys, cStringIO
 
 class A:
     def __del__(self):
-        raise KeyError("dummy")
-
+        raise KeyError, "dummy"
 
 try:
     sys.stderr = cStringIO.StringIO()
@@ -25,3 +20,5 @@ finally:
     sys.stderr = sys.__stderr__
 
     support.compare(v, "Exception KeyError: .* ignored")
+
+    

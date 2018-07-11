@@ -6,8 +6,7 @@
 
 import unittest
 from test import test_support
-import os
-import sys
+import os, sys
 
 # Test that command-lines get down as we expect.
 # To do this we execute:
@@ -16,12 +15,11 @@ import sys
 # We can then eval() the result of this, and see what each argv was.
 python = sys.executable
 
-
 class PopenTest(unittest.TestCase):
     def _do_test_commandline(self, cmdline, expected):
         cmd = '%s -c "import sys;print sys.argv" %s' % (python, cmdline)
         data = os.popen(cmd).read() + '\n'
-        got = eval(data)[1:]  # strip off argv[0]
+        got = eval(data)[1:] # strip off argv[0]
         self.assertEqual(got, expected)
 
     def test_popen(self):
@@ -47,10 +45,8 @@ class PopenTest(unittest.TestCase):
         else:
             self.assertEqual(os.popen("exit 42").close(), 42 << 8)
 
-
 def test_main():
     test_support.run_unittest(PopenTest)
-
 
 if __name__ == "__main__":
     test_main()

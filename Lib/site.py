@@ -98,7 +98,7 @@ def makepath(*paths):
     dir = os.path.join(*paths)
     if _is_jython and (dir == '__classpath__' or
                        dir.startswith('__pyclasspath__')):
-        return dir, dir
+            return dir, dir
     try:
         dir = os.path.abspath(dir)
     except OSError:
@@ -110,8 +110,8 @@ def abs__file__():
     """Set all module' __file__ attribute to an absolute path"""
     for m in sys.modules.values():
         if hasattr(m, '__loader__') or (
-                _is_jython and not isinstance(m, _ModuleType)):
-            continue   # don't mess with a PEP 302-supplied __file__
+            _is_jython and not isinstance(m, _ModuleType)):
+                continue   # don't mess with a PEP 302-supplied __file__
         f = getattr(m, '__file__', None)
         if f is None:
             continue
@@ -130,7 +130,7 @@ def removeduppaths():
         # if they only differ in case); turn relative paths into absolute
         # paths.
         dir, dircase = makepath(dir)
-        if dircase not in known_paths:
+        if not dircase in known_paths:
             L.append(dir)
             known_paths.add(dircase)
     sys.path[:] = L
@@ -138,8 +138,6 @@ def removeduppaths():
 
 # XXX This should not be part of site.py, since it is needed even when
 # using the -S option for Python.  See http://www.python.org/sf/586680
-
-
 def addbuilddir():
     """Append ./build/lib.<platform> in case we're running in the build dir
     (especially for Guido :-)"""
@@ -189,15 +187,15 @@ def addpackage(sitedir, name, known_paths):
                     continue
                 line = line.rstrip()
                 dir, dircase = makepath(sitedir, line)
-                if dircase not in known_paths and os.path.exists(dir):
+                if not dircase in known_paths and os.path.exists(dir):
                     sys.path.append(dir)
                     known_paths.add(dircase)
             except Exception as err:
                 print >>sys.stderr, "Error processing line {:d} of {}:\n".format(
-                    n + 1, fullname)
+                    n+1, fullname)
                 for record in traceback.format_exception(*sys.exc_info()):
                     for line in record.splitlines():
-                        print >>sys.stderr, '  ' + line
+                        print >>sys.stderr, '  '+line
                 print >>sys.stderr, "\nRemainder of file ignored"
                 break
     if reset:
@@ -214,7 +212,7 @@ def addsitedir(sitedir, known_paths=None):
     else:
         reset = 0
     sitedir, sitedircase = makepath(sitedir)
-    if sitedircase not in known_paths:
+    if not sitedircase in known_paths:
         sys.path.append(sitedir)        # Add path component
     try:
         names = os.listdir(sitedir)
@@ -253,7 +251,6 @@ def check_enableusersite():
 
     return True
 
-
 def getuserbase():
     """Returns the `user base` directory path.
 
@@ -268,7 +265,6 @@ def getuserbase():
     USER_BASE = get_config_var('userbase')
     return USER_BASE
 
-
 def getusersitepackages():
     """Returns the user-specific site-packages directory path.
 
@@ -276,7 +272,7 @@ def getusersitepackages():
     function will also set it.
     """
     global USER_SITE
-    user_base = getuserbase()  # this will also set USER_BASE
+    user_base = getuserbase() # this will also set USER_BASE
 
     if USER_SITE is not None:
         return USER_SITE
@@ -293,7 +289,6 @@ def getusersitepackages():
     USER_SITE = get_path('purelib', '%s_user' % os.name)
     return USER_SITE
 
-
 def addusersitepackages(known_paths):
     """Add a per user site-package to sys.path
 
@@ -307,7 +302,6 @@ def addusersitepackages(known_paths):
     if ENABLE_USER_SITE and os.path.isdir(user_site):
         addsitedir(user_site, known_paths)
     return known_paths
-
 
 def getsitepackages():
     """Returns a list containing all global site-packages directories
@@ -329,8 +323,8 @@ def getsitepackages():
             sitepackages.append(os.path.join(prefix, "Lib", "site-packages"))
         elif os.sep == '/':
             sitepackages.append(os.path.join(prefix, "lib",
-                                             "python" + sys.version[:3],
-                                             "site-packages"))
+                                        "python" + sys.version[:3],
+                                        "site-packages"))
             sitepackages.append(os.path.join(prefix, "lib", "site-python"))
         else:
             sitepackages.append(prefix)
@@ -342,10 +336,9 @@ def getsitepackages():
             framework = get_config_var("PYTHONFRAMEWORK")
             if framework:
                 sitepackages.append(
-                    os.path.join("/Library", framework,
-                                 sys.version[:3], "site-packages"))
+                        os.path.join("/Library", framework,
+                            sys.version[:3], "site-packages"))
     return sitepackages
-
 
 def addsitepackages(known_paths):
     """Add site-packages (and possibly site-python) to sys.path"""
@@ -354,7 +347,6 @@ def addsitepackages(known_paths):
             addsitedir(sitedir, known_paths)
 
     return known_paths
-
 
 def setBEGINLIBPATH():
     """The OS/2 EMX port has optional extension modules that do double duty
@@ -383,24 +375,21 @@ def setquit():
     if os.sep == ':':
         eof = 'Cmd-Q'
     elif os.sep == '\\':
-        # maybe also mention Ctrl-Z if we can support for Windows
-        eof = 'Ctrl-D (i.e. EOF)'
+        eof = 'Ctrl-D (i.e. EOF)'  # maybe also mention Ctrl-Z if we can support for Windows
     else:
         eof = 'Ctrl-D (i.e. EOF)'
 
     class Quitter(object):
         def __init__(self, name):
             self.name = name
-
         def __repr__(self):
             return 'Use %s() or %s to exit' % (self.name, eof)
-
         def __call__(self, code=None):
             # Shells like IDLE catch the SystemExit, but listen when their
             # stdin wrapper is closed.
             try:
                 sys.stdin.close()
-            except BaseException:
+            except:
                 pass
             raise SystemExit(code)
     __builtin__.quit = Quitter('quit')
@@ -446,13 +435,13 @@ class _Printer(object):
         if len(self.__lines) <= self.MAXLINES:
             return "\n".join(self.__lines)
         else:
-            return "Type %s() to see the full %s text" % ((self.__name,) * 2)
+            return "Type %s() to see the full %s text" % ((self.__name,)*2)
 
     def __call__(self):
         self.__setup()
         prompt = 'Hit Return for more, or q (and Return) to quit: '
         lineno = 0
-        while True:
+        while 1:
             try:
                 for i in range(lineno, lineno + self.MAXLINES):
                     print self.__lines[i]
@@ -467,7 +456,6 @@ class _Printer(object):
                         key = None
                 if key == 'q':
                     break
-
 
 def setcopyright():
     """Set 'copyright' and 'credits' in __builtin__"""
@@ -496,23 +484,19 @@ class _Helper(object):
     def __repr__(self):
         return "Type help() for interactive help, " \
                "or help(object) for help about object."
-
     def __call__(self, *args, **kwds):
         import pydoc
         return pydoc.help(*args, **kwds)
 
-
 def sethelper():
     __builtin__.help = _Helper()
-
 
 def aliasmbcs():
     """On Windows, some default encodings are not provided by Python,
     while they are always available as "mbcs" in each locale. Make
     them usable by aliasing to "mbcs" in such a case."""
     if sys.platform == 'win32':
-        import locale
-        import codecs
+        import locale, codecs
         enc = locale.getdefaultlocale()[1]
         if enc.startswith('cp'):            # "cp***" ?
             try:
@@ -522,12 +506,11 @@ def aliasmbcs():
                 encodings._cache[enc] = encodings._unknown
                 encodings.aliases.aliases[enc] = 'mbcs'
 
-
 def setencoding():
     """Set the string encoding used by the Unicode implementation.  The
     default is 'ascii', but if you're willing to experiment, you can
     change this."""
-    encoding = "ascii"  # Default value set by _PyUnicode_Init()
+    encoding = "ascii" # Default value set by _PyUnicode_Init()
     if 0:
         # Enable to support locale aware default string encodings.
         import locale
@@ -540,7 +523,7 @@ def setencoding():
         encoding = "undefined"
     if encoding != "ascii":
         # On Non-Unicode builds this will raise an AttributeError...
-        sys.setdefaultencoding(encoding)  # Needs Python Unicode build !
+        sys.setdefaultencoding(encoding) # Needs Python Unicode build !
 
 
 def execsitecustomize():
@@ -577,7 +560,7 @@ def main():
     abs__file__()
     known_paths = removeduppaths()
     if (os.name == "posix" and sys.path and
-            os.path.basename(sys.path[-1]) == "Modules"):
+        os.path.basename(sys.path[-1]) == "Modules"):
         addbuilddir()
     if ENABLE_USER_SITE is None:
         ENABLE_USER_SITE = check_enableusersite()
@@ -599,9 +582,7 @@ def main():
     if hasattr(sys, "setdefaultencoding"):
         del sys.setdefaultencoding
 
-
 main()
-
 
 def _script():
     help = """\
@@ -625,10 +606,10 @@ def _script():
             print "    %r," % (dir,)
         print "]"
         print "USER_BASE: %r (%s)" % (USER_BASE,
-                                      "exists" if os.path.isdir(USER_BASE) else "doesn't exist")
+            "exists" if os.path.isdir(USER_BASE) else "doesn't exist")
         print "USER_SITE: %r (%s)" % (USER_SITE,
-                                      "exists" if os.path.isdir(USER_SITE) else "doesn't exist")
-        print "ENABLE_USER_SITE: %r" % ENABLE_USER_SITE
+            "exists" if os.path.isdir(USER_SITE) else "doesn't exist")
+        print "ENABLE_USER_SITE: %r" %  ENABLE_USER_SITE
         sys.exit(0)
 
     buffer = []
@@ -651,7 +632,6 @@ def _script():
         import textwrap
         print textwrap.dedent(help % (sys.argv[0], os.pathsep))
         sys.exit(10)
-
 
 if __name__ == '__main__':
     _script()

@@ -21,8 +21,8 @@ class PyEnumeration(java.util.Enumeration):
         return self.index < len(self.seq)
 
     def nextElement(self):
-        self.index = self.index + 1
-        return self.seq[self.index - 1]
+        self.index = self.index+1
+        return self.seq[self.index-1]
 
 
 def classattrs(c, attrs):
@@ -39,14 +39,15 @@ def mydir(obj):
     if hasattr(obj, '__dict__'):
         for name in obj.__dict__.keys():
             attrs[name] = 1
-    ret = sorted(attrs.keys())
+    ret = attrs.keys()
+    ret.sort()
     return ret
 
 
 def shortrepr(obj):
     r = repr(obj)
     if len(r) > 80:
-        r = r[:77] + "..."
+        r = r[:77]+"..."
     return r
 
 
@@ -101,14 +102,14 @@ class ObjectNode(swing.tree.TreeNode):
         for child in self.getChildren():
             if child == node:
                 return index
-            index = index + 1
+            index = index+1
         return -1
 
     def getParent(self):
         return self.myparent
 
     def toString(self):
-        return self.name + ' = ' + shortrepr(self.object)
+        return self.name+' = '+shortrepr(self.object)
 
 
 if __name__ == '__main__':

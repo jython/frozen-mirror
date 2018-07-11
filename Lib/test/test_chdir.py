@@ -199,32 +199,31 @@ class WindowsChdirTestCase(BaseChdirTestCase):
         # D:\HOME . TEMP and HOME stand for arbitrarily long relative paths.
 
         # Check chdir to \ occurs without change of drive letter.
-        drive0, sub0 = os.path.splitdrive(os.getcwd())  # d:, HOME
-        os.chdir('\\')  # d:\
+        drive0, sub0 = os.path.splitdrive(os.getcwd()) # d:, HOME
+        os.chdir('\\') # d:\
         self.assertEqual(os.path.normcase(os.getcwd()),
                          os.path.normcase(os.path.join(drive0, '\\')))
 
         # Check chdir to HOME occurs without change of drive letter.
-        os.chdir(sub0)  # d:\HOME
+        os.chdir(sub0) # d:\HOME
         self.assertEqual(os.path.normcase(os.getcwd()),
                          os.path.normcase(os.path.join(drive0, sub0)))
 
         # Check chdir to path with drive letter, changes drive in cwd.
-        drive, sub = os.path.splitdrive(self.subdir)  # c:, TEMP\Program Files
-        os.chdir(self.subdir)  # c:\TEMP\Program Files
+        drive, sub = os.path.splitdrive(self.subdir) # c:, TEMP\Program Files
+        os.chdir(self.subdir) # c:\TEMP\Program Files
         self.assertEqual(os.path.normcase(os.getcwd()),
                          os.path.normcase(os.path.join(drive, sub)))
 
         # Check chdir to \ occurs without change of drive letter (again).
-        os.chdir('\\')  # c:\
+        os.chdir('\\') # c:\
         self.assertEqual(os.path.normcase(os.getcwd()),
                          os.path.normcase(os.path.join(drive, '\\')))
 
         if drive.upper() != drive0.upper():
             # Check chdir to (different) original drive takes us to previous directory too.
-            # You only get this test if the temp directory and cwd are on
-            # different drives.
-            os.chdir(drive0)  # d:\HOME
+            # You only get this test if the temp directory and cwd are on different drives.
+            os.chdir(drive0) # d:\HOME
             self.assertEqual(os.path.normcase(os.getcwd()),
                              os.path.normcase(os.path.join(drive0, sub0)))
 
@@ -406,9 +405,7 @@ class PyCompileTestCase(BaseImportTestCase):
         mod = sys.modules[mod_name]
         self.assertEqual(mod.__file__, mod_name + COMPILED_SUFFIX)
 
-
-@unittest.skipIf(test_support.is_jython_nt,
-                 "FIXME: failing on Windows: issue 2418")
+@unittest.skipIf(test_support.is_jython_nt, "FIXME: failing on Windows: issue 2418")
 class SubprocessTestCase(BaseChdirTestCase):
 
     TEST_DIRS = 2
@@ -619,8 +616,8 @@ class SymlinkTestCase(BaseChdirTestCase):
         # If the cwd (self.dir1) was applied to os.link's src arg then
         # the link would not be dead
 
-        # FIXME: worked in Jython 2.5
-        # self.assertTrue(self.isdeadlink(self.link))
+        #FIXME: worked in Jython 2.5
+        #self.assertTrue(self.isdeadlink(self.link))
 
     def isdeadlink(self, link):
         return os.path.lexists(link) and not os.path.exists(link)
@@ -702,7 +699,7 @@ def raises(exc, expected, callable, *args):
     """Ensure the expected exception is raised"""
     try:
         callable(*args)
-    except exc as msg:
+    except exc, msg:
         if expected is not None:
             if isinstance(expected, str):
                 if str(msg) != expected:
@@ -734,26 +731,26 @@ def write(filename, data):
 
 def test_main():
     tests = [
-        ChdirTestCase,
-        ImportTestCase,
-        ImportPackageTestCase,
-        ZipimportTestCase,
-        PyCompileTestCase,
-        ExecfileTestCase,
-        ExecfileTracebackTestCase,
-        ListdirTestCase,
-        DirsTestCase,
-        FilesTestCase,
-        SymlinkTestCase
-    ]
+                ChdirTestCase,
+                ImportTestCase,
+                ImportPackageTestCase,
+                ZipimportTestCase,
+                PyCompileTestCase,
+                ExecfileTestCase,
+                ExecfileTracebackTestCase,
+                ListdirTestCase,
+                DirsTestCase,
+                FilesTestCase,
+                SymlinkTestCase
+            ]
     if WINDOWS:
         tests.append(WindowsChdirTestCase)
-        tests.remove(SymlinkTestCase)  # os.symlink ... Availability: Unix.
+        tests.remove(SymlinkTestCase)       #  os.symlink ... Availability: Unix.
 
     if test_support.is_jython:
         tests.extend((ImportJavaClassTestCase,
                       ImportJarTestCase))
-
+ 
     if test_support.is_resource_enabled('subprocess'):
         tests.append(SubprocessTestCase)
 

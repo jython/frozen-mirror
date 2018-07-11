@@ -37,8 +37,7 @@ class TestMtime(unittest.TestCase):
             fp.close()
             py_compile.compile(source_path)
 
-            # sleep so that the internal mtime is older for the next source
-            # write.
+            #sleep so that the internal mtime is older for the next source write.
             time.sleep(1)
 
             fp = open(source_path, "w")
@@ -47,7 +46,7 @@ class TestMtime(unittest.TestCase):
 
             # make sure the source file's mtime is artificially younger than
             # the compiled path's mtime.
-            os.utime(source_path, (1, 1))
+            os.utime(source_path, (1,1))
 
             sys.path.append(TESTFN)
             import mod1
@@ -67,7 +66,7 @@ class TestCompileall(unittest.TestCase):
             PACKAGE = os.path.realpath("./greetings")
             PYC_GREETER = os.path.join(PACKAGE, "greeter.pyc")
             PYCLASS_GREETER = os.path.join(PACKAGE, "greeter$py.class")
-            PYCLASS_TEST = os.path.join(PACKAGE, "test$py.class")
+            PYCLASS_TEST = os.path.join(PACKAGE, "test$py.class")            
 
             os.mkdir(PACKAGE)
             self.write_code(
@@ -85,17 +84,17 @@ class TestCompileall(unittest.TestCase):
 
             # pretend we have a Python bytecode compiler by touching this file
             open(PYC_GREETER, "a").close()
-
+            
             compileall.compile_dir(PACKAGE, quiet=True)
             self.assertTrue(os.path.exists(PYC_GREETER))     # still exists
-            # along with these new compiled files
-            self.assertTrue(os.path.exists(PYCLASS_TEST))
+            self.assertTrue(os.path.exists(PYCLASS_TEST))    # along with these new compiled files
             self.assertTrue(os.path.exists(PYCLASS_GREETER))
 
             # verify we can work with just compiled files
             os.unlink(os.path.join(PACKAGE, "greeter.py"))
-            self.assertEqual(subprocess.check_output(
-                [sys.executable, os.path.join(PACKAGE, "test.py")]).rstrip(), "Hello world!")
+            self.assertEqual(
+                subprocess.check_output([sys.executable, os.path.join(PACKAGE, "test.py")]).rstrip(),
+                "Hello world!")
 
 
 def test_main():

@@ -128,9 +128,11 @@ class PtyTest(unittest.TestCase):
             except OSError:
                 # Good, we already were session leader
                 debug("Good: OSError was raised.")
+                pass
             except AttributeError:
                 # Have pty, but not setsid()?
                 debug("No setsid() available?")
+                pass
             except:
                 # We don't want this error to propagate, escaping the call to
                 # os._exit() and causing very peculiar behavior in the calling

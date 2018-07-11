@@ -789,6 +789,7 @@ class zxAPITestCase(zxJDBCTestCase):
 
     def testForeignKey(self):
         """testing for foreign key information"""
+        pass
 
     def testIndexInfo(self):
         """testing index information"""

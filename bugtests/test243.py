@@ -1,12 +1,12 @@
 
-import java
-import support
+import java, support
 
 import test243p
-# print test243p
+#print test243p
 try:
-    import test243p.P
+   import test243p.P
 except (ImportError, java.lang.NoClassDefFoundError):
-    pass
+   pass
 else:
-    raise support.TestError, "Should raise an exception"
+   raise support.TestError, "Should raise an exception"
+

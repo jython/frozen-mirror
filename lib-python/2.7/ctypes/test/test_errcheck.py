@@ -1,3 +1,5 @@
+import sys
+from ctypes import *
 
 ##class HMODULE(Structure):
 ##    _fields_ = [("value", c_void_p)]

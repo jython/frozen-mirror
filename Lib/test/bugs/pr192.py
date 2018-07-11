@@ -2,6 +2,7 @@
 
 def test1():
     'Test function 1'
+    pass
 
 def test2(a, b=2, c=3):
     pass
@@ -43,6 +44,7 @@ assert (test3.func_code.co_flags & flags) == flags
 class Foo:
     def method(self):
         """This is a method"""
+        pass
 
 attrs = dir(Foo.method)[:]
 for attr in ['im_self', 'im_func', 'im_class', '__doc__', '__name__']:

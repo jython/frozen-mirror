@@ -1,5 +1,6 @@
 import sys
 import threading
+import time
 import unittest
 
 from test import test_support

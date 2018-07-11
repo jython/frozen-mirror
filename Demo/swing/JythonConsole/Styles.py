@@ -15,15 +15,15 @@ class Styles:
         style = self.context.addStyle(name, parent)
 
         for key, value in keywords.items():
-            key = string.upper(key[0]) + key[1:]
-            meth = getattr(StyleConstants, "set" + key)
+            key = string.upper(key[0])+key[1:]
+            meth = getattr(StyleConstants, "set"+key)
             meth(style, value)
 
         if tabsize is not None:
             charWidth = StyleConstants.getFontSize(style)
             tabs = []
             for i in range(20):
-                tabs.append(TabStop(i * tabsize * charWidth))
+                tabs.append(TabStop(i*tabsize*charWidth))
             StyleConstants.setTabSet(style, TabSet(tabs))
         return style
 

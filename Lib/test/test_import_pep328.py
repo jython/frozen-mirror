@@ -1,4 +1,4 @@
-# test_import_pep328 - Test various aspects of import
+# test_import_pep328 - Test various aspects of import 
 #
 # Copyright (c) 2010 by science+computing ag
 #
@@ -20,9 +20,9 @@
 '''
 Import related tests:
 
-- Test how 'import ...' and 'from ... import ...' invoke the
+- Test how 'import ...' and 'from ... import ...' invoke the 
   '__import__' function.
-- Test the module name resolution of the '__import__'-function.
+- Test the module name resolution of the '__import__'-function.  
 
 The reference is C-python.
 '''
@@ -33,9 +33,8 @@ import __builtin__
 import sys
 import types
 
-EXPLAIN = False  # If True, produce commentary in TestImportFunction
-MAXDOTS = 10  # adjust enthusiasm of dotted tests
-
+EXPLAIN = False # If True, produce commentary in TestImportFunction
+MAXDOTS = 10 # adjust enthusiasm of dotted tests
 
 def dump_module(m):
     "Print values of attributes relevant to import mechanism"
@@ -43,18 +42,15 @@ def dump_module(m):
         m = m.__dict__
     print "  Module name:     {}".format(m.get('__name__', ''))
     for n in ['__package__', '__path__']:
-        print "    {:12s} = {}".format(n, m.get(n, ''))
+        print "    {:12s} = {}".format(n, m.get(n,''))
 
-
-origImport = __import__
-
+origImport = __import__ 
 
 class TestImportStatementTell(exceptions.ImportError):
     # Raised by TestImportStatement.importFunction to tell us how it was called
     def __init__(self, args):
         # Smuggle the arguments of importFunction() through the call stack
-        if EXPLAIN:
-            print "\nimport:"
+        if EXPLAIN: print "\nimport:"
         names = ['name', 'globals', 'locals', 'fromlist', 'level']
         self.len = len(args)
         for a in args:
@@ -70,9 +66,9 @@ class TestImportStatementTell(exceptions.ImportError):
 class TestImportStatement(unittest.TestCase):
     """Test the 'import' and 'from ... import' statements
 
-    This class tests, how the compiler calls the
+    This class tests, how the compiler calls the 
     '__import__'-function for various forms of the
-    'import' and 'from ... import' statements.
+    'import' and 'from ... import' statements. 
     """
 
     AI = "from __future__ import absolute_import ;"
@@ -93,8 +89,8 @@ class TestImportStatement(unittest.TestCase):
         l = {}
         g = {}
         try:
-            exec statement in g, l
-        except TestImportStatementTell as e:
+            exec statement in g, l 
+        except TestImportStatementTell, e:
             self.assert_(e.globals is g, "globals is changed")
             self.assert_(e.locals is l, "locals is changed")
             return e
@@ -104,7 +100,7 @@ class TestImportStatement(unittest.TestCase):
     def dotrange(n=MAXDOTS):
         "Return a longer sequence of dots in each iteration"
         for i in range(1, n):
-            yield '.' * i
+            yield '.'*i
 
     def testFromDotsOnly(self):
         for dots in self.dotrange():
@@ -141,7 +137,7 @@ class TestImportStatement(unittest.TestCase):
     def testFromDotsAndDottedNameAll(self):
         for dots in self.dotrange():
             a = self.runImport("from %sX.Y import *" % (dots,))
-            self.assertEqual(a.len, 5, "level argument elided")  # Issue 2158
+            self.assertEqual(a.len, 5, "level argument elided") # Issue 2158
             self.assertEqual(a.name, "X.Y")
             self.assertEqual(a.fromlist, ('*',))
             self.assertEqual(a.level, len(dots))
@@ -209,7 +205,6 @@ class TestImportStatement(unittest.TestCase):
 class TestImportFunctionSuccess(exceptions.ImportError):
     pass
 
-
 class TestImportFunction(unittest.TestCase):
     """Test the '__import__' function
 
@@ -247,7 +242,7 @@ class TestImportFunction(unittest.TestCase):
         else:
             m = imp.new_module(in_package.__name__ + '.' + name)
             if is_package:
-                m.__package__ = m.__name__  # surprisingly not the parent name
+                m.__package__ = m.__name__ # surprisingly not the parent name
             else:
                 m.__package__ = in_package.__name__
         if is_package:
@@ -319,15 +314,15 @@ class TestImportFunction(unittest.TestCase):
             globals = globals.__dict__
         if EXPLAIN:
             print "\nrunImport:"
-            dotname = ('.' * level if level > 0 else '') + name
+            dotname = ('.'*level if level>0 else '') + name
             callername = globals['__name__']
             callerpkg = globals.get('__package__', None)
             if fromlist:
                 print "    from {} import {} # in {} in package {}".format(
-                    dotname, fromlist, callername, callerpkg)
+                            dotname, fromlist, callername, callerpkg)
             else:
                 print "    import {} # in {} in package {}".format(
-                    dotname, callername, callerpkg)
+                            dotname, callername, callerpkg)
         try:
             if level is not None:
                 __import__(name, globals, None, fromlist, level)
@@ -382,16 +377,14 @@ class TestImportFunction(unittest.TestCase):
 
     # Relative case
     def testRelativeOrAbsolute_X_X2_rel1(self):
-        # In context of package X, look for X2 at X.X2 (where actually it
-        # isn't).
+        # In context of package X, look for X2 at X.X2 (where actually it isn't).
         self.importX()
         self.runImport(None, self.modX2.__name__, self.modX)
         self.assertEqual(self.fullname, self.nameX + "." + self.modX2.__name__)
         self.assertEqual(self.path, [self.nameX])
 
     def testRelativeOrAbsolute_X_X2_rel2(self):
-        # In context of package X, look for X2 at X.X2 (where actually it
-        # isn't).
+        # In context of package X, look for X2 at X.X2 (where actually it isn't).
         self.importX()
         self.runImport(None, self.modX2.__name__, self.modX, None, -1)
         self.assertEqual(self.path, [self.nameX])
@@ -408,8 +401,7 @@ class TestImportFunction(unittest.TestCase):
     def testRelativeOrAbsolute_X_X2_abs2(self):
         # In context of package X, find X2 at absolute X2 (on second attempt).
         self.importX()
-        self.runImport(self.modX2.__name__,
-                       self.modX2.__name__, self.modX, None, -1)
+        self.runImport(self.modX2.__name__, self.modX2.__name__, self.modX, None, -1)
         self.assertEqual(self.path, None)
         self.assertEqual(self.fullname, self.modX2.__name__)
 
@@ -442,8 +434,7 @@ class TestImportFunction(unittest.TestCase):
         self.assertEqual(self.path, [self.nameX])
 
     def testRelative_Z1_X2(self):
-        # In context of module Z1, from ... import X2 (incorrectly beyond top
-        # level).
+        # In context of module Z1, from ... import X2 (incorrectly beyond top level).
         self.importZ1()
         with self.assertRaises(ValueError):
             self.runImport(None, "", self.modZ1, [self.modX2.__name__], 3)
@@ -507,9 +498,9 @@ except ImportError:
 else:
     def test_main():
         test_support.run_unittest(
-            TestImportStatement,
-            TestImportFunction,
-        )
+                TestImportStatement,
+                TestImportFunction,
+                )
 
 if __name__ == '__main__':
     test_main()

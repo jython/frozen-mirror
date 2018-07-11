@@ -1,10 +1,8 @@
 import os
-import test.test_support
-import unittest
+import test.test_support, unittest
 import sys
 import popen2
 import subprocess
-
 
 class CmdLineTest(unittest.TestCase):
 
@@ -68,7 +66,7 @@ class CmdLineTest(unittest.TestCase):
         version = prefix + 'ython %d.%d' % sys.version_info[:2]
         start = self.start_python('-V')
         self.assertTrue(start.startswith(version),
-                        "%s does not start with %s" % (start, version))
+            "%s does not start with %s" % (start, version))
 
     def test_run_module(self):
         # Test expected operation of the '-m' switch
@@ -105,7 +103,6 @@ class CmdLineTest(unittest.TestCase):
 def test_main():
     test.test_support.run_unittest(CmdLineTest)
     test.test_support.reap_children()
-
 
 if __name__ == "__main__":
     test_main()

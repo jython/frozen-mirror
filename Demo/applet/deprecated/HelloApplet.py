@@ -1,6 +1,6 @@
 """\
 This is a very simple example of creating a Java applet from JPython
-This applet should display in any JDK 1.1 compliant browser
+This applet should display in any JDK 1.1 compliant browser 
 At the moment that means it will only work in SUN's "appletviewer"
 
 To use this applet, you must perform the following steps:

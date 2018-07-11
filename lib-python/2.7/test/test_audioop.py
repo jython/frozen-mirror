@@ -1,4 +1,5 @@
 import audioop
+import sys
 import unittest
 import struct
 from test.test_support import run_unittest

@@ -9,6 +9,7 @@ __all__ = ['Message']
 import re
 import uu
 import binascii
+import warnings
 from cStringIO import StringIO
 
 # Intrapackage imports

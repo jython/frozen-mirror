@@ -20,7 +20,6 @@ except ImportError:
 
 HOST = test_support.HOST
 
-
 class dummysocket:
     def __init__(self):
         self.closed = False
@@ -31,14 +30,12 @@ class dummysocket:
     def fileno(self):
         return 42
 
-
 class dummychannel:
     def __init__(self):
         self.socket = dummysocket()
 
     def close(self):
         self.socket.close()
-
 
 class exitingdummy:
     def __init__(self):
@@ -50,7 +47,6 @@ class exitingdummy:
     handle_write_event = handle_read_event
     handle_close = handle_read_event
     handle_expt_event = handle_read_event
-
 
 class crashingdummy:
     def __init__(self):
@@ -67,8 +63,6 @@ class crashingdummy:
         self.error_handled = True
 
 # used when testing senders; just collects what it gets until newline is sent
-
-
 def capture_server(evt, buf, serv):
     try:
         serv.listen(5)
@@ -138,7 +132,7 @@ class HelperFunctionTests(unittest.TestCase):
             (select.POLLERR, 'closed'),
             (select.POLLHUP, 'closed'),
             (select.POLLNVAL, 'closed'),
-        )
+            )
 
         class testobj:
             def __init__(self):
@@ -171,7 +165,7 @@ class HelperFunctionTests(unittest.TestCase):
             # Only the attribute modified by the routine we expect to be
             # called should be True.
             for attr in attributes:
-                self.assertEqual(getattr(tobj, attr), attr == expectedattr)
+                self.assertEqual(getattr(tobj, attr), attr==expectedattr)
 
             # check that ExitNow exceptions in the object handler method
             # bubbles all the way up through asyncore readwrite call
@@ -220,7 +214,7 @@ class HelperFunctionTests(unittest.TestCase):
     def test_compact_traceback(self):
         try:
             raise Exception("I don't like spam!")
-        except BaseException:
+        except:
             real_t, real_v, real_tb = sys.exc_info()
             r = asyncore.compact_traceback()
         else:
@@ -348,7 +342,6 @@ class dispatcherwithsend_noread(asyncore.dispatcher_with_send):
     def handle_connect(self):
         pass
 
-
 class DispatcherWithSendTests(unittest.TestCase):
     usepoll = False
 
@@ -395,14 +388,13 @@ class DispatcherWithSendTests(unittest.TestCase):
 
             evt.wait()
 
-            self.assertEqual(cap.getvalue(), data * 2)
+            self.assertEqual(cap.getvalue(), data*2)
         finally:
             t.join()
 
 
 class DispatcherWithSendTests_UsePoll(DispatcherWithSendTests):
     usepoll = True
-
 
 @unittest.skipUnless(hasattr(asyncore, 'file_wrapper'),
                      'asyncore.file_wrapper required')
@@ -427,6 +419,7 @@ class FileWrapperTest(unittest.TestCase):
         w.close()
         self.assertRaises(OSError, w.read, 1)
 
+
     def test_send(self):
         d1 = "Come again?"
         d2 = "I want to buy some cheese."
@@ -444,7 +437,6 @@ class FileWrapperTest(unittest.TestCase):
     def test_dispatcher(self):
         fd = os.open(TESTFN, os.O_RDONLY)
         data = []
-
         class FileDispatcher(asyncore.file_dispatcher):
             def handle_read(self):
                 data.append(self.recv(29))
@@ -638,7 +630,6 @@ class BaseTestAPI(unittest.TestCase):
         class TestClient(BaseClient):
             def handle_write(self):
                 1.0 / 0
-
             def handle_error(self):
                 self.flag = True
                 try:
@@ -660,7 +651,7 @@ class BaseTestAPI(unittest.TestCase):
         self.assertFalse(server.connected)
         self.assertTrue(server.accepting)
         # this can't be taken for granted across all platforms
-        # self.assertFalse(client.connected)
+        #self.assertFalse(client.connected)
         self.assertFalse(client.accepting)
 
         # execute some loops so that client connects to server
@@ -720,7 +711,7 @@ class BaseTestAPI(unittest.TestCase):
             s.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             s.set_reuse_addr()
             self.assertTrue(s.socket.getsockopt(socket.SOL_SOCKET,
-                                                socket.SO_REUSEADDR))
+                                                 socket.SO_REUSEADDR))
         finally:
             sock.close()
 
@@ -729,9 +720,7 @@ class BaseTestAPI(unittest.TestCase):
     def test_quick_connect(self):
         # see: http://bugs.python.org/issue10340
         server = TCPServer()
-        t = threading.Thread(
-            target=lambda: asyncore.loop(
-                timeout=0.1, count=500))
+        t = threading.Thread(target=lambda: asyncore.loop(timeout=0.1, count=500))
         t.start()
 
         for x in xrange(20):
@@ -750,7 +739,6 @@ class BaseTestAPI(unittest.TestCase):
 class TestAPI_UseSelect(BaseTestAPI):
     use_poll = False
 
-
 @unittest.skipUnless(hasattr(select, 'poll'), 'select.poll required')
 class TestAPI_UsePoll(BaseTestAPI):
     use_poll = True
@@ -761,7 +749,6 @@ def test_main():
              DispatcherWithSendTests_UsePoll, TestAPI_UseSelect,
              TestAPI_UsePoll, FileWrapperTest]
     run_unittest(*tests)
-
 
 if __name__ == "__main__":
     test_main()

@@ -13,12 +13,12 @@ class NameTest(unittest.TestCase):
         # verifies fix for http://bugs.jython.org/issue2368
         self.assertGreaterEqual(
             set(dir(_io)),
-            {'BlockingIOError', 'BufferedRWPair', 'BufferedRandom',
-             'BufferedReader', 'BufferedWriter', 'BytesIO',
-             'DEFAULT_BUFFER_SIZE', 'FileIO', 'IncrementalNewlineDecoder',
-             'TextIOWrapper', 'UnsupportedOperation',
-             '_BufferedIOBase', '_IOBase', '_RawIOBase', '_TextIOBase'
-             })
+            { 'BlockingIOError', 'BufferedRWPair', 'BufferedRandom',
+              'BufferedReader', 'BufferedWriter', 'BytesIO',
+              'DEFAULT_BUFFER_SIZE', 'FileIO', 'IncrementalNewlineDecoder',
+              'TextIOWrapper', 'UnsupportedOperation',
+              '_BufferedIOBase', '_IOBase', '_RawIOBase', '_TextIOBase'
+            })
 
 
 class PipeTestCase(unittest.TestCase):

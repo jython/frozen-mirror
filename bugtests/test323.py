@@ -3,9 +3,7 @@ Tests using a path inside a zip file for zip imports
 """
 
 import support
-import zipfile
-import time
-
+import zipfile, time
 
 def addZipEntry(zip, name, data):
     entry = zipfile.ZipInfo()

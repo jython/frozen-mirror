@@ -3,16 +3,13 @@
 """
 
 import support
-import zipfile
-import time
-
+import zipfile, time
 
 def addZipEntry(zip, name, data):
     entry = zipfile.ZipInfo()
     entry.filename = name
     entry.date_time = time.gmtime(time.time())
     zip.writestr(entry, data)
-
 
 zip = zipfile.ZipFile("test350.zip", "w")
 

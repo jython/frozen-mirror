@@ -1,8 +1,8 @@
 import sys
 
 
-def escape_html(s):
-    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+def escape_html(s): return s.replace(
+    '&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 
 
 def cutoff(s, n=100):
@@ -20,13 +20,13 @@ def handler(environ, start_response):
     response_parts.append("</head>")
     response_parts.append("<body>")
     response_parts.append(
-        "<p>Modjy servlet running correctly: jython %s on %s:</p>" %
-        (sys.version, sys.platform))
+        "<p>Modjy servlet running correctly: jython %s on %s:</p>" % (sys.version, sys.platform))
     response_parts.append("<h3>Hello WSGI World!</h3>")
     response_parts.append(
         "<h4>Here are the contents of the WSGI environment</h4>")
     environ_str = "<table border='1'>"
-    keys = sorted(environ.keys())
+    keys = environ.keys()
+    keys.sort()
     for ix, name in enumerate(keys):
         if ix % 2:
             background = '#ffffff'

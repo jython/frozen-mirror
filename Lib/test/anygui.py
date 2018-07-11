@@ -1,7 +1,6 @@
 '''Used by test_import_jy/test_getattr_module'''
 import sys
 
-
 class anygui:
 
     def __init__(self):
@@ -29,13 +28,12 @@ class anygui:
         for name in candidates:
             backend = self.__try_to_get('%sgui' % name)
         if not backend:
-            raise Exception('not able to import any GUI backends')
+            raise Exception, 'not able to import any GUI backends'
         self.__backend = backend
 
     def __getattr__(self, name):
         if not self.__backend:
             self.__import_backend(self.__dict__.get('wishlist', []))
         return self.__backend.__dict__[name]
-
 
 sys.modules[__name__] = anygui()

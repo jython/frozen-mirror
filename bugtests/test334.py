@@ -8,3 +8,4 @@ try:
     ord([123])
 except TypeError:
     pass
+

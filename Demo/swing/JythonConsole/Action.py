@@ -3,13 +3,7 @@ from pawt import swing
 
 
 class Action(swing.AbstractAction):
-    def __init__(
-            self,
-            name,
-            action=None,
-            icon=None,
-            description=None,
-            needEvent=0):
+    def __init__(self, name, action=None, icon=None, description=None, needEvent=0):
         if action is None:
             action = name
             name = action.__name__
@@ -37,9 +31,7 @@ class Action(swing.AbstractAction):
 
     def createMenuItem(self):
         mi = swing.JMenuItem(
-            self.name,
-            actionListener=self,
-            enabled=self.enabled)
+            self.name, actionListener=self, enabled=self.enabled)
         return mi
 
 

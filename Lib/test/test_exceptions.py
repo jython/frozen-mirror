@@ -3,15 +3,13 @@
 import os
 import sys
 import unittest
-import pickle
-import cPickle
+import pickle, cPickle
 
 from test.test_support import (TESTFN, unlink, run_unittest, captured_output,
                                check_warnings, cpython_only, is_jython)
 from test.test_pep352 import ignore_deprecation_warnings
 
 # XXX This is not really enough, each *operation* should be tested!
-
 
 class ExceptionTests(unittest.TestCase):
 
@@ -22,17 +20,17 @@ class ExceptionTests(unittest.TestCase):
             from imp import reload
             import exceptions
             reload(exceptions)
-        except ImportError as e:
+        except ImportError, e:
             self.fail("reloading exceptions: %s" % e)
 
     def raise_catch(self, exc, excname):
         try:
-            raise exc("spam")
-        except exc as err:
+            raise exc, "spam"
+        except exc, err:
             buf1 = str(err)
         try:
             raise exc("spam")
-        except exc as err:
+        except exc, err:
             buf2 = str(err)
         self.assertEqual(buf1, buf2)
         self.assertEqual(exc.__name__, excname)
@@ -76,10 +74,8 @@ class ExceptionTests(unittest.TestCase):
         self.raise_catch(MemoryError, "MemoryError")
 
         self.raise_catch(NameError, "NameError")
-        try:
-            x = undefined_variable
-        except NameError:
-            pass
+        try: x = undefined_variable
+        except NameError: pass
 
         self.raise_catch(OverflowError, "OverflowError")
         x = 1
@@ -89,18 +85,16 @@ class ExceptionTests(unittest.TestCase):
         self.raise_catch(RuntimeError, "RuntimeError")
 
         self.raise_catch(SyntaxError, "SyntaxError")
-        try:
-            exec '/\n'
-        except SyntaxError:
-            pass
+        try: exec '/\n'
+        except SyntaxError: pass
 
         self.raise_catch(IndentationError, "IndentationError")
 
         self.raise_catch(TabError, "TabError")
         # can only be tested under -tt, and is the only test for -tt
-        # try: compile("try:\n\t1/0\n    \t1/0\nfinally:\n pass\n", '<string>', 'exec')
-        # except TabError: pass
-        # else: self.fail("TabError not raised")
+        #try: compile("try:\n\t1/0\n    \t1/0\nfinally:\n pass\n", '<string>', 'exec')
+        #except TabError: pass
+        #else: self.fail("TabError not raised")
 
         self.raise_catch(SystemError, "SystemError")
 
@@ -108,25 +102,19 @@ class ExceptionTests(unittest.TestCase):
         self.assertRaises(SystemExit, sys.exit, 0)
 
         self.raise_catch(TypeError, "TypeError")
-        try:
-            [] + ()
-        except TypeError:
-            pass
+        try: [] + ()
+        except TypeError: pass
 
         self.raise_catch(ValueError, "ValueError")
         self.assertRaises(ValueError, chr, 10000)
 
         self.raise_catch(ZeroDivisionError, "ZeroDivisionError")
-        try:
-            x = 1 // 0
-        except ZeroDivisionError:
-            pass
+        try: x = 1 // 0
+        except ZeroDivisionError: pass
 
         self.raise_catch(Exception, "Exception")
-        try:
-            x = 1 // 0
-        except Exception as e:
-            pass
+        try: x = 1 // 0
+        except Exception, e: pass
 
     def testSyntaxErrorMessage(self):
         # make sure the right exception message is raised for each of
@@ -135,7 +123,7 @@ class ExceptionTests(unittest.TestCase):
         def ckmsg(src, msg):
             try:
                 compile(src, '<fragment>', 'exec')
-            except SyntaxError as e:
+            except SyntaxError, e:
                 if e.msg != msg:
                     self.fail("expected %s, got %s" % (msg, e.msg))
             else:
@@ -166,21 +154,17 @@ class ExceptionTests(unittest.TestCase):
 
         class BadException:
             def __init__(self_):
-                raise RuntimeError("can't instantiate BadException")
+                raise RuntimeError, "can't instantiate BadException"
 
         def test_capi1():
             import _testcapi
             try:
                 _testcapi.raise_exception(BadException, 1)
-            except TypeError as err:
+            except TypeError, err:
                 exc, err, tb = sys.exc_info()
                 co = tb.tb_frame.f_code
                 self.assertEqual(co.co_name, "test_capi1")
-                self.assertTrue(
-                    co.co_filename.endswith(
-                        'test_exceptions' +
-                        os.extsep +
-                        'py'))
+                self.assertTrue(co.co_filename.endswith('test_exceptions'+os.extsep+'py'))
             else:
                 self.fail("Expected exception")
 
@@ -188,15 +172,11 @@ class ExceptionTests(unittest.TestCase):
             import _testcapi
             try:
                 _testcapi.raise_exception(BadException, 0)
-            except RuntimeError as err:
+            except RuntimeError, err:
                 exc, err, tb = sys.exc_info()
                 co = tb.tb_frame.f_code
                 self.assertEqual(co.co_name, "__init__")
-                self.assertTrue(
-                    co.co_filename.endswith(
-                        'test_exceptions' +
-                        os.extsep +
-                        'py'))
+                self.assertTrue(co.co_filename.endswith('test_exceptions'+os.extsep+'py'))
                 co2 = tb.tb_frame.f_back.f_code
                 self.assertEqual(co2.co_name, "test_capi2")
             else:
@@ -213,9 +193,9 @@ class ExceptionTests(unittest.TestCase):
             pass
         else:
             self.assertEqual(str(WindowsError(1001)),
-                             "1001")
+                                 "1001")
             self.assertEqual(str(WindowsError(1001, "message")),
-                             "[Error 1001] message")
+                                 "[Error 1001] message")
             self.assertEqual(WindowsError(1001, "message").errno, 22)
             self.assertEqual(WindowsError(1001, "message").winerror, 1001)
 
@@ -224,75 +204,75 @@ class ExceptionTests(unittest.TestCase):
         # test that exception attributes are happy
 
         exceptionList = [
-            (BaseException, (), {'message': '', 'args': ()}),
-            (BaseException, (1, ), {'message': 1, 'args': (1,)}),
+            (BaseException, (), {'message' : '', 'args' : ()}),
+            (BaseException, (1, ), {'message' : 1, 'args' : (1,)}),
             (BaseException, ('foo',),
-                {'message': 'foo', 'args': ('foo',)}),
+                {'message' : 'foo', 'args' : ('foo',)}),
             (BaseException, ('foo', 1),
-                {'message': '', 'args': ('foo', 1)}),
+                {'message' : '', 'args' : ('foo', 1)}),
             (SystemExit, ('foo',),
-                {'message': 'foo', 'args': ('foo',), 'code': 'foo'}),
+                {'message' : 'foo', 'args' : ('foo',), 'code' : 'foo'}),
             (IOError, ('foo',),
-                {'message': 'foo', 'args': ('foo',), 'filename': None,
-                 'errno': None, 'strerror': None}),
+                {'message' : 'foo', 'args' : ('foo',), 'filename' : None,
+                 'errno' : None, 'strerror' : None}),
             (IOError, ('foo', 'bar'),
-                {'message': '', 'args': ('foo', 'bar'), 'filename': None,
-                 'errno': 'foo', 'strerror': 'bar'}),
+                {'message' : '', 'args' : ('foo', 'bar'), 'filename' : None,
+                 'errno' : 'foo', 'strerror' : 'bar'}),
             (IOError, ('foo', 'bar', 'baz'),
-                {'message': '', 'args': ('foo', 'bar'), 'filename': 'baz',
-                 'errno': 'foo', 'strerror': 'bar'}),
+                {'message' : '', 'args' : ('foo', 'bar'), 'filename' : 'baz',
+                 'errno' : 'foo', 'strerror' : 'bar'}),
             (IOError, ('foo', 'bar', 'baz', 'quux'),
-                {'message': '', 'args': ('foo', 'bar', 'baz', 'quux')}),
+                {'message' : '', 'args' : ('foo', 'bar', 'baz', 'quux')}),
             (EnvironmentError, ('errnoStr', 'strErrorStr', 'filenameStr'),
-                {'message': '', 'args': ('errnoStr', 'strErrorStr'),
-                 'strerror': 'strErrorStr', 'errno': 'errnoStr',
-                 'filename': 'filenameStr'}),
+                {'message' : '', 'args' : ('errnoStr', 'strErrorStr'),
+                 'strerror' : 'strErrorStr', 'errno' : 'errnoStr',
+                 'filename' : 'filenameStr'}),
             (EnvironmentError, (1, 'strErrorStr', 'filenameStr'),
-                {'message': '', 'args': (1, 'strErrorStr'), 'errno': 1,
-                 'strerror': 'strErrorStr', 'filename': 'filenameStr'}),
-            (SyntaxError, (), {'message': '', 'msg': None, 'text': None,
-                               'filename': None, 'lineno': None, 'offset': None,
-                               'print_file_and_line': None}),
+                {'message' : '', 'args' : (1, 'strErrorStr'), 'errno' : 1,
+                 'strerror' : 'strErrorStr', 'filename' : 'filenameStr'}),
+            (SyntaxError, (), {'message' : '', 'msg' : None, 'text' : None,
+                'filename' : None, 'lineno' : None, 'offset' : None,
+                'print_file_and_line' : None}),
             (SyntaxError, ('msgStr',),
-                {'message': 'msgStr', 'args': ('msgStr',), 'text': None,
-                 'print_file_and_line': None, 'msg': 'msgStr',
-                 'filename': None, 'lineno': None, 'offset': None}),
+                {'message' : 'msgStr', 'args' : ('msgStr',), 'text' : None,
+                 'print_file_and_line' : None, 'msg' : 'msgStr',
+                 'filename' : None, 'lineno' : None, 'offset' : None}),
             (SyntaxError, ('msgStr', ('filenameStr', 'linenoStr', 'offsetStr',
-                                      'textStr')),
-                {'message': '', 'offset': 'offsetStr', 'text': 'textStr',
-                 'args': ('msgStr', ('filenameStr', 'linenoStr',
-                                     'offsetStr', 'textStr')),
-                 'print_file_and_line': None, 'msg': 'msgStr',
-                 'filename': 'filenameStr', 'lineno': 'linenoStr'}),
+                           'textStr')),
+                {'message' : '', 'offset' : 'offsetStr', 'text' : 'textStr',
+                 'args' : ('msgStr', ('filenameStr', 'linenoStr',
+                                      'offsetStr', 'textStr')),
+                 'print_file_and_line' : None, 'msg' : 'msgStr',
+                 'filename' : 'filenameStr', 'lineno' : 'linenoStr'}),
             (SyntaxError, ('msgStr', 'filenameStr', 'linenoStr', 'offsetStr',
                            'textStr', 'print_file_and_lineStr'),
-                {'message': '', 'text': None,
-                 'args': ('msgStr', 'filenameStr', 'linenoStr', 'offsetStr',
-                          'textStr', 'print_file_and_lineStr'),
-                 'print_file_and_line': None, 'msg': 'msgStr',
-                 'filename': None, 'lineno': None, 'offset': None}),
-            (UnicodeError, (), {'message': '', 'args': (), }),
+                {'message' : '', 'text' : None,
+                 'args' : ('msgStr', 'filenameStr', 'linenoStr', 'offsetStr',
+                           'textStr', 'print_file_and_lineStr'),
+                 'print_file_and_line' : None, 'msg' : 'msgStr',
+                 'filename' : None, 'lineno' : None, 'offset' : None}),
+            (UnicodeError, (), {'message' : '', 'args' : (),}),
             (UnicodeEncodeError, ('ascii', u'a', 0, 1, 'ordinal not in range'),
-                {'message': '', 'args': ('ascii', u'a', 0, 1,
-                                         'ordinal not in range'),
-                 'encoding': 'ascii', 'object': u'a',
-                 'start': 0, 'reason': 'ordinal not in range'}),
+                {'message' : '', 'args' : ('ascii', u'a', 0, 1,
+                                           'ordinal not in range'),
+                 'encoding' : 'ascii', 'object' : u'a',
+                 'start' : 0, 'reason' : 'ordinal not in range'}),
             (UnicodeDecodeError, ('ascii', '\xff', 0, 1, 'ordinal not in range'),
-                {'message': '', 'args': ('ascii', '\xff', 0, 1,
-                                         'ordinal not in range'),
-                 'encoding': 'ascii', 'object': '\xff',
-                 'start': 0, 'reason': 'ordinal not in range'}),
+                {'message' : '', 'args' : ('ascii', '\xff', 0, 1,
+                                           'ordinal not in range'),
+                 'encoding' : 'ascii', 'object' : '\xff',
+                 'start' : 0, 'reason' : 'ordinal not in range'}),
             (UnicodeTranslateError, (u"\u3042", 0, 1, "ouch"),
-                {'message': '', 'args': (u'\u3042', 0, 1, 'ouch'),
-                 'object': u'\u3042', 'reason': 'ouch',
-                 'start': 0, 'end': 1}),
+                {'message' : '', 'args' : (u'\u3042', 0, 1, 'ouch'),
+                 'object' : u'\u3042', 'reason' : 'ouch',
+                 'start' : 0, 'end' : 1}),
         ]
         try:
             exceptionList.append(
                 (WindowsError, (1, 'strErrorStr', 'filenameStr'),
-                    {'message': '', 'args': (1, 'strErrorStr'),
-                     'strerror': 'strErrorStr', 'winerror': 1,
-                     'errno': 22, 'filename': 'filenameStr'})
+                    {'message' : '', 'args' : (1, 'strErrorStr'),
+                     'strerror' : 'strErrorStr', 'winerror' : 1,
+                     'errno' : 22, 'filename' : 'filenameStr'})
             )
         except NameError:
             pass
@@ -300,8 +280,8 @@ class ExceptionTests(unittest.TestCase):
         for exc, args, expected in exceptionList:
             try:
                 raise exc(*args)
-            except BaseException as e:
-                if not isinstance(e, exc):
+            except BaseException, e:
+                if type(e) is not exc:
                     raise
                 # Verify module name
                 self.assertEqual(type(e).__module__, 'exceptions')
@@ -311,7 +291,7 @@ class ExceptionTests(unittest.TestCase):
                     self.assertEqual(repr(getattr(e, checkArgName)),
                                      repr(expected[checkArgName]),
                                      'exception "%s", attribute "%s"' %
-                                     (repr(e), checkArgName))
+                                      (repr(e), checkArgName))
 
                 # test for pickling support
                 for p in pickle, cPickle:
@@ -323,6 +303,7 @@ class ExceptionTests(unittest.TestCase):
                             self.assertEqual(got, want,
                                              'pickled "%r", attribute "%s"' %
                                              (e, checkArgName))
+
 
     def testDeprecatedMessageAttribute(self):
         # Accessing BaseException.message and relying on its value set by
@@ -399,7 +380,7 @@ class ExceptionTests(unittest.TestCase):
                 g()
             except RuntimeError:
                 pass
-            except BaseException:
+            except:
                 self.fail("Should have raised KeyError")
             else:
                 self.fail("Should have raised KeyError")
@@ -417,62 +398,38 @@ class ExceptionTests(unittest.TestCase):
         # See issue 7309. This was a crasher.
 
         u = UnicodeEncodeError('baz', u'xxxxx', 1, 5, 'foo')
-        self.assertEqual(
-            str(u),
-            "'baz' codec can't encode characters in position 1-4: foo")
+        self.assertEqual(str(u), "'baz' codec can't encode characters in position 1-4: foo")
         u.end = 2
-        self.assertEqual(
-            str(u),
-            "'baz' codec can't encode character u'\\x78' in position 1: foo")
+        self.assertEqual(str(u), "'baz' codec can't encode character u'\\x78' in position 1: foo")
         u.end = 5
         u.reason = 0x345345345345345345
-        self.assertEqual(
-            str(u),
-            "'baz' codec can't encode characters in position 1-4: 965230951443685724997")
+        self.assertEqual(str(u), "'baz' codec can't encode characters in position 1-4: 965230951443685724997")
         u.encoding = 4000
-        self.assertEqual(
-            str(u),
-            "'4000' codec can't encode characters in position 1-4: 965230951443685724997")
+        self.assertEqual(str(u), "'4000' codec can't encode characters in position 1-4: 965230951443685724997")
         u.start = 1000
-        self.assertEqual(
-            str(u),
-            "'4000' codec can't encode characters in position 1000-4: 965230951443685724997")
+        self.assertEqual(str(u), "'4000' codec can't encode characters in position 1000-4: 965230951443685724997")
 
         u = UnicodeDecodeError('baz', 'xxxxx', 1, 5, 'foo')
-        self.assertEqual(
-            str(u), "'baz' codec can't decode bytes in position 1-4: foo")
+        self.assertEqual(str(u), "'baz' codec can't decode bytes in position 1-4: foo")
         u.end = 2
-        self.assertEqual(
-            str(u), "'baz' codec can't decode byte 0x78 in position 1: foo")
+        self.assertEqual(str(u), "'baz' codec can't decode byte 0x78 in position 1: foo")
         u.end = 5
         u.reason = 0x345345345345345345
-        self.assertEqual(
-            str(u),
-            "'baz' codec can't decode bytes in position 1-4: 965230951443685724997")
+        self.assertEqual(str(u), "'baz' codec can't decode bytes in position 1-4: 965230951443685724997")
         u.encoding = 4000
-        self.assertEqual(
-            str(u),
-            "'4000' codec can't decode bytes in position 1-4: 965230951443685724997")
+        self.assertEqual(str(u), "'4000' codec can't decode bytes in position 1-4: 965230951443685724997")
         u.start = 1000
-        self.assertEqual(
-            str(u),
-            "'4000' codec can't decode bytes in position 1000-4: 965230951443685724997")
+        self.assertEqual(str(u), "'4000' codec can't decode bytes in position 1000-4: 965230951443685724997")
 
         u = UnicodeTranslateError(u'xxxx', 1, 5, 'foo')
-        self.assertEqual(
-            str(u), "can't translate characters in position 1-4: foo")
+        self.assertEqual(str(u), "can't translate characters in position 1-4: foo")
         u.end = 2
-        self.assertEqual(
-            str(u), "can't translate character u'\\x78' in position 1: foo")
+        self.assertEqual(str(u), "can't translate character u'\\x78' in position 1: foo")
         u.end = 5
         u.reason = 0x345345345345345345
-        self.assertEqual(
-            str(u),
-            "can't translate characters in position 1-4: 965230951443685724997")
+        self.assertEqual(str(u), "can't translate characters in position 1-4: 965230951443685724997")
         u.start = 1000
-        self.assertEqual(
-            str(u),
-            "can't translate characters in position 1000-4: 965230951443685724997")
+        self.assertEqual(str(u), "can't translate characters in position 1000-4: 965230951443685724997")
 
     def test_badisinstance(self):
         # Bug #2542: if issubclass(e, MyException) raises an exception,
@@ -483,15 +440,16 @@ class ExceptionTests(unittest.TestCase):
 
         class MyException(Exception):
             __metaclass__ = Meta
+            pass
 
         with captured_output("stderr") as stderr:
             try:
                 raise KeyError()
-            except MyException as e:
+            except MyException, e:
                 self.fail("exception should not be a MyException")
             except KeyError:
                 pass
-            except BaseException:
+            except:
                 self.fail("Should have raised KeyError")
             else:
                 self.fail("Should have raised KeyError")
@@ -527,11 +485,9 @@ class ExceptionTests(unittest.TestCase):
 class ExcWithOverriddenStr(Exception):
     """Subclass of Exception that accepts a keyword 'msg' arg that is
     returned by __str__. 'msg' won't be included in self.args"""
-
     def __init__(self, *args, **kwargs):
-        self.msg = kwargs.pop('msg')  # msg should always be present
+        self.msg = kwargs.pop('msg') # msg should always be present
         super(ExcWithOverriddenStr, self).__init__(*args, **kwargs)
-
     def __str__(self):
         return self.msg
 
@@ -567,6 +523,7 @@ class TestSameStrAndUnicodeMsg(unittest.TestCase):
         # empty string
         self.check_same_msg(Exception(), '')
 
+
     def test_0_args_with_overridden___str__(self):
         """Check same msg for exceptions with 0 args and overridden __str__"""
         # str() and unicode() on an exception with overridden __str__ that
@@ -576,7 +533,7 @@ class TestSameStrAndUnicodeMsg(unittest.TestCase):
 
         # if __str__ returns a non-ascii unicode string str() should fail
         # but unicode() should return the unicode string
-        e = ExcWithOverriddenStr(msg=u'f\xf6\xf6')  # no args
+        e = ExcWithOverriddenStr(msg=u'f\xf6\xf6') # no args
         self.assertRaises(UnicodeEncodeError, str, e)
         self.assertEqual(unicode(e), u'f\xf6\xf6')
 
@@ -601,7 +558,7 @@ class TestSameStrAndUnicodeMsg(unittest.TestCase):
 
         # if __str__ returns a non-ascii unicode string, str() should fail
         # but unicode() should succeed.
-        e = ExcWithOverriddenStr('arg', msg=u'f\xf6\xf6')  # 1 arg
+        e = ExcWithOverriddenStr('arg', msg=u'f\xf6\xf6') # 1 arg
         self.assertRaises(UnicodeEncodeError, str, e)
         self.assertEqual(unicode(e), u'f\xf6\xf6')
 
@@ -626,7 +583,7 @@ class TestSameStrAndUnicodeMsg(unittest.TestCase):
 
         # if __str__ returns a non-ascii unicode string, str() should fail
         # but unicode() should succeed
-        e = ExcWithOverriddenStr('arg1', u'f\xf6\xf6', u'arg3',  # 3 args
+        e = ExcWithOverriddenStr('arg1', u'f\xf6\xf6', u'arg3', # 3 args
                                  msg=u'f\xf6\xf6')
         self.assertRaises(UnicodeEncodeError, str, e)
         self.assertEqual(unicode(e), u'f\xf6\xf6')
@@ -674,7 +631,6 @@ class TestSameStrAndUnicodeMsg(unittest.TestCase):
 
 def test_main():
     run_unittest(ExceptionTests, TestSameStrAndUnicodeMsg)
-
 
 if __name__ == '__main__':
     test_main()

@@ -109,6 +109,7 @@ def dolog(fmt, *args):
 
 def nolog(*allargs):
     """Dummy function, assigned to log when logging is disabled."""
+    pass
 
 log = initlog           # The current logging function
 

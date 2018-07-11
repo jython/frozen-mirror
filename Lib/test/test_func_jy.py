@@ -9,10 +9,8 @@ from test import test_support
 
 xyz = 123
 
-
 def abc():
     return xyz
-
 
 class FunctionTypeTestCase(unittest.TestCase):
 
@@ -56,19 +54,20 @@ class SingleMethodInterfaceTestCase(unittest.TestCase):
     def test_java_lang_object_methods(self):
         # Passing a PyFunction to Object.toString, .hashCode, etc
         # should not result in the function itself being called
-
+        
         def return42():
             return 42
         s = Object.toString(return42)
         self.assertNotEqual(s, 42)
         self.assert_(s.startswith('<function return42'))
+        
+        
 
 
 def test_main():
     test_support.run_unittest(FunctionTypeTestCase,
                               MethodHashCodeTestCase,
                               SingleMethodInterfaceTestCase)
-
 
 if __name__ == '__main__':
     test_main()

@@ -3,21 +3,16 @@
 import platform
 import unittest
 from test.test_support import fcmp, have_unicode, TESTFN, unlink, \
-    run_unittest, check_py3k_warnings, is_jython
+                              run_unittest, check_py3k_warnings, is_jython
 import warnings
 from operator import neg
 
-import sys
-import cStringIO
-import random
-import UserDict
-from functools import reduce
+import sys, cStringIO, random, UserDict
 
 # count the number of test runs.
 # used to skip running test_execfile() multiple times
 # and to create unique strings to intern in test_intern()
 numruns = 0
-
 
 class Squares:
 
@@ -28,14 +23,12 @@ class Squares:
     def __len__(self): return len(self.sofar)
 
     def __getitem__(self, i):
-        if not 0 <= i < self.max:
-            raise IndexError
+        if not 0 <= i < self.max: raise IndexError
         n = len(self.sofar)
         while n <= i:
-            self.sofar.append(n * n)
+            self.sofar.append(n*n)
             n += 1
         return self.sofar[i]
-
 
 class StrSquares:
 
@@ -51,10 +44,9 @@ class StrSquares:
             raise IndexError
         n = len(self.sofar)
         while n <= i:
-            self.sofar.append(str(n * n))
+            self.sofar.append(str(n*n))
             n += 1
         return self.sofar[i]
-
 
 class BitBucket:
     def write(self, line):
@@ -65,11 +57,9 @@ class TestFailingBool:
     def __nonzero__(self):
         raise RuntimeError
 
-
 class TestFailingIter:
     def __iter__(self):
         raise RuntimeError
-
 
 class BuiltinTest(unittest.TestCase):
 
@@ -89,15 +79,15 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(abs(0), 0)
         self.assertEqual(abs(1234), 1234)
         self.assertEqual(abs(-1234), 1234)
-        self.assertTrue(abs(-sys.maxsize - 1) > 0)
+        self.assertTrue(abs(-sys.maxint-1) > 0)
         # float
         self.assertEqual(abs(0.0), 0.0)
         self.assertEqual(abs(3.14), 3.14)
         self.assertEqual(abs(-3.14), 3.14)
         # long
-        self.assertEqual(abs(0), 0)
-        self.assertEqual(abs(1234), 1234)
-        self.assertEqual(abs(-1234), 1234)
+        self.assertEqual(abs(0L), 0L)
+        self.assertEqual(abs(1234L), 1234L)
+        self.assertEqual(abs(-1234L), 1234L)
         # str
         self.assertRaises(TypeError, abs, 'a')
         # bool
@@ -106,7 +96,6 @@ class BuiltinTest(unittest.TestCase):
         # other
         self.assertRaises(TypeError, abs)
         self.assertRaises(TypeError, abs, None)
-
         class AbsClass(object):
             def __abs__(self):
                 return -5
@@ -121,7 +110,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, all)                   # No args
         self.assertRaises(TypeError, all, [2, 4, 6], [])    # Too many args
         self.assertEqual(all([]), True)                     # Empty iterator
-        self.assertEqual(all([0, TestFailingBool()]), False)  # Short-circuit
+        self.assertEqual(all([0, TestFailingBool()]), False)# Short-circuit
         S = [50, 60]
         self.assertEqual(all(x > 42 for x in S), True)
         S = [50, 40, 60]
@@ -136,41 +125,38 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, any)                   # No args
         self.assertRaises(TypeError, any, [2, 4, 6], [])    # Too many args
         self.assertEqual(any([]), False)                    # Empty iterator
-        self.assertEqual(any([1, TestFailingBool()]), True)  # Short-circuit
+        self.assertEqual(any([1, TestFailingBool()]), True) # Short-circuit
         S = [40, 60, 30]
         self.assertEqual(any(x > 42 for x in S), True)
         S = [10, 20, 30]
         self.assertEqual(any(x > 42 for x in S), False)
 
     def test_neg(self):
-        x = -sys.maxsize - 1
+        x = -sys.maxint-1
         self.assertTrue(isinstance(x, int))
-        self.assertEqual(-x, sys.maxsize + 1)
+        self.assertEqual(-x, sys.maxint+1)
 
     def test_apply(self):
         def f0(*args):
             self.assertEqual(args, ())
-
         def f1(a1):
             self.assertEqual(a1, 1)
-
         def f2(a1, a2):
             self.assertEqual(a1, 1)
             self.assertEqual(a2, 2)
-
         def f3(a1, a2, a3):
             self.assertEqual(a1, 1)
             self.assertEqual(a2, 2)
             self.assertEqual(a3, 3)
-        f0(*())
-        f1(*(1,))
-        f2(*(1, 2))
-        f3(*(1, 2, 3))
+        apply(f0, ())
+        apply(f1, (1,))
+        apply(f2, (1, 2))
+        apply(f3, (1, 2, 3))
 
         # A PyCFunction that takes only positional parameters should allow an
         # empty keyword dictionary to pass without a complaint, but raise a
         # TypeError if the dictionary is non-empty.
-        id(*(1,), **{})
+        apply(id, (1,), {})
         self.assertRaises(TypeError, apply, id, (1,), {"foo": 1})
         self.assertRaises(TypeError, apply)
         self.assertRaises(TypeError, apply, id, 42)
@@ -182,7 +168,6 @@ class BuiltinTest(unittest.TestCase):
         self.assertTrue(callable(callable))
         self.assertTrue(callable(lambda x, y: x + y))
         self.assertFalse(callable(__builtins__))
-
         def f(): pass
         self.assertTrue(callable(f))
 
@@ -214,9 +199,7 @@ class BuiltinTest(unittest.TestCase):
             def __call__(self): pass
         n2 = N2()
         self.assertTrue(callable(n2))
-
-        class N3(N2):
-            pass
+        class N3(N2): pass
         n3 = N3()
         self.assertTrue(callable(n3))
 
@@ -233,13 +216,10 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(cmp(1, -1), 1)
         self.assertEqual(cmp(1, 1), 0)
         # verify that circular objects are not handled
-        a = []
-        a.append(a)
-        b = []
-        b.append(b)
+        a = []; a.append(a)
+        b = []; b.append(b)
         from UserList import UserList
-        c = UserList()
-        c.append(c)
+        c = UserList(); c.append(c)
         if is_jython:
             self.assertEqual(cmp(a, b), 0)
             self.assertEqual(cmp(b, c), 0)
@@ -251,17 +231,14 @@ class BuiltinTest(unittest.TestCase):
             self.assertRaises(RuntimeError, cmp, c, a)
             self.assertRaises(RuntimeError, cmp, a, c)
         # okay, now break the cycles
-        a.pop()
-        b.pop()
-        c.pop()
+        a.pop(); b.pop(); c.pop()
         self.assertRaises(TypeError, cmp)
 
     def test_coerce(self):
         self.assertTrue(not fcmp(coerce(1, 1.1), (1.0, 1.1)))
-        self.assertEqual(coerce(1, 1), (1, 1))
-        self.assertTrue(not fcmp(coerce(1, 1.1), (1.0, 1.1)))
+        self.assertEqual(coerce(1, 1L), (1L, 1L))
+        self.assertTrue(not fcmp(coerce(1L, 1.1), (1.0, 1.1)))
         self.assertRaises(TypeError, coerce)
-
         class BadNumber:
             def __coerce__(self, other):
                 raise ValueError
@@ -276,31 +253,16 @@ class BuiltinTest(unittest.TestCase):
         compile(dont_inherit=0, filename='tmp', source='0', mode='eval')
         compile('pass', '?', dont_inherit=1, mode='exec')
         self.assertRaises(TypeError, compile)
-        self.assertRaises(
-            ValueError,
-            compile,
-            'print 42\n',
-            '<string>',
-            'badmode')
-        self.assertRaises(
-            ValueError,
-            compile,
-            'print 42\n',
-            '<string>',
-            'single',
-            0xff)
+        self.assertRaises(ValueError, compile, 'print 42\n', '<string>', 'badmode')
+        self.assertRaises(ValueError, compile, 'print 42\n', '<string>', 'single', 0xff)
         self.assertRaises(TypeError, compile, chr(0), 'f', 'exec')
         self.assertRaises(TypeError, compile, 'pass', '?', 'exec',
                           mode='eval', source='0', filename='tmp')
         if have_unicode:
             compile(unicode('print u"\xc3\xa5"\n', 'utf8'), '', 'exec')
             self.assertRaises(TypeError, compile, unichr(0), 'f', 'exec')
-            self.assertRaises(
-                ValueError,
-                compile,
-                unicode('a = 1'),
-                'f',
-                'bad')
+            self.assertRaises(ValueError, compile, unicode('a = 1'), 'f', 'bad')
+
 
     def test_delattr(self):
         import sys
@@ -322,7 +284,6 @@ class BuiltinTest(unittest.TestCase):
 
         # dir(module_with_invalid__dict__)
         import types
-
         class Foo(types.ModuleType):
             __dict__ = 8
         f = Foo("foo")
@@ -351,7 +312,6 @@ class BuiltinTest(unittest.TestCase):
         # (an ugly trick to cause getattr(f, "__class__") to fail)
         class Foo(object):
             __slots__ = ["__class__", "__dict__"]
-
             def __init__(self):
                 self.bar = "wow"
         f = Foo()
@@ -378,18 +338,18 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(divmod(12, -7), (-2, -2))
         self.assertEqual(divmod(-12, -7), (1, -5))
 
-        self.assertEqual(divmod(12, 7), (1, 5))
-        self.assertEqual(divmod(-12, 7), (-2, 2))
-        self.assertEqual(divmod(12, -7), (-2, -2))
-        self.assertEqual(divmod(-12, -7), (1, -5))
+        self.assertEqual(divmod(12L, 7L), (1L, 5L))
+        self.assertEqual(divmod(-12L, 7L), (-2L, 2L))
+        self.assertEqual(divmod(12L, -7L), (-2L, -2L))
+        self.assertEqual(divmod(-12L, -7L), (1L, -5L))
 
-        self.assertEqual(divmod(12, 7), (1, 5))
-        self.assertEqual(divmod(-12, 7), (-2, 2))
-        self.assertEqual(divmod(12, -7), (-2, -2))
-        self.assertEqual(divmod(-12, -7), (1, -5))
+        self.assertEqual(divmod(12, 7L), (1, 5L))
+        self.assertEqual(divmod(-12, 7L), (-2, 2L))
+        self.assertEqual(divmod(12L, -7), (-2L, -2))
+        self.assertEqual(divmod(-12L, -7), (1L, -5))
 
-        self.assertEqual(divmod(-sys.maxsize - 1, -1),
-                         (sys.maxsize + 1, 0))
+        self.assertEqual(divmod(-sys.maxint-1, -1),
+                         (sys.maxint+1, 0))
 
         self.assertTrue(not fcmp(divmod(3.25, 1.0), (3.0, 0.25)))
         self.assertTrue(not fcmp(divmod(-3.25, 1.0), (-4.0, 0.75)))
@@ -403,7 +363,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(eval(' 1+1\n'), 2)
         globals = {'a': 1, 'b': 2}
         locals = {'b': 200, 'c': 300}
-        self.assertEqual(eval('a', globals), 1)
+        self.assertEqual(eval('a', globals) , 1)
         self.assertEqual(eval('a', globals, locals), 1)
         self.assertEqual(eval('b', globals, locals), 200)
         self.assertEqual(eval('c', globals, locals), 300)
@@ -429,12 +389,10 @@ class BuiltinTest(unittest.TestCase):
 
         class M:
             "Test mapping interface versus possible calls from eval()."
-
             def __getitem__(self, key):
                 if key == 'a':
                     return 12
                 raise KeyError
-
             def keys(self):
                 return list('xyz')
 
@@ -451,9 +409,9 @@ class BuiltinTest(unittest.TestCase):
             self.assertEqual(eval('a', m), 12)
         else:
             self.assertRaises(TypeError, eval, 'a', m)
-
         class A:
             "Non-mapping"
+            pass
         m = A()
         self.assertRaises(TypeError, eval, 'a', g, m)
 
@@ -463,7 +421,6 @@ class BuiltinTest(unittest.TestCase):
                 if key == 'a':
                     return 12
                 return dict.__getitem__(self, key)
-
             def keys(self):
                 return list('xyz')
 
@@ -481,10 +438,8 @@ class BuiltinTest(unittest.TestCase):
         class SpreadSheet:
             "Sample application showing nested, calculated lookups."
             _cells = {}
-
             def __setitem__(self, key, formula):
                 self._cells[key] = formula
-
             def __getitem__(self, key):
                 return eval(self._cells[key], globals(), self)
 
@@ -499,7 +454,6 @@ class BuiltinTest(unittest.TestCase):
         class C:
             def __getitem__(self, item):
                 raise KeyError(item)
-
             def keys(self):
                 return 'a'
         self.assertRaises(TypeError, eval, 'dir()', globals(), C())
@@ -533,15 +487,12 @@ class BuiltinTest(unittest.TestCase):
 
         class M:
             "Test mapping interface versus possible calls from execfile()."
-
             def __init__(self):
                 self.z = 10
-
             def __getitem__(self, key):
                 if key == 'z':
                     return self.z
                 raise KeyError
-
             def __setitem__(self, key, value):
                 if key == 'z':
                     self.z = value
@@ -561,118 +512,77 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(IOError, execfile, "I_dont_exist")
 
     def test_filter(self):
-        self.assertEqual(
-            filter(
-                lambda c: 'a' <= c <= 'z',
-                'Hello World'),
-            'elloorld')
-        self.assertEqual(
-            filter(
-                None, [
-                    1, 'hello', [], [3], '', None, 9, 0]), [
-                1, 'hello', [3], 9])
+        self.assertEqual(filter(lambda c: 'a' <= c <= 'z', 'Hello World'), 'elloorld')
+        self.assertEqual(filter(None, [1, 'hello', [], [3], '', None, 9, 0]), [1, 'hello', [3], 9])
         self.assertEqual(filter(lambda x: x > 0, [1, -3, 9, 0, 2]), [1, 9, 2])
-        self.assertEqual(filter(None, Squares(10)), [
-                         1, 4, 9, 16, 25, 36, 49, 64, 81])
-        self.assertEqual(
-            filter(
-                lambda x: x %
-                2, Squares(10)), [
-                1, 9, 25, 49, 81])
-
+        self.assertEqual(filter(None, Squares(10)), [1, 4, 9, 16, 25, 36, 49, 64, 81])
+        self.assertEqual(filter(lambda x: x%2, Squares(10)), [1, 9, 25, 49, 81])
         def identity(item):
             return 1
         filter(identity, Squares(5))
         self.assertRaises(TypeError, filter)
-
         class BadSeq(object):
             def __getitem__(self, index):
-                if index < 4:
+                if index<4:
                     return 42
                 raise ValueError
         self.assertRaises(ValueError, filter, lambda x: x, BadSeq())
-
         def badfunc():
             pass
         self.assertRaises(TypeError, filter, badfunc, range(5))
 
         # test bltinmodule.c::filtertuple()
         self.assertEqual(filter(None, (1, 2)), (1, 2))
-        self.assertEqual(filter(lambda x: x >= 3, (1, 2, 3, 4)), (3, 4))
+        self.assertEqual(filter(lambda x: x>=3, (1, 2, 3, 4)), (3, 4))
         self.assertRaises(TypeError, filter, 42, (1, 2))
 
         # test bltinmodule.c::filterstring()
         self.assertEqual(filter(None, "12"), "12")
-        self.assertEqual(filter(lambda x: x >= "3", "1234"), "34")
+        self.assertEqual(filter(lambda x: x>="3", "1234"), "34")
         self.assertRaises(TypeError, filter, 42, "12")
-
         class badstr(str):
             def __getitem__(self, index):
                 raise ValueError
-        self.assertRaises(
-            ValueError,
-            filter,
-            lambda x: x >= "3",
-            badstr("1234"))
+        self.assertRaises(ValueError, filter, lambda x: x >="3", badstr("1234"))
 
         class badstr2(str):
             def __getitem__(self, index):
                 return 42
-        self.assertRaises(
-            TypeError,
-            filter,
-            lambda x: x >= 42,
-            badstr2("1234"))
+        self.assertRaises(TypeError, filter, lambda x: x >=42, badstr2("1234"))
 
         class weirdstr(str):
             def __getitem__(self, index):
-                return weirdstr(2 * str.__getitem__(self, index))
-        self.assertEqual(filter(lambda x: x >= "33", weirdstr("1234")), "3344")
+                return weirdstr(2*str.__getitem__(self, index))
+        self.assertEqual(filter(lambda x: x>="33", weirdstr("1234")), "3344")
 
         class shiftstr(str):
             def __getitem__(self, index):
-                return chr(ord(str.__getitem__(self, index)) + 1)
-        self.assertEqual(filter(lambda x: x >= "3", shiftstr("1234")), "345")
+                return chr(ord(str.__getitem__(self, index))+1)
+        self.assertEqual(filter(lambda x: x>="3", shiftstr("1234")), "345")
 
         if have_unicode:
             # test bltinmodule.c::filterunicode()
             self.assertEqual(filter(None, unicode("12")), unicode("12"))
-            self.assertEqual(
-                filter(
-                    lambda x: x >= "3",
-                    unicode("1234")),
-                unicode("34"))
+            self.assertEqual(filter(lambda x: x>="3", unicode("1234")), unicode("34"))
             self.assertRaises(TypeError, filter, 42, unicode("12"))
-            self.assertRaises(
-                ValueError,
-                filter,
-                lambda x: x >= "3",
-                badstr(
-                    unicode("1234")))
+            self.assertRaises(ValueError, filter, lambda x: x >="3", badstr(unicode("1234")))
 
             class badunicode(unicode):
                 def __getitem__(self, index):
                     return 42
-            self.assertRaises(
-                TypeError,
-                filter,
-                lambda x: x >= 42,
-                badunicode("1234"))
+            self.assertRaises(TypeError, filter, lambda x: x >=42, badunicode("1234"))
 
             class weirdunicode(unicode):
                 def __getitem__(self, index):
-                    return weirdunicode(2 * unicode.__getitem__(self, index))
+                    return weirdunicode(2*unicode.__getitem__(self, index))
             self.assertEqual(
-                filter(
-                    lambda x: x >= unicode("33"),
-                    weirdunicode("1234")),
-                unicode("3344"))
+                filter(lambda x: x>=unicode("33"), weirdunicode("1234")), unicode("3344"))
 
             class shiftunicode(unicode):
                 def __getitem__(self, index):
-                    return unichr(ord(unicode.__getitem__(self, index)) + 1)
+                    return unichr(ord(unicode.__getitem__(self, index))+1)
             self.assertEqual(
-                filter(lambda x: x >= unicode("3"), shiftunicode("1234")),
+                filter(lambda x: x>=unicode("3"), shiftunicode("1234")),
                 unicode("345")
             )
 
@@ -680,22 +590,20 @@ class BuiltinTest(unittest.TestCase):
         # test that filter() never returns tuple, str or unicode subclasses
         # and that the result always goes through __getitem__
         funcs = (None, bool, lambda x: True)
-
         class tuple2(tuple):
             def __getitem__(self, index):
-                return 2 * tuple.__getitem__(self, index)
-
+                return 2*tuple.__getitem__(self, index)
         class str2(str):
             def __getitem__(self, index):
-                return 2 * str.__getitem__(self, index)
+                return 2*str.__getitem__(self, index)
         inputs = {
             tuple2: {(): (), (1, 2, 3): (2, 4, 6)},
-            str2: {"": "", "123": "112233"}
+            str2:   {"": "", "123": "112233"}
         }
         if have_unicode:
             class unicode2(unicode):
                 def __getitem__(self, index):
-                    return 2 * unicode.__getitem__(self, index)
+                    return 2*unicode.__getitem__(self, index)
             inputs[unicode2] = {
                 unicode(): unicode(),
                 unicode("123"): unicode("112233")
@@ -721,9 +629,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, getattr, sys, 1, "foo")
         self.assertRaises(TypeError, getattr)
         if have_unicode:
-            self.assertRaises(
-                UnicodeError, getattr, sys, unichr(
-                    sys.maxunicode))
+            self.assertRaises(UnicodeError, getattr, sys, unichr(sys.maxunicode))
 
     def test_hasattr(self):
         import sys
@@ -731,16 +637,13 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, hasattr, sys, 1)
         self.assertRaises(TypeError, hasattr)
         if have_unicode:
-            self.assertRaises(
-                UnicodeError, hasattr, sys, unichr(
-                    sys.maxunicode))
+            self.assertRaises(UnicodeError, hasattr, sys, unichr(sys.maxunicode))
 
         # Check that hasattr allows SystemExit and KeyboardInterrupts by
         class A:
             def __getattr__(self, what):
                 raise KeyboardInterrupt
         self.assertRaises(KeyboardInterrupt, hasattr, A(), "b")
-
         class B:
             def __getattr__(self, what):
                 raise SystemExit
@@ -748,48 +651,44 @@ class BuiltinTest(unittest.TestCase):
 
     def test_hash(self):
         hash(None)
-        self.assertEqual(hash(1), hash(1))
+        self.assertEqual(hash(1), hash(1L))
         self.assertEqual(hash(1), hash(1.0))
         hash('spam')
         if have_unicode:
             self.assertEqual(hash('spam'), hash(unicode('spam')))
-        hash((0, 1, 2, 3))
-
+        hash((0,1,2,3))
         def f(): pass
         self.assertRaises(TypeError, hash, [])
         self.assertRaises(TypeError, hash, {})
         # Bug 1536021: Allow hash to return long objects
-
         class X:
             def __hash__(self):
                 return 2**100
         self.assertEqual(type(hash(X())), int)
-
         class Y(object):
             def __hash__(self):
                 return 2**100
         self.assertEqual(type(hash(Y())), int)
-
         class Z(long):
             def __hash__(self):
                 return self
-        self.assertEqual(hash(Z(42)), hash(42))
+        self.assertEqual(hash(Z(42)), hash(42L))
 
     def test_hex(self):
         self.assertEqual(hex(16), '0x10')
-        self.assertEqual(hex(16), '0x10L')
+        self.assertEqual(hex(16L), '0x10L')
         self.assertEqual(hex(-16), '-0x10')
-        self.assertEqual(hex(-16), '-0x10L')
+        self.assertEqual(hex(-16L), '-0x10L')
         self.assertRaises(TypeError, hex, {})
 
     def test_id(self):
         id(None)
         id(1)
-        id(1)
+        id(1L)
         id(1.0)
         id('spam')
-        id((0, 1, 2, 3))
-        id([0, 1, 2, 3])
+        id((0,1,2,3))
+        id([0,1,2,3])
         id({'spam': 1, 'eggs': 2, 'ham': 3})
 
     # Test input() later, together with raw_input
@@ -837,10 +736,8 @@ class BuiltinTest(unittest.TestCase):
     def test_isinstance(self):
         class C:
             pass
-
         class D(C):
             pass
-
         class E:
             pass
         c = C()
@@ -857,10 +754,8 @@ class BuiltinTest(unittest.TestCase):
     def test_issubclass(self):
         class C:
             pass
-
         class D(C):
             pass
-
         class E:
             pass
         c = C()
@@ -879,26 +774,21 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(len((1, 2, 3, 4)), 4)
         self.assertEqual(len([1, 2, 3, 4]), 4)
         self.assertEqual(len({}), 0)
-        self.assertEqual(len({'a': 1, 'b': 2}), 2)
-
+        self.assertEqual(len({'a':1, 'b': 2}), 2)
         class BadSeq:
             def __len__(self):
                 raise ValueError
         self.assertRaises(ValueError, len, BadSeq())
         self.assertRaises(TypeError, len, 2)
-
-        class ClassicStyle:
-            pass
-
-        class NewStyle(object):
-            pass
+        class ClassicStyle: pass
+        class NewStyle(object): pass
         self.assertRaises(AttributeError, len, ClassicStyle())
         self.assertRaises(TypeError, len, NewStyle())
 
     def test_map(self):
         self.assertEqual(
             map(None, 'hello world'),
-            ['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
+            ['h','e','l','l','o',' ','w','o','r','l','d']
         )
         self.assertEqual(
             map(None, 'abcd', 'efg'),
@@ -909,7 +799,7 @@ class BuiltinTest(unittest.TestCase):
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         )
         self.assertEqual(
-            map(lambda x: x * x, range(1, 4)),
+            map(lambda x: x*x, range(1,4)),
             [1, 4, 9]
         )
         try:
@@ -918,18 +808,17 @@ class BuiltinTest(unittest.TestCase):
             def sqrt(x):
                 return pow(x, 0.5)
         self.assertEqual(
-            map(lambda x: map(sqrt, x), [[16, 4], [81, 9]]),
+            map(lambda x: map(sqrt,x), [[16, 4], [81, 9]]),
             [[4.0, 2.0], [9.0, 3.0]]
         )
         self.assertEqual(
-            map(lambda x, y: x + y, [1, 3, 2], [9, 1, 4]),
+            map(lambda x, y: x+y, [1,3,2], [9,1,4]),
             [10, 4, 6]
         )
 
         def plus(*v):
             accu = 0
-            for i in v:
-                accu = accu + i
+            for i in v: accu = accu + i
             return accu
         self.assertEqual(
             map(plus, [1, 3, 7]),
@@ -937,11 +826,11 @@ class BuiltinTest(unittest.TestCase):
         )
         self.assertEqual(
             map(plus, [1, 3, 7], [4, 9, 2]),
-            [1 + 4, 3 + 9, 7 + 2]
+            [1+4, 3+9, 7+2]
         )
         self.assertEqual(
             map(plus, [1, 3, 7], [4, 9, 2], [1, 1, 0]),
-            [1 + 4 + 1, 3 + 9 + 1, 7 + 2 + 0]
+            [1+4+1, 3+9+1, 7+2+0]
         )
         self.assertEqual(
             map(None, Squares(10)),
@@ -953,7 +842,7 @@ class BuiltinTest(unittest.TestCase):
         )
         self.assertEqual(
             map(None, Squares(3), Squares(2)),
-            [(0, 0), (1, 1), (4, None)]
+            [(0,0), (1,1), (4,None)]
         )
         self.assertEqual(
             map(max, Squares(3), Squares(2)),
@@ -962,12 +851,10 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, map)
         self.assertRaises(TypeError, map, lambda x: x, 42)
         self.assertEqual(map(None, [42]), [42])
-
         class BadSeq:
             def __getitem__(self, index):
                 raise ValueError
         self.assertRaises(ValueError, map, lambda x: x, BadSeq())
-
         def badfunc(x):
             raise RuntimeError
         self.assertRaises(RuntimeError, map, badfunc, range(5))
@@ -978,9 +865,9 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(max((1, 2, 3, 1, 2, 3)), 3)
         self.assertEqual(max([1, 2, 3, 1, 2, 3]), 3)
 
-        self.assertEqual(max(1, 2, 3.0), 3.0)
-        self.assertEqual(max(1, 2.0, 3), 3)
-        self.assertEqual(max(1.0, 2, 3), 3)
+        self.assertEqual(max(1, 2L, 3.0), 3.0)
+        self.assertEqual(max(1L, 2.0, 3), 3)
+        self.assertEqual(max(1.0, 2, 3L), 3L)
 
         for stmt in (
             "max(key=int)",                 # no args
@@ -988,7 +875,7 @@ class BuiltinTest(unittest.TestCase):
             "max(1, 2, keystone=int)",      # wrong keyword
             "max(1, 2, key=int, abc=int)",  # two many keywords
             "max(1, 2, key=1)",             # keyfunc is not callable
-        ):
+            ):
             try:
                 exec(stmt) in globals()
             except TypeError:
@@ -997,7 +884,7 @@ class BuiltinTest(unittest.TestCase):
                 self.fail(stmt)
 
         self.assertEqual(max((1,), key=neg), 1)     # one elem iterable
-        self.assertEqual(max((1, 2), key=neg), 1)    # two elem iterable
+        self.assertEqual(max((1,2), key=neg), 1)    # two elem iterable
         self.assertEqual(max(1, 2, key=neg), 1)     # two elems
 
         data = [random.randrange(200) for i in range(100)]
@@ -1012,19 +899,17 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(min((1, 2, 3, 1, 2, 3)), 1)
         self.assertEqual(min([1, 2, 3, 1, 2, 3]), 1)
 
-        self.assertEqual(min(1, 2, 3.0), 1)
-        self.assertEqual(min(1, 2.0, 3), 1)
-        self.assertEqual(min(1.0, 2, 3), 1.0)
+        self.assertEqual(min(1, 2L, 3.0), 1)
+        self.assertEqual(min(1L, 2.0, 3), 1L)
+        self.assertEqual(min(1.0, 2, 3L), 1.0)
 
         self.assertRaises(TypeError, min)
         self.assertRaises(TypeError, min, 42)
         self.assertRaises(ValueError, min, ())
-
         class BadSeq:
             def __getitem__(self, index):
                 raise ValueError
         self.assertRaises(ValueError, min, BadSeq())
-
         class BadNumber:
             def __cmp__(self, other):
                 raise ValueError
@@ -1036,7 +921,7 @@ class BuiltinTest(unittest.TestCase):
             "min(1, 2, keystone=int)",      # wrong keyword
             "min(1, 2, key=int, abc=int)",  # two many keywords
             "min(1, 2, key=1)",             # keyfunc is not callable
-        ):
+            ):
             try:
                 exec(stmt) in globals()
             except TypeError:
@@ -1045,7 +930,7 @@ class BuiltinTest(unittest.TestCase):
                 self.fail(stmt)
 
         self.assertEqual(min((1,), key=neg), 1)     # one elem iterable
-        self.assertEqual(min((1, 2), key=neg), 2)    # two elem iterable
+        self.assertEqual(min((1,2), key=neg), 2)    # two elem iterable
         self.assertEqual(min(1, 2, key=neg), 2)     # two elems
 
         data = [random.randrange(200) for i in range(100)]
@@ -1065,7 +950,6 @@ class BuiltinTest(unittest.TestCase):
         class Iter(object):
             def __iter__(self):
                 return self
-
             def next(self):
                 raise StopIteration
 
@@ -1084,9 +968,9 @@ class BuiltinTest(unittest.TestCase):
 
     def test_oct(self):
         self.assertEqual(oct(100), '0144')
-        self.assertEqual(oct(100), '0144L')
+        self.assertEqual(oct(100L), '0144L')
         self.assertEqual(oct(-100), '-0144')
-        self.assertEqual(oct(-100), '-0144L')
+        self.assertEqual(oct(-100L), '-0144L')
         self.assertRaises(TypeError, oct, ())
 
     def write_testfile(self):
@@ -1098,8 +982,8 @@ class BuiltinTest(unittest.TestCase):
             fp.write('The quick brown fox jumps over the lazy dog')
             fp.write('.\n')
             fp.write('Dear John\n')
-            fp.write('XXX' * 100)
-            fp.write('YYY' * 100)
+            fp.write('XXX'*100)
+            fp.write('YYY'*100)
         finally:
             fp.close()
 
@@ -1109,12 +993,11 @@ class BuiltinTest(unittest.TestCase):
         try:
             self.assertEqual(fp.readline(4), '1+1\n')
             self.assertEqual(fp.readline(4), '1+1\n')
-            self.assertEqual(fp.readline(),
-                             'The quick brown fox jumps over the lazy dog.\n')
+            self.assertEqual(fp.readline(), 'The quick brown fox jumps over the lazy dog.\n')
             self.assertEqual(fp.readline(4), 'Dear')
             self.assertEqual(fp.readline(100), ' John\n')
-            self.assertEqual(fp.read(300), 'XXX' * 100)
-            self.assertEqual(fp.read(1000), 'YYY' * 100)
+            self.assertEqual(fp.read(300), 'XXX'*100)
+            self.assertEqual(fp.read(1000), 'YYY'*100)
         finally:
             fp.close()
         unlink(TESTFN)
@@ -1130,54 +1013,54 @@ class BuiltinTest(unittest.TestCase):
             self.assertRaises(TypeError, ord, unicode("12"))
 
     def test_pow(self):
-        self.assertEqual(pow(0, 0), 1)
-        self.assertEqual(pow(0, 1), 0)
-        self.assertEqual(pow(1, 0), 1)
-        self.assertEqual(pow(1, 1), 1)
+        self.assertEqual(pow(0,0), 1)
+        self.assertEqual(pow(0,1), 0)
+        self.assertEqual(pow(1,0), 1)
+        self.assertEqual(pow(1,1), 1)
 
-        self.assertEqual(pow(2, 0), 1)
-        self.assertEqual(pow(2, 10), 1024)
-        self.assertEqual(pow(2, 20), 1024 * 1024)
-        self.assertEqual(pow(2, 30), 1024 * 1024 * 1024)
+        self.assertEqual(pow(2,0), 1)
+        self.assertEqual(pow(2,10), 1024)
+        self.assertEqual(pow(2,20), 1024*1024)
+        self.assertEqual(pow(2,30), 1024*1024*1024)
 
-        self.assertEqual(pow(-2, 0), 1)
-        self.assertEqual(pow(-2, 1), -2)
-        self.assertEqual(pow(-2, 2), 4)
-        self.assertEqual(pow(-2, 3), -8)
+        self.assertEqual(pow(-2,0), 1)
+        self.assertEqual(pow(-2,1), -2)
+        self.assertEqual(pow(-2,2), 4)
+        self.assertEqual(pow(-2,3), -8)
 
-        self.assertEqual(pow(0, 0), 1)
-        self.assertEqual(pow(0, 1), 0)
-        self.assertEqual(pow(1, 0), 1)
-        self.assertEqual(pow(1, 1), 1)
+        self.assertEqual(pow(0L,0), 1)
+        self.assertEqual(pow(0L,1), 0)
+        self.assertEqual(pow(1L,0), 1)
+        self.assertEqual(pow(1L,1), 1)
 
-        self.assertEqual(pow(2, 0), 1)
-        self.assertEqual(pow(2, 10), 1024)
-        self.assertEqual(pow(2, 20), 1024 * 1024)
-        self.assertEqual(pow(2, 30), 1024 * 1024 * 1024)
+        self.assertEqual(pow(2L,0), 1)
+        self.assertEqual(pow(2L,10), 1024)
+        self.assertEqual(pow(2L,20), 1024*1024)
+        self.assertEqual(pow(2L,30), 1024*1024*1024)
 
-        self.assertEqual(pow(-2, 0), 1)
-        self.assertEqual(pow(-2, 1), -2)
-        self.assertEqual(pow(-2, 2), 4)
-        self.assertEqual(pow(-2, 3), -8)
+        self.assertEqual(pow(-2L,0), 1)
+        self.assertEqual(pow(-2L,1), -2)
+        self.assertEqual(pow(-2L,2), 4)
+        self.assertEqual(pow(-2L,3), -8)
 
-        self.assertAlmostEqual(pow(0., 0), 1.)
-        self.assertAlmostEqual(pow(0., 1), 0.)
-        self.assertAlmostEqual(pow(1., 0), 1.)
-        self.assertAlmostEqual(pow(1., 1), 1.)
+        self.assertAlmostEqual(pow(0.,0), 1.)
+        self.assertAlmostEqual(pow(0.,1), 0.)
+        self.assertAlmostEqual(pow(1.,0), 1.)
+        self.assertAlmostEqual(pow(1.,1), 1.)
 
-        self.assertAlmostEqual(pow(2., 0), 1.)
-        self.assertAlmostEqual(pow(2., 10), 1024.)
-        self.assertAlmostEqual(pow(2., 20), 1024. * 1024.)
-        self.assertAlmostEqual(pow(2., 30), 1024. * 1024. * 1024.)
+        self.assertAlmostEqual(pow(2.,0), 1.)
+        self.assertAlmostEqual(pow(2.,10), 1024.)
+        self.assertAlmostEqual(pow(2.,20), 1024.*1024.)
+        self.assertAlmostEqual(pow(2.,30), 1024.*1024.*1024.)
 
-        self.assertAlmostEqual(pow(-2., 0), 1.)
-        self.assertAlmostEqual(pow(-2., 1), -2.)
-        self.assertAlmostEqual(pow(-2., 2), 4.)
-        self.assertAlmostEqual(pow(-2., 3), -8.)
+        self.assertAlmostEqual(pow(-2.,0), 1.)
+        self.assertAlmostEqual(pow(-2.,1), -2.)
+        self.assertAlmostEqual(pow(-2.,2), 4.)
+        self.assertAlmostEqual(pow(-2.,3), -8.)
 
-        for x in 2, 2, 2.0:
-            for y in 10, 10, 10.0:
-                for z in 1000, 1000, 1000.0:
+        for x in 2, 2L, 2.0:
+            for y in 10, 10L, 10.0:
+                for z in 1000, 1000L, 1000.0:
                     if isinstance(x, float) or \
                        isinstance(y, float) or \
                        isinstance(z, float):
@@ -1187,8 +1070,8 @@ class BuiltinTest(unittest.TestCase):
 
         self.assertRaises(TypeError, pow, -1, -2, 3)
         self.assertRaises(ValueError, pow, 1, 2, 0)
-        self.assertRaises(TypeError, pow, -1, -2, 3)
-        self.assertRaises(ValueError, pow, 1, 2, 0)
+        self.assertRaises(TypeError, pow, -1L, -2L, 3L)
+        self.assertRaises(ValueError, pow, 1L, 2L, 0L)
         # Will return complex in 3.0:
         self.assertRaises(ValueError, pow, -342.43, 0.234)
 
@@ -1208,13 +1091,13 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(range(0, 2**100, -1), [])
         self.assertEqual(range(0, 2**100, -1), [])
 
-        a = long(10 * sys.maxsize)
-        b = long(100 * sys.maxsize)
-        c = long(50 * sys.maxsize)
+        a = long(10 * sys.maxint)
+        b = long(100 * sys.maxint)
+        c = long(50 * sys.maxint)
 
-        self.assertEqual(range(a, a + 2), [a, a + 1])
-        self.assertEqual(range(a + 2, a, -1), [a + 2, a + 1])
-        self.assertEqual(range(a + 4, a, -2), [a + 4, a + 2])
+        self.assertEqual(range(a, a+2), [a, a+1])
+        self.assertEqual(range(a+2, a, -1L), [a+2, a+1])
+        self.assertEqual(range(a+4, a, -2), [a+4, a+2])
 
         seq = range(a, b, c)
         self.assertIn(a, seq)
@@ -1239,7 +1122,7 @@ class BuiltinTest(unittest.TestCase):
         class badzero(int):
             def __cmp__(self, other):
                 raise RuntimeError
-            __hash__ = None  # Invalid cmp makes this unhashable
+            __hash__ = None # Invalid cmp makes this unhashable
         self.assertRaises(RuntimeError, range, a, a + 1, badzero(1))
 
         # Reject floats.
@@ -1249,17 +1132,15 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, range, 0, "spam")
         self.assertRaises(TypeError, range, 0, 42, "spam")
 
-        self.assertRaises(OverflowError, range, -sys.maxsize, sys.maxsize)
-        self.assertRaises(OverflowError, range, 0, 2 * sys.maxsize)
+        self.assertRaises(OverflowError, range, -sys.maxint, sys.maxint)
+        self.assertRaises(OverflowError, range, 0, 2*sys.maxint)
 
-        bignum = 2 * sys.maxsize
+        bignum = 2*sys.maxint
         smallnum = 42
         # Old-style user-defined class with __int__ method
-
         class I0:
             def __init__(self, n):
                 self.n = int(n)
-
             def __int__(self):
                 return self.n
         self.assertEqual(range(I0(bignum), I0(bignum + 1)), [bignum])
@@ -1269,7 +1150,6 @@ class BuiltinTest(unittest.TestCase):
         class I1(object):
             def __init__(self, n):
                 self.n = int(n)
-
             def __int__(self):
                 return self.n
         self.assertEqual(range(I1(bignum), I1(bignum + 1)), [bignum])
@@ -1303,19 +1183,19 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, range, 0.0, 0.0, 1)
         self.assertRaises(TypeError, range, 0.0, 0.0, 1.0)
 
+
+
     def test_input_and_raw_input(self):
         self.write_testfile()
         fp = open(TESTFN, 'r')
         savestdin = sys.stdin
-        savestdout = sys.stdout  # Eats the echo
+        savestdout = sys.stdout # Eats the echo
         try:
             sys.stdin = fp
             sys.stdout = BitBucket()
             self.assertEqual(input(), 2)
             self.assertEqual(input('testing\n'), 2)
-            self.assertEqual(
-                raw_input(),
-                'The quick brown fox jumps over the lazy dog.')
+            self.assertEqual(raw_input(), 'The quick brown fox jumps over the lazy dog.')
             self.assertEqual(raw_input('testing\n'), 'Dear John')
 
             # SF 1535165: don't segfault on closed stdin
@@ -1343,7 +1223,7 @@ class BuiltinTest(unittest.TestCase):
             exec compile('print input()', 'test_builtin_tmp', 'exec')
             # The result we expect depends on whether new division semantics
             # are already in effect.
-            if 1 / 2 == 0:
+            if 1/2 == 0:
                 # This test was compiled with old semantics.
                 expected = ['0', '0.5', '0']
             else:
@@ -1363,16 +1243,16 @@ class BuiltinTest(unittest.TestCase):
             unlink(TESTFN)
 
     def test_reduce(self):
-        def add(x, y): return x + y
+        add = lambda x, y: x+y
         self.assertEqual(reduce(add, ['a', 'b', 'c'], ''), 'abc')
         self.assertEqual(
             reduce(add, [['a', 'c'], [], ['d', 'w']], []),
-            ['a', 'c', 'd', 'w']
+            ['a','c','d','w']
         )
-        self.assertEqual(reduce(lambda x, y: x * y, range(2, 8), 1), 5040)
+        self.assertEqual(reduce(lambda x, y: x*y, range(2,8), 1), 5040)
         self.assertEqual(
-            reduce(lambda x, y: x * y, range(2, 21), 1),
-            2432902008176640000
+            reduce(lambda x, y: x*y, range(2,21), 1L),
+            2432902008176640000L
         )
         self.assertEqual(reduce(add, Squares(10)), 285)
         self.assertEqual(reduce(add, Squares(10), 0), 285)
@@ -1383,13 +1263,10 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, reduce, 42, 42, 42)
         self.assertRaises(TypeError, reduce, None, range(5))
         self.assertRaises(TypeError, reduce, add, 42)
-        # func is never called with one item
-        self.assertEqual(reduce(42, "1"), "1")
-        # func is never called with one item
-        self.assertEqual(reduce(42, "", "1"), "1")
+        self.assertEqual(reduce(42, "1"), "1") # func is never called with one item
+        self.assertEqual(reduce(42, "", "1"), "1") # func is never called with one item
         self.assertRaises(TypeError, reduce, 42, (42, 42))
-        # arg 2 must not be empty sequence with no initial value
-        self.assertRaises(TypeError, reduce, add, [])
+        self.assertRaises(TypeError, reduce, add, []) # arg 2 must not be empty sequence with no initial value
         self.assertRaises(TypeError, reduce, add, "")
         self.assertRaises(TypeError, reduce, add, ())
         self.assertEqual(reduce(add, [], None), None)
@@ -1411,7 +1288,7 @@ class BuiltinTest(unittest.TestCase):
     def test_repr(self):
         self.assertEqual(repr(''), '\'\'')
         self.assertEqual(repr(0), '0')
-        self.assertEqual(repr(0), '0L')
+        self.assertEqual(repr(0L), '0L')
         self.assertEqual(repr(()), '()')
         self.assertEqual(repr([]), '[]')
         self.assertEqual(repr({}), '{}')
@@ -1505,18 +1382,17 @@ class BuiltinTest(unittest.TestCase):
     # We skip this test on Linux/alpha if it would fail.
     linux_alpha = (platform.system().startswith('Linux') and
                    platform.machine().startswith('alpha'))
-    system_round_bug = round(5e15 + 1) != 5e15 + 1
-
+    system_round_bug = round(5e15+1) != 5e15+1
     @unittest.skipIf(linux_alpha and system_round_bug,
                      "test will fail;  failure is probably due to a "
                      "buggy system round function")
     def test_round_large(self):
         # Issue #1869: integral floats should remain unchanged
-        self.assertEqual(round(5e15 - 1), 5e15 - 1)
+        self.assertEqual(round(5e15-1), 5e15-1)
         self.assertEqual(round(5e15), 5e15)
-        self.assertEqual(round(5e15 + 1), 5e15 + 1)
-        self.assertEqual(round(5e15 + 2), 5e15 + 2)
-        self.assertEqual(round(5e15 + 3), 5e15 + 3)
+        self.assertEqual(round(5e15+1), 5e15+1)
+        self.assertEqual(round(5e15+2), 5e15+2)
+        self.assertEqual(round(5e15+3), 5e15+3)
 
     def test_setattr(self):
         setattr(sys, 'spam', 1)
@@ -1526,8 +1402,8 @@ class BuiltinTest(unittest.TestCase):
 
     def test_sum(self):
         self.assertEqual(sum([]), 0)
-        self.assertEqual(sum(range(2, 8)), 27)
-        self.assertEqual(sum(iter(range(2, 8))), 27)
+        self.assertEqual(sum(range(2,8)), 27)
+        self.assertEqual(sum(iter(range(2,8))), 27)
         self.assertEqual(sum(Squares(10)), 285)
         self.assertEqual(sum(iter(Squares(10))), 285)
         self.assertEqual(sum([[1], [2], [3]], []), [1, 2, 3])
@@ -1537,8 +1413,8 @@ class BuiltinTest(unittest.TestCase):
         self.assertRaises(TypeError, sum, ['a', 'b', 'c'])
         self.assertRaises(TypeError, sum, ['a', 'b', 'c'], '')
         self.assertRaises(TypeError, sum, [[1], [2], [3]])
-        self.assertRaises(TypeError, sum, [{2: 3}])
-        self.assertRaises(TypeError, sum, [{2: 3}] * 2, {2: 3})
+        self.assertRaises(TypeError, sum, [{2:3}])
+        self.assertRaises(TypeError, sum, [{2:3}]*2, {2:3})
 
         class BadSeq:
             def __getitem__(self, index):
@@ -1550,7 +1426,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(empty, [])
 
     def test_type(self):
-        self.assertEqual(type(''), type('123'))
+        self.assertEqual(type(''),  type('123'))
         self.assertNotEqual(type(''), type(()))
 
     def test_unichr(self):
@@ -1562,7 +1438,7 @@ class BuiltinTest(unittest.TestCase):
                 unichr(sys.maxunicode),
                 unicode('\\U%08x' % (sys.maxunicode), 'unicode-escape')
             )
-            self.assertRaises(ValueError, unichr, sys.maxunicode + 1)
+            self.assertRaises(ValueError, unichr, sys.maxunicode+1)
             self.assertRaises(TypeError, unichr)
             self.assertRaises((OverflowError, ValueError), unichr, 2**32)
 
@@ -1581,7 +1457,7 @@ class BuiltinTest(unittest.TestCase):
 
     class C_get_vars(object):
         def getDict(self):
-            return {'a': 2}
+            return {'a':2}
         __dict__ = property(fget=getDict)
 
     def test_vars(self):
@@ -1592,7 +1468,7 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(self.get_vars_f2(), {'a': 1, 'b': 2})
         self.assertRaises(TypeError, vars, 42, 42)
         self.assertRaises(TypeError, vars, 42)
-        self.assertEqual(vars(self.C_get_vars()), {'a': 2})
+        self.assertEqual(vars(self.C_get_vars()), {'a':2})
 
     def test_zip(self):
         a = (1, 2, 3)
@@ -1603,17 +1479,14 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(zip(a, b), t)
         b = (4, 5, 6, 7)
         self.assertEqual(zip(a, b), t)
-
         class I:
             def __getitem__(self, i):
-                if i < 0 or i > 2:
-                    raise IndexError
+                if i < 0 or i > 2: raise IndexError
                 return i + 4
         self.assertEqual(zip(a, I()), t)
         self.assertEqual(zip(), [])
         self.assertEqual(zip(*[]), [])
         self.assertRaises(TypeError, zip, None)
-
         class G:
             pass
         self.assertRaises(TypeError, zip, a, G())
@@ -1651,25 +1524,18 @@ class BuiltinTest(unittest.TestCase):
             class A(object):
                 def __init__(self, x):
                     self.x = x
-
                 def __format__(self, format_spec):
                     return str(self.x) + format_spec
-
             class DerivedFromA(A):
                 pass
 
-            class Simple(object):
-                pass
-
+            class Simple(object): pass
             class DerivedFromSimple(Simple):
                 def __init__(self, x):
                     self.x = x
-
                 def __format__(self, format_spec):
                     return str(self.x) + format_spec
-
-            class DerivedFromSimple2(DerivedFromSimple):
-                pass
+            class DerivedFromSimple2(DerivedFromSimple): pass
             return A, DerivedFromA, DerivedFromSimple, DerivedFromSimple2
 
         # In 3.0, classes_classic has the same meaning as classes_new
@@ -1677,25 +1543,18 @@ class BuiltinTest(unittest.TestCase):
             class A:
                 def __init__(self, x):
                     self.x = x
-
                 def __format__(self, format_spec):
                     return str(self.x) + format_spec
-
             class DerivedFromA(A):
                 pass
 
-            class Simple:
-                pass
-
+            class Simple: pass
             class DerivedFromSimple(Simple):
                 def __init__(self, x):
                     self.x = x
-
                 def __format__(self, format_spec):
                     return str(self.x) + format_spec
-
-            class DerivedFromSimple2(DerivedFromSimple):
-                pass
+            class DerivedFromSimple2(DerivedFromSimple): pass
             return A, DerivedFromA, DerivedFromSimple, DerivedFromSimple2
 
         def class_test(A, DerivedFromA, DerivedFromSimple, DerivedFromSimple2):
@@ -1777,13 +1636,11 @@ class BuiltinTest(unittest.TestCase):
 
         for cls in [object, B, C]:
             for fmt_str in fmt_strs:
-                test_deprecated_format_string(
-                    cls(), fmt_str, len(fmt_str) != 0)
+                test_deprecated_format_string(cls(), fmt_str, len(fmt_str) != 0)
         # --------------------------------------------------------------------
 
         # make sure we can take a subclass of str as a format spec
-        class DerivedFromStr(str):
-            pass
+        class DerivedFromStr(str): pass
         self.assertEqual(format(0, DerivedFromStr('10')), '         0')
 
     def test_bin(self):
@@ -1791,15 +1648,14 @@ class BuiltinTest(unittest.TestCase):
         self.assertEqual(bin(1), '0b1')
         self.assertEqual(bin(-1), '-0b1')
         self.assertEqual(bin(2**65), '0b1' + '0' * 65)
-        self.assertEqual(bin(2**65 - 1), '0b' + '1' * 65)
+        self.assertEqual(bin(2**65-1), '0b' + '1' * 65)
         self.assertEqual(bin(-(2**65)), '-0b1' + '0' * 65)
-        self.assertEqual(bin(-(2**65 - 1)), '-0b' + '1' * 65)
+        self.assertEqual(bin(-(2**65-1)), '-0b' + '1' * 65)
 
     def test_bytearray_translate(self):
         x = bytearray("abc")
         self.assertRaises(ValueError, x.translate, "1", 1)
-        self.assertRaises(TypeError, x.translate, "1" * 256, 1)
-
+        self.assertRaises(TypeError, x.translate, "1"*256, 1)
 
 class TestSorted(unittest.TestCase):
 
@@ -1812,7 +1668,7 @@ class TestSorted(unittest.TestCase):
 
         data.reverse()
         random.shuffle(copy)
-        self.assertEqual(data, sorted(copy, cmp=lambda x, y: cmp(y, x)))
+        self.assertEqual(data, sorted(copy, cmp=lambda x, y: cmp(y,x)))
         self.assertNotEqual(data, copy)
         random.shuffle(copy)
         self.assertEqual(data, sorted(copy, key=lambda x: -x))
@@ -1838,8 +1694,7 @@ class TestSorted(unittest.TestCase):
 
     def test_baddecorator(self):
         data = 'The quick Brown fox Jumped over The lazy Dog'.split()
-        self.assertRaises(TypeError, sorted, data, None, lambda x, y: 0)
-
+        self.assertRaises(TypeError, sorted, data, None, lambda x,y: 0)
 
 def _run_unittest(*args):
     with check_py3k_warnings(
@@ -1847,7 +1702,6 @@ def _run_unittest(*args):
             (".+ is renamed to imp.reload", DeprecationWarning),
             ("classic int division", DeprecationWarning)):
         run_unittest(*args)
-
 
 def test_main(verbose=None):
     test_classes = (BuiltinTest, TestSorted)

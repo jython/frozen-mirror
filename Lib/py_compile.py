@@ -4,6 +4,7 @@ This module has intimate knowledge of the format of .pyc files.
 """
 
 import _py_compile
+import os
 import sys
 import traceback
 
@@ -40,14 +41,12 @@ class PyCompileError(Exception):
     def __init__(self, exc_type, exc_value, file, msg=''):
         exc_type_name = exc_type.__name__
         if exc_type is SyntaxError:
-            tbtext = ''.join(
-                traceback.format_exception_only(
-                    exc_type, exc_value))
+            tbtext = ''.join(traceback.format_exception_only(exc_type, exc_value))
             errmsg = tbtext.replace('File "<string>"', 'File "%s"' % file)
         else:
-            errmsg = "Sorry: %s: %s" % (exc_type_name, exc_value)
+            errmsg = "Sorry: %s: %s" % (exc_type_name,exc_value)
 
-        Exception.__init__(self, msg or errmsg, exc_type_name, exc_value, file)
+        Exception.__init__(self,msg or errmsg,exc_type_name,exc_value,file)
 
         self.exc_type_name = exc_type_name
         self.exc_value = exc_value
@@ -95,14 +94,13 @@ def compile(file, cfile=None, dfile=None, doraise=False):
     """
     try:
         _py_compile.compile(file, cfile, dfile)
-    except Exception as err:
-        py_exc = PyCompileError(err.__class__, err.args, dfile or file)
+    except Exception,err:
+        py_exc = PyCompileError(err.__class__,err.args,dfile or file)
         if doraise:
             raise py_exc
         else:
             sys.stderr.write(py_exc.msg + '\n')
             return
-
 
 def main(args=None):
     """Compile several source files.
@@ -120,12 +118,11 @@ def main(args=None):
     for filename in args:
         try:
             compile(filename, doraise=True)
-        except PyCompileError as err:
+        except PyCompileError, err:
             # return value to indicate at least one failure
             rv = 1
             sys.stderr.write(err.msg)
     return rv
-
 
 if __name__ == "__main__":
     sys.exit(main())

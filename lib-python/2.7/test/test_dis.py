@@ -50,6 +50,7 @@ dis_bug708901 = """\
 def bug1333982(x=[]):
     assert 0, ([s for s in x] +
               1)
+    pass
 
 dis_bug1333982 = """\
  %-4d         0 LOAD_CONST               1 (0)

@@ -3,7 +3,7 @@
 import copy
 import pickle
 from StringIO import StringIO
-from test.test_support import findfile, run_unittest
+from test.test_support import verbose, run_unittest, findfile
 import unittest
 
 import xml.dom

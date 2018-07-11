@@ -22,7 +22,6 @@ if sys.platform.startswith('java'):
 else:
     READAHEAD_SIZE = 300
 
-
 class BaseTestCase(unittest.TestCase):
 
     data = CRLF_TEST
@@ -299,7 +298,7 @@ class ReadUniversalNewlinesTestCase(BaseTestCase):
 
     def test_readline(self):
         readline(self.fp, 'CR\n')
-        assert self.fp.newlines is None, repr(self.fp.newlines)
+        assert self.fp.newlines == None, repr(self.fp.newlines)
         readline(self.fp, 'LF\n')
         assert self.fp.newlines == ('\r', '\n'), repr(self.fp.newlines)
         readline(self.fp, 'CRLF\n')
@@ -317,7 +316,7 @@ class ReadUniversalNewlinesTestCase(BaseTestCase):
         # Ensure seek doesn't confuse CRLF newline identification
         self.fp.seek(6)
         readline(self.fp, 'CRLF\n')
-        assert self.fp.newlines is None
+        assert self.fp.newlines == None
         self.fp.seek(5)
         readline(self.fp, '\n')
         assert self.fp.newlines == '\n'
@@ -369,7 +368,6 @@ def test_main():
                       TextCRAtReadheadBoundaryTestCase,
                       TextCRAtReadheadBoundary2TestCase])
     test_support.run_unittest(*tests)
-
 
 if __name__ == '__main__':
     test_main()

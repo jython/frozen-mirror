@@ -4,19 +4,18 @@
 
 import support
 
+import sys
 import SimpleHTTPServer
 import BaseHTTPServer
 
-
-def test(HandlerClass=SimpleHTTPServer.SimpleHTTPRequestHandler,
-         ServerClass=BaseHTTPServer.HTTPServer):
+def test(HandlerClass = SimpleHTTPServer.SimpleHTTPRequestHandler,
+         ServerClass = BaseHTTPServer.HTTPServer):
     server_address = ('', 8000)
     # Silense the server
     HandlerClass.log_message = lambda x, b, *arg: None
     httpd = ServerClass(server_address, HandlerClass)
     # do just one request.
     httpd.handle_request()
-
 
 import thread
 thread.start_new_thread(test, ())
@@ -35,3 +34,5 @@ if status != 200:
 if reason != "OK":
     raise support.TestError("Wrong status: %d" % status)
 h.getfile().read()
+
+

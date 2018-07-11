@@ -8,9 +8,7 @@ from distutils import log
 
 __revision__ = "$Id$"
 
-import sys
-import os
-import string
+import sys, os, string
 from types import *
 from distutils.core import Command
 from distutils.debug import DEBUG
@@ -30,7 +28,7 @@ if sys.version < "2.2":
         'platlib': '$base',
         'headers': '$base/Include/$dist_name',
         'scripts': '$base/Scripts',
-        'data': '$base',
+        'data'   : '$base',
     }
 else:
     WINDOWS_SCHEME = {
@@ -38,7 +36,7 @@ else:
         'platlib': '$base/Lib/site-packages',
         'headers': '$base/Include/$dist_name',
         'scripts': '$base/Scripts',
-        'data': '$base',
+        'data'   : '$base',
     }
 
 INSTALL_SCHEMES = {
@@ -47,59 +45,59 @@ INSTALL_SCHEMES = {
         'platlib': '$platbase/lib/python$py_version_short/site-packages',
         'headers': '$base/include/python$py_version_short/$dist_name',
         'scripts': '$base/bin',
-        'data': '$base',
-    },
+        'data'   : '$base',
+        },
     'unix_home': {
         'purelib': '$base/lib/python',
         'platlib': '$base/lib/python',
         'headers': '$base/include/python/$dist_name',
         'scripts': '$base/bin',
-        'data': '$base',
-    },
+        'data'   : '$base',
+        },
     'unix_user': {
         'purelib': '$usersite',
         'platlib': '$usersite',
         'headers': '$userbase/include/python$py_version_short/$dist_name',
         'scripts': '$userbase/bin',
-        'data': '$userbase',
-    },
+        'data'   : '$userbase',
+        },
     'nt': WINDOWS_SCHEME,
     'nt_user': {
         'purelib': '$usersite',
         'platlib': '$usersite',
         'headers': '$userbase/Python$py_version_nodot/Include/$dist_name',
         'scripts': '$userbase/Scripts',
-        'data': '$userbase',
-    },
+        'data'   : '$userbase',
+        },
     'os2': {
         'purelib': '$base/Lib/site-packages',
         'platlib': '$base/Lib/site-packages',
         'headers': '$base/Include/$dist_name',
         'scripts': '$base/Scripts',
-        'data': '$base',
-    },
+        'data'   : '$base',
+        },
     'os2_home': {
         'purelib': '$usersite',
         'platlib': '$usersite',
         'headers': '$userbase/include/python$py_version_short/$dist_name',
         'scripts': '$userbase/bin',
-        'data': '$userbase',
-    },
+        'data'   : '$userbase',
+        },
     'java': {
         'purelib': '$base/Lib/site-packages',
         'platlib': '$base/Lib/site-packages',
         'headers': '$base/Include/$dist_name',
         'scripts': '$base/bin',
-        'data': '$base',
-    },
+        'data'   : '$base',
+        },
     'java_user': {
         'purelib': '$usersite',
         'platlib': '$usersite',
         'headers': '$userbase/include/python$py_version_short/$dist_name',
         'scripts': '$userbase/bin',
-        'data': '$userbase',
-    },
-}
+        'data'   : '$userbase',
+        },
+    }
 
 # The keys to an installation scheme; if any new types of files are to be
 # installed, be sure to add an entry to every installation scheme above,
@@ -170,12 +168,13 @@ class install (Command):
 
         ('record=', None,
          "filename in which to record list of installed files"),
-    ]
+        ]
 
     boolean_options = ['compile', 'force', 'skip-build', 'user']
-    negative_opt = {'no-compile': 'compile'}
+    negative_opt = {'no-compile' : 'compile'}
 
-    def initialize_options(self):
+
+    def initialize_options (self):
 
         # High-level options: these select both an installation base
         # and scheme.
@@ -245,13 +244,14 @@ class install (Command):
 
         self.record = None
 
+
     # -- Option finalizing methods -------------------------------------
     # (This is rather more involved than for most commands,
     # because this is where the policy for installing third-
     # party Python modules on various platforms given a wide
     # array of user input is decided.  Yes, it's quite complex!)
 
-    def finalize_options(self):
+    def finalize_options (self):
 
         # This method (and its pliant slaves, like 'finalize_unix()',
         # 'finalize_other()', and 'select_scheme()') is where the default
@@ -268,20 +268,19 @@ class install (Command):
         # that's wrong on any platform.
 
         if ((self.prefix or self.exec_prefix or self.home) and
-                (self.install_base or self.install_platbase)):
-            raise DistutilsOptionError(
-                "must supply either prefix/exec-prefix/home or " +
-                "install-base/install-platbase -- not both")
+            (self.install_base or self.install_platbase)):
+            raise DistutilsOptionError, \
+                  ("must supply either prefix/exec-prefix/home or " +
+                   "install-base/install-platbase -- not both")
 
         if self.home and (self.prefix or self.exec_prefix):
-            raise DistutilsOptionError(
-                "must supply either home or prefix/exec-prefix -- not both")
+            raise DistutilsOptionError, \
+                  "must supply either home or prefix/exec-prefix -- not both"
 
         if self.user and (self.prefix or self.exec_prefix or self.home or
-                          self.install_base or self.install_platbase):
-            raise DistutilsOptionError(
-                "can't combine user with prefix, "
-                "exec_prefix/home, or install_(plat)base")
+                self.install_base or self.install_platbase):
+            raise DistutilsOptionError("can't combine user with prefix, "
+                                       "exec_prefix/home, or install_(plat)base")
 
         # Next, stuff that's wrong (or dubious) only on certain platforms.
         if os.name != "posix":
@@ -325,7 +324,7 @@ class install (Command):
                             'exec_prefix': exec_prefix,
                             'userbase': self.install_userbase,
                             'usersite': self.install_usersite,
-                            }
+                           }
         self.expand_basedirs()
 
         self.dump_dirs("post-expand_basedirs()")
@@ -355,10 +354,11 @@ class install (Command):
         # module distribution is pure or not.  Of course, if the user
         # already specified install_lib, use their selection.
         if self.install_lib is None:
-            if self.distribution.ext_modules:  # has extensions: non-pure
+            if self.distribution.ext_modules: # has extensions: non-pure
                 self.install_lib = self.install_platlib
             else:
                 self.install_lib = self.install_purelib
+
 
         # Convert directories from Unix /-separated syntax to the local
         # convention.
@@ -371,7 +371,7 @@ class install (Command):
         # non-packagized module distributions (hello, Numerical Python!) to
         # get their own directories.
         self.handle_extra_path()
-        self.install_libbase = self.install_lib  # needed for .pth file
+        self.install_libbase = self.install_lib # needed for .pth file
         self.install_lib = os.path.join(self.install_lib, self.extra_dirs)
 
         # If a new root directory was supplied, make all the installation
@@ -392,7 +392,8 @@ class install (Command):
 
     # finalize_options ()
 
-    def dump_dirs(self, msg):
+
+    def dump_dirs (self, msg):
         if DEBUG:
             from distutils.fancy_getopt import longopt_xlate
             print msg + ":"
@@ -409,7 +410,8 @@ class install (Command):
                     val = getattr(self, opt_name)
                 print "  %s: %s" % (opt_name, val)
 
-    def finalize_unix(self):
+
+    def finalize_unix (self):
 
         if self.install_base is not None or self.install_platbase is not None:
             if ((self.install_lib is None and
@@ -417,10 +419,10 @@ class install (Command):
                  self.install_platlib is None) or
                 self.install_headers is None or
                 self.install_scripts is None or
-                    self.install_data is None):
-                raise DistutilsOptionError(
-                    "install-base or install-platbase supplied, but "
-                    "installation scheme is incomplete")
+                self.install_data is None):
+                raise DistutilsOptionError, \
+                      ("install-base or install-platbase supplied, but "
+                      "installation scheme is incomplete")
             return
 
         if self.user:
@@ -435,8 +437,8 @@ class install (Command):
         else:
             if self.prefix is None:
                 if self.exec_prefix is not None:
-                    raise DistutilsOptionError(
-                        "must not supply exec-prefix without prefix")
+                    raise DistutilsOptionError, \
+                          "must not supply exec-prefix without prefix"
 
                 self.prefix = os.path.normpath(sys.prefix)
                 self.exec_prefix = os.path.normpath(sys.exec_prefix)
@@ -451,7 +453,8 @@ class install (Command):
 
     # finalize_unix ()
 
-    def finalize_other(self):          # Windows and Mac OS for now
+
+    def finalize_other (self):          # Windows and Mac OS for now
 
         if self.user:
             if self.install_userbase is None:
@@ -470,12 +473,13 @@ class install (Command):
             try:
                 self.select_scheme(os.name)
             except KeyError:
-                raise DistutilsPlatformError(
-                    "I don't know how to install stuff on '%s'" % os.name)
+                raise DistutilsPlatformError, \
+                      "I don't know how to install stuff on '%s'" % os.name
 
     # finalize_other ()
 
-    def select_scheme(self, name):
+
+    def select_scheme (self, name):
         # it's the caller's problem if they supply a bad name!
         scheme = INSTALL_SCHEMES[name]
         for key in SCHEME_KEYS:
@@ -483,7 +487,8 @@ class install (Command):
             if getattr(self, attrname) is None:
                 setattr(self, attrname, scheme[key])
 
-    def _expand_attrs(self, attrs):
+
+    def _expand_attrs (self, attrs):
         for attr in attrs:
             val = getattr(self, attr)
             if val is not None:
@@ -492,31 +497,34 @@ class install (Command):
                 val = subst_vars(val, self.config_vars)
                 setattr(self, attr, val)
 
-    def expand_basedirs(self):
+
+    def expand_basedirs (self):
         self._expand_attrs(['install_base',
                             'install_platbase',
                             'root'])
 
-    def expand_dirs(self):
+    def expand_dirs (self):
         self._expand_attrs(['install_purelib',
                             'install_platlib',
                             'install_lib',
                             'install_headers',
                             'install_scripts',
-                            'install_data', ])
+                            'install_data',])
 
-    def convert_paths(self, *names):
+
+    def convert_paths (self, *names):
         for name in names:
             attr = "install_" + name
             setattr(self, attr, convert_path(getattr(self, attr)))
 
-    def handle_extra_path(self):
+
+    def handle_extra_path (self):
 
         if self.extra_path is None:
             self.extra_path = self.distribution.extra_path
 
         if self.extra_path is not None:
-            if isinstance(self.extra_path, StringType):
+            if type(self.extra_path) is StringType:
                 self.extra_path = string.split(self.extra_path, ',')
 
             if len(self.extra_path) == 1:
@@ -524,9 +532,9 @@ class install (Command):
             elif len(self.extra_path) == 2:
                 (path_file, extra_dirs) = self.extra_path
             else:
-                raise DistutilsOptionError(
-                    "'extra_path' option must be a list, tuple, or "
-                    "comma-separated string with 1 or 2 elements")
+                raise DistutilsOptionError, \
+                      ("'extra_path' option must be a list, tuple, or "
+                      "comma-separated string with 1 or 2 elements")
 
             # convert to local form in case Unix notation used (as it
             # should be in setup scripts)
@@ -543,7 +551,8 @@ class install (Command):
 
     # handle_extra_path ()
 
-    def change_roots(self, *names):
+
+    def change_roots (self, *names):
         for name in names:
             attr = "install_" + name
             setattr(self, attr, change_root(self.root, getattr(self, attr)))
@@ -557,11 +566,11 @@ class install (Command):
         for name, path in self.config_vars.iteritems():
             if path.startswith(home) and not os.path.isdir(path):
                 self.debug_print("os.makedirs('%s', 0700)" % path)
-                os.makedirs(path, 0o700)
+                os.makedirs(path, 0700)
 
     # -- Command execution methods -------------------------------------
 
-    def run(self):
+    def run (self):
 
         # Obviously have to build before we can install
         if not self.skip_build:
@@ -599,15 +608,15 @@ class install (Command):
         install_lib = os.path.normcase(os.path.normpath(self.install_lib))
         if (self.warn_dir and
             not (self.path_file and self.install_path_file) and
-                install_lib not in sys_path):
+            install_lib not in sys_path):
             log.debug(("modules installed to '%s', which is not in "
                        "Python's module search path (sys.path) -- "
                        "you'll have to change the search path yourself"),
-                      self.install_lib)
+                       self.install_lib)
 
     # run ()
 
-    def create_path_file(self):
+    def create_path_file (self):
         filename = os.path.join(self.install_libbase,
                                 self.path_file + ".pth")
         if self.install_path_file:
@@ -617,9 +626,10 @@ class install (Command):
         else:
             self.warn("path file '%s' not created" % filename)
 
+
     # -- Reporting methods ---------------------------------------------
 
-    def get_outputs(self):
+    def get_outputs (self):
         # Assemble the outputs of all the sub-commands.
         outputs = []
         for cmd_name in self.get_sub_commands():
@@ -636,7 +646,7 @@ class install (Command):
 
         return outputs
 
-    def get_inputs(self):
+    def get_inputs (self):
         # XXX gee, this looks familiar ;-(
         inputs = []
         for cmd_name in self.get_sub_commands():
@@ -645,30 +655,32 @@ class install (Command):
 
         return inputs
 
+
     # -- Predicates for sub-command list -------------------------------
 
-    def has_lib(self):
+    def has_lib (self):
         """Return true if the current distribution has any Python
         modules to install."""
         return (self.distribution.has_pure_modules() or
                 self.distribution.has_ext_modules())
 
-    def has_headers(self):
+    def has_headers (self):
         return self.distribution.has_headers()
 
-    def has_scripts(self):
+    def has_scripts (self):
         return self.distribution.has_scripts()
 
-    def has_data(self):
+    def has_data (self):
         return self.distribution.has_data_files()
+
 
     # 'sub_commands': a list of commands this command might have to run to
     # get its work done.  See cmd.py for more info.
-    sub_commands = [('install_lib', has_lib),
+    sub_commands = [('install_lib',     has_lib),
                     ('install_headers', has_headers),
                     ('install_scripts', has_scripts),
-                    ('install_data', has_data),
+                    ('install_data',    has_data),
                     ('install_egg_info', lambda self:True),
-                    ]
+                   ]
 
 # class install

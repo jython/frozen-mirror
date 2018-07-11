@@ -13,6 +13,8 @@ from . import support
 from .support import driver, test_dir
 
 # Python imports
+import os
+import sys
 
 # Local imports
 from lib2to3.pgen2 import tokenize

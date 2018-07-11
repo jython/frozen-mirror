@@ -165,6 +165,7 @@ class Event:
     widget - widget in which the event occurred
     delta - delta of wheel movement (MouseWheel)
     """
+    pass
 
 _support_default_root = 1
 _default_root = None
@@ -183,6 +184,7 @@ def NoDefaultRoot():
 
 def _tkerror(err):
     """Internal function."""
+    pass
 
 def _exit(code=0):
     """Internal function. Calling it will raise the exception SystemExit."""
@@ -2050,6 +2052,7 @@ class Widget(BaseWidget, Pack, Place, Grid):
 
     Base class for a widget which can be positioned with the geometry managers
     Pack, Place or Grid."""
+    pass
 
 class Toplevel(BaseWidget, Wm):
     """Toplevel widget, e.g. for dialogs."""

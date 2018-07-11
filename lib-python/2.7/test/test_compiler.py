@@ -271,6 +271,7 @@ NOLINENO = (compiler.ast.Module, compiler.ast.Stmt, compiler.ast.Discard)
 
 class Toto:
     """docstring"""
+    pass
 
 a, b = 2, 3
 [c, d] = 5, 6

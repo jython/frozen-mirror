@@ -2,20 +2,22 @@
 
 # Tests of built-in type shadowstr
 
+import os
+import sys
 from test import string_tests
-from test.test_support import run_unittest
+from test.test_support import run_unittest, is_jython
+from test.test_str import StrTest
 import unittest
 
 from org.python.core import PyShadowString
 
 # Ideally we would test shadowstr is a str but the tests need to sub-class it
 
-
 class StrTestCase(
     string_tests.CommonTest,
     string_tests.MixinStrUnicodeUserStringTest,
     string_tests.MixinStrUserStringTest,
-):
+    ):
     # A PyShadowString should pass the tests for str too.
     type2test = PyShadowString
 
@@ -37,12 +39,12 @@ class ShadowStrTestCase(unittest.TestCase):
         self.assertFalse("bonjour" == self.ss)
         # shadowstring-shadowstring comparisons
         tt = PyShadowString("hello", "goodbye")
-        self.assertTrue(self.ss == tt)  # primary==primary
+        self.assertTrue(self.ss == tt) # primary==primary
         tt = PyShadowString("adieu", "hello")
-        self.assertFalse(self.ss == tt)  # primary==shadow
-        self.assertFalse(tt == self.ss)  # shadow==primary
+        self.assertFalse(self.ss == tt) # primary==shadow
+        self.assertFalse(tt == self.ss) # shadow==primary
         tt = PyShadowString("adieu", "bonjour")
-        self.assertFalse(self.ss == tt)  # shadow==shadow
+        self.assertFalse(self.ss == tt) # shadow==shadow
 
     def check_both_eq(self):
         self.assertTrue(self.ss == "hello")
@@ -51,23 +53,20 @@ class ShadowStrTestCase(unittest.TestCase):
         self.assertTrue("bonjour" == self.ss)
         # shadowstring-shadowstring comparisons
         tt = PyShadowString("hello", "goodbye")
-        for c, m in self.ss.gettargets():
-            tt.addtarget(c, m)
-        self.assertTrue(self.ss == tt)  # primary==primary
+        for c, m in self.ss.gettargets(): tt.addtarget(c, m)
+        self.assertTrue(self.ss == tt) # primary==primary
         tt = PyShadowString("goodbye", "hello")
-        for c, m in self.ss.gettargets():
-            tt.addtarget(c, m)
-        self.assertTrue(self.ss == tt)  # primary==shadow
-        self.assertTrue(tt == self.ss)  # shadow==primary
+        for c, m in self.ss.gettargets(): tt.addtarget(c, m)
+        self.assertTrue(self.ss == tt) # primary==shadow
+        self.assertTrue(tt == self.ss) # shadow==primary
         tt = PyShadowString("adieu", "bonjour")
-        for c, m in self.ss.gettargets():
-            tt.addtarget(c, m)
-        self.assertTrue(self.ss == tt)  # shadow==shadow
+        for c, m in self.ss.gettargets(): tt.addtarget(c, m)
+        self.assertTrue(self.ss == tt) # shadow==shadow
 
     def test_eq(self):
         # Test recognition unconditionally
         self.check_first_eq()
-        self.ss.addtarget(None)  # match any
+        self.ss.addtarget(None) # match any
         self.check_both_eq()
 
     def test_eq_class(self):
@@ -81,7 +80,7 @@ class ShadowStrTestCase(unittest.TestCase):
         # Test recognition of method context only
         self.check_first_eq()
         # The Java method name of a python function is name$<n>
-        self.ss.addtarget(None, r"test_eq_method\$\d+")  # method only
+        self.ss.addtarget(None, r"test_eq_method\$\d+") # method only
         self.check_both_eq()
 
     def test_eq_class_method(self):
@@ -104,20 +103,20 @@ class ShadowStrTestCase(unittest.TestCase):
     def test_startswith(self):
         # Test recognition unconditionally
         self.check_first_startswith()
-        self.ss.addtarget(None)  # match any
+        self.ss.addtarget(None) # match any
         self.check_both_startswith()
 
     def test_startswith_class(self):
         # Test recognition of class context only
         self.check_first_startswith()
-        self.ss.addtarget(self.CCLASS)  # class only
-        self.ss.addtarget(self.PCLASS)  # class only
+        self.ss.addtarget(self.CCLASS) # class only
+        self.ss.addtarget(self.PCLASS) # class only
         self.check_both_startswith()
 
     def test_startswith_method(self):
         # Test recognition of method context only
         self.check_first_startswith()
-        self.ss.addtarget(None, r"test_startswith_method\$\d+")  # method only
+        self.ss.addtarget(None, r"test_startswith_method\$\d+") # method only
         self.check_both_startswith()
 
     def test_startswith_class_method(self):
@@ -146,12 +145,11 @@ class ShadowStrTestCase(unittest.TestCase):
         check(-3, None)
         check(None, None)
 
-
 def test_main():
     run_unittest(
-        StrTestCase,
-        ShadowStrTestCase,
-    )
+            StrTestCase,
+            ShadowStrTestCase,
+        )
 
 
 if __name__ == "__main__":

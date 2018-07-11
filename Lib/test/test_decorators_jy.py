@@ -12,7 +12,6 @@ def funcattrs(**kwds):
         return func
     return decorate
 
-
 def classattrs(**kwds):
     def decorate(cls):
         for k, v in kwds.iteritems():
@@ -26,7 +25,6 @@ class TestDecorators(unittest.TestCase):
     def test_lookup_order(self):
         class Foo(object):
             foo = 'bar'
-
             @property
             def property(self):
                 return self.foo

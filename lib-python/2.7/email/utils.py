@@ -27,6 +27,7 @@ import base64
 import random
 import socket
 import urllib
+import warnings
 
 from email._parseaddr import quote
 from email._parseaddr import AddressList as _AddressList
@@ -36,8 +37,10 @@ from email._parseaddr import mktime_tz
 from email._parseaddr import parsedate as _parsedate
 from email._parseaddr import parsedate_tz as _parsedate_tz
 
+from quopri import decodestring as _qdecode
 
 # Intrapackage imports
+from email.encoders import _bencode, _qencode
 
 COMMASPACE = ', '
 EMPTYSTRING = ''

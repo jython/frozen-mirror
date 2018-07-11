@@ -2,6 +2,7 @@
 # introduced in Python 2.7 and 3.1.
 
 import random
+import struct
 import unittest
 import re
 import sys

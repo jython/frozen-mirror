@@ -39,11 +39,8 @@ class Console:
     def __init__(self, styles=None, keymap=None):
         if styles is None:
             styles = Styles()
-            basic = styles.add(
-                'normal',
-                tabsize=3,
-                fontSize=12,
-                fontFamily="Courier")
+            basic = styles.add('normal', tabsize=3,
+                               fontSize=12, fontFamily="Courier")
             styles.add('error', parent=basic, foreground=colors.red)
             styles.add('output', parent=basic, foreground=colors.blue)
             styles.add('input', parent=basic, foreground=colors.black)
@@ -89,24 +86,21 @@ class Console:
     def startUserInput(self, prompt=None):
         if prompt is not None:
             self.write(prompt, 'prompt')
-        self.startInput = self.document.createPosition(
-            self.document.length - 1)
+        self.startInput = self.document.createPosition(self.document.length-1)
         #self.document.setCharacterAttributes(self.document.length-1, 1, self.styles.get('input'), 1)
         self.textpane.caretPosition = self.document.length
         ae = ActionEvent(
-            self.textpane,
-            ActionEvent.ACTION_PERFORMED,
-            'start input')
+            self.textpane, ActionEvent.ACTION_PERFORMED, 'start input')
         self.inputAction.actionPerformed(ae)
 
     def getinput(self):
         offset = self.startInput.offset
-        line = self.document.getText(offset + 1, self.document.length - offset)
+        line = self.document.getText(offset+1, self.document.length-offset)
         return string.rstrip(line)
 
     def replaceinput(self, text):
         offset = self.startInput.offset + 1
-        self.document.remove(offset, self.document.length - offset)
+        self.document.remove(offset, self.document.length-offset)
         self.write(text, 'input')
 
     def enter(self):
@@ -162,11 +156,11 @@ class Console:
         except SyntaxError:
             traceback.print_exc(0)
             self.command = []
-            self.startUserInput(str(sys.ps1) + '\t')
+            self.startUserInput(str(sys.ps1)+'\t')
             return
 
         if code is None:
-            self.startUserInput(str(sys.ps2) + '\t')
+            self.startUserInput(str(sys.ps2)+'\t')
             return
 
         self.command = []
@@ -176,7 +170,7 @@ class Console:
         pt.start()
 
     def newInput(self):
-        self.startUserInput(str(sys.ps1) + '\t')
+        self.startUserInput(str(sys.ps1)+'\t')
 
 
 import traceback
@@ -196,21 +190,19 @@ class PythonThread(Thread):
         # except SystemExit, value:
         #	raise SystemExit, value
 
-        except BaseException:
+        except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            l = len(traceback.extract_tb(sys.exc_info()[2]))
+            l = len(traceback.extract_tb(sys.exc_traceback))
             try:
-                1 / 0
-            except BaseException:
-                m = len(traceback.extract_tb(sys.exc_info()[2]))
-            traceback.print_exception(
-                exc_type, exc_value, exc_traceback, l - m)
+                1/0
+            except:
+                m = len(traceback.extract_tb(sys.exc_traceback))
+            traceback.print_exception(exc_type, exc_value, exc_traceback, l-m)
 
         self.console.newInput()
 
     def stopPython(self):
-        # Should spend 2 seconds trying to kill thread in nice Python style
-        # first...
+        # Should spend 2 seconds trying to kill thread in nice Python style first...
         self.stop()
 
 

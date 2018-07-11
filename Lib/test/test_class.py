@@ -6,7 +6,7 @@ from test import test_support
 
 testmeths = [
 
-    # Binary operations
+# Binary operations
     "add",
     "radd",
     "sub",
@@ -32,7 +32,7 @@ testmeths = [
     "xor",
     "rxor",
 
-    # List/dict operations
+# List/dict operations
     "contains",
     "getitem",
     "getslice",
@@ -41,14 +41,14 @@ testmeths = [
     "delitem",
     "delslice",
 
-    # Unary operations
+# Unary operations
     "neg",
     "pos",
     "abs",
 
-    # generic operations
+# generic operations
     "init",
-]
+    ]
 
 # These need to return something other than None
 #    "coerce",
@@ -67,14 +67,11 @@ testmeths = [
 #    "delattr",
 
 callLst = []
-
-
 def trackCall(f):
     def track(*args, **kwargs):
         callLst.append((f.__name__, args))
         return f(*args, **kwargs)
     return track
-
 
 class AllTests:
     trackCall = trackCall
@@ -105,7 +102,7 @@ class AllTests:
 
     @trackCall
     def __long__(self, *args):
-        return 1
+        return 1L
 
     @trackCall
     def __oct__(self, *args):
@@ -121,7 +118,6 @@ class AllTests:
 
 # Synthesize all the other AllTests methods from the names in testmeths.
 
-
 method_template = """\
 @trackCall
 def __%(method)s__(self, *args):
@@ -133,19 +129,16 @@ for method in testmeths:
 
 del method, method_template
 
-
 class ClassTests(unittest.TestCase):
     def setUp(self):
         callLst[:] = []
 
     def assertCallStack(self, expected_calls):
-        # need to copy because the comparison below will add
-        actualCallList = callLst[:]
-        # additional calls to callLst
+        actualCallList = callLst[:]  # need to copy because the comparison below will add
+                                     # additional calls to callLst
         if expected_calls != actualCallList:
-            self.fail(
-                "Expected call list:\n  %s\ndoes not match actual call list\n  %s" %
-                (expected_calls, actualCallList))
+            self.fail("Expected call list:\n  %s\ndoes not match actual call list\n  %s" %
+                      (expected_calls, actualCallList))
 
     def testInit(self):
         foo = AllTests()
@@ -157,132 +150,109 @@ class ClassTests(unittest.TestCase):
 
         callLst[:] = []
         testme + 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__add__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__add__", (testme, 1))])
 
         callLst[:] = []
         1 + testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__radd__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__radd__", (testme, 1))])
 
         callLst[:] = []
         testme - 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__sub__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__sub__", (testme, 1))])
 
         callLst[:] = []
         1 - testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rsub__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rsub__", (testme, 1))])
 
         callLst[:] = []
         testme * 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__mul__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__mul__", (testme, 1))])
 
         callLst[:] = []
         1 * testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rmul__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rmul__", (testme, 1))])
 
-        if 1 / 2 == 0:
+        if 1/2 == 0:
             callLst[:] = []
             testme / 1
-            self.assertCallStack(
-                [("__coerce__", (testme, 1)), ("__div__", (testme, 1))])
+            self.assertCallStack([("__coerce__", (testme, 1)), ("__div__", (testme, 1))])
+
 
             callLst[:] = []
             1 / testme
-            self.assertCallStack(
-                [("__coerce__", (testme, 1)), ("__rdiv__", (testme, 1))])
+            self.assertCallStack([("__coerce__", (testme, 1)), ("__rdiv__", (testme, 1))])
 
         callLst[:] = []
         testme % 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__mod__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__mod__", (testme, 1))])
 
         callLst[:] = []
         1 % testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rmod__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rmod__", (testme, 1))])
+
 
         callLst[:] = []
-        divmod(testme, 1)
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__divmod__", (testme, 1))])
+        divmod(testme,1)
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__divmod__", (testme, 1))])
 
         callLst[:] = []
         divmod(1, testme)
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rdivmod__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rdivmod__", (testme, 1))])
 
         callLst[:] = []
         testme ** 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__pow__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__pow__", (testme, 1))])
 
         callLst[:] = []
         1 ** testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rpow__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rpow__", (testme, 1))])
 
         callLst[:] = []
         testme >> 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rshift__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rshift__", (testme, 1))])
 
         callLst[:] = []
         1 >> testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rrshift__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rrshift__", (testme, 1))])
 
         callLst[:] = []
         testme << 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__lshift__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__lshift__", (testme, 1))])
 
         callLst[:] = []
         1 << testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rlshift__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rlshift__", (testme, 1))])
 
         callLst[:] = []
         testme & 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__and__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__and__", (testme, 1))])
 
         callLst[:] = []
         1 & testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rand__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rand__", (testme, 1))])
 
         callLst[:] = []
         testme | 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__or__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__or__", (testme, 1))])
 
         callLst[:] = []
         1 | testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__ror__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__ror__", (testme, 1))])
 
         callLst[:] = []
         testme ^ 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__xor__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__xor__", (testme, 1))])
 
         callLst[:] = []
         1 ^ testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ("__rxor__", (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ("__rxor__", (testme, 1))])
 
     def testListAndDictOps(self):
         testme = AllTests()
 
         # List/dict operations
 
-        class Empty:
-            pass
+        class Empty: pass
 
         try:
             1 in Empty()
@@ -325,7 +295,7 @@ class ClassTests(unittest.TestCase):
         callLst[:] = []
         testme[2:1024:10] = "A lot"
         self.assertCallStack([('__setitem__', (testme, slice(2, 1024, 10),
-                                               "A lot"))])
+                                                                    "A lot"))])
         callLst[:] = []
         del testme[2:1024:10]
         self.assertCallStack([('__delitem__', (testme, slice(2, 1024, 10)))])
@@ -375,9 +345,9 @@ class ClassTests(unittest.TestCase):
         callLst[:] = []
         testme[:42] = "The Answer"
         if test_support.is_jython:
-            self.assertCallStack([('__setitem__', (testme,
-                                                   slice(None, 42, None),
-                                                   "The Answer"))])
+            self.assertCallStack([('__setitem__',(testme,
+                                                  slice(None, 42, None),
+                                                  "The Answer"))])
         else:
             self.assertCallStack([('__setitem__', (testme,
                                                    slice(0, 42, None),
@@ -396,11 +366,11 @@ class ClassTests(unittest.TestCase):
         AllTests.__setslice__ = setslice
         AllTests.__delslice__ = delslice
 
+
     @test_support.cpython_only
     def testDelItem(self):
         class A:
             ok = False
-
             def __delitem__(self, key):
                 self.ok = True
         a = A()
@@ -408,6 +378,7 @@ class ClassTests(unittest.TestCase):
         from _testcapi import sequence_delitem
         sequence_delitem(a, 2)
         self.assertTrue(a.ok)
+
 
     def testUnaryOps(self):
         testme = AllTests()
@@ -437,6 +408,7 @@ class ClassTests(unittest.TestCase):
         hex(testme)
         self.assertCallStack([('__hex__', (testme,))])
 
+
     def testMisc(self):
         testme = AllTests()
 
@@ -454,53 +426,44 @@ class ClassTests(unittest.TestCase):
 
         callLst[:] = []
         testme == 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
 
         callLst[:] = []
         testme < 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
 
         callLst[:] = []
         testme > 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
 
         callLst[:] = []
         eval('testme <> 1')  # XXX kill this in py3k
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
 
         callLst[:] = []
         testme != 1
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (testme, 1))])
 
         callLst[:] = []
         1 == testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
 
         callLst[:] = []
         1 < testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
 
         callLst[:] = []
         1 > testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
 
         callLst[:] = []
         eval('1 <> testme')
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
 
         callLst[:] = []
         1 != testme
-        self.assertCallStack(
-            [("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+        self.assertCallStack([("__coerce__", (testme, 1)), ('__cmp__', (1, testme))])
+
 
     def testGetSetAndDel(self):
         # Interfering tests
@@ -533,7 +496,7 @@ class ClassTests(unittest.TestCase):
         self.assertCallStack([('__delattr__', (testme, "cardinal"))])
 
     def testDel(self):
-        # XXX: gc.collect is not deterministic on Jython, but it would be nice
+        #XXX: gc.collect is not deterministic on Jython, but it would be nice
         #     to find a way to test this.
         if not test_support.is_jython:
             x = []
@@ -567,7 +530,7 @@ class ClassTests(unittest.TestCase):
         class IntLongMixClass:
             @trackCall
             def __int__(self):
-                return 42
+                return 42L
 
             @trackCall
             def __long__(self):
@@ -578,7 +541,7 @@ class ClassTests(unittest.TestCase):
         callLst[:] = []
         as_int = int(mixIntAndLong)
         self.assertEqual(type(as_int), long)
-        self.assertEqual(as_int, 42)
+        self.assertEqual(as_int, 42L)
         self.assertCallStack([('__int__', (mixIntAndLong,))])
 
         callLst[:] = []
@@ -597,7 +560,7 @@ class ClassTests(unittest.TestCase):
         class C0:
             pass
 
-        hash(C0())  # This should work; the next two should raise TypeError
+        hash(C0()) # This should work; the next two should raise TypeError
 
         class C1:
             def __cmp__(self, other): return 0
@@ -609,6 +572,7 @@ class ClassTests(unittest.TestCase):
 
         self.assertRaises(TypeError, hash, C2())
 
+
     def testSFBug532646(self):
         # Test for SF bug 532646
 
@@ -618,7 +582,7 @@ class ClassTests(unittest.TestCase):
         a = A()
 
         try:
-            a()  # This should not segfault
+            a() # This should not segfault
         except RuntimeError:
             pass
         else:
@@ -633,14 +597,14 @@ class ClassTests(unittest.TestCase):
         class A:
             a = property(booh)
         try:
-            A().a  # Raised AttributeError: A instance has no attribute 'a'
-        except AttributeError as x:
+            A().a # Raised AttributeError: A instance has no attribute 'a'
+        except AttributeError, x:
             if str(x) != "booh":
                 self.fail("attribute error for A().a got masked: %s" % x)
 
         class E:
             __eq__ = property(booh)
-        E() == E()  # In debug mode, caused a C-level assert() to fail
+        E() == E() # In debug mode, caused a C-level assert() to fail
 
         class I:
             __init__ = property(booh)
@@ -648,7 +612,7 @@ class ClassTests(unittest.TestCase):
             # In debug mode, printed XXX undetected error and
             #  raises AttributeError
             I()
-        except AttributeError as x:
+        except AttributeError, x:
             pass
         else:
             self.fail("attribute error for I.__init__ got masked")
@@ -658,19 +622,14 @@ class ClassTests(unittest.TestCase):
         class A:
             def __init__(self, x):
                 self.x = x
-
             def f(self):
                 pass
-
             def g(self):
                 pass
-
             def __eq__(self, other):
                 return self.x == other.x
-
             def __hash__(self):
                 return self.x
-
         class B(A):
             pass
 
@@ -689,7 +648,7 @@ class ClassTests(unittest.TestCase):
         self.assertEqual(hash(B.f), hash(A.f))
 
         # the following triggers a SystemError in 2.4
-        a = A(hash(A.f.im_func) ^ (-1))
+        a = A(hash(A.f.im_func)^(-1))
         hash(a.f)
 
     def testAttrSlots(self):
@@ -699,7 +658,6 @@ class ClassTests(unittest.TestCase):
             self.assertRaises(TypeError, type(c).__getattribute__, c, [])
             self.assertRaises(TypeError, type(c).__setattr__, c, [], [])
 
-
 def test_main():
     with test_support.check_py3k_warnings(
             (".+__(get|set|del)slice__ has been removed", DeprecationWarning),
@@ -707,6 +665,5 @@ def test_main():
             ("<> not supported", DeprecationWarning)):
         test_support.run_unittest(ClassTests)
 
-
-if __name__ == '__main__':
+if __name__=='__main__':
     test_main()

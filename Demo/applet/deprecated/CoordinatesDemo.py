@@ -37,8 +37,8 @@ class FramedArea(awt.Panel):
         d = self.size
 
         g.color = self.background
-        g.draw3DRect(0, 0, d.width - 1, d.height - 1, 1)
-        g.draw3DRect(3, 3, d.width - 7, d.height - 7, 1)
+        g.draw3DRect(0, 0, d.width-1, d.height-1, 1)
+        g.draw3DRect(3, 3, d.width-7, d.height-7, 1)
 
 
 class CoordinateArea(awt.Canvas):
@@ -58,7 +58,7 @@ class CoordinateArea(awt.Canvas):
     def paint(self, g):
         if hasattr(self, 'point'):
             self.controller.updateLabel(self.point)
-            g.fillRect(self.point.x - 1, self.point.y - 1, 2, 2)
+            g.fillRect(self.point.x-1, self.point.y-1, 2, 2)
 
 
 if __name__ == '__main__':

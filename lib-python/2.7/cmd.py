@@ -164,12 +164,14 @@ class Cmd:
 
     def preloop(self):
         """Hook method executed once when the cmdloop() method is called."""
+        pass
 
     def postloop(self):
         """Hook method executed once when the cmdloop() method is about to
         return.
 
         """
+        pass
 
     def parseline(self, line):
         """Parse the line into a command name and a string containing

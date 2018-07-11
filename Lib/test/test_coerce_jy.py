@@ -7,32 +7,24 @@ from test import test_support
 from javatests import Coercion
 from collections import Sequence
 
-
 class MySeqClass1(Sequence):
     def __init__(self, l):
         self.l = l
-
     def __getitem__(self, i):
         return self.l[i]
-
     def __len__(self):
         return len(self.l)
-
 
 class MySeqClass2(object):
     def __init__(self, l):
         self.l = l
-
     def __getitem__(self, i):
         return self.l[i]
-
     def __len__(self):
         return len(self.l)
 
-
 class MySeqClass3(MySeqClass2):
     pass
-
 
 class CoerceTestCase(unittest.TestCase):
 
@@ -41,7 +33,7 @@ class CoerceTestCase(unittest.TestCase):
         self.assertRaises(TypeError, int.__coerce__, None, 1)
 
     def test_long_coerce__(self):
-        self.assertEqual(long.__coerce__(1, None), NotImplemented)
+        self.assertEqual(long.__coerce__(1L, None), NotImplemented)
         self.assertRaises(TypeError, long.__coerce__, None, 1)
 
     def test_float_coerce__(self):
@@ -58,10 +50,8 @@ class CoerceTestCase(unittest.TestCase):
         Coercion.string_array(l2)
         Coercion.string_array(l3)
 
-
 def test_main():
     test_support.run_unittest(CoerceTestCase)
-
 
 if __name__ == "__main__":
     test_main()

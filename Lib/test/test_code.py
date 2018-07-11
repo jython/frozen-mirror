@@ -1,4 +1,4 @@
-# For Jython, removed co_names, co_consts since these are implementation details
+#For Jython, removed co_names, co_consts since these are implementation details
 # that may never get implemented, and removed flags since there are implementation
 # differences that may never line up.  Still failing on one test for varnames
 # because I think it is possible that the order of varnames might be useful (in
@@ -78,7 +78,6 @@ try:
 except ImportError:
     _testcapi = None
 
-
 def consts(t):
     """Yield a doctest-safe sequence of object reprs."""
     for elt in t:
@@ -87,7 +86,6 @@ def consts(t):
             yield "<code object %s>" % elt.co_name
         else:
             yield r
-
 
 def dump(co):
     """Print out a text representation of a code object."""
@@ -119,7 +117,6 @@ class CodeWeakRefTest(unittest.TestCase):
         del namespace
 
         self.called = False
-
         def callback(code):
             self.called = True
 

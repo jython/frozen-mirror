@@ -4,8 +4,7 @@
 
 import support
 
-import sys
-import cStringIO
+import sys, cStringIO
 
 h = cStringIO.StringIO()
 

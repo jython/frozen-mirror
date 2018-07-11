@@ -173,6 +173,7 @@ def test_password_manager(self):
     ('5', 'e')
 
     """
+    pass
 
 
 def test_password_manager_default_port(self):

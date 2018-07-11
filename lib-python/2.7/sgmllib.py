@@ -43,6 +43,7 @@ attrfind = re.compile(
 
 class SGMLParseError(RuntimeError):
     """Exception raised for all parse errors."""
+    pass
 
 
 # SGML parser base class -- find tags and call handler functions.

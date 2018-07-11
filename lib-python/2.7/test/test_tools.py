@@ -7,8 +7,10 @@ Tools directory of a Python checkout or tarball, such as reindent.py.
 import os
 import sys
 import unittest
+import shutil
 import subprocess
 import sysconfig
+import tempfile
 import textwrap
 from test import test_support
 from test.script_helper import assert_python_ok, temp_dir

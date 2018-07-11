@@ -8,27 +8,21 @@ import sys
 import unittest
 from test import test_support
 
-
 class OperatorTestCase(unittest.TestCase):
 
     class NewStyle(object):
         pass
-
     class OldStyle:
         pass
-
     class HasGetitem(object):
         def __getitem__(self, name):
             return 'foo'
-
     class HasInt(object):
         def __int__(self):
             return 1
-
     class HasLong(object):
         def __long__(self):
             return 1
-
     class HasFloat(object):
         def __float__(self):
             return 1.0
@@ -36,8 +30,8 @@ class OperatorTestCase(unittest.TestCase):
     # obj, isNumberType, isMappingType, isSequenceType
     tests = (
         (type, False, False, False),
-        (type.__dict__, False, True, False),  # dictproxy
-        (globals(), False, True, False),  # stringmap
+        (type.__dict__, False, True, False), # dictproxy
+        (globals(), False, True, False), # stringmap
         ({}, False, True, False),
         ('', False, False, True),
         (u'', False, False, True),
@@ -47,7 +41,7 @@ class OperatorTestCase(unittest.TestCase):
         (set(), False, False, False),
         (frozenset(), False, False, False),
         (1, True, False, False),
-        (2, True, False, False),
+        (2L, True, False, False),
         (3.0, True, False, False),
         (4j, True, False, False),
         (None, False, False, False),
@@ -61,7 +55,7 @@ class OperatorTestCase(unittest.TestCase):
         (HasGetitem(), False, True, True),
         (HasInt(), True, False, False),
         (HasFloat(), True, False, False),
-    )
+        )
 
     def test_isNumberType(self):
         for obj, isNumberType, _, _ in self.tests:

@@ -3,7 +3,6 @@ import unittest
 from java.io import ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream
 from org.python.util import PythonObjectInputStream
 
-
 def serialize(o, special=False):
     b = ByteArrayOutputStream()
     objs = ObjectOutputStream(b)
@@ -15,9 +14,7 @@ def serialize(o, special=False):
     objs = OIS(ByteArrayInputStream(b.toByteArray()))
     return objs.readObject()
 
-
 from jser2_classes import A, AJ, N, NL, NT
-
 
 class TestJavaSerialisation(unittest.TestCase):
 
@@ -26,7 +23,7 @@ class TestJavaSerialisation(unittest.TestCase):
         self.assertEqual(obj, obj1)
 
     def test_list(self):
-        self.serialize_and_check([1, "a", 3.0])
+        self.serialize_and_check([1,"a", 3.0])
 
     def test_dict(self):
         self.serialize_and_check({'a': 3.0})
@@ -68,15 +65,13 @@ class TestJavaSerialisation(unittest.TestCase):
         self.serialize_and_check(N('x'))
 
     def test_newstyle_list(self):
-        self.serialize_and_check(NL('x', 1, 2, 3))
+        self.serialize_and_check(NL('x',1,2,3))
 
     def test_newstyle_tuple(self):
-        self.serialize_and_check(NT('x', 1, 2, 3))
-
+        self.serialize_and_check(NT('x',1,2,3))
 
 def test_main():
     test_support.run_unittest(TestJavaSerialisation)
-
 
 if __name__ == "__main__":
     test_main()

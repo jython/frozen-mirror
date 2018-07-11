@@ -30,21 +30,21 @@ class JavaSerializationTests(unittest.TestCase):
 
         object4 = awt.Color(1, 2, 3)
 
-        # writing
+        #writing
         fout = io.ObjectOutputStream(io.FileOutputStream(self.sername))
-        # Python int
+        #Python int
         fout.writeObject(object1)
-        # Python list
+        #Python list
         fout.writeObject(object2)
-        # Python instance
+        #Python instance
         fout.writeObject(object3)
-        # Java instance
+        #Java instance
         fout.writeObject(object4)
         fout.close()
 
         fin = io.ObjectInputStream(io.FileInputStream(self.sername))
 
-        # reading
+        #reading
         iobject1 = fin.readObject()
         iobject2 = fin.readObject()
         iobject3 = fin.readObject()

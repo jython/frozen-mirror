@@ -11,7 +11,6 @@ from setuptools.command import easy_install as ez
 
 _as_header = ez.CommandSpec.as_header
 
-
 def _jython_as_header(self):
     '''Workaround Jython's sys.executable being a .sh (an invalid
     shebang line interpreter)
@@ -30,6 +29,5 @@ def _jython_as_header(self):
 
     items = ['/usr/bin/env'] + self + list(self.options)
     return self._render(items)
-
 
 ez.CommandSpec.as_header = _jython_as_header

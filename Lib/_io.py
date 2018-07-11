@@ -29,6 +29,7 @@ all this in Java, remove this module and revert io.py to its CPython original.
 from __future__ import (print_function, unicode_literals)
 
 import os
+import abc
 import codecs
 import warnings
 import errno
@@ -201,8 +202,7 @@ class _BufferedIOMixin(_BufferedIOBase):
         if self.raw is not None and not self.closed:
             try:
                 # Jython difference: call super.close() which manages "closed to client" state,
-                # and calls flush(), which may raise BlockingIOError or
-                # BrokenPipeError etc.
+                # and calls flush(), which may raise BlockingIOError or BrokenPipeError etc.
                 super(_BufferedIOBase, self).close()
             finally:
                 self.raw.close()
@@ -238,8 +238,7 @@ class _BufferedIOMixin(_BufferedIOBase):
         return self.raw.closed
 
     # Jython difference: emulate C implementation CHECK_INITIALIZED. This is for
-    # compatibility, to pass
-    # test.test_io.CTextIOWrapperTest.test_initialization.
+    # compatibility, to pass test.test_io.CTextIOWrapperTest.test_initialization.
     def _checkInitialized(self):
         if not self._ok:
             if self.raw is None:
@@ -287,16 +286,16 @@ class BytesIO(_BufferedIOBase):
     # Jython: modelled after bytesio.c::bytesio_getstate
     def __getstate__(self):
         d = getattr(self, '__dict__', None)
-        if d is not None:
+        if d is not None :
             d = d.copy()
         return (self.getvalue(), self._pos, d)
 
     # Jython: modelled after bytesio.c::bytesio_setstate
     def __setstate__(self, state):
 
-        if not isinstance(state, tuple) or len(state) < 3:
+        if not isinstance(state, tuple) or len(state) < 3 :
             fmt = "%s.__setstate__ argument should be 3-tuple got %s"
-            raise TypeError(fmt % (type(self), type(state)))
+            raise TypeError( fmt % (type(self), type(state)) )
 
         # Reset the object to its default state. This is only needed to handle
         # the case of repeated calls to __setstate__. */
@@ -304,29 +303,28 @@ class BytesIO(_BufferedIOBase):
         self._pos = 0
 
         # Set the value of the internal buffer. If state[0] does not support the
-        # buffer protocol, bytesio_write will raise the appropriate TypeError.
-        # */
-        self.write(state[0])
+        # buffer protocol, bytesio_write will raise the appropriate TypeError. */
+        self.write(state[0]);
 
         # Carefully set the position value. Alternatively, we could use the seek
         # method instead of modifying self._pos directly to better protect the
         # object internal state against erroneous (or malicious) inputs. */
         p = state[1]
-        if not isinstance(p, (int, long)):
+        if not isinstance(p, (int, long)) :
             fmt = "second item of state must be an integer, got %s"
-            raise TypeError(fmt % type(p))
-        elif p < 0:
+            raise TypeError( fmt % type(p) )
+        elif p < 0 :
             raise ValueError("position value cannot be negative")
         self._pos = p
 
         # Set the dictionary of the instance variables. */
         d = state[2]
-        if d is not None:
-            if isinstance(d, dict):
+        if not d is None :
+            if isinstance(d, dict) :
                 self.__dict__ = d
-            else:
+            else :
                 fmt = "third item of state should be a dict, got %s"
-                raise TypeError(fmt % type(d))
+                raise TypeError( fmt % type(d) )
 
     def getvalue(self):
         """Return the bytes value (contents) of the buffer
@@ -348,7 +346,7 @@ class BytesIO(_BufferedIOBase):
         if len(self._buffer) <= self._pos:
             return b""
         newpos = min(len(self._buffer), self._pos + n)
-        b = self._buffer[self._pos: newpos]
+        b = self._buffer[self._pos : newpos]
         self._pos = newpos
         return bytes(b)
 
@@ -501,7 +499,7 @@ class BufferedReader(_BufferedIOMixin):
         if n <= avail:
             # Fast path: the data to read is fully buffered.
             self._read_pos += n
-            return buf[pos:pos + n]
+            return buf[pos:pos+n]
         # Slow path: read from the stream until enough bytes are read,
         # or until an EOF occurs or until read() would block.
         chunks = [buf[pos:]]
@@ -569,8 +567,7 @@ class BufferedReader(_BufferedIOMixin):
                 min(n, len(self._read_buf) - self._read_pos))
 
     def tell(self):
-        return _BufferedIOMixin.tell(
-            self) - len(self._read_buf) + self._read_pos
+        return _BufferedIOMixin.tell(self) - len(self._read_buf) + self._read_pos
 
     def seek(self, pos, whence=0):
         if not (0 <= whence <= 2):
@@ -624,10 +621,8 @@ class BufferedWriter(_BufferedIOMixin):
                 # raise BlockingIOError with characters_written == 0.)
                 self._flush_unlocked()
             before = len(self._write_buf)
-            if isinstance(
-                    b, array.array):              # _pyio.py version fails on array.array
-                # Jython version works (while needed)
-                self._write_buf.extend(b.tostring())
+            if isinstance(b, array.array):              # _pyio.py version fails on array.array
+                self._write_buf.extend(b.tostring())    # Jython version works (while needed)
             else:
                 self._write_buf.extend(b)
             written = len(self._write_buf) - before
@@ -711,10 +706,7 @@ class BufferedRWPair(_BufferedIOBase):
         The arguments are two RawIO instances.
         """
         if max_buffer_size is not None:
-            warnings.warn(
-                "max_buffer_size is deprecated",
-                DeprecationWarning,
-                2)
+            warnings.warn("max_buffer_size is deprecated", DeprecationWarning, 2)
 
         if not reader.readable():
             raise IOError('"reader" argument must be readable.')
@@ -907,7 +899,6 @@ class IncrementalNewlineDecoder(codecs.IncrementalDecoder):
     translate=False, it ensures that the newline sequence is returned in
     one piece.
     """
-
     def __init__(self, decoder, translate, errors='strict'):
         codecs.IncrementalDecoder.__init__(self, errors=errors)
         self.translate = translate
@@ -936,7 +927,7 @@ class IncrementalNewlineDecoder(codecs.IncrementalDecoder):
         cr = output.count('\r') - crlf
         lf = output.count('\n') - crlf
         self.seennl |= (lf and self._LF) | (cr and self._CR) \
-            | (crlf and self._CRLF)
+                    | (crlf and self._CRLF)
 
         if self.translate:
             if crlf:
@@ -983,7 +974,7 @@ class IncrementalNewlineDecoder(codecs.IncrementalDecoder):
                 ("\n", "\r\n"),
                 ("\r", "\r\n"),
                 ("\r", "\n", "\r\n")
-                )[self.seennl]
+               )[self.seennl]
 
 
 def _check_decoded_chars(chars):
@@ -992,13 +983,12 @@ def _check_decoded_chars(chars):
         raise TypeError("decoder should return a string result, not '%s'" %
                         type(chars))
 
-
 def _check_buffered_bytes(b, context="read"):
     """Check buffer has returned bytes"""
     if not isinstance(b, str):
-        raise TypeError(
-            "underlying %s() should have returned a bytes object, not '%s'" %
-            (context, type(b)))
+        raise TypeError("underlying %s() should have returned a bytes object, not '%s'" %
+                        (context, type(b)))
+
 
 
 class TextIOWrapper(_TextIOBase):
@@ -1145,8 +1135,7 @@ class TextIOWrapper(_TextIOBase):
         return self.buffer.closed
 
     # Jython difference: emulate C implementation CHECK_INITIALIZED. This is for
-    # compatibility, to pass
-    # test.test_io.CTextIOWrapperTest.test_initialization.
+    # compatibility, to pass test.test_io.CTextIOWrapperTest.test_initialization.
     def _checkInitialized(self):
         if not self._ok:
             if self.buffer is None:
@@ -1262,20 +1251,20 @@ class TextIOWrapper(_TextIOBase):
         return not eof
 
     def _pack_cookie(self, position, dec_flags=0,
-                     bytes_to_feed=0, need_eof=0, chars_to_skip=0):
+                           bytes_to_feed=0, need_eof=0, chars_to_skip=0):
         # The meaning of a tell() cookie is: seek to position, set the
         # decoder flags to dec_flags, read bytes_to_feed bytes, feed them
         # into the decoder with need_eof as the EOF flag, then skip
         # chars_to_skip characters of the decoded result.  For most simple
         # decoders, tell() will often just give a byte offset in the file.
-        return (position | (dec_flags << 64) | (bytes_to_feed << 128) |
-                (chars_to_skip << 192) | bool(need_eof) << 256)
+        return (position | (dec_flags<<64) | (bytes_to_feed<<128) |
+               (chars_to_skip<<192) | bool(need_eof)<<256)
 
     def _unpack_cookie(self, bigint):
-        rest, position = divmod(bigint, 1 << 64)
-        rest, dec_flags = divmod(rest, 1 << 64)
-        rest, bytes_to_feed = divmod(rest, 1 << 64)
-        need_eof, chars_to_skip = divmod(rest, 1 << 64)
+        rest, position = divmod(bigint, 1<<64)
+        rest, dec_flags = divmod(rest, 1<<64)
+        rest, bytes_to_feed = divmod(rest, 1<<64)
+        need_eof, chars_to_skip = divmod(rest, 1<<64)
         return position, dec_flags, bytes_to_feed, need_eof, chars_to_skip
 
     def tell(self):
@@ -1360,14 +1349,14 @@ class TextIOWrapper(_TextIOBase):
             raise ValueError("tell on closed file")
         if not self._seekable:
             raise IOError("underlying stream is not seekable")
-        if whence == 1:  # seek relative to current position
+        if whence == 1: # seek relative to current position
             if cookie != 0:
                 raise IOError("can't do nonzero cur-relative seeks")
             # Seeking to the current position should attempt to
             # sync the underlying buffer with the current position.
             whence = 0
             cookie = self.tell()
-        if whence == 2:  # seek relative to end of file
+        if whence == 2: # seek relative to end of file
             if cookie != 0:
                 raise IOError("can't do nonzero end-relative seeks")
             self.flush()
@@ -1571,7 +1560,7 @@ class StringIO(TextIOWrapper):
     def __init__(self, initial_value="", newline="\n"):
 
         # Newline mark needs to be in bytes: convert if not already so
-        if isinstance(newline, unicode):
+        if isinstance(newline, unicode) :
             newline = newline.encode("utf-8")
 
         super(StringIO, self).__init__(BytesIO(),
@@ -1584,9 +1573,9 @@ class StringIO(TextIOWrapper):
             self._writetranslate = False
         # An initial value may have been supplied (and must be unicode)
         if initial_value is not None:
-            if not isinstance(initial_value, unicode):
+            if not isinstance(initial_value, unicode) :
                 fmt = "initial value should be unicode or None, got %s"
-                raise TypeError(fmt % type(initial_value))
+                raise TypeError( fmt % type(initial_value) )
             if initial_value:
                 self.write(initial_value)
                 self.seek(0)
@@ -1594,7 +1583,7 @@ class StringIO(TextIOWrapper):
     # Jython: modelled after stringio.c::stringio_getstate
     def __getstate__(self):
         d = getattr(self, '__dict__', None)
-        if d is not None:
+        if d is not None :
             d = d.copy()
         return (self.getvalue(), self._readnl, self.tell(), d)
 
@@ -1602,9 +1591,9 @@ class StringIO(TextIOWrapper):
     def __setstate__(self, state):
         self._checkClosed()
 
-        if not isinstance(state, tuple) or len(state) < 4:
+        if not isinstance(state, tuple) or len(state) < 4 :
             fmt = "%s.__setstate__ argument should be 4-tuple got %s"
-            raise TypeError(fmt % (type(self), type(state)))
+            raise TypeError( fmt % (type(self), type(state)) )
 
         # Initialize the object's state, but empty
         self.__init__(None, state[1])
@@ -1612,9 +1601,9 @@ class StringIO(TextIOWrapper):
         # Write the buffer, bypassing end-of-line translation.
         value = state[0]
         if value is not None:
-            if not isinstance(value, unicode):
+            if not isinstance(value, unicode) :
                 fmt = "ivalue should be unicode or None, got %s"
-                raise TypeError(fmt % type(value))
+                raise TypeError( fmt % type(value) )
             encoder = self._encoder or self._get_encoder()
             b = encoder.encode(state[0])
             self.buffer.write(b)
@@ -1623,24 +1612,23 @@ class StringIO(TextIOWrapper):
         # the case of repeated calls to __setstate__.
         self.seek(0)
 
-        # Set the position value using seek. A long is tolerated (e.g from
-        # pickle).
+        # Set the position value using seek. A long is tolerated (e.g from pickle).
         p = state[2]
-        if not isinstance(p, (int, long)):
+        if not isinstance(p, (int, long)) :
             fmt = "third item of state must be an integer, got %s"
-            raise TypeError(fmt % type(p))
-        elif p < 0:
+            raise TypeError( fmt % type(p) )
+        elif p < 0 :
             raise ValueError("position value cannot be negative")
         self.seek(p)
 
         # Set the dictionary of the instance variables. */
         d = state[3]
-        if d is not None:
-            if isinstance(d, dict):
+        if not d is None :
+            if isinstance(d, dict) :
                 self.__dict__ = d
-            else:
+            else :
                 fmt = "fourth item of state should be a dict, got %s"
-                raise TypeError(fmt % type(d))
+                raise TypeError( fmt % type(d) )
 
     def getvalue(self):
         self.flush()

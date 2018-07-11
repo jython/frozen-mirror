@@ -18,14 +18,11 @@ import select
 import signal
 import subprocess
 import traceback
-import sys
-import os
-import time
-import errno
+import sys, os, time, errno
 
 if (sys.platform[:3] in ('win', 'os2') or sys.platform == 'riscos' or
-        (test_support.is_jython and os._name == 'nt')):
-    raise test_support.TestSkipped("Can't test signal on %s" %
+    (test_support.is_jython and os._name == 'nt')):
+    raise test_support.TestSkipped("Can't test signal on %s" % \
                                    sys.platform)
 
 
@@ -46,7 +43,7 @@ def exit_subprocess():
 def ignoring_eintr(__func, *args, **kwargs):
     try:
         return __func(*args, **kwargs)
-    except EnvironmentError as e:
+    except EnvironmentError, e:
         if e.errno != errno.EINTR:
             raise
         return None
@@ -57,7 +54,7 @@ class InterProcessSignalTests(unittest.TestCase):
 
     def setUp(self):
         self.using_gc = gc.isenabled()
-        # gc.disable()
+        #gc.disable()
 
     def tearDown(self):
         if self.using_gc:
@@ -85,7 +82,7 @@ class InterProcessSignalTests(unittest.TestCase):
             try:
                 child.wait()
                 return
-            except OSError as e:
+            except OSError, e:
                 if e.errno != errno.EINTR:
                     raise
 
@@ -147,7 +144,7 @@ class InterProcessSignalTests(unittest.TestCase):
         except KeyboardInterrupt:
             if test_support.verbose:
                 print "KeyboardInterrupt (the alarm() went off)"
-        except BaseException:
+        except:
             self.fail("Some other exception woke us from pause: %s" %
                       traceback.format_exc())
         else:
@@ -174,11 +171,11 @@ class InterProcessSignalTests(unittest.TestCase):
                     with closing(done_w):
                         try:
                             self.run_test()
-                        except BaseException:
+                        except:
                             pickle.dump(traceback.format_exc(), done_w)
                         else:
                             pickle.dump(None, done_w)
-                except BaseException:
+                except:
                     print 'Uh oh, raised from pickle.'
                     traceback.print_exc()
                 finally:
@@ -244,14 +241,14 @@ class WakeupSignalTests(unittest.TestCase):
         before_time = time.time()
         # We attempt to get a signal during the select call
         self.assertRaises(select.error, select.select,
-                          [self.read], [], [], self.TIMEOUT_FULL)
+            [self.read], [], [], self.TIMEOUT_FULL)
         after_time = time.time()
         self.assert_(after_time - before_time < self.TIMEOUT_HALF)
 
     def setUp(self):
         import fcntl
 
-        self.alrm = signal.signal(signal.SIGALRM, lambda x, y: None)
+        self.alrm = signal.signal(signal.SIGALRM, lambda x,y:None)
         self.read, self.write = os.pipe()
         flags = fcntl.fcntl(self.write, fcntl.F_GETFL, 0)
         flags = flags | os.O_NONBLOCK
@@ -264,18 +261,16 @@ class WakeupSignalTests(unittest.TestCase):
         os.close(self.write)
         signal.signal(signal.SIGALRM, self.alrm)
 
-
 class SiginterruptTest(unittest.TestCase):
     signum = signal.SIGUSR1
-
     def readpipe_interrupted(self, cb):
         r, w = os.pipe()
         ppid = os.getpid()
         pid = os.fork()
 
-        oldhandler = signal.signal(self.signum, lambda x, y: None)
+        oldhandler = signal.signal(self.signum, lambda x,y: None)
         cb()
-        if pid == 0:
+        if pid==0:
             # child code: sleep, kill, sleep. and then exit,
             # which closes the pipe from which the parent process reads
             try:
@@ -289,9 +284,9 @@ class SiginterruptTest(unittest.TestCase):
             os.close(w)
 
             try:
-                d = os.read(r, 1)
+                d=os.read(r, 1)
                 return False
-            except OSError as err:
+            except OSError, err:
                 if err.errno != errno.EINTR:
                     raise
                 return True
@@ -300,21 +295,16 @@ class SiginterruptTest(unittest.TestCase):
             os.waitpid(pid, 0)
 
     def test_without_siginterrupt(self):
-        i = self.readpipe_interrupted(lambda: None)
+        i=self.readpipe_interrupted(lambda: None)
         self.assertEquals(i, True)
 
     def test_siginterrupt_on(self):
-        i = self.readpipe_interrupted(
-            lambda: signal.siginterrupt(
-                self.signum, 1))
+        i=self.readpipe_interrupted(lambda: signal.siginterrupt(self.signum, 1))
         self.assertEquals(i, True)
 
     def test_siginterrupt_off(self):
-        i = self.readpipe_interrupted(
-            lambda: signal.siginterrupt(
-                self.signum, 0))
+        i=self.readpipe_interrupted(lambda: signal.siginterrupt(self.signum, 0))
         self.assertEquals(i, False)
-
 
 class ItimerTest(unittest.TestCase):
     def setUp(self):
@@ -325,7 +315,7 @@ class ItimerTest(unittest.TestCase):
 
     def tearDown(self):
         signal.signal(signal.SIGALRM, self.old_alarm)
-        if self.itimer is not None:  # test_itimer_exc doesn't change this attr
+        if self.itimer is not None: # test_itimer_exc doesn't change this attr
             # just ensure that itimer is stopped
             signal.setitimer(self.itimer, 0)
 
@@ -340,7 +330,7 @@ class ItimerTest(unittest.TestCase):
         if self.hndl_count > 3:
             # it shouldn't be here, because it should have been disabled.
             raise signal.ItimerError("setitimer didn't disable ITIMER_VIRTUAL "
-                                     "timer.")
+                "timer.")
         elif self.hndl_count == 3:
             # disable ITIMER_VIRTUAL, this function shouldn't be called anymore
             signal.setitimer(signal.ITIMER_VIRTUAL, 0)
@@ -384,7 +374,7 @@ class ItimerTest(unittest.TestCase):
 
         for i in xrange(100000000):
             if signal.getitimer(self.itimer) == (0.0, 0.0):
-                break  # sig_vtalrm handler stopped this itimer
+                break # sig_vtalrm handler stopped this itimer
 
         # virtual itimer should be (0.0, 0.0) now
         self.assertEquals(signal.getitimer(self.itimer), (0.0, 0.0))
@@ -398,16 +388,15 @@ class ItimerTest(unittest.TestCase):
 
         for i in xrange(100000000):
             if signal.getitimer(self.itimer) == (0.0, 0.0):
-                break  # sig_prof handler stopped this itimer
+                break # sig_prof handler stopped this itimer
 
         # profiling itimer should be (0.0, 0.0) now
         self.assertEquals(signal.getitimer(self.itimer), (0.0, 0.0))
         # and the handler should have been called
         self.assertEqual(self.hndl_called, True)
 
-
 def test_main():
-    test_support.run_unittest(BasicSignalTests)  # , InterProcessSignalTests)
+    test_support.run_unittest(BasicSignalTests) #, InterProcessSignalTests)
     # ignore these 2.6 tests: WakeupSignalTests, SiginterruptTest, ItimerTest
 
 

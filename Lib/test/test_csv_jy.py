@@ -4,6 +4,7 @@
 # Additional csv module unit tests for Jython
 
 import csv
+import io
 import sys
 from tempfile import TemporaryFile
 from test import test_support
@@ -14,8 +15,6 @@ import unittest
 # that it is transparent to byte data. Many tools, however, accept UTF-8
 # encoded text in a CSV file.
 #
-
-
 class EncodingContext(object):
     """Context manager to save and restore the encoding.
 
@@ -36,7 +35,6 @@ class EncodingContext(object):
 
     def __exit__(self, *ignore_exc):
         sys.setdefaultencoding(self.original_encoding)
-
 
 class TestUnicode(unittest.TestCase):
 
@@ -93,7 +91,6 @@ def test_main():
     finally:
         if not had_set:
             delattr(sys, "setdefaultencoding")
-
 
 if __name__ == "__main__":
     test_main()

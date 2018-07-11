@@ -34,7 +34,7 @@ def getKeyStroke(key):
         elif mod == 'A':
             modifiers = modifiers | InputEvent.ALT_MASK
         else:
-            raise ValueError('Invalid modifier in ' + key)
+            raise ValueError, 'Invalid modifier in '+key
 
     return KeyStroke.getKeyStroke(_keynames[key], modifiers)
 

@@ -13,6 +13,7 @@ the package, and perhaps a particular module inside it.
 __revision__ = "$Id$"
 
 from _curses import *
+from curses.wrapper import wrapper
 import os as _os
 import sys as _sys
 

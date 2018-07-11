@@ -921,7 +921,6 @@ StopIteration
 # iterators have side-effects, so that which values *can* be generated at
 # each slot depend on the values iterated at previous slots.
 
-
 def conjoin(gs):
 
     values = [None] * len(gs)
@@ -931,7 +930,7 @@ def conjoin(gs):
             yield values
         else:
             for values[i] in gs[i]():
-                for x in gen(i + 1):
+                for x in gen(i+1):
                     yield x
 
     for x in gen(0):
@@ -942,7 +941,6 @@ def conjoin(gs):
 # generator boundaries, it's possible to eliminate most of that overhead.
 # This isn't worth the bother *in general* for generators, but conjoin() is
 # a core building block for some CPU-intensive generator applications.
-
 
 def conjoin(gs):
 
@@ -956,8 +954,8 @@ def conjoin(gs):
         if i >= n:
             yield values
 
-        elif (n - i) % 3:
-            ip1 = i + 1
+        elif (n-i) % 3:
+            ip1 = i+1
             for values[i] in gs[i]():
                 for x in gen(ip1):
                     yield x
@@ -971,9 +969,9 @@ def conjoin(gs):
     # gen's use.
 
     def _gen3(i, values=values):
-        assert i < n and (n - i) % 3 == 0
-        ip1, ip2, ip3 = i + 1, i + 2, i + 3
-        g, g1, g2 = gs[i: ip3]
+        assert i < n and (n-i) % 3 == 0
+        ip1, ip2, ip3 = i+1, i+2, i+3
+        g, g1, g2 = gs[i : ip3]
 
         if ip3 >= n:
             # These are the last three, so we can yield values directly.
@@ -1005,14 +1003,13 @@ def conjoin(gs):
 # much harder to achieve.  OTOH, this is much slower (up to a factor of 2)
 # than the fancy unrolled recursive conjoin.
 
-
 def flat_conjoin(gs):  # rename to conjoin to run tests with this instead
     n = len(gs)
     values = [None] * n
-    iters = [None] * n
+    iters  = [None] * n
     _StopIteration = StopIteration  # make local because caught a *lot*
     i = 0
-    while True:
+    while 1:
         # Descend.
         try:
             while i < n:
@@ -1042,7 +1039,6 @@ def flat_conjoin(gs):  # rename to conjoin to run tests with this instead
 
 # A conjoin-based N-Queens solver.
 
-
 class Queens:
     def __init__(self, n):
         self.n = n
@@ -1061,10 +1057,10 @@ class Queens:
         # generates the possiblities for the columns in that row.
         self.rowgenerators = []
         for i in rangen:
-            rowuses = [(1 << j) |                  # column ordinal
-                       (1 << (n + i - j + n - 1)) |    # NW-SE ordinal
-                       (1 << (n + 2 * n - 1 + i + j))    # NE-SW ordinal
-                       for j in rangen]
+            rowuses = [(1L << j) |                  # column ordinal
+                       (1L << (n + i-j + n-1)) |    # NW-SE ordinal
+                       (1L << (n + 2*n-1 + i+j))    # NE-SW ordinal
+                            for j in rangen]
 
             def rowgen(rowuses=rowuses):
                 for j in rangen:
@@ -1097,7 +1093,6 @@ class Queens:
 # (e.g., when used with flat_conjoin above, and passing hard=1 to the
 # constructor, a 200x200 Knight's Tour was found quickly -- note that we're
 # creating 10s of thousands of generators then!), and is lengthy.
-
 
 class Knights:
     def __init__(self, m, n, hard=0):
@@ -1164,8 +1159,8 @@ class Knights:
             # to (0, 0).  Save its index in self.final so that moves before
             # the last know it must be kept free.
             for i, j in (1, 2), (2, 1):
-                this = self.coords2index(i, j)
-                final = self.coords2index(3 - i, 3 - j)
+                this  = self.coords2index(i, j)
+                final = self.coords2index(3-i, 3-j)
                 self.final = final
 
                 remove_from_successors(this)
@@ -1202,7 +1197,7 @@ class Knights:
         # Since the # of backtracking levels is m*n, a poor move early on
         # can take eons to undo.  Smallest square board for which this
         # matters a lot is 52x52.
-        def advance_hard(vmid=(m - 1) / 2.0, hmid=(n - 1) / 2.0, len=len):
+        def advance_hard(vmid=(m-1)/2.0, hmid=(n-1)/2.0, len=len):
             # If some successor has only one exit, must take it.
             # Else favor successors with fewer exits.
             # Break ties via max distance from board centerpoint (favor
@@ -1232,11 +1227,11 @@ class Knights:
             assert self.final in succs[self.lastij]
             yield self.final
 
-        if m * n < 4:
+        if m*n < 4:
             self.squaregenerators = [first]
         else:
             self.squaregenerators = [first, second] + \
-                [hard and advance_hard or advance] * (m * n - 3) + \
+                [hard and advance_hard or advance] * (m*n - 3) + \
                 [last]
 
     def coords2index(self, i, j):
@@ -1254,14 +1249,14 @@ class Knights:
         m, n = self.m, self.n
         c2i = self.coords2index
 
-        offsets = [(1, 2), (2, 1), (2, -1), (1, -2),
-                   (-1, -2), (-2, -1), (-2, 1), (-1, 2)]
+        offsets = [( 1,  2), ( 2,  1), ( 2, -1), ( 1, -2),
+                   (-1, -2), (-2, -1), (-2,  1), (-1,  2)]
         rangen = range(n)
         for i in range(m):
             for j in rangen:
-                s = [c2i(i + io, j + jo) for io, jo in offsets
-                     if 0 <= i + io < m and
-                     0 <= j + jo < n]
+                s = [c2i(i+io, j+jo) for io, jo in offsets
+                                     if 0 <= i+io < m and
+                                        0 <= j+jo < n]
                 succs.append(s)
 
     # Generate solutions.
@@ -1272,8 +1267,8 @@ class Knights:
 
     def printsolution(self, x):
         m, n = self.m, self.n
-        assert len(x) == m * n
-        w = len(str(m * n))
+        assert len(x) == m*n
+        w = len(str(m*n))
         format = "%" + str(w) + "d"
 
         squares = [[None] * n for i in range(m)]
@@ -1289,7 +1284,6 @@ class Knights:
             row = squares[i]
             print "|" + "|".join(row) + "|"
             print sep
-
 
 conjoin_tests = """
 
@@ -1783,14 +1777,14 @@ test_generators just happened to be the test that drew these out.
 
 """
 
-__test__ = {"tut": tutorial_tests,
-            "pep": pep_tests,
-            "email": email_tests,
-            "fun": fun_tests,
-            "syntax": syntax_tests,
-            "conjoin": conjoin_tests,
-            "weakref": weakref_tests,
-            "coroutine": coroutine_tests,
+__test__ = {"tut":      tutorial_tests,
+            "pep":      pep_tests,
+            "email":    email_tests,
+            "fun":      fun_tests,
+            "syntax":   syntax_tests,
+            "conjoin":  conjoin_tests,
+            "weakref":  weakref_tests,
+            "coroutine":  coroutine_tests,
             "refleaks": refleaks_tests,
             }
 
@@ -1798,22 +1792,15 @@ __test__ = {"tut": tutorial_tests,
 # This worms around a bootstrap problem.
 # Note that doctest and regrtest both look in sys.argv for a "-v" argument,
 # so this works as expected in both ways of running regrtest.
-
-
 def test_main(verbose=None):
     from test import test_support, test_generators
     test_support.run_doctest(test_generators, verbose)
-
 
 def extra_collect():
     import gc
     from time import sleep
 
-    gc.collect()
-    sleep(1)
-    gc.collect()
-    sleep(0.1)
-    gc.collect()
+    gc.collect(); sleep(1); gc.collect(); sleep(0.1); gc.collect()
 
 
 # This part isn't needed for regrtest, but for running the test directly.

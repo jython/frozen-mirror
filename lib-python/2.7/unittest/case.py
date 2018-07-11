@@ -29,6 +29,7 @@ class SkipTest(Exception):
     Usually you can use TestResult.skip() or one of the skipping decorators
     instead of raising this directly.
     """
+    pass
 
 class _ExpectedFailure(Exception):
     """
@@ -45,6 +46,7 @@ class _UnexpectedSuccess(Exception):
     """
     The test was supposed to fail, but it didn't!
     """
+    pass
 
 def _id(obj):
     return obj
@@ -231,9 +233,11 @@ class TestCase(object):
 
     def setUp(self):
         "Hook method for setting up the test fixture before exercising it."
+        pass
 
     def tearDown(self):
         "Hook method for deconstructing the test fixture after testing it."
+        pass
 
     @classmethod
     def setUpClass(cls):

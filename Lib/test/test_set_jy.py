@@ -14,13 +14,10 @@ class SetTestCase(unittest.TestCase):
 
     def test_binops(self):
         class Foo(object):
-            def __rsub__(self, other): return 'rsub'
-
-            def __ror__(self, other): return 'ror'
-
-            def __rand__(self, other): return 'rand'
-
-            def __rxor__(self, other): return 'rxor'
+            __rsub__ = lambda self, other: 'rsub'
+            __ror__ = lambda self, other: 'ror'
+            __rand__ = lambda self, other: 'rand'
+            __rxor__ = lambda self, other: 'rxor'
         foo = Foo()
         s = set()
         self.assertEqual(s - foo, 'rsub')
@@ -35,16 +32,14 @@ class SetTestCase(unittest.TestCase):
         for i in xrange(4):
             s = set(range(200))
             threads = [threading.Thread(target=s.pop) for i in range(nthreads)]
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()
+            for t in threads: t.start()
+            for t in threads: t.join()
             self.assertEqual(len(s), 0)
 
     def test_big_set(self):
         """Verify that fairly large collection literals of primitives can be constructed."""
         # use \n to separate to avoid parser problems
-        s = eval("{" + ",\n".join((str(x) for x in xrange(64000))) + "}")
+        s = eval("{" + ",\n".join((str(x) for x in xrange(64000))) +"}")
         self.assertEqual(len(s), 64000)
         self.assertEqual(sum(s), 2047968000)
 
@@ -111,16 +106,14 @@ class TestJavaSet(test_set.TestSet):
 class TestJavaHashSet(TestJavaSet):
     thetype = HashSet
 
-
 class TestJavaLinkedHashSet(TestJavaSet):
     thetype = LinkedHashSet
-
 
 class SetSubclassCallsSuperMethods(set):
 
     # Used to verify all call paths where there is more than one way
     # to call the super method, such as (union, __or__), etc
-
+    
     def _valid_op_args(f):
         def _screener(*args):
             if len(args) != 2:
@@ -139,12 +132,12 @@ class SetSubclassCallsSuperMethods(set):
 
     def issubset(self, other):
         return super(SetSubclassCallsSuperMethods, self).issubset(other)
-
+        
     __le__ = issubset
 
     def issuperset(self, other):
         return super(SetSubclassCallsSuperMethods, self).issuperset(other)
-
+        
     __ge__ = issuperset
 
     def union(self, *others):
@@ -163,10 +156,7 @@ class SetSubclassCallsSuperMethods(set):
     __sub__ = _valid_op_args(difference)
 
     def symmetric_difference(self, *others):
-        return super(
-            SetSubclassCallsSuperMethods,
-            self).symmetric_difference(
-            *others)
+        return super(SetSubclassCallsSuperMethods, self).symmetric_difference(*others)
 
     __xor__ = _valid_op_args(symmetric_difference)
 
@@ -176,7 +166,7 @@ class SetSubclassCallsSuperMethods(set):
 
     update = _call_for_side_effects(_update)
     __ior__ = _update
-
+        
     def _difference_update(self, *others):
         super(SetSubclassCallsSuperMethods, self).difference_update(*others)
         return self
@@ -192,12 +182,10 @@ class SetSubclassCallsSuperMethods(set):
     __iand__ = _intersection_update
 
     def _symmetric_difference_update(self, other):
-        super(SetSubclassCallsSuperMethods,
-              self).symmetric_difference_update(other)
+        super(SetSubclassCallsSuperMethods, self).symmetric_difference_update(other)
         return self
 
-    symmetric_difference_update = _call_for_side_effects(
-        _symmetric_difference_update)
+    symmetric_difference_update = _call_for_side_effects(_symmetric_difference_update)
     __ixor__ = _symmetric_difference_update
 
 

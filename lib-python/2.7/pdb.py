@@ -17,6 +17,7 @@ import traceback
 
 class Restart(Exception):
     """Causes a debugger to be restarted for the debugged python program."""
+    pass
 
 # Create a custom safe Repr instance and increase its maxstring.
 # The default of 30 truncates error messages too easily.

@@ -4,8 +4,10 @@
 
 import unittest
 from test import test_support
+import sys
 
 
+
 class TestIsInstanceExceptions(unittest.TestCase):
     # Test to make sure that an AttributeError when accessing the instance's
     # class's bases is masked.  This was actually a bug in Python 2.2 and
@@ -59,8 +61,7 @@ class TestIsInstanceExceptions(unittest.TestCase):
     # Here's a situation where getattr(cls, '__bases__') raises an exception.
     # If that exception is not AttributeError, it should not get masked
     def test_dont_mask_non_attribute_error(self):
-        class I:
-            pass
+        class I: pass
 
         class C(object):
             def getbases(self):
@@ -72,8 +73,7 @@ class TestIsInstanceExceptions(unittest.TestCase):
     # Like above, except that getattr(cls, '__bases__') raises an
     # AttributeError, which /should/ get masked as a TypeError
     def test_mask_attribute_error(self):
-        class I:
-            pass
+        class I: pass
 
         class C(object):
             def getbases(self):
@@ -83,6 +83,7 @@ class TestIsInstanceExceptions(unittest.TestCase):
         self.assertRaises(TypeError, isinstance, I(), C())
 
 
+
 # These tests are similar to above, but tickle certain code paths in
 # issubclass() instead of isinstance() -- really PyObject_IsSubclass()
 # vs. PyObject_IsInstance().
@@ -93,8 +94,7 @@ class TestIsSubclassExceptions(unittest.TestCase):
                 raise RuntimeError
             __bases__ = property(getbases)
 
-        class S(C):
-            pass
+        class S(C): pass
 
         self.assertRaises(RuntimeError, issubclass, C(), S())
 
@@ -104,8 +104,7 @@ class TestIsSubclassExceptions(unittest.TestCase):
                 raise AttributeError
             __bases__ = property(getbases)
 
-        class S(C):
-            pass
+        class S(C): pass
 
         self.assertRaises(TypeError, issubclass, C(), S())
 
@@ -114,8 +113,7 @@ class TestIsSubclassExceptions(unittest.TestCase):
     # return a valid __bases__, and it's okay for it to be a normal --
     # unrelated by inheritance -- class.
     def test_dont_mask_non_attribute_error_in_cls_arg(self):
-        class B:
-            pass
+        class B: pass
 
         class C(object):
             def getbases(self):
@@ -125,8 +123,7 @@ class TestIsSubclassExceptions(unittest.TestCase):
         self.assertRaises(RuntimeError, issubclass, B, C())
 
     def test_mask_attribute_error_in_cls_arg(self):
-        class B:
-            pass
+        class B: pass
 
         class C(object):
             def getbases(self):
@@ -136,6 +133,7 @@ class TestIsSubclassExceptions(unittest.TestCase):
         self.assertRaises(TypeError, issubclass, B, C())
 
 
+
 # meta classes for creating abstract classes and instances
 class AbstractClass(object):
     def __init__(self, bases):
@@ -148,7 +146,6 @@ class AbstractClass(object):
     def __call__(self):
         return AbstractInstance(self)
 
-
 class AbstractInstance(object):
     def __init__(self, klass):
         self.klass = klass
@@ -157,33 +154,27 @@ class AbstractInstance(object):
         return self.klass
     __class__ = property(getclass)
 
-
 # abstract classes
 AbstractSuper = AbstractClass(bases=())
 
 AbstractChild = AbstractClass(bases=(AbstractSuper,))
 
 # normal classes
-
-
 class Super:
     pass
-
 
 class Child(Super):
     pass
 
 # new-style classes
-
-
 class NewSuper(object):
     pass
-
 
 class NewChild(NewSuper):
     pass
 
 
+
 class TestIsInstanceIsSubclass(unittest.TestCase):
     # Tests to ensure that isinstance and issubclass work on abstract
     # classes and instances.  Before the 2.2 release, TypeErrors were
@@ -253,24 +244,19 @@ class TestIsInstanceIsSubclass(unittest.TestCase):
 
         self.assertEqual(True, issubclass(int, (long, (float, int))))
         if test_support.have_unicode:
-            self.assertEqual(
-                True, issubclass(
-                    str, (unicode, (Child, NewChild, basestring))))
+            self.assertEqual(True, issubclass(str, (unicode, (Child, NewChild, basestring))))
 
-    @unittest.skipIf(test_support.is_jython,
-                     "See http://bugs.jython.org/issue2536.")
+    @unittest.skipIf(test_support.is_jython, "See http://bugs.jython.org/issue2536.")
     def test_subclass_recursion_limit(self):
         # make sure that issubclass raises RuntimeError before the C stack is
         # blown
         self.assertRaises(RuntimeError, blowstack, issubclass, str, str)
 
-    @unittest.skipIf(test_support.is_jython,
-                     "See http://bugs.jython.org/issue2536.")
+    @unittest.skipIf(test_support.is_jython, "See http://bugs.jython.org/issue2536.")
     def test_isinstance_recursion_limit(self):
         # make sure that issubclass raises RuntimeError before the C stack is
         # blown
         self.assertRaises(RuntimeError, blowstack, isinstance, '', str)
-
 
 def blowstack(fxn, arg, compare_to):
     # Make sure that calling isinstance with a deeply nested tuple for its

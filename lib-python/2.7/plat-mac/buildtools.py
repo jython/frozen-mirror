@@ -188,6 +188,7 @@ def process_common(template, progress, code, rsrcname, destname, is_update,
     try:
         input = Res.FSOpenResourceFile(rsrcname, RESOURCE_FORK_NAME, READ)
     except (MacOS.Error, ValueError):
+        pass
         if progress:
             progress.inc(50)
     else:

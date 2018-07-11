@@ -11,7 +11,6 @@ import support
 from java.io import File
 from java.lang import System, Thread
 
-
 def check(fn='test.txt'):
     f = File(fn)
     if not f.exists():
@@ -23,7 +22,7 @@ def check(fn='test.txt'):
 
 open("garbagecollected", "w").write("test")
 
-# Wait up to 2 seconds for garbage collected to disappear
+#Wait up to 2 seconds for garbage collected to disappear
 System.gc()
 for i in range(10):
     if not os.path.exists('garbagecollected'):
@@ -37,6 +36,6 @@ f.write("test")
 f.close()
 check("normalclose")
 
-# test397m writes to "shutdown" and exits
+#test397m writes to "shutdown" and exits
 support.runJython('test397m.py')
 check('shutdown')

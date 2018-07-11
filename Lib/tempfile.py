@@ -18,13 +18,13 @@ This module also provides some data items to the user:
 """
 
 __all__ = [
-    "NamedTemporaryFile", "TemporaryFile",  # high level safe interfaces
+    "NamedTemporaryFile", "TemporaryFile", # high level safe interfaces
     "SpooledTemporaryFile",
     "mkstemp", "mkdtemp",                  # low level safe interfaces
     "mktemp",                              # deprecated unsafe interface
     "TMP_MAX", "gettempprefix",            # constants
     "tempdir", "gettempdir"
-]
+   ]
 
 
 # Imports.
@@ -97,7 +97,6 @@ else:
             raise _os.error
         f.close()
 
-
 def _exists(fn):
     try:
         _stat(fn)
@@ -105,7 +104,6 @@ def _exists(fn):
         return False
     else:
         return True
-
 
 class _RandomNameSequence:
     """An instance of _RandomNameSequence generates an endless
@@ -126,11 +124,11 @@ class _RandomNameSequence:
     @property
     def rng(self):
         if _os.sys.platform.startswith("java"):
-            # A JVM run cannot determine or change its pid so dummy this.
+            #A JVM run cannot determine or change its pid so dummy this.
             cur_pid = 1
         else:
             cur_pid = _os.getpid()
-
+        
         if cur_pid != getattr(self, '_rng_pid', None):
             self._rng = _Random()
             self._rng_pid = cur_pid
@@ -152,7 +150,6 @@ class _RandomNameSequence:
 
         return self.normcase(''.join(letters))
 
-
 def _candidate_tempdir_list():
     """Generate a list of candidate temporary directories which
     _get_default_tempdir will try."""
@@ -162,8 +159,7 @@ def _candidate_tempdir_list():
     # First, try the environment.
     for envname in 'TMPDIR', 'TEMP', 'TMP':
         dirname = _os.getenv(envname)
-        if dirname:
-            dirlist.append(dirname)
+        if dirname: dirlist.append(dirname)
 
     # Real name of OS
     if _os.name != 'java':
@@ -174,12 +170,11 @@ def _candidate_tempdir_list():
     # Failing that, try OS-specific locations.
     if os_name == 'riscos':
         dirname = _os.getenv('Wimp$ScrapDir')
-        if dirname:
-            dirlist.append(dirname)
+        if dirname: dirlist.append(dirname)
     elif os_name == 'nt':
-        dirlist.extend([r'c:\temp', r'c:\tmp', r'\temp', r'\tmp'])
+        dirlist.extend([ r'c:\temp', r'c:\tmp', r'\temp', r'\tmp' ])
     else:
-        dirlist.extend(['/tmp', '/var/tmp', '/usr/tmp'])
+        dirlist.extend([ '/tmp', '/var/tmp', '/usr/tmp' ])
 
     # As a last resort, the current directory.
     try:
@@ -188,7 +183,6 @@ def _candidate_tempdir_list():
         dirlist.append(_os.curdir)
 
     return dirlist
-
 
 def _get_default_tempdir():
     """Calculate the default directory to use for temporary files.
@@ -205,7 +199,7 @@ def _get_default_tempdir():
 
     for dir in dirlist:
         if dir != _os.curdir:
-            dir = _os.path.abspath(dir)  # See CPython Issue 14255
+            dir = _os.path.abspath(dir) # See CPython Issue 14255
         # Try only a few names per directory.
         for seq in xrange(100):
             name = namer.next()
@@ -223,13 +217,12 @@ def _get_default_tempdir():
                 return dir
             except (OSError, IOError) as e:
                 if e.args[0] != _errno.EEXIST:
-                    break  # no point trying more names in this directory
-    raise IOError(_errno.ENOENT,
-                  ("No usable temporary directory found in %s" % dirlist))
-
+                    break # no point trying more names in this directory
+                pass
+    raise IOError, (_errno.ENOENT,
+                    ("No usable temporary directory found in %s" % dirlist))
 
 _name_sequence = None
-
 
 def _get_candidate_names():
     """Common setup sequence for all user-callable interfaces."""
@@ -254,15 +247,15 @@ def _mkstemp_inner(dir, pre, suf, flags):
         name = names.next()
         file = _os.path.join(dir, pre + name + suf)
         try:
-            fd = _os.open(file, flags, 0o600)
+            fd = _os.open(file, flags, 0600)
             _set_cloexec(fd)
             return (fd, _os.path.abspath(file))
-        except OSError as e:
+        except OSError, e:
             if e.errno == _errno.EEXIST:
-                continue  # try again
+                continue # try again
             raise
 
-    raise IOError(_errno.EEXIST, "No usable temporary file name found")
+    raise IOError, (_errno.EEXIST, "No usable temporary file name found")
 
 
 # User visible interfaces.
@@ -271,9 +264,7 @@ def gettempprefix():
     """Accessor for tempdir.template."""
     return template
 
-
 tempdir = None
-
 
 def gettempdir():
     """Accessor for tempfile.tempdir."""
@@ -286,7 +277,6 @@ def gettempdir():
         finally:
             _once_lock.release()
     return tempdir
-
 
 def mkstemp(suffix="", prefix=template, dir=None, text=False):
     """User-callable function to create and return a unique temporary
@@ -347,15 +337,14 @@ def mkdtemp(suffix="", prefix=template, dir=None):
         name = names.next()
         file = _os.path.join(dir, prefix + name + suffix)
         try:
-            _os.mkdir(file, 0o700)
+            _os.mkdir(file, 0700)
             return file
-        except OSError as e:
+        except OSError, e:
             if e.errno == _errno.EEXIST:
-                continue  # try again
+                continue # try again
             raise
 
-    raise IOError(_errno.EEXIST, "No usable temporary directory name found")
-
+    raise IOError, (_errno.EEXIST, "No usable temporary directory name found")
 
 def mktemp(suffix="", prefix=template, dir=None):
     """User-callable function to return a unique temporary file name.  The
@@ -371,8 +360,8 @@ def mktemp(suffix="", prefix=template, dir=None):
     """
 
 ##    from warnings import warn as _warn
-# _warn("mktemp is a potential security risk to your program",
-# RuntimeWarning, stacklevel=2)
+##    _warn("mktemp is a potential security risk to your program",
+##          RuntimeWarning, stacklevel=2)
 
     if dir is None:
         dir = gettempdir()
@@ -384,7 +373,7 @@ def mktemp(suffix="", prefix=template, dir=None):
         if not _exists(file):
             return file
 
-    raise IOError(_errno.EEXIST, "No usable temporary filename found")
+    raise IOError, (_errno.EEXIST, "No usable temporary filename found")
 
 
 class _TemporaryFileWrapper:
@@ -481,7 +470,6 @@ def NamedTemporaryFile(mode='w+b', bufsize=-1, suffix="",
     file = _os.fdopen(fd, mode, bufsize)
     return _TemporaryFileWrapper(file, name, delete)
 
-
 if _os.name != 'posix' or _os.sys.platform == 'cygwin':
     # On non-POSIX and Cygwin systems, assume that we cannot unlink a file
     # while it is open.
@@ -513,10 +501,9 @@ else:
         try:
             _os.unlink(name)
             return _os.fdopen(fd, mode, bufsize)
-        except BaseException:
+        except:
             _os.close(fd)
             raise
-
 
 class SpooledTemporaryFile:
     """Temporary file wrapper, specialized to switch from
@@ -533,15 +520,13 @@ class SpooledTemporaryFile:
         self._TemporaryFileArgs = (mode, bufsize, suffix, prefix, dir)
 
     def _check(self, file):
-        if self._rolled:
-            return
+        if self._rolled: return
         max_size = self._max_size
         if max_size and file.tell() > max_size:
             self.rollover()
 
     def rollover(self):
-        if self._rolled:
-            return
+        if self._rolled: return
         file = self._file
         newfile = self._file = TemporaryFile(*self._TemporaryFileArgs)
         del self._TemporaryFileArgs
@@ -577,7 +562,7 @@ class SpooledTemporaryFile:
         return self._file.closed
 
     @property
-    def encoding(self):  # Jython not CPython
+    def encoding(self): # Jython not CPython
         return self._file.encoding
 
     def fileno(self):
@@ -605,7 +590,7 @@ class SpooledTemporaryFile:
             return None
 
     @property
-    def newlines(self):  # Jython not CPython
+    def newlines(self): # Jython not CPython
         return self._file.newlines
 
     def next(self):

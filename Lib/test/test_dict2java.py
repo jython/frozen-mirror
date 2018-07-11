@@ -1,6 +1,5 @@
 from javatests import Dict2JavaTest
-import unittest
-import test.test_support
+import unittest, test.test_support
 
 # Test the java.util.Map interface of org.python.core.PyDictionary.
 # This tests the functionality of being able to pass a dictionaries
@@ -8,7 +7,6 @@ import test.test_support
 # the dictionary object once in Java code.  The Java Dict2JavaTest is
 # used to run some tests in Java code since they cannot be done on
 # the Jython side.
-
 
 class JythonMapInJavaTest(unittest.TestCase):
 
@@ -35,8 +33,7 @@ class JythonMapInJavaTest(unittest.TestCase):
         self.testmap = Dict2JavaTest(self.testdict)
 
     def test_basic_map_operations(self):
-        self.maketestdict(
-            {"a": "x", "b": "y", "c": "z", "d": None, None: "foo"})
+        self.maketestdict({"a":"x", "b":"y", "c":"z", "d": None, None: "foo"})
 
         # Make sure we see it on the java side
         self.assertEquals(len(self.testdict), self.testmap.size())
@@ -48,8 +45,7 @@ class JythonMapInJavaTest(unittest.TestCase):
         self.checksize(oldlen + 3)
         self.checkvalues(('e', '1'), ('f', None), ('g', '2'))
 
-        # test Map.get method, get "g" and "d" test will throw an exception if
-        # fail
+        # test Map.get method, get "g" and "d" test will throw an exception if fail
         self.failUnless(self.testmap.test_get_gd())
 
         # remove elements with keys "a" and "c" with the Map.remove method
@@ -68,14 +64,13 @@ class JythonMapInJavaTest(unittest.TestCase):
         self.failUnless(self.testmap.test_java_mapentry())
 
     def test_entryset(self):
-        self.maketestdict({"h": "x", "b": "y", "g": "z",
-                           "e": None, None: "foo", "d": 7})
+        self.maketestdict({"h":"x", "b":"y", "g":"z", "e": None, None: "foo", "d":7})
         set = self.testmap.entrySet()
         self.checksize(set.size())
 
         # Make sure the set is consistent with the self.testdictionary
         for entry in set:
-            self.failUnless(entry.getKey() in self.testdict)
+            self.failUnless(self.testdict.has_key(entry.getKey()))
             self.assertEquals(self.testdict[entry.getKey()], entry.getValue())
             self.failUnless(set.contains(entry))
 
@@ -86,8 +81,7 @@ class JythonMapInJavaTest(unittest.TestCase):
             if entry.getKey() == "e":
                 eentry = entry
 
-        # Make sure nulls and non Map.Entry object do not match anything in the
-        # set
+        # Make sure nulls and non Map.Entry object do not match anything in the set
         self.failUnless(self.testmap.test_entry_set_nulls())
 
         self.failUnless(set.remove(eentry))
@@ -103,7 +97,7 @@ class JythonMapInJavaTest(unittest.TestCase):
 
         # test Set.removeAll method
         oldlen = len(self.testdict)
-        elist = [entry for entry in set if entry.key in ["b", "g", "d", None]]
+        elist = [ entry for entry in set if entry.key in ["b", "g", "d", None]]
         self.assertEqual(len(elist), 4)
         self.failUnless(set.removeAll(elist))
         self.checkdoesntcontain('bdg')
@@ -166,10 +160,8 @@ class JythonMapInJavaTest(unittest.TestCase):
         self.failUnless(values.isEmpty())
         self.checksize(0)
 
-
 def test_main():
     test.test_support.run_unittest(JythonMapInJavaTest)
-
 
 if __name__ == '__main__':
     test_main()

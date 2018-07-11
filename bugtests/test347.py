@@ -8,3 +8,4 @@ r = 'This is a\n multiline string\n'.splitlines()
 
 if r != ['This is a', ' multiline string']:
     raise support.TestError("Wrong splitlines(): %s" % r)
+

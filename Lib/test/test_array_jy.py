@@ -25,13 +25,11 @@ class ArrayJyTestCase(unittest.TestCase):
 
     def test_jarray(self):
         from java.lang import String
-
+        
         self.assertEqual(sum(jarray.array(range(5), 'i')), 10)
-        self.assertEqual(','.join(jarray.array(
-            [String("a"), String("b"), String("c")], String)), u'a,b,c')
+        self.assertEqual(','.join(jarray.array([String("a"), String("b"), String("c")], String)), u'a,b,c')
         self.assertEqual(sum(jarray.zeros(5, 'i')), 0)
-        self.assertEqual([x for x in jarray.zeros(5, String)], [
-                         None, None, None, None, None])
+        self.assertEqual([x for x in jarray.zeros(5, String)], [None, None, None, None, None])
 
     def test_java_object_arrays(self):
         from array import zeros
@@ -40,23 +38,21 @@ class ArrayJyTestCase(unittest.TestCase):
         jStringArr = array(String, [String("a"), String("b"), String("c")])
         self.assert_(
             Arrays.equals(jStringArr.typecode, 'java.lang.String'),
-            "String array typecode of wrong type, expected %s, found %s" %
-            (jStringArr.typecode, str(String)))
+               "String array typecode of wrong type, expected %s, found %s" %
+               (jStringArr.typecode, str(String)))
         self.assertEqual(zeros(String, 5), Array.newInstance(String, 5))
 
-        import java.lang.String  # require for eval to work
+        import java.lang.String # require for eval to work
         self.assertEqual(jStringArr, eval(str(jStringArr)))
 
     def test_java_compat(self):
         from array import zeros
         from java.awt import Color
-        hsb = Color.RGBtoHSB(0, 255, 255, None)
-        self.assertEqual(
-            hsb, array(
-                'f', [
-                    0.5, 1, 1]), "output hsb float array does not correspond to input rgb values")
+        hsb = Color.RGBtoHSB(0,255,255, None)
+        self.assertEqual(hsb, array('f', [0.5,1,1]),
+                         "output hsb float array does not correspond to input rgb values")
 
-        rgb = Color.HSBtoRGB(*tuple(hsb))
+        rgb = apply(Color.HSBtoRGB, tuple(hsb))
         self.assertEqual(rgb, -0xff0001,
                          "output rgb bytes don't match input hsb floats")
         hsb1 = zeros('f', 3)
@@ -66,9 +62,9 @@ class ArrayJyTestCase(unittest.TestCase):
     def test_java_roundtrip(self):
         # bug 1543
         from java.lang import Object
-        x = array(Object, [0, 1, 2])
+        x = array(Object, [0,1,2])
         x.append(3)
-        y = array(Object, [x])  # forces an implicit __tojava__
+        y = array(Object, [x]) # forces an implicit __tojava__
         self.assertEqual(x, y[0], "Did not shrink to fit")
 
 
@@ -116,7 +112,7 @@ class ArrayOpsTestCase(unittest.TestCase):
 
 
 class ArrayConversionTestCase(unittest.TestCase):
-
+    
     # Covers bugs raised in
     # http://bugs.jython.org/issue1780,
     # http://bugs.jython.org/issue2423
@@ -128,8 +124,7 @@ class ArrayConversionTestCase(unittest.TestCase):
         "array objects support boxing, as they did in Jython 2.1"
         from java.lang import Integer
 
-        self.assertAsList(jarray.array(
-            [1, 2, 3, 4, 5], Integer), [1, 2, 3, 4, 5])
+        self.assertAsList(jarray.array([1, 2, 3, 4, 5], Integer), [1, 2, 3, 4, 5])
         self.assertAsList(array(Integer, [1, 2, 3, 4, 5]), [1, 2, 3, 4, 5])
         self.assertAsList(jarray.array([1, 2, 3, 4, 5], "i"), [1, 2, 3, 4, 5])
         self.assertAsList(array("i", [1, 2, 3, 4, 5]), [1, 2, 3, 4, 5])
@@ -142,16 +137,14 @@ class ArrayConversionTestCase(unittest.TestCase):
         self.assertAsList((i * 2 for i in xrange(5)), [0, 2, 4, 6, 8])
         self.assertAsList(iter((i * 2 for i in xrange(5))), [0, 2, 4, 6, 8])
         self.assertAsList(iter((i * 2 for i in xrange(5))), [0, 2, 4, 6, 8])
-        self.assertAsList(
-            itertools.chain(
-                'ABC', 'DEF'), [
-                'A', 'B', 'C', 'D', 'E', 'F'])
+        self.assertAsList(itertools.chain('ABC', 'DEF'), ['A', 'B', 'C', 'D', 'E', 'F'])
 
     def test_object_varargs(self):
         "array.array objects can be used in the varargs position, with primitive boxing"
         a = array('i', range(5, 10))
-        self.assertEqual('arg 0=5, arg 1=6, arg 2=7, arg 3=8, arg 4=9', JString.format(
-            'arg 0=%d, arg 1=%d, arg 2=%d, arg 3=%d, arg 4=%d', [5, 6, 7, 8, 9]))
+        self.assertEqual(
+            'arg 0=5, arg 1=6, arg 2=7, arg 3=8, arg 4=9',
+            JString.format('arg 0=%d, arg 1=%d, arg 2=%d, arg 3=%d, arg 4=%d', [5, 6, 7, 8, 9]))
 
     def test_assignable_varargs(self):
         "array.array objects can be used in the varargs position"

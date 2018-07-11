@@ -12,10 +12,8 @@ import array
 import org.python.antlr.PythonTree as AST
 import org.python.antlr.Main as parser
 
-
 def lispify_ast(node):
     return tuple(lispify_ast2(node))
-
 
 def lispify_ast2(node):
     s = node.__class__.__name__
@@ -26,9 +24,8 @@ def lispify_ast2(node):
     try:
         for field in node._fields:
             yield tuple(lispify_field(field, getattr(node, field), node))
-    except BaseException:
+    except:
         pass
-
 
 def lispify_field(field, child, parent):
     fname = field
@@ -53,11 +50,10 @@ def lispify_field(field, child, parent):
                             yield "%.5e" % node
                     else:
                         yield node
-                except Exception as why:
+                except Exception, why:
                     print "error parsing 'n': %s" % why
             else:
                 yield node
-
 
 if __name__ == '__main__':
     import sys

@@ -205,6 +205,7 @@ else:
 
     class stdcallCFunctions(CFunctions):
         _dll = stdcall_dll(_ctypes_test.__file__)
+        pass
 
 if __name__ == '__main__':
     unittest.main()

@@ -561,6 +561,7 @@ from test import test_support
 from tokenize import (untokenize, generate_tokens, NUMBER, NAME, OP,
                      STRING, ENDMARKER, tok_name)
 from StringIO import StringIO
+import os
 
 def dump_tokens(s):
     """Print out the tokens in s in a table format.

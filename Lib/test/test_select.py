@@ -2,8 +2,10 @@
 AMAK: 20050515: This module is the test_select.py from cpython 2.4, ported to jython + unittest
 """
 import errno
+import os
 import select
 import socket
+import sys
 from test import test_socket
 import unittest
 from test import test_support
@@ -36,7 +38,6 @@ class SelectWrapper:
     def set_timeout(self, timeout):
         self.timeout = timeout
 
-
 class PollWrapper:
 
     def __init__(self):
@@ -52,33 +53,26 @@ class PollWrapper:
     def add_oob_fd(self, fd):
         self.poll_object.register(fd, select.POLL_PRI)
 
-
 class TestSelectInvalidParameters(unittest.TestCase):
 
     def testBadSelectSetTypes(self):
         # Test some known error conditions
-        for bad_select_set in [None, 1, ]:
-            for pos in range(2):  # OOB not supported on Java
+        for bad_select_set in [None, 1,]:
+            for pos in range(2): # OOB not supported on Java
                 args = [[], [], []]
                 args[pos] = bad_select_set
                 try:
-                    timeout = 0  # Can't wait forever
-                    rfd, wfd, xfd = select.select(
-                        args[0], args[1], args[2], timeout)
+                    timeout = 0 # Can't wait forever
+                    rfd, wfd, xfd = select.select(args[0], args[1], args[2], timeout)
                 except (select.error, TypeError):
                     pass
-                except Exception as x:
-                    self.fail(
-                        "Selecting on '%s' raised wrong exception %s" %
-                        (str(bad_select_set), str(x)))
+                except Exception, x:
+                    self.fail("Selecting on '%s' raised wrong exception %s" % (str(bad_select_set), str(x)))
                 else:
-                    self.fail(
-                        "Selecting on '%s' should have raised TypeError" %
-                        str(bad_select_set))
+                    self.fail("Selecting on '%s' should have raised TypeError" % str(bad_select_set))
 
     def testBadSelectableTypes(self):
-        class Nope:
-            pass
+        class Nope: pass
 
         class Almost1:
             def fileno(self):
@@ -89,23 +83,14 @@ class TestSelectInvalidParameters(unittest.TestCase):
                 return 'fileno'
 
         # Test some known error conditions
-        for bad_selectable in [
-                None,
-                1,
-                object(),
-                Nope(),
-                Almost1(),
-                Almost2()]:
+        for bad_selectable in [None, 1, object(), Nope(), Almost1(), Almost2()]:
             try:
-                timeout = 0  # Can't wait forever
-                rfd, wfd, xfd = select.select(
-                    [bad_selectable], [], [], timeout)
-            except (TypeError, select.error) as x:
+                timeout = 0 # Can't wait forever
+                rfd, wfd, xfd = select.select([bad_selectable], [], [], timeout)
+            except (TypeError, select.error), x:
                 pass
             else:
-                self.fail(
-                    "Selecting on '%s' should have raised TypeError or select.error" %
-                    str(bad_selectable))
+                self.fail("Selecting on '%s' should have raised TypeError or select.error" % str(bad_selectable))
 
     def testInvalidTimeoutTypes(self):
         for invalid_timeout in ['not a number']:
@@ -114,9 +99,7 @@ class TestSelectInvalidParameters(unittest.TestCase):
             except TypeError:
                 pass
             else:
-                self.fail(
-                    "Invalid timeout value '%s' should have raised TypeError" %
-                    invalid_timeout)
+                self.fail("Invalid timeout value '%s' should have raised TypeError" % invalid_timeout)
 
     def testInvalidTimeoutValues(self):
         for invalid_timeout in [-1]:
@@ -125,27 +108,20 @@ class TestSelectInvalidParameters(unittest.TestCase):
             except (ValueError, select.error):
                 pass
             else:
-                self.fail(
-                    "Invalid timeout value '%s' should have raised ValueError or select.error" %
-                    invalid_timeout)
-
+                self.fail("Invalid timeout value '%s' should have raised ValueError or select.error" % invalid_timeout)
 
 class TestSelectClientSocket(unittest.TestCase):
 
     def testUnconnectedSocket(self):
-        sockets = [
-            socket.socket(
-                socket.AF_INET,
-                socket.SOCK_STREAM) for x in range(5)]
-        for pos in range(2):  # OOB not supported on Java
+        sockets = [socket.socket(socket.AF_INET, socket.SOCK_STREAM) for x in range(5)]
+        for pos in range(2): # OOB not supported on Java
             args = [[], [], []]
             args[pos] = sockets
-            timeout = 0  # Can't wait forever
+            timeout = 0 # Can't wait forever
             rfd, wfd, xfd = select.select(args[0], args[1], args[2], timeout)
             for s in sockets:
                 self.failIf(s in rfd)
                 self.failIf(s in wfd)
-
 
 class TestPollClientSocket(unittest.TestCase):
 
@@ -161,8 +137,7 @@ class TestPollClientSocket(unittest.TestCase):
         except KeyError:
             pass
         else:
-            self.fail(
-                "Unregistering socket that is not registered should have raised KeyError")
+            self.fail("Unregistering socket that is not registered should have raised KeyError")
 
 
 class ThreadedPollClientSocket(test_socket.SocketConnectedTest):
@@ -172,47 +147,37 @@ class ThreadedPollClientSocket(test_socket.SocketConnectedTest):
 
     @test_support.retry(Exception)
     def _testSocketRegisteredBeforeConnected(self):
-        timeout = 1000  # milliseconds
+        timeout = 1000 # milliseconds
         poll_object = select.poll()
         # Register the socket before it is connected
         poll_object.register(self.cli, select.POLLOUT)
         result_list = poll_object.poll(timeout)
         result_sockets = [r[0] for r in result_list]
-        self.assertIn(
-            self.cli,
-            result_sockets,
-            "Unconnected client socket should be selectable")
+        self.assertIn(self.cli, result_sockets, "Unconnected client socket should be selectable")
         # Now connect the socket, but DO NOT register it again
         self.cli.setblocking(0)
-        self.cli.connect((self.HOST, self.PORT))
-        # Now poll again, to check that the poll object has recognised that the
-        # socket is now connected
+        self.cli.connect( (self.HOST, self.PORT) )
+        # Now poll again, to check that the poll object has recognised that the socket is now connected
         result_list = poll_object.poll(timeout)
         result_sockets = [r[0] for r in result_list]
-        self.assertIn(
-            self.cli,
-            result_sockets,
-            "Connected client socket should have been selectable")
+        self.assertIn(self.cli, result_sockets, "Connected client socket should have been selectable")
 
     def testSelectOnSocketFileno(self):
         pass
 
     def _testSelectOnSocketFileno(self):
         self.cli.setblocking(0)
-        self.cli.connect((self.HOST, self.PORT))
+        self.cli.connect( (self.HOST, self.PORT) )
         return
         try:
             rfd, wfd, xfd = select.select([self.cli.fileno()], [], [], 1)
-        except Exception as x:
-            self.fail(
-                "Selecting on socket.fileno() should not have raised exception: %s" %
-                str(x))
-
+        except Exception, x:
+            self.fail("Selecting on socket.fileno() should not have raised exception: %s" % str(x))
 
 class TestJythonSelect(unittest.TestCase):
     # Normally we would have a test_select_jy for such testing, but
     # the reality is that this test module is really that test :)
-
+    
     def test_cpython_compatible_select_exists(self):
         self.assertIs(select.cpython_compatible_select, select.select)
 

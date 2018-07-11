@@ -18,7 +18,6 @@ CERTFILE = os.path.join(here, 'keycert.pem')
 
 # This one's based on HTTPServer, which is based on SocketServer
 
-
 class HTTPSServer(_HTTPServer):
 
     def __init__(self, server_address, handler_class, context):
@@ -42,7 +41,6 @@ class HTTPSServer(_HTTPServer):
                 sys.stderr.write("Got an error:\n%s\n" % e)
             raise
         return sslconn, addr
-
 
 class RootedHTTPRequestHandler(SimpleHTTPRequestHandler):
     # need to override translate_path to get a known root,
@@ -82,7 +80,7 @@ class RootedHTTPRequestHandler(SimpleHTTPRequestHandler):
                               self.server.server_port,
                               self.request.cipher(),
                               self.log_date_time_string(),
-                              format % args))
+                              format%args))
 
 
 class StatsRequestHandler(BaseHTTPRequestHandler):
@@ -100,7 +98,7 @@ class StatsRequestHandler(BaseHTTPRequestHandler):
             'session_cache': context.session_stats(),
             'cipher': sock.cipher(),
             'compression': sock.compression(),
-        }
+            }
         body = pprint.pformat(stats)
         body = body.encode('utf-8')
         self.send_response(200)
@@ -159,7 +157,6 @@ def make_https_server(case, context=None, certfile=CERTFILE,
     flag = threading.Event()
     server.start(flag)
     flag.wait()
-
     def cleanup():
         if support.verbose:
             sys.stdout.write('stopping HTTPS server\n')
@@ -180,13 +177,8 @@ if __name__ == "__main__":
                         help='port to listen on (default: %(default)s)')
     parser.add_argument('-q', '--quiet', dest='verbose', default=True,
                         action='store_false', help='be less verbose')
-    parser.add_argument(
-        '-s',
-        '--stats',
-        dest='use_stats_handler',
-        default=False,
-        action='store_true',
-        help='always return stats page')
+    parser.add_argument('-s', '--stats', dest='use_stats_handler', default=False,
+                        action='store_true', help='always return stats page')
     parser.add_argument('--curve-name', dest='curve_name', type=str,
                         action='store',
                         help='curve name for EC-based Diffie-Hellman')

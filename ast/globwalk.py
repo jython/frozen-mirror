@@ -1,9 +1,7 @@
-# adapted from an example in the eff-bot library guide:
-# os-path-walk-example-3.py
+# adapted from an example in the eff-bot library guide: os-path-walk-example-3.py
 
 import os
 import fnmatch
-
 
 class GlobDirectoryWalker:
     # a forward iterator that traverses a directory tree
@@ -15,7 +13,7 @@ class GlobDirectoryWalker:
         self.index = 0
 
     def __getitem__(self, index):
-        while True:
+        while 1:
             try:
                 file = self.files[self.index]
                 self.index = self.index + 1
@@ -31,5 +29,5 @@ class GlobDirectoryWalker:
                     self.stack.append(fullname)
                 if fnmatch.fnmatch(file, self.pattern):
                     return fullname
-# for file in GlobDirectoryWalker(".", "*.py"):
+#for file in GlobDirectoryWalker(".", "*.py"):
 #    print file

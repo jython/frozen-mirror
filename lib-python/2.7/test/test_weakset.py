@@ -1,7 +1,14 @@
 import unittest
 from test import test_support
-from weakref import WeakSet
+from weakref import proxy, ref, WeakSet
+import operator
+import copy
 import string
+import os
+from random import randrange, shuffle
+import sys
+import warnings
+import collections
 import gc
 import contextlib
 

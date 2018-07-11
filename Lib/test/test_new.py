@@ -3,7 +3,6 @@ from test import test_support
 import sys
 new = test_support.import_module('new', deprecated=True)
 
-
 class NewTest(unittest.TestCase):
     def test_spam(self):
         class Eggs:
@@ -19,9 +18,7 @@ class NewTest(unittest.TestCase):
             return self.yolks + 3
 
         # new.classobj()
-        C = new.classobj(
-            'Spam', (Spam.Eggs,), {
-                'get_more_yolks': get_more_yolks})
+        C = new.classobj('Spam', (Spam.Eggs,), {'get_more_yolks': get_more_yolks})
 
         # new.instance()
         c = new.instance(C, {'yolks': 3})
@@ -40,15 +37,15 @@ class NewTest(unittest.TestCase):
         im = new.instancemethod(break_yolks, c, C)
 
         self.assertEqual(c.get_yolks(), 3,
-                         'Broken call of hand-crafted class instance')
+            'Broken call of hand-crafted class instance')
         self.assertEqual(c.get_more_yolks(), 6,
-                         'Broken call of hand-crafted class instance')
+            'Broken call of hand-crafted class instance')
 
         im()
         self.assertEqual(c.get_yolks(), 1,
-                         'Broken call of hand-crafted instance method')
+            'Broken call of hand-crafted instance method')
         self.assertEqual(c.get_more_yolks(), 4,
-                         'Broken call of hand-crafted instance method')
+            'Broken call of hand-crafted instance method')
 
         im = new.instancemethod(break_yolks, c)
         im()
@@ -64,8 +61,7 @@ class NewTest(unittest.TestCase):
         # It's unclear what the semantics should be for a code object compiled
         # at module scope, but bound and run in a function.  In CPython, `c' is
         # global (by accident?) while in Jython, `c' is local.  The intent of
-        # the test clearly is to make `c' global, so let's be explicit about
-        # it.
+        # the test clearly is to make `c' global, so let's be explicit about it.
         codestr = '''
         global c
         a = 1
@@ -83,8 +79,7 @@ class NewTest(unittest.TestCase):
         # this test could be more robust
         func = new.function(ccode, g)
         func()
-        self.assertEqual(
-            g['c'], 3, 'Could not create a proper function object')
+        self.assertEqual(g['c'], 3, 'Could not create a proper function object')
 
     def test_function(self):
         # test the various extended flavors of function.new
@@ -98,26 +93,18 @@ class NewTest(unittest.TestCase):
         self.assertEqual(g2(), 6)
         g3 = new.function(g.func_code, {}, "blah", None, g.func_closure)
         self.assertEqual(g3(5), 9)
-
         def test_closure(func, closure, exc):
-            self.assertRaises(
-                exc,
-                new.function,
-                func.func_code,
-                {},
-                "",
-                None,
-                closure)
+            self.assertRaises(exc, new.function, func.func_code, {}, "", None, closure)
 
-        test_closure(g, None, TypeError)  # invalid closure
-        test_closure(g, (1,), TypeError)  # non-cell in closure
-        test_closure(g, (1, 1), ValueError)  # closure is wrong size
-        test_closure(f, g.func_closure, ValueError)  # no closure needed
+        test_closure(g, None, TypeError) # invalid closure
+        test_closure(g, (1,), TypeError) # non-cell in closure
+        test_closure(g, (1, 1), ValueError) # closure is wrong size
+        test_closure(f, g.func_closure, ValueError) # no closure needed
 
     # [Obsolete] Note: Jython will never have new.code()
     #
     # Who said that?!!! guess what, we do! :)
-    #
+    # 
     # Unfortunately we still need a way to compile to Python bytecode,
     # so support is still incomplete, as seen in the fact that we need
     # to get values from CPython 2.7.
@@ -138,7 +125,7 @@ class NewTest(unittest.TestCase):
             filename = c.co_filename
             name = c.co_name
             firstlineno = c.co_firstlineno
-            lnotab = ''  # TODO c.co_lnotab, but also see http://bugs.jython.org/issue1638
+            lnotab = '' # TODO c.co_lnotab, but also see http://bugs.jython.org/issue1638
             freevars = c.co_freevars
             cellvars = c.co_cellvars
 
@@ -152,44 +139,19 @@ class NewTest(unittest.TestCase):
                          firstlineno, lnotab)
 
             # negative co_argcount used to trigger a SystemError
-            self.assertRaises(
-                ValueError,
-                new.code,
-                -argcount,
-                nlocals,
-                stacksize,
-                flags,
-                codestring,
-                constants,
-                names,
-                varnames,
-                filename,
-                name,
-                firstlineno,
-                lnotab)
+            self.assertRaises(ValueError, new.code,
+                -argcount, nlocals, stacksize, flags, codestring,
+                constants, names, varnames, filename, name, firstlineno, lnotab)
 
             # negative co_nlocals used to trigger a SystemError
             self.assertRaises(ValueError, new.code,
-                              argcount, -nlocals, stacksize, flags, codestring,
-                              constants, names, varnames, filename, name, firstlineno, lnotab)
+                argcount, -nlocals, stacksize, flags, codestring,
+                constants, names, varnames, filename, name, firstlineno, lnotab)
 
             # non-string co_name used to trigger a Py_FatalError
-            self.assertRaises(
-                TypeError,
-                new.code,
-                argcount,
-                nlocals,
-                stacksize,
-                flags,
-                codestring,
-                constants,
-                (5,
-                 ),
-                varnames,
-                filename,
-                name,
-                firstlineno,
-                lnotab)
+            self.assertRaises(TypeError, new.code,
+                argcount, nlocals, stacksize, flags, codestring,
+                constants, (5,), varnames, filename, name, firstlineno, lnotab)
 
             # new.code used to be a way to mutate a tuple...
             class S(str):
@@ -198,16 +160,10 @@ class NewTest(unittest.TestCase):
             d = new.code(argcount, nlocals, stacksize, flags, codestring,
                          constants, t, varnames, filename, name,
                          firstlineno, lnotab)
-            self.assertTrue(
-                isinstance(
-                    t[0],
-                    S),
-                "eek, tuple changed under us!")
-
+            self.assertTrue(type(t[0]) is S, "eek, tuple changed under us!")
 
 def test_main():
     test_support.run_unittest(NewTest)
-
 
 if __name__ == "__main__":
     test_main()

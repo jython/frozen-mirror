@@ -10,7 +10,9 @@ f.close()
 
 f = open("test378.out")
 f.read(4)
-s = f.read()
-f.close()
+s = f.read();
+f.close();
 
 assert s == "56789"
+
+

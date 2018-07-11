@@ -11,14 +11,13 @@ from glob import glob
 from warnings import warn
 
 from distutils.core import Command
-from distutils import archive_util, dir_util, file_util
+from distutils import dir_util, dep_util, file_util, archive_util
 from distutils.text_file import TextFile
 from distutils.errors import (DistutilsPlatformError, DistutilsOptionError,
                               DistutilsTemplateError)
 from distutils.filelist import FileList
 from distutils import log
 from distutils.util import convert_path
-
 
 def show_formats():
     """Print all possible values for the 'formats' option (used by
@@ -33,7 +32,6 @@ def show_formats():
     formats.sort()
     FancyGetopt(formats).print_help(
         "List of available source distribution formats:")
-
 
 class sdist(Command):
 
@@ -82,7 +80,7 @@ class sdist(Command):
          "Owner name used when creating a tar file [default: current user]"),
         ('group=', 'g',
          "Group name used when creating a tar file [default: current group]"),
-    ]
+        ]
 
     boolean_options = ['use-defaults', 'prune',
                        'manifest-only', 'force-manifest',
@@ -91,14 +89,14 @@ class sdist(Command):
     help_options = [
         ('help-formats', None,
          "list available distribution formats", show_formats),
-    ]
+        ]
 
     negative_opt = {'no-defaults': 'use-defaults',
-                    'no-prune': 'prune'}
+                    'no-prune': 'prune' }
 
     default_format = {'posix': 'gztar',
                       'java': 'gztar',
-                      'nt': 'zip'}
+                      'nt': 'zip' }
 
     sub_commands = [('check', checking_metadata)]
 
@@ -136,16 +134,14 @@ class sdist(Command):
             try:
                 self.formats = [self.default_format[os.name]]
             except KeyError:
-                raise DistutilsPlatformError(
-                    "don't know how to create source distributions " +
-                    "on platform %s" %
-                    os.name)
+                raise DistutilsPlatformError, \
+                      "don't know how to create source distributions " + \
+                      "on platform %s" % os.name
 
         bad_format = archive_util.check_archive_formats(self.formats)
         if bad_format:
-            raise DistutilsOptionError(
-                "unknown archive format '%s'" %
-                bad_format)
+            raise DistutilsOptionError, \
+                  "unknown archive format '%s'" % bad_format
 
         if self.dist_dir is None:
             self.dist_dir = "dist"
@@ -203,8 +199,8 @@ class sdist(Command):
 
         if not template_exists:
             self.warn(("manifest template '%s' does not exist " +
-                       "(using default file list)") %
-                      self.template)
+                        "(using default file list)") %
+                        self.template)
         self.filelist.findall()
 
         if self.use_defaults:
@@ -279,7 +275,7 @@ class sdist(Command):
         # getting distribution.data_files
         if self.distribution.has_data_files():
             for item in self.distribution.data_files:
-                if isinstance(item, str):  # plain file
+                if isinstance(item, str): # plain file
                     item = convert_path(item)
                     if os.path.isfile(item):
                         self.filelist.append(item)
@@ -318,7 +314,7 @@ class sdist(Command):
                             collapse_join=1)
 
         try:
-            while True:
+            while 1:
                 line = template.readline()
                 if line is None:            # end of file
                     break

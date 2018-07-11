@@ -15,5 +15,6 @@ if m.lastindex != 2:
     raise support.TestError('Wrong lastindex value#2 : %d' % m.lastindex)
 
 m = re.match(r"abc", "abc")
-if m.lastindex is not None:
+if m.lastindex != None:
     raise support.TestError('Wrong lastindex value#3 : %d' % m.lastindex)
+

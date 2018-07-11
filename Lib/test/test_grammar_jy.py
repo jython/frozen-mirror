@@ -5,7 +5,6 @@ from test import test_support
 import sys
 import unittest
 
-
 class GrammarTest(unittest.TestCase):
     def test_triple_quote_len(self):
         s1 = r"""
@@ -17,11 +16,11 @@ class GrammarTest(unittest.TestCase):
         \""" 1.triple-quote
         \""" 2.triple-quote
         '''
-        self.assert_('\r' not in s1)
+        self.assert_(not '\r' in s1)
         self.assertEquals(len(s1), len(s2))
 
     def testStringPrefixes(self):
-        self.assertEquals(u"spam", U"spam")
+        self.assertEquals(u"spam",U"spam")
         self.assertEquals(r"spam", R"spam")
         self.assertEquals(uR"spam", Ur"spam")
         self.assertEquals(ur"spam", UR"spam")
@@ -49,7 +48,6 @@ __test__ = dict(pep263=pep263)
 def test_main(verbose=None):
     test_support.run_unittest(GrammarTest)
     test_support.run_doctest(sys.modules[__name__], verbose)
-
 
 if __name__ == '__main__':
     test_main(verbose=True)
