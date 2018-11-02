@@ -1,5 +1,4 @@
 # Jython: Python for the Java Platform
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.python/jython-standalone/badge.svg)](https://search.maven.org/artifact/org.python/jython-standalone/) [![Javadocs](https://www.javadoc.io/badge/org.python/jython-standalone.svg)](https://www.javadoc.io/doc/org.python/jython-standalone)
 
 This is the development repository of Jython. Along with language and runtime compatibility with CPython 2.7, Jython 2.7 provides substantial support of the Python ecosystem. This includes built-in support of *pip/setuptools* (you can use with `bin/pip`) and a native launcher for Windows (`bin/jython.exe`), with the implication that you can finally install Jython scripts on Windows.
 
