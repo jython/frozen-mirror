@@ -12,7 +12,6 @@
 // see org/python/modules/time.java for previous history.
 package org.python.modules.time;
 
-import java.text.DateFormatSymbols;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,6 +29,9 @@ import org.python.core.PyString;
 import org.python.core.PyTuple;
 import org.python.core.__builtin__;
 import org.python.core.Untraversable;
+import org.python.modules._locale.PyLocale;
+import org.python.modules._locale._locale;
+
 
 @Untraversable
 class TimeFunctions extends PyBuiltinFunctionSet
@@ -329,11 +331,11 @@ public class Time implements ClassDictInit
     }
 
     // Python's time module specifies use of current locale
-    protected static Locale currentLocale = null;
-    protected static DateFormatSymbols datesyms = new DateFormatSymbols();
+    protected static PyLocale datesyms = _locale.getPyLocale();
     protected static String[] shortdays = null;
     protected static String[] shortmonths = null;
 
+    // Consider moving to _locale, where there is another copy
     private static String[] enshortdays = new String[] {"Mon",
                                                         "Tue",
                                                         "Wed",
@@ -375,7 +377,7 @@ public class Time implements ClassDictInit
     }
 
     private synchronized static String _shortmonth(int month0to11) {
-        // getShortWeekdays() returns a 13 element array with the last item
+        // getShortMonths() returns a 13 element array with the last item
         // being the empty string.  This is also undocumented ;-/
         if (shortmonths == null) {
             shortmonths = new String[12];
@@ -698,9 +700,9 @@ public class Time implements ClassDictInit
 
 
     private static void checkLocale() {
-        if (!Locale.getDefault().equals(currentLocale)) {
-            currentLocale = Locale.getDefault();
-            datesyms = new DateFormatSymbols(currentLocale);
+        PyLocale latestLocale = _locale.getPyLocale();
+        if (!latestLocale.equals(datesyms)) {
+            datesyms = latestLocale;
             shortdays = null;
             shortmonths = null;
         }
@@ -710,10 +712,6 @@ public class Time implements ClassDictInit
         return strptime(data_string, DEFAULT_FORMAT_PY);
     }
 
-    /**
-     * Calls _strptime.strptime(), for cases that our SimpleDateFormat backed
-     * strptime can't handle.
-     */
     private static PyTuple pystrptime(String data_string, String format) {
         return (PyTuple) __builtin__.__import__("_strptime")
                                     .invoke("_strptime_time",
@@ -728,3 +726,7 @@ public class Time implements ClassDictInit
     private static final String DEFAULT_FORMAT_PY = "%a %b %d %H:%M:%S %Y";
 
 }
+
+
+
+

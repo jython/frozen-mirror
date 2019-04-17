@@ -1,0 +1,20 @@
+package org.python.modules._locale;
+
+import org.python.core.PyDictionary;
+import org.python.core.PyString;
+
+
+public interface PyLocale{
+    public PyDictionary localeconv();
+    public PyString getLocaleString();
+    public PyString getUnderlyingLocale();
+    public int strcoll(PyString str1, PyString str2);
+    public PyString strxfrm(PyString str1);
+    public String[] getShortWeekdays();
+    public String[] getWeekdays();
+    public String[] getShortMonths();
+    public String[] getMonths();
+    public String[] getAmPmStrings();
+}
+
+

@@ -260,6 +260,13 @@ public class PythonInterpreter implements AutoCloseable, Closeable {
 
     /**
      * Executes a string of Python source in the local namespace.
+     *
+     * In some environments, such as Windows, unicode characters in the script 
+     * will be converted into ascii question marks (?). This can be avoided
+     * by first compiling the fragment using PythonInterpreter.compile(), and 
+     * using the overriden form of this method which takes a PyCode object.
+     * Codepage declarations are not supported.
+     *
      */
     public void exec(String s) {
         setSystemState();
