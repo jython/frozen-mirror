@@ -7,20 +7,21 @@ notifications:
 
 matrix:
   include:
-    - name: "Linux: Default JDK"
-      os: linux
-      env: CUSTOM_JDK="default"
-    - name: "Linux: Open JDK 7"
-      os: linux
-      env: CUSTOM_JDK="openjdk7"
-    - name: "Linux: Oracle JDK 8"
-      os: linux
-      env: CUSTOM_JDK="oraclejdk8"
+    # TEMPORARILY DISABLE Linux  
+    #- name: "Linux: Default JDK"
+    #  os: linux
+    #  env: CUSTOM_JDK="default"
+    #- name: "Linux: Open JDK 7"
+    #  os: linux
+    #  env: CUSTOM_JDK="openjdk7"
+    #- name: "Linux: Oracle JDK 8"
+    #  os: linux
+    #  env: CUSTOM_JDK="oraclejdk8"
     - name: "macOS: Default JDK"
       os: osx
       env: JAVA_HOME=$(/usr/libexec/java_home)
       before_install:  # overrides the before_install
-        - brew update    # this can take a long time...
+        #- brew update    # this can take a long time...
         - brew install ant
     - name: "Windows: Default JDK"
       os: windows
@@ -28,6 +29,20 @@ matrix:
       env: PATH="/c/Program Files/Java/jdk1.8.0_211/bin:/c/ProgramData/chocolatey/lib/ant:$PATH"
       before_install:
         - choco install ant jdk8  # overrides the before_install
+        - cat /c/ProgramData/chocolatey/logs/chocolatey.log || true
+    - name: "Windows: Default JDK - no Ant"
+      os: windows
+      language: bash  # language: java is not yet supported on Travis CI Windows
+      env: PATH="/c/Program Files/Java/jdk1.8.0_211/bin:/c/ProgramData/chocolatey/lib/ant:$PATH"
+      before_install:
+        - choco install jdk8  # overrides the before_install
+        - cat /c/ProgramData/chocolatey/logs/chocolatey.log || true
+    - name: "Windows: Default JDK - No JDK"
+      os: windows
+      language: bash  # language: java is not yet supported on Travis CI Windows
+      env: PATH="/c/Program Files/Java/jdk1.8.0_211/bin:/c/ProgramData/chocolatey/lib/ant:$PATH"
+      before_install:
+        - choco install ant  # overrides the before_install
         - cat /c/ProgramData/chocolatey/logs/chocolatey.log || true
 
 before_install: jdk_switcher use "$CUSTOM_JDK"
