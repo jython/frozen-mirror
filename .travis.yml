@@ -35,7 +35,7 @@ matrix:
       language: bash  # language: java is not yet supported on Travis CI Windows
       env: PATH="/c/Program Files/Java/jdk1.8.0_211/bin:/c/ProgramData/chocolatey/lib/ant:$PATH"
       before_install:
-        - choco install ant  # overrides the before_install
+        - choco install jdk8  # overrides the before_install
         - choco install ant  # overrides the before_install
         #- cat /c/ProgramData/chocolatey/logs/chocolatey.log || true  # too long for Travis CI!
 
