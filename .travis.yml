@@ -24,6 +24,7 @@ matrix:
         - brew install ant
     - name: "Windows: Default JDK"
       os: windows
+      language: bash  # language: java is not yet supported on Travis CI Windows
       before_install: choco install ant jdk8  # overrides the before_install
 
 before_install: jdk_switcher use "$CUSTOM_JDK"
