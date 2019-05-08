@@ -25,8 +25,10 @@ matrix:
     - name: "Windows: Default JDK"
       os: windows
       language: bash  # language: java is not yet supported on Travis CI Windows
-      env: PATH="c/Program Files/Java/jdk1.8.0_211/bin:c/ProgramData/chocolatey/lib/ant:$PATH"
-      before_install: choco install ant jdk8  # overrides the before_install
+      env: PATH="/c/Program Files/Java/jdk1.8.0_211/bin:/c/ProgramData/chocolatey/lib/ant:$PATH"
+      before_install:
+        - choco install ant jdk8  # overrides the before_install
+        - cat /c/ProgramData/chocolatey/logs/chocolatey.log || true
 
 before_install: jdk_switcher use "$CUSTOM_JDK"
 
