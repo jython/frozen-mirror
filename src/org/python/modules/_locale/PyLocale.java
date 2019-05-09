@@ -4,6 +4,13 @@ import org.python.core.PyDictionary;
 import org.python.core.PyString;
 
 
+/**
+ *
+ * Definition of a Python native locale implementation. Based on Python locale
+ * module behaviour and implicit dependencies, and the localemodule.c 
+ * implementation in CPython.
+ *
+ */
 public interface PyLocale{
     public PyDictionary localeconv();
     public PyString getLocaleString();

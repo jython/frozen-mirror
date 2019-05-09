@@ -7,9 +7,9 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Locale;
 
 import org.python.core.ClassDictInit;
@@ -26,35 +26,98 @@ import org.python.core.PyTuple;
 import org.python.core.PyUnicode;
 
 
+/**
+ *
+ * Java native implementation of underlying locale functions, fitting the 
+ * interface defined or implied by the locale package.
+ *
+ * Functional documentation can be found in the Python module docstring. 
+ *
+ * Additional implementation details for users of this class are captured below.
+ *
+ * Unicode. In general, Java and its locale settings are quite 
+ * unicode heavy, making rich use of different symbols for eg currencies. This 
+ * solution allows some of that to leak through by encoding the Java locale 
+ * value with the current character encoding. The Python locale module is 
+ * quite conservative and tends to keep things as solely strings. Python 2.x 
+ * usually supports only string / ascii by default in many cases, and only 
+ * unicode when asked. This is a little less conservative while only allowing
+ * values consistent with the current encoding.
+ *
+ * An example of this is Python using EUR rather than the Euro 
+ * symbol € / '\u20ac', probably because € is only available in Unicode. In 
+ * the Java implementation, if UTF-8 encoding is set, the resulting entry in 
+ * localeconv()['currency_code'] is '\xe2\x82\xac'. This can be used by 
+ * print() and related functions directly. Encoding failures in for 
+ * currency_symbol fallback to int_curr_symbol (eg EUR).
+ *
+ * The C emulation locale uses only ANSI characters in non-unicode strings, in 
+ * keeping with it being the locale of last resort and maximum compatibility.
+ *
+ * Positive sign position (p_sign_posn) is not a distinguished concept in Java 
+ * and so this is hardcoded to 3.
+ *
+ * This class object is used as a static thread lock by changeCurrentLocale()
+ * when changing locales via setlocale().
+ *
+ * @since Jython 2.7.2
+ * @author Adam Burke
+ * 
+ */
 public class _locale implements ClassDictInit {
 
     /**
      *
      * The locale module exposes _locale.Error as locale.Error. Some Python 
-     * functions, including strptime(), depend on locale.Error.
+     * functions, including strptime(), depend on locale.Error, making it
+     * part of the public API for native locale implementations.
      * 
+     * Functional interface documentation from a user perspective is in the 
+     * python docstring. Notes on implementation details continue immediately 
+     * below.
+     *
      */
-    public static class LocaleError extends PyException{
-        public LocaleError(String message){
-            super(Error,message);
-        }
-    }
-
-    // TODO - this lets us throw errors from Java and catch them in Python
-    // but not raise locale.Error in Python ... because it's a String, not
-    // an Exception. It runs but is ugly
-    public static PyObject Error = new PyString("locale.Error");
+    public static PyObject Error; 
        
     public static PyException LocaleException(String message){
-        return new LocaleError(message); 
+        return new PyException(Error,message); 
     }
 
+
     public static final PyString __doc__ = new PyString(
-        "This module exposes locale functions in the underlying operating\n"+
-        "system or platform in a consistent way. It is used by the locale\n" + 
-	"module. It is a parallel Java implementation to C libraries \n" + 
-        "in CPython which in turn depend on C libraries provided by the OS."
-    );
+        "The _locale module exposes locale functions in the underlying " +
+        "operating system or platform in a consistent way, for use by " +
+        "the Python locale module. It is a native Java implementation, " + 
+        "paralleling libmodule.c in CPython and its dependence on C " + 
+        "libraries provided by the OS.\n" +
+        "This module is currently in beta, and is enabled with the " + 
+        "registry property ``python.locale.control``. It is " + 
+        "disabled by default, resulting in jython 2.7.1 (and previous) " + 
+        "locale behaviour.\n"  + 
+        "\n" +
+        "+-------------------+-----------------------------------------+\n" +
+        "+ Property Value    + Behaviour                               |\n" +
+        "+===================+=========================================+\n" +
+        "| jython2_legacy    | Mix of implicit Java locale and         |\n" +
+        "|                   | emulated 'C'. Text and date formatting  |\n" +
+        "|                   | mostly Java locale (eg ``%b``).         |\n" +
+        "|                   | ``asctime()`` matches C emulation       |\n" +
+        "|                   | ``setlocale()`` always errors by design.|\n" + 
+        "|                   | This matches version 2.7.1 and previous |\n" + 
+        "|                   | behaviour. Will be deprecated in future |\n" + 
+        "|                   | versions.                               |\n" + 
+        "+-------------------+-----------------------------------------+\n" +
+        "| settable          | Java platform locale services made      |\n" +
+        "|                   | available via locale module.            |\n" +
+        "|                   | ``setlocale()`` works, using Java locale|\n" +
+        "|                   | identifiers and LC_ALL (only). C locale |\n" +
+        "|                   | available via ``setlocale()``. Initial  |\n" +  
+        "|                   | locale and encoding per Java defaults.  |\n" + 
+        "+-------------------+-----------------------------------------+\n" +
+        "| '' or unset       | As per ``jython2_legacy``.              |\n" +
+        "|                   | In future versions, per ``settable``.   |\n" + 
+        "+-------------------+-----------------------------------------+\n" 
+        );
 
 
     public static final String PYTHON_LOCALE_CONTROL = "python.locale.control";
@@ -65,8 +128,9 @@ public class _locale implements ClassDictInit {
 
 
     // These values are the same as glibc locale/bits/locale.h
-    // Specific integer constants are not mandated by the POSIX locale spec, so an 
-    // existing standard seemed as good an arbitrary set of values as any
+    // Specific integer constants are not mandated by the POSIX locale spec, 
+    // so an existing standard seemed as good an arbitrary set of values as 
+    // any
     private static final int __LC_CTYPE             = 0;
     private static final int __LC_NUMERIC           = 1;
     private static final int __LC_TIME              = 2;
@@ -96,20 +160,29 @@ public class _locale implements ClassDictInit {
 
     public static final PyString C_LOCALE_PY_STRING = new PyString("C");
 
-    private static final List<Locale> AVAILABLE_LOCALE_LIST;
+    private static final Set<Locale> AVAILABLE_LOCALES;
 
-    private static PyLocale currentLocale = 
-                            new JyLocale(Locale.getDefault(), 
-			    		Charset.defaultCharset().name());
+    // This has a subtle initialization dependency on the codecs module 
+    // due to the initialization in JyLocale(). Let the interpreter
+    // initialize via classDictInit().
+    private static PyLocale currentLocale =  null; 
     private static volatile boolean settable = false;
 
 
     static{
-        final List<Locale> list = 
-		new ArrayList<>(Arrays.asList(Locale.getAvailableLocales()));  
-	AVAILABLE_LOCALE_LIST = Collections.unmodifiableList(list);
+        final Set<Locale> set = 
+		new HashSet<>(Arrays.asList(Locale.getAvailableLocales()));  
+	AVAILABLE_LOCALES = Collections.unmodifiableSet(set);
     }
 
+    public static void initClassExceptions(PyObject exceptions) {
+        PyObject baseException = exceptions.__finditem__("BaseException");
+        Error = Py.makeClass("_locale.Error", baseException,
+                                      new PyStringMap() {{
+                                          __setitem__("__module__", 
+                                          Py.newString("_locale"));
+                                  }});
+    }
 
     public static void classDictInit(PyObject dict) {
         settable = false;
@@ -155,27 +228,38 @@ public class _locale implements ClassDictInit {
         result.put( new PyString(key), value );
     }
 
+
+    public static PyString __doc___localeconv = new PyString(
+           "Database of local conventions, mapped from Java.\n" +
+           "" + 
+           "Note that Java locale information is relatively unicode-rich, " +
+           "particularly for currency symbols. Where that is not supported " +
+           "by the current encoding, the international currency symbol is " +
+           "used.\n" +
+           "" +
+           "C locale emulation matches CPython C locale emulation."
+           );
+
     public static PyDictionary localeconv(){
         return currentLocale.localeconv();
     }
 
-    /**
-     *
-     * Compare Java (unicode) strings using the Java collator for the current
-     * locale, and the encoding normalization provided by strxfrm. In the 'C'
-     * locale, this simply calls str.__cmp__() 
-     * 
-     */
+    public static PyString __doc___strcoll = new PyString(
+        "Compare Java (unicode) strings using the Java collator for the " +
+        "current locale, and the encoding normalization provided by " + 
+        "strxfrm\n." + 
+        "" +
+        "In the 'C' locale, this simply calls str.__cmp__() ");
+
     public static int strcoll(PyString str1, PyString str2){
         return currentLocale.strcoll(str1,str2);
     }
 
-    /**
-     *
-     * Normalize a string to unicode, for common comparison, using the locale
-     * encoding.  In the 'C' locale, this is a no-op, returning the parameter.
-     *
-     */
+    public static PyString __doc___strxfrm = new PyString(
+        "Normalize a string to unicode, for common comparison, using the " +
+        "locale encoding.\n" +  
+        "" +
+        "In the 'C' locale, this is a no-op, returning the parameter." );
     public static PyString strxfrm(PyString str1){
         return currentLocale.strxfrm(str1);
     }
@@ -263,24 +347,34 @@ public class _locale implements ClassDictInit {
 	return currentLocale.getLocaleString();
     } 
 
+    public static PyString __doc___setlocale = new PyString(
+        "Sets the locale given a category and normalized locale string.\n" +
+        "" +
+        "Only category LC_ALL is supported. Other categories such as LC_TIME " +
+        "or LC_NUMERIC result in a locale.Error." +
+        "\n" +
+        "Normalized format is per RFC 1766, but using underscores instead " +
+        "of dashes, eg zh_CH.UTF-8. Briefly, the format is " +
+        "[language]_[locality].[encoding], where [language] is a two " +
+        "character language identifer, locality is a regional indicator, " +
+        "and encoding is a character encoding. Other examples are " +
+        "en_AU.ISO8859-1 and de_DE.ISO8859-15. \n" +
+        "" +
+        "If this is an empty locale, the same language tag will be tried " + 
+        "with dashes instead of underscores, ie [lanuage]-[locality].\n" +
+        "" +
+        "Normalization would usually be done by the enclosing locale module." +
+        "\n" +
+        "This function treats a missing encoding as using UTF-8.\n"
+            );
+
     /**
      *
-     * Sets the locale given a category and normalized locale string.
-     * Normalized format is per RFC 1766, but using underscores instead of 
-     * dashes, eg zh_CH.UTF-8. Briefly, the format is 
-     * [language]_[locality].[encoding], where [language] is a two
-     * character language identifer, locality is a regional indicator, and 
-     * encoding is a character encoding. Other examples are en_AU.ISO8859-1
-     * and de_DE.ISO8859-15. 
-     *
-     * If this is an empty locale, the same language tag will be tried with
-     * dashes instead of underscores, ie [lanuage]-[locality].
-     *
-     * Normalization would usually be done by the enclosing locale module 
-     * (no leading underscore).
-     *
-     * This function treats a missing encoding as using UTF-8.
-     *
+     * Java Locale loading behaviour is quite forgiving, or uninformative, 
+     * depending on your perspective. It will return a dummy locale for any 
+     * language tag that fits the syntax, or make various attempts to 
+     * approximate a locale. This solution instead follows the stricter Python 
+     * behaviour of requiring a particular locale to be installed.
      */
     public static PyString setlocale(PyInteger category, PyString locale){
 	Py.writeDebug("_locale","setlocale(category,locale==" + locale + ")");
@@ -330,7 +424,7 @@ public class _locale implements ClassDictInit {
     private static boolean isAvailableLocale(Locale locale){
         return locale != null
 		&& !locale.toString().isEmpty()
-		&& AVAILABLE_LOCALE_LIST.contains(locale);
+		&& AVAILABLE_LOCALES.contains(locale);
     }
 
     private static Locale loadLocale(String language){
@@ -354,7 +448,14 @@ public class _locale implements ClassDictInit {
 }
 
 
-
+/**
+ *
+ * Sources locale information from standard Java API functions, such as that in
+ * {@link java.util.Locale} and {@link java.text.DecimalFormat}.
+ *
+ * @Immutable
+ *
+ */
 class JyLocale implements PyLocale{
     private Locale locale;
     private String encoding;
@@ -368,7 +469,7 @@ class JyLocale implements PyLocale{
         resetLocale(locale,encoding);
     }
 
-    public synchronized void resetLocale(Locale locale, String encoding){
+    private void resetLocale(Locale locale, String encoding){
         this.locale = locale;
 	this.encoding = encoding;
 	this.decimalFormat = (DecimalFormat)NumberFormat.getInstance(locale);
@@ -520,7 +621,14 @@ class JyLocale implements PyLocale{
 
 
 
+/**
+ *
+ * @Immutable
+ */
 class CEmulationLocale implements PyLocale{
+    // A number of these structures are repeated from Time.java and elsewhere
+    // They can be removed from those other classes and pointed here once 
+    // jython2_legacy behaviour is deprecated or removed.
 
     private static final String[] EN_SHORT_DAYS = new String[] {"",
                     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};

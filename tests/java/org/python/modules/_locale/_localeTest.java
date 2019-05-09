@@ -29,7 +29,6 @@ import org.python.util.PythonInterpreter;
 public class _localeTest {
 
     private PySystemState systemState;
-    private PyStringMap dict;
     private PythonInterpreter interp;
  
    
@@ -38,8 +37,7 @@ public class _localeTest {
     public void setUp() throws Exception {
         // Initialise a Jython interpreter
         systemState = Py.getSystemState();
-        dict = new PyStringMap();
-        interp = new PythonInterpreter(dict, systemState);
+        interp = new PythonInterpreter(new PyStringMap(), systemState);
     }
 
     private void defaultState(){
@@ -59,9 +57,9 @@ public class _localeTest {
 
     private void importAndInit(){
         interp.exec("import _locale");
-	// Following line is the hack, because interpreter and PySystemState
-	// can't be fully reinitialized . classDictInit() is called 
-	// implicitly on first module import only
+	// Following line is a hacky workaround, because interpreter and 
+        // PySystemState can't be fully reinitialized. 
+        // classDictInit() is called implicitly on first module import only
         interp.exec("_locale.classDictInit({})"); 
     }
 
@@ -134,7 +132,7 @@ public class _localeTest {
 	}
 	String script = 
             "from _locale import setlocale, localeconv\n" + 
-            "setlocale(_locale.LC_ALL, " + tag + " ) \n" + 
+            "newl = setlocale(_locale.LC_ALL, '" + tag + "' ) \n" + 
             "expected = "
 	        + "{'mon_decimal_point': '.', 'int_frac_digits': 2, " 
 		+ " 'p_sep_by_space': 0, 'frac_digits': 2, " 
@@ -163,12 +161,12 @@ public class _localeTest {
     public void setLocaleEN_US_Underscore(){
         // Locales are aliased to underscore equivalents, due to that being 
 	// a common convention in Python and Java itself
-        setLocaleEN_US("'en_US.ISO8859-1'");
+        setLocaleEN_US("en_US.ISO8859-1");
     }
 
     @Test
     public void setLocaleEN_US_Dash(){
-        setLocaleEN_US("'en-US'");
+        setLocaleEN_US("en-US");
     }
 
     @Test
@@ -184,15 +182,20 @@ public class _localeTest {
         assertInterpEquals("expected","actual");
     }
 
- 
-    @Test(expected = PyException.class)
+    @Test 
     public void setLocaleNotLCALL(){
 	settableInit();
 	String script = 
-            "from _locale import setlocale \n" + 
-	    "setlocale(_locale.LC_MONETARY,'zh-CN') \n" ;
+            "import locale \n" + 
+            "caught = False \n" + 
+	    "try: \n" + 
+            "    locale.setlocale(locale.LC_MONETARY,'zh-CN') \n" +
+            "except locale.Error as e: \n" + 
+            "    caught = True \n" ;
         interp.exec(script);
+        assertPyTrue("caught");
     }
+
 
     @Test
     public void setLocaleEmpty(){

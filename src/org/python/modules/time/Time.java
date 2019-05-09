@@ -635,13 +635,17 @@ public class Time implements ClassDictInit
                 // locale is set by user.language and user.region
                 // properties and is "en_US" by default, at least around
                 // here!  Locale "en_US" differs from locale "C" in the way
-                // it represents dates and times.  Eventually we might want
-                // to craft a "C" locale for Java and set Jython to use
-                // this by default, but that's too much work right now.
+                // it represents dates and times.  Beta support for a "C" locale
+                // is in CEmulationLocale within 
+                // org.python.modules._locale._locale.java
                 //
-                // For now, we hard code %x and %X to return values
-                // formatted in the "C" locale, i.e. the default way
-                // CPython does it.  E.g.:
+                // For now, we continue the historically hard coded pre-2.7.1
+                // %x and %X behaviour to return values formatted in the 
+                // "C" locale, // i.e. the default way CPython does it. This 
+                // can be unified and simplified using CEmulationLocale once 
+                // native _locale support becomes the default in a future 
+                // version.
+                // E.g.:
                 //     %x == mm/dd/yy
                 //     %X == HH:mm:SS
                 //

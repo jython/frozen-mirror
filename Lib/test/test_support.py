@@ -1131,10 +1131,10 @@ def run_with_locale(catstr, *locales):
 #=======================================================================
 # Reset locale to C / POSIX locale. In Jython to date the default locale
 # has been Locale.getDefaultLocale(), ie OS determined
-# The new locale.setlocale() support is experimental and off by default,
+# The new locale.setlocale() support is in beta and off by default,
 # but some tests need the changes it introduces to pass.
 # It requires certain "startup" initialization corresponding to
-# -D-Jpython.locale.control=settable which is hard to simulate in a unit
+# -J-Dpython.locale.control=settable which is hard to simulate in a unit
 # test. To see the calling test pass without the reload throat-clearing,
 # invoke Jython with that parameter on the command line, in either direct or
 # regrtest flavours.
