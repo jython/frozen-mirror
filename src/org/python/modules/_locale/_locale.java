@@ -32,9 +32,8 @@ import org.python.core.PyUnicode;
  * interface defined or implied by the locale package.
  *
  * Functional documentation can be found in the Python module docstring. 
- *
  * Additional implementation details for users of this class are captured below.
- *
+ * <p>
  * Unicode. In general, Java and its locale settings are quite 
  * unicode heavy, making rich use of different symbols for eg currencies. This 
  * solution allows some of that to leak through by encoding the Java locale 
@@ -43,22 +42,25 @@ import org.python.core.PyUnicode;
  * usually supports only string / ascii by default in many cases, and only 
  * unicode when asked. This is a little less conservative while only allowing
  * values consistent with the current encoding.
- *
+ * <p>
  * An example of this is Python using EUR rather than the Euro 
- * symbol € / '\u20ac', probably because € is only available in Unicode. In 
+ * symbol € / {@code 'u20ac'}, probably because € is only 
+ * available in Unicode. In 
  * the Java implementation, if UTF-8 encoding is set, the resulting entry in 
- * localeconv()['currency_code'] is '\xe2\x82\xac'. This can be used by 
- * print() and related functions directly. Encoding failures in for 
- * currency_symbol fallback to int_curr_symbol (eg EUR).
- *
+ * {@code localeconv()['currency_code']} is {@code '\xe2\x82\xac'}. 
+ * This can be used by {@code print()} and related functions directly. 
+ * Encoding failures in for {@code currency_symbol} fallback to 
+ * {@code int_curr_symbol} (eg EUR).
+ * <p>
  * The C emulation locale uses only ANSI characters in non-unicode strings, in 
  * keeping with it being the locale of last resort and maximum compatibility.
- *
- * Positive sign position (p_sign_posn) is not a distinguished concept in Java 
- * and so this is hardcoded to 3.
- *
- * This class object is used as a static thread lock by changeCurrentLocale()
- * when changing locales via setlocale().
+ * <p>
+ * Positive sign position ({@code p_sign_posn}) is not a distinguished 
+ * concept in Java and so this is hardcoded to 3.
+ * <p>
+ * This class object is used as a static thread lock by private method
+ * {@code changeCurrentLocale()} when changing locales via 
+ * {@link #setlocale(PyInteger,PyString)}.
  *
  * @since Jython 2.7.2
  * @author Adam Burke
@@ -68,13 +70,11 @@ public class _locale implements ClassDictInit {
 
     /**
      *
-     * The locale module exposes _locale.Error as locale.Error. Some Python 
-     * functions, including strptime(), depend on locale.Error, making it
+     * The {@code locale} module exposes {@code _locale.Error} as 
+     * {@code locale.Error}. Some Python 
+     * functions, including {@code strptime()}, depend on 
+     * {@code locale.Error}, making it
      * part of the public API for native locale implementations.
-     * 
-     * Functional interface documentation from a user perspective is in the 
-     * python docstring. Notes on implementation details continue immediately 
-     * below.
      *
      */
     public static PyObject Error; 

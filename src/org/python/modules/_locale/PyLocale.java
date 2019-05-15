@@ -7,7 +7,7 @@ import org.python.core.PyString;
 /**
  *
  * Definition of a Python native locale implementation. Based on Python locale
- * module behaviour and implicit dependencies, and the localemodule.c 
+ * module behaviour and implicit dependencies, and the {@code _localemodule.c}
  * implementation in CPython.
  *
  */
