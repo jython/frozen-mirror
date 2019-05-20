@@ -1,20 +1,17 @@
 package org.python.core;
 
 /**
- *
  * Supported registry keys and their usage. 
  *
  * Boolean properties are set with the 
  * String values {@code true} or {@code yes} for true, or {@code false} or 
  * {@code no} for false.
- *
  */
 public class RegistryKey {
 
     private RegistryKey(){}
 
     /**
-     *
      * {@code python.cachedir} defines the directory to use for caches 
      * (currently just package information).
      * This directory should be writable by the user. If this is an absolute 
@@ -24,7 +21,6 @@ public class RegistryKey {
     public static final String PYTHON_CACHEDIR = "python.cachedir";
 
     /**
-     *
      * Setting {@code python.cachedir.skip} to true disables the package scan 
      * for the cachedir (as defined by {@code python.cachedir} or a default). 
      * Please be aware that disabling this will break importing from 
@@ -33,8 +29,8 @@ public class RegistryKey {
     public static final String PYTHON_CACHEDIR_SKIP = "python.cachedir.skip";
 
     /**
-     *
-     * {@code python.cpython2} is the name of the CPython executable. 
+     * {@code python.cpython2} is the name of a CPython executable, 
+     * version 2.7. 
      */
     public static final String PYTHON_CPYTHON = "python.cpython2";
 
@@ -78,7 +74,6 @@ public class RegistryKey {
     public static final String PYTHON_CONSOLE = "python.console";
 
     /**
-     *
      * {@code python.console.encoding} is the encoding used reading commands 
      * from the console. Must be a valid Java codec name, such as cp850.
      */
@@ -86,7 +81,6 @@ public class RegistryKey {
         "python.console.encoding";
 
     /**
-     *
      * {@code python.import.site} controls whether to import {@code site.py}. 
      * Boolean.
      *
@@ -112,7 +106,6 @@ public class RegistryKey {
     public static final String PYTHON_IO_ENCODING = "python.io.encoding";
 
     /**
-     *
      * {@code python.io.errors} is the unicode error handler for 
      * I/O encoding problems.
      */
@@ -163,7 +156,6 @@ public class RegistryKey {
         = "python.options.includeJavaStackInExceptions";
 
     /**
-     *
      * When an exception occurs in Java code, and it is not caught, 
      * {@code python.options.showJavaExceptions} controls whether the
      * interpreter prints out the Java exception in the traceback.
@@ -184,7 +176,6 @@ public class RegistryKey {
         "python.options.showPythonProxyExceptions";
 
     /**
-     * 
      * {@code python.options.proxyDebugDirectory} is the directory where 
      * dynamically generated classes are written. 
      * Nothing is ever read from here, it is only for debugging purposes.
@@ -194,7 +185,6 @@ public class RegistryKey {
         "python.options.proxyDebugDirectory";
 
     /**
-     *
      * {@code python.options.Qnew} controls whether true division is enabled 
      * for the / operator. 
      *
@@ -205,7 +195,6 @@ public class RegistryKey {
     public static final String PYTHON_OPTIONS_Q_NEW = "python.options.Qnew";
 
     /**
-     *
      * {@code python.os} defines the string used to report the underlying 
      * operating system. Used as prefix when resolving which operating system, 
      * impacting * some OS-specific behaviour.
@@ -213,7 +202,6 @@ public class RegistryKey {
     public static final String PYTHON_OS = "python.os";
 
     /**
-     *
      * {@code python.packages.fakepath} defines a sequence of directories 
      * and JARs * that are to be sources of Python packages.
      */
@@ -221,7 +209,6 @@ public class RegistryKey {
         "python.packages.fakepath";
 
     /**
-     *
      * {@code python.packages.paths} defines a sequence of property names. Each 
      * property is a path string. The default setting causes directories and 
      * JARs on the classpath and in the JRE (before Java 9) to be sources of 
@@ -241,26 +228,29 @@ public class RegistryKey {
         "python.packages.directories";
 
     /**
-     *
      * {@code python.path} is the search path for Python modules, equivalent
      * to CPython's {@code PYTHONPATH} environment variable.
      */
     public static final String PYTHON_PATH = "python.path";
 
     /**
-     * 
-     * If this {@code python.security.respectJavaAccessibility} is false, 
+     * If {@code python.security.respectJavaAccessibility} is false, 
      * and you are using a Java version before Java 9, then Jython can 
      * access non-public fields, methods, and constructors. 
      * Normally, Jython can only provide access to public members of classes. 
+     * <p>
      * This may be deprecated in the future due to Java changes 
-     * to accessibility from version 9. Boolean.
+     * to accessibility from version 9 (at least for Oracle JDK and OpenJDK). 
+     * See documentation on the {@code --illegal-access} (new) 
+     * and {@code --permit-illegal-access} java 
+     * command line flags for more detail.
+     * <p>
+     * Boolean.
      */
     public static final String PYTHON_SECURITY_RESPECT_JAVA_ACCESSIBILITY =
        "python.security.respectJavaAccessibility"; 
 
     /**
-     *
      * {@code python.sre.cachespec} is the specification for the 
      * SRE_STATE code point cache used by regular expressions. The spec string 
      * is in the comma separated key=value format of 
@@ -270,7 +260,6 @@ public class RegistryKey {
     public static final String PYTHON_SRE_CACHESPEC = "python.sre.cachespec";
 
     /**
-     * 
      * {@code python.startup} is the name of a file to be run at the start of 
      * each interactive session, but not when dropping in with the -i flag in 
      * after a script has run. 
@@ -278,7 +267,6 @@ public class RegistryKey {
     public static final String PYTHON_STARTUP = "python.startup";
 
     /**
-     *
      * {@code python.verbose} sets the verbosity level for varying degrees 
      * of informative messages. Valid values in order of increasing verbosity 
      * are {@code error}, {@code warning}, {@code message}, {@code comment}, 
@@ -287,7 +275,6 @@ public class RegistryKey {
     public static final String PYTHON_VERBOSE = "python.verbose";
 
     /**
-     *
      * {@code user.home} sets the user home directory.
      */
     public static final String USER_HOME = "user.home";
