@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.python.core.ClassDictInit;
@@ -27,8 +26,8 @@ import org.python.core.PyInteger;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyTuple;
-import org.python.core.__builtin__;
 import org.python.core.Untraversable;
+import org.python.core.__builtin__;
 import org.python.modules._locale.PyLocale;
 import org.python.modules._locale._locale;
 
@@ -635,13 +634,13 @@ public class Time implements ClassDictInit
                 // locale is set by user.language and user.region
                 // properties and is "en_US" by default, at least around
                 // here!  Locale "en_US" differs from locale "C" in the way
-                // it represents dates and times.  Beta support for a "C" locale
-                // is in CEmulationLocale within 
+                // it represents dates and times.  Beta support for a "C" 
+                // locale is in CEmulationLocale within
                 // org.python.modules._locale._locale.java
                 //
                 // For now, we continue the historically hard coded pre-2.7.1
                 // %x and %X behaviour to return values formatted in the 
-                // "C" locale, // i.e. the default way CPython does it. This 
+                // "C" locale, i.e. the default way CPython does it. This 
                 // can be unified and simplified using CEmulationLocale once 
                 // native _locale support becomes the default in a future 
                 // version.
@@ -730,7 +729,4 @@ public class Time implements ClassDictInit
     private static final String DEFAULT_FORMAT_PY = "%a %b %d %H:%M:%S %Y";
 
 }
-
-
-
 

@@ -180,7 +180,7 @@ public class exceptions extends PyObject implements ClassDictInit {
     }
 
     // Native modules exposing errors as part of their public interface
-    private static void buildModuleExceptions(PyObject dict){
+    private static void buildModuleExceptions(PyObject dict) {
         // Initialize ZipImportError here, where it's safe to; it's
         // needed immediately
         zipimport.initClassExceptions(dict);
