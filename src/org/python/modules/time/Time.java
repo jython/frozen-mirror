@@ -635,8 +635,7 @@ public class Time implements ClassDictInit
                 // properties and is "en_US" by default, at least around
                 // here!  Locale "en_US" differs from locale "C" in the way
                 // it represents dates and times.  Beta support for a "C" 
-                // locale is in CEmulationLocale within
-                // org.python.modules._locale._locale.java
+                // locale is in org.python.modules._locale.CEmulationLocale 
                 //
                 // For now, we continue the historically hard coded pre-2.7.1
                 // %x and %X behaviour to return values formatted in the 

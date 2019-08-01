@@ -11,6 +11,8 @@ import org.python.core.PyString;
  * module behaviour and implicit dependencies, and the {@code _localemodule.c}
  * implementation in CPython.
  * 
+ * It is recommended classes implementing this interface are made immutable.
+ * 
  * @since Jython 2.7.2
  */
 public interface PyLocale {

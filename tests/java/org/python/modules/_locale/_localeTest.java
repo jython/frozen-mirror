@@ -8,7 +8,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -16,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.python.core.Py;
 import org.python.core.PyCode;
+import org.python.core.PyDictionary;
 import org.python.core.PyException;
 import org.python.core.PyInteger;
 import org.python.core.PyObject;
@@ -23,10 +27,11 @@ import org.python.core.PySet;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
+import org.python.core.PyUnicode;
 import org.python.util.PythonInterpreter;
 
 public class _localeTest {
-
+   
     private PySystemState systemState;
     private PythonInterpreter interp;
 
@@ -93,7 +98,6 @@ public class _localeTest {
         settableInit();
         PyObject _localeModule = interp.get("_locale");
         assertNotNull(_localeModule);
-        assertTrue(_locale.isSettable());
     }
 
     @Test(expected = PyException.class)
@@ -206,6 +210,19 @@ public class _localeTest {
         assertPyEquals("zh_CN.UTF-8", "result2");
         assertPyEquals("zh_CN.UTF-8", "result3");
     }
+    
+    @Test
+    public void setLocaleDefault() {
+        settableInit();
+        String script =
+                "from locale import setlocale \n" 
+              + "result1 = setlocale(_locale.LC_ALL,'zh_CN.UTF-8') \n"
+              + "result2 = setlocale(_locale.LC_ALL,'') ";
+        interp.exec(script);
+        assertPyEquals("zh_CN.UTF-8", "result1");
+        assertPyEquals(Locale.getDefault().toString() + "." 
+                + Charset.defaultCharset().name(), "result2");
+    }    
 
     @Test(expected = PyException.class)
     public void setLocaleInvalid() {
@@ -278,7 +295,41 @@ public class _localeTest {
     }
 
     @Test
-    public void setlocaleEncodingFallback() {
+    public void setLocaleSwedishFinland() {
+        settableInit();
+        // This edge case has a language locale of Swedish but a 
+        // currency locale of Finland. Finland is on the Euro, Sweden still
+        // has the Swedish krona (SEK). Java also uses a unicode 
+        // negative sign \u2212, and non-breaking spaces for separators
+        String script = 
+                  "from locale import LC_ALL, setlocale, localeconv\n"
+                + "setlocale(LC_ALL,('sv_FI') ) \n" 
+                + "expected = "
+                + "{'mon_decimal_point': ',', 'int_frac_digits': 2, "
+                + " 'p_sep_by_space': 1, 'frac_digits': 2, "
+                + "'thousands_sep': '\\xc2\\xa0', 'n_sign_posn': 1, "
+                + "'decimal_point': ',', 'int_curr_symbol': 'EUR', "
+                + "'n_cs_precedes': 0, 'p_sign_posn': 3, "
+                + "'mon_thousands_sep': '\\xc2\\xa0', 'negative_sign': '\u2212', "
+                + "'currency_symbol':  '\u20ac' , " 
+                + "'n_sep_by_space': 1, "
+                + "'p_cs_precedes': 0, 'positive_sign': ''} \n" 
+                + "actual = localeconv() \n"
+                + "grouping = actual.pop('grouping',None) \n"
+                + "mon_grouping = actual.pop('mon_grouping',None) \n"
+                + "result = set( actual.items() ) ^ set(expected.items()) \n"
+                + "resultGrouping = (grouping == [3,0] )  \n"
+                + "resultMonGrouping = (mon_grouping == [3,0]  ) \n";
+        PyCode code = interp.compile(script);
+        interp.exec(code);
+        PyObject result = interp.get("result");
+        assertEquals(new PySet(), result);
+        assertPyTrue("resultGrouping");
+        assertPyTrue("resultMonGrouping");
+    }   
+    
+    @Test
+    public void setlocaleJPEncodingCurrencyFallback() {
         settableInit();
         // Deliberately set a Japanese locale with an ANSI US codepage
         // lacking the ¥ \uffe5 character. Which is a bit weird, but shows
@@ -291,7 +342,54 @@ public class _localeTest {
         PyObject result = interp.get("result");
         assertEquals(new PyString("JPY"), result);
     }
+       
+    private String byteStr(byte[] bytes){
+        StringBuffer sb = new StringBuffer();
+        for (int i=0; i<bytes.length; i++){
+            sb.append("~h");
+            sb.append(Integer.toHexString(bytes[i]));
+        }
+        return sb.toString();
+    }
+    
+    private String utf16ByteStr(String in) {
+        return byteStr( in.getBytes(StandardCharsets.UTF_16) );
+    }
 
+    private void assertDictValueEquals(PyDictionary dict, String expectedValue, String key) {
+        assertEquals(new PyUnicode(expectedValue),  
+                dict.__getitem__( new PyString(key) ));
+    }
+
+    private void assertDictBytesEquals(PyDictionary dict, String expectedStr, String key) {
+        PyString value = (PyString)dict.__getitem__( new PyString(key) );
+        assertEquals( utf16ByteStr(expectedStr),  
+                      byteStr( value.getString().getBytes() ) );
+    }    
+    
+    @Test
+    public void encodingSignSeparatorFallback() {
+        // Chinese Finland is not usually found in locale databases
+        Locale unicodeMockLocale = new Locale.Builder().setLanguage("zh").setRegion("FI").build();
+        DecimalFormat df = (DecimalFormat)DecimalFormat.getInstance(unicodeMockLocale);
+        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols(); 
+        dfs.setMinusSign( '\u2212'); 
+        // no locale uses these, it is to trigger fallbacks
+        dfs.setGroupingSeparator( '\u65E0' );
+        dfs.setDecimalSeparator( '\u70B9' );
+        df.setDecimalFormatSymbols(dfs);
+        PyDictionary dict = JyLocale.localeConvForFormat(df, df, "ISO8859-1");
+        assertDictValueEquals(dict, "-", "negative_sign");
+        assertDictValueEquals(dict, ".", "decimal_point");
+        assertDictValueEquals(dict, "", "thousands_sep");
+        assertDictValueEquals(dict, "", "mon_thousands_sep");
+        dict = JyLocale.localeConvForFormat(df, df, "utf-16");
+        assertDictBytesEquals(dict, "\u2212", "negative_sign");
+        assertDictBytesEquals(dict, "\u70B9", "decimal_point");
+        assertDictBytesEquals(dict, "\u65E0", "thousands_sep");
+        assertDictBytesEquals(dict, "\u65E0", "mon_thousands_sep");
+    }
+    
     @Test
     public void negativeSignPosition() {
         // per documentation for Python locale module
@@ -299,27 +397,27 @@ public class _localeTest {
         DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setNegativePrefix("($"); // ($123) as in en-US Java 8
         df.setNegativeSuffix(")");
-        assertEquals(0, _locale.negativeSignPosition(df));
+        assertEquals(0, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix("-"); // -123 EUR as in es_ES Spanish
         df.setNegativeSuffix("EUR");
-        assertEquals(1, _locale.negativeSignPosition(df));
+        assertEquals(1, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix("");      // No clear example of this
         df.setNegativeSuffix("SPAM-"); // that is distinguishable from 4
         // fy Western Frisian doesn't qualify (see below)
         // So this is a synthetic one
-        assertEquals(2, _locale.negativeSignPosition(df));
+        assertEquals(2, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix("FCFA-"); // FCFA-123 as in sg-CF Sango (CAR)
         df.setNegativeSuffix("");
-        assertEquals(3, _locale.negativeSignPosition(df));
+        assertEquals(3, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix("CHF"); // CHF123- as in German Swiss Francs
         df.setNegativeSuffix("-");   // Python de_CH.ISO8859-1
-        assertEquals(4, _locale.negativeSignPosition(df));
+        assertEquals(4, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix("¤ "); // U0164  fy Western Frisian is the only Python
         df.setNegativeSuffix("-"); // example of 2, and appears identical to 4
-        assertEquals(4, _locale.negativeSignPosition(df));
+        assertEquals(4, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix(""); // 123 as in empty locales
         df.setNegativeSuffix("");
-        assertEquals(_locale.CHAR_MAX, _locale.negativeSignPosition(df));
+        assertEquals(_locale.CHAR_MAX, JyLocale.negativeSignPosition(df));
     }
 
     @Test
@@ -328,10 +426,10 @@ public class _localeTest {
         DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setPositivePrefix("$"); // $123 as in en-US Java 8
         df.setPositiveSuffix("");
-        assertEquals(1, _locale.positiveCurrencyPrecedesValue(df));
+        assertEquals(1, JyLocale.positiveCurrencyPrecedesValue(df));
         df.setPositivePrefix(""); // 123$ (similar to 123 CHF)
         df.setPositiveSuffix(" $");
-        assertEquals(0, _locale.positiveCurrencyPrecedesValue(df));
+        assertEquals(0, JyLocale.positiveCurrencyPrecedesValue(df));
     }
 
     @Test
@@ -340,10 +438,10 @@ public class _localeTest {
         DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setNegativePrefix("($"); // ($123) as in en-US Java 8
         df.setNegativeSuffix(")");
-        assertEquals(1, _locale.negativeCurrencyPrecedesValue(df));
+        assertEquals(1, JyLocale.negativeCurrencyPrecedesValue(df));
         df.setNegativePrefix(""); // 123$ (similar to 123 CHF)
         df.setNegativeSuffix(" $");
-        assertEquals(0, _locale.negativeCurrencyPrecedesValue(df));
+        assertEquals(0, JyLocale.negativeCurrencyPrecedesValue(df));
     }
 
     @Test
@@ -352,10 +450,10 @@ public class _localeTest {
         DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setPositivePrefix("$"); // $123 as in en-US Java 8
         df.setPositiveSuffix("");
-        assertEquals(0, _locale.positiveSeparatedBySpace(df));
+        assertEquals(0, JyLocale.positiveSeparatedBySpace(df));
         df.setPositivePrefix(""); // 123 CHF
         df.setPositiveSuffix(" CHF");
-        assertEquals(1, _locale.positiveSeparatedBySpace(df));
+        assertEquals(1, JyLocale.positiveSeparatedBySpace(df));
     }
 
     @Test
@@ -364,25 +462,25 @@ public class _localeTest {
         DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         // Many Java locales use U+00A0, non-breaking space, for spacing,
         // rather than " "
-        assertEquals(1, _locale.negativeSeparatedBySpace(df));
+        assertEquals(1, JyLocale.negativeSeparatedBySpace(df));
         df.setNegativePrefix(""); // -123 €
         df.setNegativeSuffix("\u00A0" + "€");
-        assertEquals(1, _locale.negativeSeparatedBySpace(df));
+        assertEquals(1, JyLocale.negativeSeparatedBySpace(df));
         df.setNegativePrefix(""); // 123 EUR/
         df.setNegativeSuffix(" EUR");
-        assertEquals(1, _locale.negativeSeparatedBySpace(df));
+        assertEquals(1, JyLocale.negativeSeparatedBySpace(df));
         // Many Java locales use
         df.setNegativePrefix("-$"); // -$123
         df.setNegativeSuffix("");
-        assertEquals(0, _locale.negativeSeparatedBySpace(df));
+        assertEquals(0, JyLocale.negativeSeparatedBySpace(df));
     }
 
     @Test
     public void extendedWhitespace() {
-        assertTrue(_locale.isExtendedWhitespace(' '));
-        assertFalse(_locale.isExtendedWhitespace('a'));
-        assertTrue(_locale.isExtendedWhitespace('\u00A0'));
-        assertFalse(_locale.isExtendedWhitespace('€'));
+        assertTrue(JyLocale.isExtendedWhitespace(' '));
+        assertFalse(JyLocale.isExtendedWhitespace('a'));
+        assertTrue(JyLocale.isExtendedWhitespace('\u00A0'));
+        assertFalse(JyLocale.isExtendedWhitespace('€'));
     }
 
     @Test
@@ -428,8 +526,8 @@ public class _localeTest {
                 + "grouping = actual.pop('grouping',None) \n"
                 + "mon_grouping = actual.pop('mon_grouping',None) \n"
                 + "result = set( actual.items() ) ^ set(expected.items()) \n"
-                + "resultGrouping = (grouping == [127] )  \n"
-                + "resultMonGrouping = (mon_grouping == [127]  ) \n";
+                + "resultGrouping = (grouping == [] )  \n"
+                + "resultMonGrouping = (mon_grouping == []  ) \n";
         interp.exec(script);
         assertInterpEquals("expectedLocale", "actualLocale");
         PyObject result = interp.get("result");

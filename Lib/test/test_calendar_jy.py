@@ -8,7 +8,7 @@ from test import test_support
 
 
 def test_main(initialize=True):
-    test_support.reset_locale_toC(initialize)
+    test_support.force_reset_locale(initialize)
     test_support.run_unittest(
         OutputTestCase,
         CalendarTestCase,

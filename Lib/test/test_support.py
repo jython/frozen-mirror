@@ -1136,9 +1136,11 @@ def run_with_locale(catstr, *locales):
 # It requires certain "startup" initialization corresponding to
 # -J-Dpython.locale.control=settable which is hard to simulate in a unit
 # test. To see the calling test pass without the reload throat-clearing,
-# invoke Jython with that parameter on the command line, in either direct or
-# regrtest flavours.
-def reset_locale_toC(initialize=True):
+# invoke Jython with python.locale.control=settable on the command line, 
+# in either direct or regrtest flavours.
+# Use of this function can be removed from most tests once 
+# locale.setlocale() support is on by default
+def force_reset_locale(initialize=True):
     import locale
     if initialize:
         from datetime import datetime

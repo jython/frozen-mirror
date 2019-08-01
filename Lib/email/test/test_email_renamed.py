@@ -33,7 +33,6 @@ from email import base64mime
 from email import quoprimime
 
 from test.test_support import findfile, run_unittest, is_jython
-from test.test_support import reset_locale_toC
 from email.test import __file__ as landmark
 
 
@@ -3317,10 +3316,6 @@ def _testclasses():
 
 
 def suite():
-    if is_jython:
-        # Java locale differences from JDK 9 onwards, and locale variation
-        # on developer machines, break test_email tests.
-        reset_locale_toC()
     suite = unittest.TestSuite()
     for testclass in _testclasses():
         suite.addTest(unittest.makeSuite(testclass))
@@ -3328,10 +3323,6 @@ def suite():
 
 
 def test_main():
-    if is_jython:
-        # Java locale differences from JDK 9 onwards, and locale variation
-        # on developer machines, break test_email tests.
-        reset_locale_toC()
     for testclass in _testclasses():
         run_unittest(testclass)
 
