@@ -20,12 +20,15 @@ import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 
+import static org.python.core.RegistryKey.PYTHON_LOCALE_CONTROL;
+
 /**
  * Java native implementation of underlying locale functions, fitting the interface defined or
  * implied by the Python locale module.
  *
- * Functional documentation can be found in the Python module docstring. Additional implementation
- * details for users of this class are captured below.
+ * Functional documentation can be found in the Python module docstring. This class depends on
+ * registry key {@link org.python.core.RegistryKey.PYTHON.LOCALE_CONTROL}. Additional
+ * implementation details for users of this class are captured below.
  * <p>
  * Unicode. In general, Java and its locale settings are quite unicode heavy, making rich use of
  * different symbols for eg currencies. This solution allows some of that to leak through by
@@ -34,13 +37,13 @@ import org.python.core.PySystemState;
  * string / ascii by default in many cases, and only unicode when asked. This is a little less
  * conservative while only allowing values consistent with the current encoding.
  * <p>
- * An example of this is Python using EUR rather than the Euro symbol € / {@code 'u20ac'}, probably
- * because € is only available in Unicode. In the Java implementation, if UTF-8 encoding is set,
- * the resulting entry in {@code localeconv()['currency_code']} is {@code '\xe2\x82\xac'}. This can
- * be used by {@code print()} and related functions directly. Encoding failures for
- * {@code currency_symbol} fall back to {@code int_curr_symbol} (eg EUR). Encoding failures for 
- * {@code negative_sign}, which are sometimes unicode, fall back to an ANSI hyphen ('-'). Other
- * encoding failures do not have fallbacks, for lack of a clear default.
+ * An example of this is some Python implementations using EUR rather than the Euro symbol € /
+ * {@code 'u20ac'}, probably because € is only available in Unicode. In the Java implementation, if
+ * UTF-8 encoding is set, the resulting entry in {@code localeconv()['currency_code']} is
+ * {@code '\xe2\x82\xac'}. This can be used by {@code print()} and related functions directly.
+ * Encoding failures for {@code currency_symbol} fall back to {@code int_curr_symbol} (eg EUR).
+ * Encoding failures for {@code negative_sign}, which are sometimes unicode, fall back to an ANSI
+ * hyphen ('-'). Other encoding failures do not have fallbacks, for lack of a clear default.
  * <p>
  * The C emulation locale uses only ANSI characters in non-unicode strings, in keeping with it
  * being the locale of last resort and maximum compatibility.
@@ -48,11 +51,11 @@ import org.python.core.PySystemState;
  * Positive sign position ({@code p_sign_posn}) is not a distinguished concept in Java and so this
  * is hardcoded to 3.
  * <p>
- * This class ensures read/write consistency when changing locales via
- * {@link #setlocale(PyInteger,PyString)}, by declaring private variable {code currentLocale} as
+ * This class ensures read/write consistency, when changing locales via
+ * {@link #setlocale(PyInteger,PyString)}, by declaring private variable {@code currentLocale} as
  * volatile, and only assigning it immutable objects. It does not lock to guarantee sequencing of
- * {code setLocale()} calls from separate threads. In the rare cases where that would be needed, it
- * is the responsibility of the calling code.
+ * {@code setLocale()} calls from separate threads. In the rare cases where that would be needed,
+ * it is the responsibility of the calling code.
  *
  * @since Jython 2.7.2
  * 
@@ -103,8 +106,6 @@ public class _locale implements ClassDictInit {
         + "| '' or unset       | As per ``jython2_legacy``.              |\n"
         + "|                   | In future versions, per ``settable``.   |\n"
         + "+-------------------+-----------------------------------------+\n");
-
-    public static final String PYTHON_LOCALE_CONTROL = "python.locale.control";
 
     public static final String LOCALE_CONTROL_SETTABLE = "settable";
     public static final String LOCALE_CONTROL_JYTHON2_LEGACY = "jython2_legacy";
