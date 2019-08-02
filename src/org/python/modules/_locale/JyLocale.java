@@ -4,7 +4,6 @@
 package org.python.modules._locale;
 
 import java.text.Collator;
-import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -21,28 +20,25 @@ import org.python.core.PyUnicode;
 /**
  * Sources locale information from standard Java API functions, such as that in
  * {@link java.util.Locale} and {@link java.text.DecimalFormat}.
- * 
+ *
  * Used by the _locale module. Callers would not usually interact with this
  * class directly unless working with _locale internals.
- * 
+ *
  * @Immutable
- * 
+ *
  * @since Jython 2.7.2
  */
-public class JyLocale implements PyLocale {
+public class JyLocale extends DateSymbolJyLocale implements PyLocale{
 
-    private final Locale locale;
     private final String encoding;
     private final PyDictionary conv;
     private final Collator collator;
-    private final DateFormatSymbols dfSymbols;
 
     public JyLocale(Locale locale, String encoding) {
-        this.locale = locale;
+        super(locale);
         this.encoding = encoding;
         this.conv = initLocaleConv();
         this.collator = Collator.getInstance(locale);
-        this.dfSymbols = DateFormatSymbols.getInstance(locale);
     }
 
     @Override
@@ -165,31 +161,6 @@ public class JyLocale implements PyLocale {
 
     public String getEncoding() {
         return encoding;
-    }
-
-    @Override
-    public String[] getShortWeekdays() {
-        return dfSymbols.getShortWeekdays();
-    }
-
-    @Override
-    public String[] getWeekdays() {
-        return dfSymbols.getWeekdays();
-    }
-
-    @Override
-    public String[] getShortMonths() {
-        return dfSymbols.getShortMonths();
-    }
-
-    @Override
-    public String[] getMonths() {
-        return dfSymbols.getMonths();
-    }
-
-    @Override
-    public String[] getAmPmStrings() {
-        return dfSymbols.getAmPmStrings();
     }
 
     static int negativeSignPosition(DecimalFormat df) {

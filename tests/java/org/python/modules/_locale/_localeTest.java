@@ -294,40 +294,6 @@ public class _localeTest {
         assertPyTrue("resultGrouping");
         assertPyTrue("resultMonGrouping");
     }
-
-    @Test
-    public void setLocaleSwedishFinland() {
-        settableInit();
-        // This edge case has a language locale of Swedish but a 
-        // currency locale of Finland. Finland is on the Euro, Sweden still
-        // has the Swedish krona (SEK). Java also uses a unicode 
-        // negative sign \u2212, and non-breaking spaces for separators
-        String script = 
-                  "from locale import LC_ALL, setlocale, localeconv\n"
-                + "setlocale(LC_ALL,('sv_FI') ) \n" 
-                + "expected = "
-                + "{'mon_decimal_point': ',', 'int_frac_digits': 2, "
-                + " 'p_sep_by_space': 1, 'frac_digits': 2, "
-                + "'thousands_sep': '\\xc2\\xa0', 'n_sign_posn': 1, "
-                + "'decimal_point': ',', 'int_curr_symbol': 'EUR', "
-                + "'n_cs_precedes': 0, 'p_sign_posn': 3, "
-                + "'mon_thousands_sep': '\\xc2\\xa0', 'negative_sign': '\u2212', "
-                + "'currency_symbol':  '\u20ac' , " 
-                + "'n_sep_by_space': 1, "
-                + "'p_cs_precedes': 0, 'positive_sign': ''} \n" 
-                + "actual = localeconv() \n"
-                + "grouping = actual.pop('grouping',None) \n"
-                + "mon_grouping = actual.pop('mon_grouping',None) \n"
-                + "result = set( actual.items() ) ^ set(expected.items()) \n"
-                + "resultGrouping = (grouping == [3,0] )  \n"
-                + "resultMonGrouping = (mon_grouping == [3,0]  ) \n";
-        PyCode code = interp.compile(script);
-        interp.exec(code);
-        PyObject result = interp.get("result");
-        assertEquals(new PySet(), result);
-        assertPyTrue("resultGrouping");
-        assertPyTrue("resultMonGrouping");
-    }   
     
     @Test
     public void setlocaleJPEncodingCurrencyFallback() {

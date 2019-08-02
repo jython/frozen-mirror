@@ -151,6 +151,11 @@ public class _locale implements ClassDictInit {
 
     private static final Set<Locale> AVAILABLE_LOCALES;
 
+    // Failsafe for date symbols only. Insufficient for full locale module
+    // behaviour.
+    private static final DateSymbolLocale DEFAULT_LOCALE = 
+            new DateSymbolJyLocale( Locale.getDefault() ) ;
+
     // This has a subtle initialization dependency on the codecs module
     // due to the initialization in JyLocale(). Let the interpreter
     // initialize via classDictInit().
@@ -387,11 +392,14 @@ public class _locale implements ClassDictInit {
     }
 
     /**
-     * Current {@code PyLocale} used by the Python interpreter. This object
+     * Current {@code DateSymbolLocale} used by the Python interpreter. This object
      * will no longer reflect the current state after subsequent calls 
      * to {@code setlocale}.
      */
-    public static PyLocale getPyLocale() {
+    public static DateSymbolLocale getDateSymbolLocale() {
+        if (currentLocale == null) {
+            return DEFAULT_LOCALE;
+        }
         return currentLocale;
     }
 

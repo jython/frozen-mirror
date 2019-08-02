@@ -28,7 +28,7 @@ import org.python.core.PyString;
 import org.python.core.PyTuple;
 import org.python.core.Untraversable;
 import org.python.core.__builtin__;
-import org.python.modules._locale.PyLocale;
+import org.python.modules._locale.DateSymbolLocale;
 import org.python.modules._locale._locale;
 
 
@@ -330,7 +330,7 @@ public class Time implements ClassDictInit
     }
 
     // Python's time module specifies use of current locale
-    protected static PyLocale datesyms = _locale.getPyLocale();
+    protected static DateSymbolLocale datesyms = _locale.getDateSymbolLocale();
     protected static String[] shortdays = null;
     protected static String[] shortmonths = null;
 
@@ -702,7 +702,7 @@ public class Time implements ClassDictInit
 
 
     private static void checkLocale() {
-        PyLocale latestLocale = _locale.getPyLocale();
+        DateSymbolLocale latestLocale = _locale.getDateSymbolLocale();
         if (!latestLocale.equals(datesyms)) {
             datesyms = latestLocale;
             shortdays = null;

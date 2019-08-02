@@ -15,7 +15,7 @@ import org.python.core.PyString;
  * 
  * @since Jython 2.7.2
  */
-public interface PyLocale {
+public interface PyLocale extends DateSymbolLocale {
 
     public PyDictionary localeconv();
 
@@ -26,14 +26,4 @@ public interface PyLocale {
     public int strcoll(PyString str1, PyString str2);
 
     public PyString strxfrm(PyString str1);
-
-    public String[] getShortWeekdays();
-
-    public String[] getWeekdays();
-
-    public String[] getShortMonths();
-
-    public String[] getMonths();
-
-    public String[] getAmPmStrings();
 }
