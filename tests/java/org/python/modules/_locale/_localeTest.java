@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.python.core.RegistryKey.PYTHON_LOCALE_CONTROL;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -44,7 +45,7 @@ public class _localeTest {
 
     @SuppressWarnings("static-access")
     private void setLocaleProperty(String value) {
-        systemState.registry.setProperty(_locale.PYTHON_LOCALE_CONTROL, value);
+        systemState.registry.setProperty(PYTHON_LOCALE_CONTROL, value);
     }
     
     private void defaultState() {
