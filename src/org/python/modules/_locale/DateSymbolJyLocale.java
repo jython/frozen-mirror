@@ -14,7 +14,7 @@ import java.util.Locale;
  *
  * @since Jython 2.7.2
  */
-public class DateSymbolJyLocale implements DateSymbolLocale{
+public class DateSymbolJyLocale implements DateSymbolLocale {
 
     protected final Locale locale;
     protected final DateFormatSymbols dfSymbols;

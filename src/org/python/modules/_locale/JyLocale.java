@@ -21,14 +21,14 @@ import org.python.core.PyUnicode;
  * Sources locale information from standard Java API functions, such as that in
  * {@link java.util.Locale} and {@link java.text.DecimalFormat}.
  *
- * Used by the _locale module. Callers would not usually interact with this
- * class directly unless working with _locale internals.
+ * Used by the _locale module. Callers would not usually interact with this class directly unless
+ * working with _locale internals.
  *
  * @Immutable
  *
  * @since Jython 2.7.2
  */
-public class JyLocale extends DateSymbolJyLocale implements PyLocale{
+public class JyLocale extends DateSymbolJyLocale implements PyLocale {
 
     private final String encoding;
     private final PyDictionary conv;
@@ -48,36 +48,35 @@ public class JyLocale extends DateSymbolJyLocale implements PyLocale{
 
     private PyDictionary initLocaleConv() {
         DecimalFormat df = (DecimalFormat)NumberFormat.getInstance(locale);
-        DecimalFormat cf = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat cf =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         return localeConvForFormat(df, cf, getEncoding());
     }
 
     /**
-     * Fallbacks provided for charset conversion failures in this method match 
-     * either the C locale, or plausible lower-risk substitutes, like ISO currency 
-     * code for currency symbol. 
+     * Fallbacks provided for charset conversion failures in this method match either the C locale,
+     * or plausible lower-risk substitutes, like ISO currency code for currency symbol.
      */
-    static PyDictionary localeConvForFormat(DecimalFormat df,
-            DecimalFormat cf, String encoding) 
-    {
+    static PyDictionary localeConvForFormat(DecimalFormat decimalFormat,
+            DecimalFormat currencyFormat, String encoding) {
         PyDictionary result = new PyDictionary();
-        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
-        DecimalFormatSymbols cfs = cf.getDecimalFormatSymbols();
-        putConvUnicodeEntry(result, "decimal_point",
-                dfs.getDecimalSeparator(), ".", encoding);
+        DecimalFormatSymbols dfs = decimalFormat.getDecimalFormatSymbols();
+        DecimalFormatSymbols cfs = currencyFormat.getDecimalFormatSymbols();
+        putConvUnicodeEntry(result, "decimal_point", dfs.getDecimalSeparator(),
+                ".", encoding);
         putConvUnicodeEntry(result, "thousands_sep",
                 dfs.getGroupingSeparator(), "", encoding);
         putConvUnicodeEntry(result, "currency_symbol", cfs.getCurrencySymbol(),
                 dfs.getInternationalCurrencySymbol(), encoding);
         _locale.putConvEntry(result, "int_curr_symbol",
                 cfs.getInternationalCurrencySymbol());
-        putConvUnicodeEntry(result, "negative_sign", cfs.getMinusSign(),
-                "-", encoding);
+        putConvUnicodeEntry(result, "negative_sign", cfs.getMinusSign(), "-",
+                encoding);
         // No positive sign concept in Java locale
         _locale.putConvEntry(result, "positive_sign", new PyString(""));
         _locale.putConvEntry(result, "p_sign_posn", new PyInteger(3));
         PyList groupingList = new PyList();
-        groupingList.add(new PyInteger(df.getGroupingSize()));
+        groupingList.add(new PyInteger(decimalFormat.getGroupingSize()));
         groupingList.add(new PyInteger(0));
         _locale.putConvEntry(result, "grouping", groupingList);
         _locale.putConvEntry(result, "mon_decimal_point",
@@ -85,23 +84,23 @@ public class JyLocale extends DateSymbolJyLocale implements PyLocale{
         putConvUnicodeEntry(result, "mon_thousands_sep",
                 cfs.getGroupingSeparator(), "", encoding);
         _locale.putConvEntry(result, "frac_digits",
-                new PyInteger(cf.getMaximumFractionDigits()));
+                new PyInteger(currencyFormat.getMaximumFractionDigits()));
         _locale.putConvEntry(result, "int_frac_digits",
-                new PyInteger(cf.getMaximumFractionDigits()));
+                new PyInteger(currencyFormat.getMaximumFractionDigits()));
         PyList monGroupingList = new PyList();
-        monGroupingList.add(new PyInteger(cf.getGroupingSize()));
+        monGroupingList.add(new PyInteger(currencyFormat.getGroupingSize()));
         monGroupingList.add(new PyInteger(0));
         _locale.putConvEntry(result, "mon_grouping", monGroupingList);
         _locale.putConvEntry(result, "n_sign_posn",
-                new PyInteger(negativeSignPosition(cf)));
+                new PyInteger(negativeSignPosition(currencyFormat)));
         _locale.putConvEntry(result, "p_cs_precedes",
-                new PyInteger(positiveCurrencyPrecedesValue(cf)));
+                new PyInteger(positiveCurrencyPrecedesValue(currencyFormat)));
         _locale.putConvEntry(result, "n_cs_precedes",
-                new PyInteger(negativeCurrencyPrecedesValue(cf)));
+                new PyInteger(negativeCurrencyPrecedesValue(currencyFormat)));
         _locale.putConvEntry(result, "p_sep_by_space",
-                new PyInteger(positiveSeparatedBySpace(cf)));
+                new PyInteger(positiveSeparatedBySpace(currencyFormat)));
         _locale.putConvEntry(result, "n_sep_by_space",
-                new PyInteger(negativeSeparatedBySpace(cf)));
+                new PyInteger(negativeSeparatedBySpace(currencyFormat)));
         return result;
     }
 
@@ -124,14 +123,14 @@ public class JyLocale extends DateSymbolJyLocale implements PyLocale{
             encodingFallback(result, key, fallback, pye);
         }
     }
-    
+
     private static void encodingFallback(PyDictionary result, String key,
             String fallback, PyException pye) {
         Py.writeComment("_locale", "Could not encode value for key " + key
                 + " " + pye.getMessage());
         result.put(new PyString(key), new PyString(fallback));
     }
-    
+
     @Override
     public PyString getLocaleString() {
         return new PyString(locale.toString() + "." + encoding);
@@ -201,18 +200,21 @@ public class JyLocale extends DateSymbolJyLocale implements PyLocale{
     }
 
     private static int currencyPrecedesValue(DecimalFormat df, String prefix) {
-        if (prefix.contains(df.getDecimalFormatSymbols().getCurrencySymbol())) {
+        if (prefix
+                .contains(df.getDecimalFormatSymbols().getCurrencySymbol())) {
             return 1;
         }
         return 0;
     }
 
     static int positiveSeparatedBySpace(DecimalFormat df) {
-        return separatedBySpace(df.getPositivePrefix(), df.getPositiveSuffix());
+        return separatedBySpace(df.getPositivePrefix(),
+                df.getPositiveSuffix());
     }
 
     static int negativeSeparatedBySpace(DecimalFormat df) {
-        return separatedBySpace(df.getNegativePrefix(), df.getNegativeSuffix());
+        return separatedBySpace(df.getNegativePrefix(),
+                df.getNegativeSuffix());
     }
 
     private static int separatedBySpace(String prefix, String suffix) {
@@ -233,5 +235,4 @@ public class JyLocale extends DateSymbolJyLocale implements PyLocale{
         return Character.isWhitespace(c) || '\u00A0' == c;
     }
 
-    
 }

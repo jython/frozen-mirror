@@ -13,8 +13,8 @@ public class RegistryKey {
     /**
      * {@code python.cachedir} defines the directory to use for caches (currently just package
      * information). This directory should be writable by the user. If this is an absolute path it
-     * is used as given, otherwise it is interpreted relative to sys.prefix (typically the directory
-     * of this file).
+     * is used as given, otherwise it is interpreted relative to sys.prefix (typically the
+     * directory of this file).
      */
     public static final String PYTHON_CACHEDIR = "python.cachedir";
 
@@ -41,12 +41,13 @@ public class RegistryKey {
      * <p>
      * This property will be deprecated and removed in 3.x.
      */
-    public static final String PYTHON_DIVISION_WARNING = "python.division.warning";
+    public static final String PYTHON_DIVISION_WARNING =
+            "python.division.warning";
 
     /**
-     * {@code python.console} names the class used for the Jython console. Jython ships with a JLine
-     * console (http://jline.sourceforge.net/) out of the box. This is selected by default in the
-     * Jython command-line application ({@link org.python.util.jython}) if you do not define
+     * {@code python.console} names the class used for the Jython console. Jython ships with a
+     * JLine console (http://jline.sourceforge.net/) out of the box. This is selected by default in
+     * the Jython command-line application ({@link org.python.util.jython}) if you do not define
      * {@code python.console} to be another class on the command line. Alternatively, you can set
      * python.console in the registry, but be aware that this will also affect the console in
      * applications that embed a PythonInterpreter, or use Jython as a JSR-223 script engine.
@@ -61,8 +62,9 @@ public class RegistryKey {
      * </tr>
      * </table>
      * <p>
-     * You may also set this to the name of a different console class in your classpath that extends
-     * PlainConsole. Note that {@code org.python.util.ReadlineConsole} has been removed in 2.7.
+     * You may also set this to the name of a different console class in your classpath that
+     * extends PlainConsole. Note that {@code org.python.util.ReadlineConsole} has been removed in
+     * 2.7.
      */
     public static final String PYTHON_CONSOLE = "python.console";
 
@@ -70,7 +72,8 @@ public class RegistryKey {
      * {@code python.console.encoding} is the encoding used reading commands from the console. Must
      * be a valid Java codec name, such as cp850.
      */
-    public static final String PYTHON_CONSOLE_ENCODING = "python.console.encoding";
+    public static final String PYTHON_CONSOLE_ENCODING =
+            "python.console.encoding";
 
     /**
      * {@code python.import.site} controls whether to import {@code site.py}. Boolean.
@@ -80,8 +83,8 @@ public class RegistryKey {
     public static final String PYTHON_IMPORT_SITE = "python.import.site";
 
     /**
-     * When {@code python.inspect} is set, and a script given on the command line finishes, start an
-     * interactive interpreter. Any non-empty string value will enable this behaviour.
+     * When {@code python.inspect} is set, and a script given on the command line finishes, start
+     * an interactive interpreter. Any non-empty string value will enable this behaviour.
      * <p>
      * Equivalent to the {@code -i} option on the command-line, or The session only actually starts
      * if the console is interactive.
@@ -89,8 +92,9 @@ public class RegistryKey {
     public static final String PYTHON_INSPECT = "python.inspect";
 
     /**
-     * {@code python.io.encoding} controls the encoding of {@code sys.stdin}, {@codesys.stdout}, and
-     * {@code sys.stderr}. The encoding must name a Python codec, as in {@code codecs.encode()}.
+     * {@code python.io.encoding} controls the encoding of {@code sys.stdin}, {@codesys.stdout},
+     * and {@code sys.stderr}. The encoding must name a Python codec, as in
+     * {@code codecs.encode()}.
      */
     public static final String PYTHON_IO_ENCODING = "python.io.encoding";
 
@@ -100,35 +104,32 @@ public class RegistryKey {
     public static final String PYTHON_IO_ERRORS = "python.io.errors";
 
     /**
-     * {@code python.locale.control} determines locale module behaviour, including 
-     * enabling locale module support, currently in beta. 
+     * {@code python.locale.control} determines locale module behaviour, including enabling locale
+     * module support, currently in beta.
      * <p>
      * Values:
      * <table>
      * <tr>
      * <td>{@code settable}</td>
-     * <td>Python locale module is available and supports {@code setlocale()} and 
-     * other standard functions. This will be the default in a future Jython version. 
-     * </td>
+     * <td>Python locale module is available and supports {@code setlocale()} and other standard
+     * functions. This will be the default in a future Jython version.</td>
      * </tr>
      * <tr>
-     * <td>{@code jython2_legacy} (default) </td>
-     * <td>Mix of implicit Java locale and emulated 'C' locale behaviour, consistent 
-     * with behaviour in Jython 2.7.1 and earlier. Will be deprecated in a future
-     * Jython version.</td>
+     * <td>{@code jython2_legacy} (default)</td>
+     * <td>Mix of implicit Java locale and emulated 'C' locale behaviour, consistent with behaviour
+     * in Jython 2.7.1 and earlier. Will be deprecated in a future Jython version.</td>
      * </tr>
      * </table>
      * <p>
-     * More detail can be found in the documentation for the {@code locale} module 
-     * and the underlying platform services exposed in 
-     * {@link org.python.modules._locale._locale}.
+     * More detail can be found in the documentation for the {@code locale} module and the
+     * underlying platform services exposed in {@link org.python.modules._locale._locale}.
      */
     public static final String PYTHON_LOCALE_CONTROL = "python.locale.control";
-    
+
     /**
      * {@code python.modules.builtin} controls the list of builtin modules; you can add, remove, or
-     * override builtin modules. The value for this registry key is a comma separated list of module
-     * entries, each entry of which has the following allowable forms:
+     * override builtin modules. The value for this registry key is a comma separated list of
+     * module entries, each entry of which has the following allowable forms:
      * <p>
      * <table>
      * <tr>
@@ -138,8 +139,8 @@ public class RegistryKey {
      * </tr>
      * <tr>
      * <td>{@code name:class}</td>
-     * <td>The module name is {@code name} and the class name is {@code class} where class must be a
-     * fully qualified Java class name</td>
+     * <td>The module name is {@code name} and the class name is {@code class} where class must be
+     * a fully qualified Java class name</td>
      * </tr>
      * <tr>
      * <td>{@code name:null}</td>
@@ -149,7 +150,8 @@ public class RegistryKey {
      * A good example would be to use a jni version of os for more functionality by having an entry
      * such as {@code os:com.foo.jni.os}
      */
-    public static final String PYTHON_MODULES_BUILTIN = "python.modules.builtin";
+    public static final String PYTHON_MODULES_BUILTIN =
+            "python.modules.builtin";
 
     /**
      * If {@code python.options.caseok} is true, Jython will use the first module found on
@@ -157,7 +159,8 @@ public class RegistryKey {
      * effect on unix-type filesystems. On Windows/HFS+ systems setting it to true will enable
      * Jython-2.0 behaviour.
      */
-    public static final String PYTHON_OPTIONS_CASE_OK = "python.options.caseok";
+    public static final String PYTHON_OPTIONS_CASE_OK =
+            "python.options.caseok";
 
     /**
      * {@code python.options.includeJavaStackInExceptions} controls whether exceptions raised from
@@ -194,8 +197,8 @@ public class RegistryKey {
             "python.options.proxyDebugDirectory";
 
     /**
-     * {@code python.options.Qnew} controls whether true division is enabled for the / operator. See
-     * PEP 238. Boolean.
+     * {@code python.options.Qnew} controls whether true division is enabled for the / operator.
+     * See PEP 238. Boolean.
      * <p>
      * Equivalent to -Qnew on the command line.
      */
@@ -211,7 +214,8 @@ public class RegistryKey {
      * {@code python.packages.fakepath} defines a sequence of directories and JARs * that are to be
      * sources of Python packages.
      */
-    public static final String PYTHON_PACKAGES_FAKEPATH = "python.packages.fakepath";
+    public static final String PYTHON_PACKAGES_FAKEPATH =
+            "python.packages.fakepath";
 
     /**
      * {@code python.packages.paths} defines a sequence of property names. Each property is a path
@@ -226,7 +230,8 @@ public class RegistryKey {
      * files that are to be a source of Python packages. By default, these directories are those
      * where the JVM stores its optional packages as JARs (a mechanism withdrawn in Java 9).
      */
-    public static final String PYTHON_PACKAGES_DIRECTORIES = "python.packages.directories";
+    public static final String PYTHON_PACKAGES_DIRECTORIES =
+            "python.packages.directories";
 
     /**
      * {@code python.path} is the search path for Python modules, equivalent to CPython's

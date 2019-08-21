@@ -334,7 +334,7 @@ public class Time implements ClassDictInit
     protected static String[] shortdays = null;
     protected static String[] shortmonths = null;
 
-    // Consider moving to _locale, where there is another copy
+    // Consider moving to CEmulationLocale, where there is another copy
     private static String[] enshortdays = new String[] {"Mon",
                                                         "Tue",
                                                         "Wed",

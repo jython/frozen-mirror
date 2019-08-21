@@ -29,8 +29,9 @@ public class CEmulationLocale implements PyLocale {
     private static final String[] EN_SHORT_DAYS =
             new String[] {"", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-    private static final String[] EN_DAYS = new String[] {"", "Sunday",
-            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    private static final String[] EN_DAYS =
+            new String[] {"", "Sunday", "Monday", "Tuesday", "Wednesday",
+                    "Thursday", "Friday", "Saturday"};
 
     private static final String[] EN_SHORT_MONTHS =
             new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",

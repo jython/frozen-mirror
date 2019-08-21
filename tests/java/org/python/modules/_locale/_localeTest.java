@@ -32,7 +32,7 @@ import org.python.core.PyUnicode;
 import org.python.util.PythonInterpreter;
 
 public class _localeTest {
-   
+
     private PySystemState systemState;
     private PythonInterpreter interp;
 
@@ -47,7 +47,7 @@ public class _localeTest {
     private void setLocaleProperty(String value) {
         systemState.registry.setProperty(PYTHON_LOCALE_CONTROL, value);
     }
-    
+
     private void defaultState() {
         setLocaleProperty("");
     }
@@ -211,7 +211,7 @@ public class _localeTest {
         assertPyEquals("zh_CN.UTF-8", "result2");
         assertPyEquals("zh_CN.UTF-8", "result3");
     }
-    
+
     @Test
     public void setLocaleDefault() {
         settableInit();
@@ -294,7 +294,7 @@ public class _localeTest {
         assertPyTrue("resultGrouping");
         assertPyTrue("resultMonGrouping");
     }
-    
+
     @Test
     public void setlocaleJPEncodingCurrencyFallback() {
         settableInit();
@@ -310,58 +310,77 @@ public class _localeTest {
         assertEquals(new PyString("JPY"), result);
     }
        
-    private String byteStr(byte[] bytes){
+    /**
+     * We use the unconventional "~h" as a byte marker, rather than say \x, to show the conversion
+     * happens in this unit test, when troubleshooting.
+     */
+    private String byteStr(byte[] bytes, boolean lePadding) {
         StringBuffer sb = new StringBuffer();
-        for (int i=0; i<bytes.length; i++){
+        for (int i = 0; i < bytes.length; i++) {
             sb.append("~h");
             sb.append(Integer.toHexString(bytes[i]));
+            if (lePadding)
+                sb.append("~h0");
         }
         return sb.toString();
     }
     
-    private String utf16ByteStr(String in) {
-        return byteStr( in.getBytes(StandardCharsets.UTF_16) );
+    private String utf16LEByteStr(String in, boolean lePadding) {
+        return byteStr(in.getBytes(StandardCharsets.UTF_16LE), lePadding);
     }
 
-    private void assertDictValueEquals(PyDictionary dict, String expectedValue, String key) {
-        assertEquals(new PyUnicode(expectedValue),  
-                dict.__getitem__( new PyString(key) ));
+    private void assertDictValueEquals(PyDictionary dict, String expectedValue,
+            String key) {
+        assertEquals(new PyUnicode(expectedValue),
+                dict.__getitem__(new PyString(key)));
     }
 
-    private void assertDictBytesEquals(PyDictionary dict, String expectedStr, String key) {
-        PyString value = (PyString)dict.__getitem__( new PyString(key) );
-        assertEquals( utf16ByteStr(expectedStr),  
-                      byteStr( value.getString().getBytes() ) );
-    }    
-    
+    /**
+     * Assert byte transcription equality for the PyString found in {@code}dict{code} using
+     * {@code}key{code} under encoding utf-16le
+     */
+    private void assertDictUTF16LEEquals(PyDictionary dict, String expectedStr,
+            String key) {
+        PyString value = (PyString)dict.__getitem__(new PyString(key));
+        // PyString applies zero padding, we need to add it to Java String to compare
+        assertEquals(utf16LEByteStr(expectedStr,       true),
+                     utf16LEByteStr(value.getString(), false));
+    }
+
     @Test
-    public void encodingSignSeparatorFallback() {
+    public void utf16EncodingAndFallback() {
         // Chinese Finland is not usually found in locale databases
-        Locale unicodeMockLocale = new Locale.Builder().setLanguage("zh").setRegion("FI").build();
-        DecimalFormat df = (DecimalFormat)DecimalFormat.getInstance(unicodeMockLocale);
-        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols(); 
-        dfs.setMinusSign( '\u2212'); 
+        // So this lets us create our own locale with unusual symbols
+        Locale unicodeMockLocale =
+                new Locale.Builder().setLanguage("zh").setRegion("FI").build();
+        DecimalFormat df =
+                (DecimalFormat)DecimalFormat.getInstance(unicodeMockLocale);
+        DecimalFormatSymbols dfs = df.getDecimalFormatSymbols();
         // no locale uses these, it is to trigger fallbacks
-        dfs.setGroupingSeparator( '\u65E0' );
-        dfs.setDecimalSeparator( '\u70B9' );
+        dfs.setMinusSign('\u2212');
+        dfs.setGroupingSeparator('\u65E0');
+        dfs.setDecimalSeparator('\u70B9');
         df.setDecimalFormatSymbols(dfs);
+        // Fallback case
         PyDictionary dict = JyLocale.localeConvForFormat(df, df, "ISO8859-1");
         assertDictValueEquals(dict, "-", "negative_sign");
         assertDictValueEquals(dict, ".", "decimal_point");
         assertDictValueEquals(dict, "", "thousands_sep");
         assertDictValueEquals(dict, "", "mon_thousands_sep");
-        dict = JyLocale.localeConvForFormat(df, df, "utf-16");
-        assertDictBytesEquals(dict, "\u2212", "negative_sign");
-        assertDictBytesEquals(dict, "\u70B9", "decimal_point");
-        assertDictBytesEquals(dict, "\u65E0", "thousands_sep");
-        assertDictBytesEquals(dict, "\u65E0", "mon_thousands_sep");
+        // Check happy path where values are compatible with the encoding
+        dict = JyLocale.localeConvForFormat(df, df, "utf-16le");
+        assertDictUTF16LEEquals(dict, "\u2212", "negative_sign");
+        assertDictUTF16LEEquals(dict, "\u70B9", "decimal_point");
+        assertDictUTF16LEEquals(dict, "\u65E0", "thousands_sep");
+        assertDictUTF16LEEquals(dict, "\u65E0", "mon_thousands_sep");
     }
-    
+
     @Test
     public void negativeSignPosition() {
         // per documentation for Python locale module
         Locale locale = Locale.forLanguageTag("en-US");
-        DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat df =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setNegativePrefix("($"); // ($123) as in en-US Java 8
         df.setNegativeSuffix(")");
         assertEquals(0, JyLocale.negativeSignPosition(df));
@@ -379,8 +398,8 @@ public class _localeTest {
         df.setNegativePrefix("CHF"); // CHF123- as in German Swiss Francs
         df.setNegativeSuffix("-");   // Python de_CH.ISO8859-1
         assertEquals(4, JyLocale.negativeSignPosition(df));
-        df.setNegativePrefix("¤ "); // U0164  fy Western Frisian is the only Python
-        df.setNegativeSuffix("-"); // example of 2, and appears identical to 4
+        df.setNegativePrefix("¤ "); // U0164 fy Western Frisian is the only Python
+        df.setNegativeSuffix("-");  // example of 2, and appears identical to 4
         assertEquals(4, JyLocale.negativeSignPosition(df));
         df.setNegativePrefix(""); // 123 as in empty locales
         df.setNegativeSuffix("");
@@ -390,7 +409,8 @@ public class _localeTest {
     @Test
     public void positiveCurrencyPrecedesValue() {
         Locale locale = Locale.forLanguageTag("en-US");
-        DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat df =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setPositivePrefix("$"); // $123 as in en-US Java 8
         df.setPositiveSuffix("");
         assertEquals(1, JyLocale.positiveCurrencyPrecedesValue(df));
@@ -402,7 +422,8 @@ public class _localeTest {
     @Test
     public void negativeCurrencyPrecedesValue() {
         Locale locale = Locale.forLanguageTag("en-US");
-        DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat df =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setNegativePrefix("($"); // ($123) as in en-US Java 8
         df.setNegativeSuffix(")");
         assertEquals(1, JyLocale.negativeCurrencyPrecedesValue(df));
@@ -414,7 +435,8 @@ public class _localeTest {
     @Test
     public void positiveSeparatedBySpace() {
         Locale locale = Locale.forLanguageTag("en-US");
-        DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat df =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         df.setPositivePrefix("$"); // $123 as in en-US Java 8
         df.setPositiveSuffix("");
         assertEquals(0, JyLocale.positiveSeparatedBySpace(df));
@@ -426,7 +448,8 @@ public class _localeTest {
     @Test
     public void negativeSeparatedBySpace() {
         Locale locale = Locale.forLanguageTag("de-DE");
-        DecimalFormat df = (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
+        DecimalFormat df =
+                (DecimalFormat)NumberFormat.getCurrencyInstance(locale);
         // Many Java locales use U+00A0, non-breaking space, for spacing,
         // rather than " "
         assertEquals(1, JyLocale.negativeSeparatedBySpace(df));
@@ -507,12 +530,12 @@ public class _localeTest {
     public void strCompareUS() {
         settableInit();
         _locale.setlocale(_locale.LC_ALL, new PyString("en_US"));
-        assertEquals(-1, _locale.strcoll( new PyString("aaa"), 
-                new PyString("baa") ) );
-        assertEquals(1, _locale.strcoll( new PyString("baa"), 
-                       new PyString("aaa" ) ) );
-        assertEquals(0, _locale.strcoll( new PyString("knight"), 
-                       new PyString("knight" ) ) );
+        assertEquals(-1,
+                _locale.strcoll(new PyString("aaa"), new PyString("baa")));
+        assertEquals(1,
+                _locale.strcoll(new PyString("baa"), new PyString("aaa")));
+        assertEquals(0, _locale.strcoll(new PyString("knight"),
+                new PyString("knight")));
     }
 
     @Test

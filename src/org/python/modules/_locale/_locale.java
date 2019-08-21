@@ -43,7 +43,7 @@ import static org.python.core.RegistryKey.PYTHON_LOCALE_CONTROL;
  * {@code '\xe2\x82\xac'}. This can be used by {@code print()} and related functions directly.
  * Encoding failures for {@code currency_symbol} fall back to {@code int_curr_symbol} (eg EUR).
  * Encoding failures for {@code negative_sign}, which are sometimes unicode, fall back to an ANSI
- * hyphen ('-'). Other encoding failures do not have fallbacks, for lack of a clear default.
+ * hyphen ('-'). Other encoding failures fallback to the 'C' locale values, where possible.
  * <p>
  * The C emulation locale uses only ANSI characters in non-unicode strings, in keeping with it
  * being the locale of last resort and maximum compatibility.
@@ -111,9 +111,8 @@ public class _locale implements ClassDictInit {
     public static final String LOCALE_CONTROL_JYTHON2_LEGACY = "jython2_legacy";
 
     // These values are the same as glibc locale/bits/locale.h
-    // Specific integer constants are not mandated by the POSIX locale spec,
-    // so an existing standard seemed as good an arbitrary set of values as
-    // any
+    // Specific integer constants are not mandated by the POSIX locale spec, so an existing
+    // standard seemed as good an arbitrary set of values as any
     private static final int __LC_CTYPE = 0;
     private static final int __LC_NUMERIC = 1;
     private static final int __LC_TIME = 2;
@@ -151,14 +150,12 @@ public class _locale implements ClassDictInit {
 
     private static final Set<Locale> AVAILABLE_LOCALES;
 
-    // Failsafe for date symbols only. Insufficient for full locale module
-    // behaviour.
-    private static final DateSymbolLocale DEFAULT_LOCALE = 
-            new DateSymbolJyLocale( Locale.getDefault() ) ;
+    // Failsafe for date symbols only. Insufficient for full locale module behaviour.
+    private static final DateSymbolLocale DEFAULT_LOCALE =
+            new DateSymbolJyLocale(Locale.getDefault());
 
-    // This has a subtle initialization dependency on the codecs module
-    // due to the initialization in JyLocale(). Let the interpreter
-    // initialize via classDictInit().
+    // This has a subtle initialization dependency on the codecs module due to the initialization
+    // in JyLocale(). Let the interpreter initialize via classDictInit().
     private static volatile PyLocale currentLocale = null;
 
     static {
@@ -178,8 +175,8 @@ public class _locale implements ClassDictInit {
         });
     }
 
-    // This is used when the module is first initialized, or when simulating re-initialization 
-    // from tests
+    // This is used when the module is first initialized, or when simulating re-initialization from
+    // tests
     public static void classDictInit(PyObject dict) {
         dict.__setitem__("Error", Error);
         try {
@@ -209,41 +206,44 @@ public class _locale implements ClassDictInit {
     }
 
     /**
-     * Put {@code key} mapping to {@code value} into {@code result}, converting to 
+     * Put {@code key} mapping to {@code value} into {@code result}, converting to
      * {@code PyString}s as needed
      */
     protected static void putConvEntry(PyDictionary result, String key,
             String value) {
         try {
             result.put(new PyString(key), new PyString(value));
-        }catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException( iae.getMessage() + " for key " + key); 
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException(
+                    iae.getMessage() + " for key " + key);
         }
     }
 
     /**
-     * Put {@code key} mapping to {@code value} into {@code result}, converting to 
+     * Put {@code key} mapping to {@code value} into {@code result}, converting to
      * {@code PyString}s as needed
-     */    
+     */
     protected static void putConvEntry(PyDictionary result, String key,
             char value) {
         try {
             result.put(new PyString(key), new PyString(value));
-        }catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException( iae.getMessage() + " for key " + key); 
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException(
+                    iae.getMessage() + " for key " + key);
         }
     }
 
     /**
-     * Put {@code key} mapping to {@code value} into {@code result}, converting 
-     * {@code key} to {@code PyString}.
-     */    
+     * Put {@code key} mapping to {@code value} into {@code result}, converting {@code key} to
+     * {@code PyString}.
+     */
     protected static void putConvEntry(PyDictionary result, String key,
             PyObject value) {
         try {
             result.put(new PyString(key), value);
-        }catch (IllegalArgumentException iae) {
-            throw new IllegalArgumentException( iae.getMessage() + " for key " + key); 
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException(
+                    iae.getMessage() + " for key " + key);
         }
     }
 
@@ -305,13 +305,12 @@ public class _locale implements ClassDictInit {
     public static PyString setlocale(PyInteger category) {
         return currentLocale.getLocaleString();
     }
-    
+
     /**
-     * Java Locale loading behaviour is quite forgiving, or uninformative,
-     * depending on your perspective. It will return a dummy locale for any
-     * language tag that fits the syntax, or make various attempts to
-     * approximate a locale. This solution instead follows the stricter Python
-     * behaviour of requiring a particular locale to be installed.
+     * Java Locale loading behaviour is quite forgiving, or uninformative, depending on your
+     * perspective. It will return a dummy locale for any language tag that fits the syntax, or
+     * make various attempts to approximate a locale. This solution instead follows the stricter
+     * Python behaviour of requiring a particular locale to be installed.
      */
     public static PyString setlocale(PyInteger category, PyString locale) {
         Py.writeDebug("_locale", "setlocale(category,locale==" + locale + ")");
@@ -329,9 +328,9 @@ public class _locale implements ClassDictInit {
             changeCurrentLocaleToC();
             return C_LOCALE_PY_STRING;
         }
-        if (locale.equals( new PyString("") )) {
+        if (locale.equals(new PyString(""))) {
             changeCurrentLocaleToDefault();
-        }else {
+        } else {
             changeLocaleFromLocaleString(locale);
         }
         return currentLocale.getLocaleString();
@@ -357,11 +356,12 @@ public class _locale implements ClassDictInit {
         Locale newLocale = loadLocale(language);
         if (!isAvailableLocale(newLocale)) {
             String underscoreAlias = language.replace('_', '-');
-            // Not only are these often switched in Java, Locale.toLanguageTag() uses "-"
-            // and Locale.toString() uses "_"
+            // Not only are these often switched in Java, Locale.toLanguageTag() uses "-" and
+            // Locale.toString() uses "_"
             newLocale = loadLocale(underscoreAlias);
             if (!isAvailableLocale(newLocale)) {
-                throw LocaleException("unsupported locale setting: " + locale.toString());
+                throw LocaleException(
+                        "unsupported locale setting: " + locale.toString());
             }
         }
         changeCurrentLocale(new JyLocale(newLocale, encoding));
@@ -392,9 +392,8 @@ public class _locale implements ClassDictInit {
     }
 
     /**
-     * Current {@code DateSymbolLocale} used by the Python interpreter. This object
-     * will no longer reflect the current state after subsequent calls 
-     * to {@code setlocale}.
+     * Current {@code DateSymbolLocale} used by the Python interpreter. This object will no longer
+     * reflect the current state after subsequent calls to {@code setlocale}.
      */
     public static DateSymbolLocale getDateSymbolLocale() {
         if (currentLocale == null) {

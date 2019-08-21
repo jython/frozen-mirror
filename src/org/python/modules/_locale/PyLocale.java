@@ -7,9 +7,8 @@ import org.python.core.PyDictionary;
 import org.python.core.PyString;
 
 /**
- * Definition of a Python native locale implementation. Based on Python locale
- * module behaviour and implicit dependencies, and the {@code _localemodule.c}
- * implementation in CPython.
+ * Definition of a Python native locale implementation. Based on Python locale module behaviour and
+ * implicit dependencies, and the {@code _localemodule.c} implementation in CPython.
  * 
  * It is recommended classes implementing this interface are made immutable.
  * 
