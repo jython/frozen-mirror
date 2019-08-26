@@ -467,7 +467,8 @@ informix.jar = ../support/jdbc-4.10.12.jar
         </condition>
     </target>
 
-    <target name="hg-metadata" depends="hg-present">
+    <target name="hg-metadata" depends="hg-present" 
+                if="${hg.present}">
         <!-- Get the branch, version (meaning identity) and tag of the change set. -->
         <exec executable="hg" outputproperty="build.hg.branch">
             <arg line="identify -b"/>
