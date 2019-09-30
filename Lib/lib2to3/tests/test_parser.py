@@ -13,6 +13,7 @@ from . import support
 from .support import driver, test_dir
 
 # Python imports
+import binascii
 import os
 import sys
 
@@ -169,8 +170,10 @@ class TestParserIdempotency(support.TestCase):
                 source = source.decode(encoding)
             tree = driver.parse_string(source)
             new = unicode(tree)
-            if diff(filepath, new, encoding):
-                self.fail("Idempotency failed: %s" % filepath)
+            diffResult = diff(filepath, new, encoding)
+            if diffResult:
+                self.fail("Idempotency failed: {} using {} encoding\n{}".
+                        format(filepath,encoding,diffResult) )
 
     def test_extended_unpacking(self):
         driver.parse_string("a, *b, c = x\n")
@@ -212,12 +215,33 @@ class TestLiterals(GrammarTest):
         self.validate(s)
 
 
+
 def diff(fn, result, encoding):
-    "A diff the result and original file content independent of OS."
+    """Diff the result and original file content independent of OS. This 
+    implementation is in Jython only. CPython 2.x calls out to the shell diff
+    command. CPython 3.x str equality behaviour is simpler and should allow
+    this test file to be replaced wholesale in Jython 3.x."""
     r = iter(result.encode(encoding).splitlines(True))
-    with open(fn, "rb") as f:
+    lineNumber = 0
+    with open(fn, "r") as f:
         for line in f:
+            lineNumber += 1
             rline = next(r)
             if rline != line:
-                return True
+                return "original line {}:\n{}\n differs from:\n{}\n{}". \
+                       format(lineNumber,line,rline,diffLine(line,rline) )
     return False
+
+def diffLine(orig,result):
+    charNumber = 0
+    for c in orig:
+        if c != result[charNumber]:
+            return "Lines differ at char {}: {} vs {} (of {} vs {})".format(
+                    charNumber,
+                    binascii.hexlify(c),
+                    binascii.hexlify(result[charNumber]),
+                    len(orig),
+                    len(result) )
+        charNumber += 1
+
+
