@@ -368,13 +368,13 @@ def diff(fn, result, encoding):
     this test file to be replaced wholesale in Jython 3.x."""
     r = iter(result.encode(encoding).splitlines(True))
     lineNumber = 0
-    with open(fn, "r") as f:
+    with open(fn, "rbU") as f:
         for line in f:
             lineNumber += 1
             rline = next(r)
             if rline != line:
                 return "original line {}:\n{}\n differs from:\n{}\n{}". \
-                       format(lineNumber,line,rline,diffLine(line,rline) )
+                       format(lineNumber, line, rline, diffLine(line, rline) )
     return False
 
 def diffLine(orig,result):
