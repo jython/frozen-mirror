@@ -20,7 +20,7 @@ public abstract class PyBuiltinMethodNarrow extends PyBuiltinMethod {
      * <code>maxArgs</code> arguments.
      */
     protected PyBuiltinMethodNarrow(String name, int minArgs, int maxArgs) {
-        super(null, new DefaultInfo(name, minArgs, maxArgs));
+        super(null, new DefaultInfo(name, minArgs-1, maxArgs-1));
     }
 
     protected PyBuiltinMethodNarrow(PyObject self, Info info) {
