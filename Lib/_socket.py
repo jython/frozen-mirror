@@ -1566,6 +1566,12 @@ def create_connection(address, timeout=_GLOBAL_DEFAULT_TIMEOUT,
     for the socket to bind as a source address before making the connection.
     An host of '' or port 0 tells the OS to use the default.
     """
+    # Added check to recreate thread pool if it is already shutdown
+    if NIO_GROUP.isShutdown():
+        log.debug("Theard pool is shutdown. Recreating...")
+        global NIO_GROUP
+        NIO_GROUP = NioEventLoopGroup(_NUM_THREADS, DaemonThreadFactory("Jython-Netty-Client-%s"))
+        sys.registerCloser(_shutdown_threadpool)
 
     host, port = address
     err = None
