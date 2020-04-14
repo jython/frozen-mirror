@@ -130,7 +130,11 @@ public class PosixModule implements ClassDictInit {
         try {
             nativePosix = posix.isNative();
             dict.__setitem__("_native_posix", Py.newBoolean(nativePosix));
-            dict.__setitem__("_posix_impl", Py.java2py(posix));
+            PyObject posixImpl = Py.java2py(posix);
+            dict.__setitem__("_posix_impl", posixImpl);
+            dict.__setitem__("execv", posixImpl.__getattr__("execv"));
+            dict.__setitem__("execve", posixImpl.__getattr__("execve"));
+            dict.__setitem__("fork", posixImpl.__getattr__("fork"));
         } catch (SecurityException ex) {}
 
         dict.__setitem__("environ", getEnviron());
