@@ -1,51 +1,37 @@
+# https://docs.travis-ci.com/user/languages/java
+os: linux
+dist: xenial
 language: java
 
 addons:
   hostname: jyshort
-
-  homebrew: # only active on osx
+  apt:       # only active on linux
+    packages:
+      - ant
+  homebrew:  # only active on osx
     update: true
     packages:
       - ant
 
-
-matrix:
+jdk:
+  - openjdk8
+  - openjdk11
+  - openjdk12
+  - openjdk13
+  - openjdk14
+  - openjdk15
+  
+jobs:
   include:
-    - os: linux
-      dist: xenial
-      addons:
-        apt:
-          packages:
-            - ant
-      jdk: openjdk8
-
-    - os: linux
-      dist: xenial
-      addons:
-        apt:
-          packages:
-            - ant
-      jdk: openjdk11
-
-    - os: linux
-      dist: xenial
-      addons:
-        apt:
-          packages:
-            - ant
-      jdk: openjdk12
-
     - os: osx
       osx_image: xcode9.3 # Last supporting Java 8
       jdk: oraclejdk8
+    - os: osx
+      osx_image: xcode11.4
+      jdk: openjdk14
 
-
-install:
-  - ant developer-build
-
-
-script:
-  - ant regrtest-travis
+install: ant developer-build
+script: ant regrtest-travis
 
 notifications:
   email:
